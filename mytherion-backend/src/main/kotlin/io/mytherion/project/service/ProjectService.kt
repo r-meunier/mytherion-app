@@ -1,9 +1,11 @@
 package io.mytherion.project.service
 
+import io.mytherion.entry.repository.EntryRepository
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
 import io.mytherion.project.dto.UpdateProjectRequest
 import io.mytherion.project.exception.ProjectAccessDeniedException
+import io.mytherion.project.exception.ProjectHasEntriesException
 import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
@@ -19,7 +21,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class ProjectService(
         private val projectRepository: ProjectRepository,
-        private val userRepository: UserRepository
+        private val userRepository: UserRepository,
+        private val entryRepository: EntryRepository
 ) {
 
     // TEMP: hard-coded user until auth is in place
@@ -78,6 +81,13 @@ class ProjectService(
         val user = getCurrentUser()
         val project = projectRepository.findById(id).orElseThrow { ProjectNotFoundException(id) }
         verifyOwnership(project, user)
+
+        // Check if project has entries before deleting
+        val entryCount = entryRepository.findAllByProject(project).size
+        if (entryCount > 0) {
+            throw ProjectHasEntriesException(id, entryCount)
+        }
+
         projectRepository.delete(project)
     }
 }

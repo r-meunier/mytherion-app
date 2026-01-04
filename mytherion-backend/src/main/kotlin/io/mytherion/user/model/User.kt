@@ -13,8 +13,11 @@ class User(
         @Column(nullable = false, unique = true) var username: String,
         @Column(name = "password_hash", nullable = false) var passwordHash: String,
         @Enumerated(EnumType.STRING) @Column(nullable = false) var role: UserRole = UserRole.USER,
-        @Column(name = "created_at", nullable = false) var createdAt: Instant = Instant.now()
-)
+        @Column(name = "created_at", nullable = false) val createdAt: Instant = Instant.now(),
+        @Column(name = "deleted_at") var deletedAt: Instant? = null
+) {
+    fun isDeleted(): Boolean = deletedAt != null
+}
 
 enum class UserRole {
     USER,
