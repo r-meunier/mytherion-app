@@ -23,10 +23,11 @@ class ProjectService(
 ) {
 
     // TEMP: hard-coded user until auth is in place
-    private fun getCurrentUser() =
-            userRepository.findById(1L).orElseThrow {
-                IllegalStateException("Demo user with id=1 not found. Create it manually for now.")
-            }
+    private fun getCurrentUser(): User {
+        return userRepository.findById(1L).orElseThrow {
+            IllegalStateException("Demo user with id=1 not found. Create it manually for now.")
+        }
+    }
 
     /** Verify that the current user owns the given project */
     private fun verifyOwnership(project: Project, currentUser: User) {

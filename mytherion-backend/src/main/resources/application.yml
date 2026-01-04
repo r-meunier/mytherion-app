@@ -29,3 +29,9 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.springframework: info
+
+app:
+  security:
+    jwt:
+      secret: 'change-me-to-a-long-random-secret-at-least-32-chars'
+      access-token-minutes: 60
