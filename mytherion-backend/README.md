@@ -23,11 +23,13 @@ development setup.
 
 ## Project Status
 
-⚠️ **Early MVP / Active Development**
+✅ **MVP with Authentication**
 
-- Schema and migrations may change
-- Authentication is not finalized yet
-- Data reset during development is expected
+- Core authentication implemented (JWT with httpOnly cookies)
+- User registration and login functional
+- Project CRUD operations complete
+- Schema stable for current features
+- Ready for additional features
 
 ---
 
@@ -95,11 +97,13 @@ Flyway will re-run migrations on startup.
 ### 4. Run the application
 
 #### Option A: via Gradle
+
 ```bash
 ./gradlew bootRun
 ```
 
 #### Option B: via IntelliJ
+
 Run `MytherionApplication.kt`
 
 ---
@@ -158,18 +162,31 @@ src/main/kotlin/io/mytherion
 
 ## Current Features
 
-- PostgreSQL schema managed via Flyway
-- Project creation and listing
-- Entry model groundwork (characters, locations, etc.)
-- Health endpoint
-- Dockerized local database
+- **Authentication System**
+  - JWT-based authentication with httpOnly cookies
+  - User registration and login
+  - Secure password hashing (BCrypt)
+  - Session persistence
+  - CSRF protection (SameSite=Strict cookies)
+- **Project Management**
+  - Project creation and listing
+  - Project CRUD operations
+  - User-scoped projects
+- **Database**
+  - PostgreSQL schema managed via Flyway
+  - Dockerized local database
+- **API**
+  - Health endpoint
+  - RESTful API design
 
 ---
 
 ## Planned Features
 
-- Authentication (JWT)
-- Entry CRUD endpoints
+- Entry CRUD endpoints (characters, locations, cultures, etc.)
+- Password reset and email verification
+- Two-factor authentication
+- Rate limiting
 - Tagging and search
 - Image uploads
 - Relationship mapping
