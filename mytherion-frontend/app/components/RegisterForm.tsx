@@ -18,6 +18,8 @@ export default function RegisterForm() {
     confirmPassword: "",
   });
 
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+
   const [validationErrors, setValidationErrors] = useState<{
     email?: string;
     username?: string;
@@ -87,7 +89,8 @@ export default function RegisterForm() {
     );
 
     if (registerUser.fulfilled.match(result)) {
-      router.push("/");
+      // Show success message instead of redirecting
+      setRegistrationSuccess(true);
     }
   };
 
@@ -100,6 +103,45 @@ export default function RegisterForm() {
       setValidationErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
+
+  // Show success message after registration
+  if (registrationSuccess) {
+    return (
+      <div className="w-full max-w-md">
+        <div className="p-8 bg-slate-800/40 backdrop-blur-sm border border-purple-500/30 rounded-lg shadow-xl">
+          <div className="text-center">
+            <div className="mb-6">
+              <div className="mx-auto w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
+                <svg className="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
+                </svg>
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-green-400 mb-4">Check Your Email!</h2>
+            <p className="text-purple-200 mb-2">
+              We've sent a verification email to:
+            </p>
+            <p className="text-purple-100 font-semibold mb-6">{formData.email}</p>
+            <p className="text-purple-300/80 text-sm mb-6">
+              Click the link in the email to verify your account and complete registration.
+              The link will expire in 24 hours.
+            </p>
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-6">
+              <p className="text-yellow-200 text-sm">
+                <strong>Note:</strong> You must verify your email before you can log in.
+              </p>
+            </div>
+            <Link
+              href="/login"
+              className="inline-block w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-500 hover:to-blue-500 transition-all"
+            >
+              Go to Login
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-md">

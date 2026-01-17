@@ -58,6 +58,29 @@ export const checkAuth = createAsyncThunk(
   }
 );
 
+export const verifyEmail = createAsyncThunk(
+  "auth/verifyEmail",
+  async (token: string, { rejectWithValue }) => {
+    try {
+      const user = await authService.verifyEmail(token);
+      return user;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Email verification failed");
+    }
+  }
+);
+
+export const resendVerification = createAsyncThunk(
+  "auth/resendVerification",
+  async (email: string, { rejectWithValue }) => {
+    try {
+      await authService.resendVerification(email);
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to resend verification email");
+    }
+  }
+);
+
 // Auth slice
 const authSlice = createSlice({
   name: "auth",
@@ -75,13 +98,15 @@ const authSlice = createSlice({
     // Register
     builder
       .addCase(registerUser.pending, (state) => {
-        state.isLoading = true;
+        state.isLoading = false;
         state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, action: PayloadAction<User>) => {
         state.isLoading = false;
-        state.user = action.payload;
-        state.isAuthenticated = true;
+        // Hard enforcement: Do NOT authenticate user on registration
+        // User must verify email before they can login
+        state.user = null;
+        state.isAuthenticated = false;
         state.error = null;
       })
       .addCase(registerUser.rejected, (state, action) => {
@@ -138,6 +163,38 @@ const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
         state.error = null; // Don't show error for failed auth check
+      });
+
+    // Verify Email
+    builder
+      .addCase(verifyEmail.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(verifyEmail.fulfilled, (state, action: PayloadAction<User>) => {
+        state.isLoading = false;
+        state.user = action.payload;
+        state.isAuthenticated = true;
+        state.error = null;
+      })
+      .addCase(verifyEmail.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Resend Verification
+    builder
+      .addCase(resendVerification.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(resendVerification.fulfilled, (state) => {
+        state.isLoading = false;
+        state.error = null;
+      })
+      .addCase(resendVerification.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });

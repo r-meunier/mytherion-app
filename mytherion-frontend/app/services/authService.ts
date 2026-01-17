@@ -1,4 +1,5 @@
 import { User, RegisterRequest, LoginRequest } from "../types/auth";
+import { parseErrorMessage } from "../utils/errorMessages";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
@@ -18,7 +19,7 @@ class AuthService {
 
     if (!response.ok) {
       const error = await response.text();
-      throw new Error(error || "Registration failed");
+      throw new Error(parseErrorMessage(error || "Registration failed"));
     }
 
     return response.json();
@@ -39,7 +40,7 @@ class AuthService {
 
     if (!response.ok) {
       const error = await response.text();
-      throw new Error(error || "Login failed");
+      throw new Error(parseErrorMessage(error || "Login failed"));
     }
 
     return response.json();
@@ -55,7 +56,7 @@ class AuthService {
     });
 
     if (!response.ok) {
-      throw new Error("Logout failed");
+      throw new Error(parseErrorMessage("Logout failed"));
     }
   }
 
@@ -69,10 +70,42 @@ class AuthService {
     });
 
     if (!response.ok) {
-      throw new Error("Not authenticated");
+      throw new Error(parseErrorMessage("Not authenticated"));
     }
 
     return response.json();
+  }
+
+  /**
+   * Verify email with token
+   */
+  async verifyEmail(token: string): Promise<User> {
+    const response = await fetch(`${API_URL}/api/auth/verify-email?token=${token}`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(parseErrorMessage(error || "Email verification failed"));
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Resend verification email
+   */
+  async resendVerification(email: string): Promise<void> {
+    const response = await fetch(`${API_URL}/api/auth/resend-verification?email=${encodeURIComponent(email)}`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(parseErrorMessage(error || "Failed to resend verification email"));
+    }
   }
 }
 
