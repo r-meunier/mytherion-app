@@ -41,8 +41,8 @@ class SecurityConfig(private val jwtAuthFilter: JwtAuthFilter) {
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
 
-        // Allow frontend origin (localhost:3000 for Next.js dev server)
-        configuration.allowedOrigins = listOf("http://localhost:3000")
+        // Allow frontend origin (localhost:3000 and 3001 for Next.js dev server)
+        configuration.allowedOrigins = listOf("http://localhost:3000", "http://localhost:3001")
 
         // Allow credentials (cookies)
         configuration.allowCredentials = true
