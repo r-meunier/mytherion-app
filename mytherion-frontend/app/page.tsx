@@ -1,55 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAppDispatch } from "./store/hooks";
+import { checkAuth } from "./store/authSlice";
+import Navbar from "./components/Navbar";
 
 export default function Home() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const dispatch = useAppDispatch();
+
+  // Check authentication status on mount
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-[#190525] to-slate-900">
       {/* Animated background overlay */}
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#190525]/20 via-transparent to-blue-900/20 pointer-events-none"></div>
       
-      {/* Sticky Top Navbar */}
-      <nav className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-purple-500/20 shadow-lg shadow-purple-500/10">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-4">
-            {/* Sidebar Toggle Button */}
-            <button
-              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className="p-2 rounded-lg hover:bg-purple-500/20 transition-colors"
-              aria-label="Toggle sidebar"
-            >
-              <svg
-                className="w-6 h-6 text-purple-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-            
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Mytherion
-            </h1>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <button className="px-4 py-2 text-sm font-medium text-purple-300 hover:text-purple-100 transition-colors">
-              Profile
-            </button>
-            <button className="px-4 py-2 text-sm font-medium text-purple-300 hover:text-purple-100 transition-colors">
-              Settings
-            </button>
-          </div>
-        </div>
-      </nav>
+      {/* Navbar */}
+      <Navbar onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
 
       {/* Main Layout Container */}
       <div className="flex relative">
