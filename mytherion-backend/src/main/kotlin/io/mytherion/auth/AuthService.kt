@@ -16,54 +16,91 @@ class AuthService(
         private val jwtService: JwtService
 ) {
 
-    @Transactional
-    fun register(req: AuthDTO.RegisterRequest): AuthDTO.AuthResponse {
-        if (userRepository.existsByEmail(req.email)) {
-            throw IllegalArgumentException("Email already in use")
+        @Transactional
+        fun register(req: AuthDTO.RegisterRequest): AuthDTO.AuthResponse {
+                if (userRepository.existsByEmail(req.email)) {
+                        throw IllegalArgumentException("Email already in use")
+                }
+                if (userRepository.existsByUsername(req.username)) {
+                        throw IllegalArgumentException("Username already in use")
+                }
+
+                val encodedPassword =
+                        passwordEncoder.encode(req.password)
+                                ?: throw IllegalArgumentException("Password must not be null")
+
+                val user =
+                        User(
+                                email = req.email.lowercase(),
+                                username = req.username,
+                                passwordHash = encodedPassword,
+                                role = UserRole.USER
+                        )
+
+                val saved = userRepository.save(user)
+
+                val token =
+                        jwtService.generateAccessToken(
+                                userId = saved.id!!,
+                                email = saved.email,
+                                role = saved.role.name
+                        )
+
+                val userResponse =
+                        AuthDTO.UserResponse(
+                                id = saved.id!!,
+                                email = saved.email,
+                                username = saved.username,
+                                role = saved.role.name
+                        )
+
+                return AuthDTO.AuthResponse(accessToken = token, user = userResponse)
         }
-        if (userRepository.existsByUsername(req.username)) {
-            throw IllegalArgumentException("Username already in use")
+
+        @Transactional(readOnly = true)
+        fun login(req: AuthDTO.LoginRequest): AuthDTO.AuthResponse {
+                val user =
+                        userRepository.findByEmailAndDeletedAtIsNull(req.email.lowercase())
+                                ?: throw IllegalArgumentException("Invalid credentials")
+
+                if (!passwordEncoder.matches(req.password, user.passwordHash)) {
+                        throw IllegalArgumentException("Invalid credentials")
+                }
+
+                val token =
+                        jwtService.generateAccessToken(
+                                userId = user.id!!,
+                                email = user.email,
+                                role = user.role.name
+                        )
+
+                val userResponse =
+                        AuthDTO.UserResponse(
+                                id = user.id!!,
+                                email = user.email,
+                                username = user.username,
+                                role = user.role.name
+                        )
+
+                return AuthDTO.AuthResponse(accessToken = token, user = userResponse)
         }
 
-        val encodedPassword =
-                passwordEncoder.encode(req.password)
-                        ?: throw IllegalArgumentException("Password must not be null")
+        @Transactional(readOnly = true)
+        fun getUserById(userId: Long): AuthDTO.UserResponse {
+                val user =
+                        userRepository.findById(userId).orElseThrow {
+                                IllegalArgumentException("User not found")
+                        }
 
-        val user =
-                User(
-                        email = req.email.lowercase(),
-                        username = req.username,
-                        passwordHash = encodedPassword,
-                        role = UserRole.USER
-                )
+                if (user.isDeleted()) {
+                        throw IllegalArgumentException("User not found")
+                }
 
-        val saved = userRepository.save(user)
-
-        val token =
-                jwtService.generateAccessToken(
-                        userId = saved.id!!,
-                        email = saved.email,
-                        role = saved.role.name
-                )
-        return AuthDTO.AuthResponse(accessToken = token)
-    }
-
-    @Transactional(readOnly = true)
-    fun login(req: AuthDTO.LoginRequest): AuthDTO.AuthResponse {
-        val user =
-                userRepository.findByEmailAndDeletedAtIsNull(req.email.lowercase())
-                        ?: throw IllegalArgumentException("Invalid credentials")
-
-        if (!passwordEncoder.matches(req.password, user.passwordHash)) {
-            throw IllegalArgumentException("Invalid credentials")
-        }
-
-        val token =
-                jwtService.generateAccessToken(
-                        userId = user.id!!,
+                return AuthDTO.UserResponse(
+                        id = user.id!!,
                         email = user.email,
+                        username = user.username,
                         role = user.role.name
                 )
-        return AuthDTO.AuthResponse(accessToken = token)
-    }
+        }
 }
