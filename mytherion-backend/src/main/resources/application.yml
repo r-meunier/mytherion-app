@@ -21,6 +21,17 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
     validate-on-migrate: true
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
 
 server:
   port: 8080
@@ -33,5 +44,9 @@ logging:
 app:
   security:
     jwt:
-      secret: 'change-me-to-a-long-random-secret-at-least-32-chars'
+      secret: "change-me-to-a-long-random-secret-at-least-32-chars"
       access-token-minutes: 60
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:3001}
+  email:
+    from: ${EMAIL_FROM:noreply@mytherion.local}

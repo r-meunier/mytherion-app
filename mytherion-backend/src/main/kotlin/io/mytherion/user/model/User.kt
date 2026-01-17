@@ -14,7 +14,8 @@ class User(
         @Column(name = "password_hash", nullable = false) var passwordHash: String,
         @Enumerated(EnumType.STRING) @Column(nullable = false) var role: UserRole = UserRole.USER,
         @Column(name = "created_at", nullable = false) val createdAt: Instant = Instant.now(),
-        @Column(name = "deleted_at") var deletedAt: Instant? = null
+        @Column(name = "deleted_at") var deletedAt: Instant? = null,
+        @Column(name = "email_verified", nullable = false) var emailVerified: Boolean = false
 ) {
     fun isDeleted(): Boolean = deletedAt != null
 }

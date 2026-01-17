@@ -19,7 +19,8 @@ class AuthController(private val authService: AuthService, private val cookieUti
             response: HttpServletResponse
     ): AuthDTO.UserResponse {
         val authResponse = authService.register(req)
-        cookieUtil.addJwtCookie(response, authResponse.accessToken)
+        // Hard enforcement: Do NOT set cookie on registration
+        // User must verify email before they can login
         return authResponse.user
     }
 
@@ -45,5 +46,16 @@ class AuthController(private val authService: AuthService, private val cookieUti
             throw IllegalStateException("User not authenticated")
         }
         return authService.getUserById(userId)
+    }
+
+    @PostMapping("/verify-email")
+    fun verifyEmail(@RequestParam token: String): AuthDTO.UserResponse {
+        return authService.verifyEmail(token)
+    }
+
+    @PostMapping("/resend-verification")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun resendVerification(@RequestParam email: String) {
+        authService.resendVerificationEmailByEmail(email)
     }
 }

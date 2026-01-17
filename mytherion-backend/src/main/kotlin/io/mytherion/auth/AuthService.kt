@@ -13,7 +13,10 @@ import org.springframework.transaction.annotation.Transactional
 class AuthService(
         private val userRepository: UserRepository,
         private val passwordEncoder: PasswordEncoder,
-        private val jwtService: JwtService
+        private val jwtService: JwtService,
+        private val verificationTokenRepository:
+                io.mytherion.auth.repository.EmailVerificationTokenRepository,
+        private val emailService: io.mytherion.email.EmailService
 ) {
 
         @Transactional
@@ -39,6 +42,9 @@ class AuthService(
 
                 val saved = userRepository.save(user)
 
+                // Send verification email
+                sendVerificationEmail(saved)
+
                 val token =
                         jwtService.generateAccessToken(
                                 userId = saved.id!!,
@@ -51,7 +57,8 @@ class AuthService(
                                 id = saved.id!!,
                                 email = saved.email,
                                 username = saved.username,
-                                role = saved.role.name
+                                role = saved.role.name,
+                                emailVerified = saved.emailVerified
                         )
 
                 return AuthDTO.AuthResponse(accessToken = token, user = userResponse)
@@ -67,6 +74,11 @@ class AuthService(
                         throw IllegalArgumentException("Invalid credentials")
                 }
 
+                // Hard enforcement: Require email verification to login
+                if (!user.emailVerified) {
+                        throw IllegalArgumentException("Please verify your email before logging in")
+                }
+
                 val token =
                         jwtService.generateAccessToken(
                                 userId = user.id!!,
@@ -79,7 +91,8 @@ class AuthService(
                                 id = user.id!!,
                                 email = user.email,
                                 username = user.username,
-                                role = user.role.name
+                                role = user.role.name,
+                                emailVerified = user.emailVerified
                         )
 
                 return AuthDTO.AuthResponse(accessToken = token, user = userResponse)
@@ -100,7 +113,90 @@ class AuthService(
                         id = user.id!!,
                         email = user.email,
                         username = user.username,
-                        role = user.role.name
+                        role = user.role.name,
+                        emailVerified = user.emailVerified
                 )
+        }
+
+        @Transactional
+        fun sendVerificationEmail(user: User) {
+                // Delete any existing unverified tokens for this user
+                verificationTokenRepository.deleteByUser(user)
+
+                // Generate new verification token
+                val token = java.util.UUID.randomUUID().toString()
+                val expiresAt =
+                        java.time.Instant.now().plus(24, java.time.temporal.ChronoUnit.HOURS)
+
+                val verificationToken =
+                        io.mytherion.auth.model.EmailVerificationToken(
+                                token = token,
+                                user = user,
+                                expiresAt = expiresAt
+                        )
+
+                verificationTokenRepository.save(verificationToken)
+
+                // Send verification email
+                emailService.sendVerificationEmail(user.email, token)
+        }
+
+        @Transactional
+        fun verifyEmail(token: String): AuthDTO.UserResponse {
+                val verificationToken =
+                        verificationTokenRepository.findByToken(token)
+                                ?: throw IllegalArgumentException("Invalid verification token")
+
+                if (verificationToken.isVerified()) {
+                        throw IllegalArgumentException("Email already verified")
+                }
+
+                if (verificationToken.isExpired()) {
+                        throw IllegalArgumentException("Verification token expired")
+                }
+
+                // Mark token as verified
+                verificationToken.verifiedAt = java.time.Instant.now()
+
+                // Mark user email as verified
+                verificationToken.user.emailVerified = true
+
+                userRepository.save(verificationToken.user)
+                verificationTokenRepository.save(verificationToken)
+
+                return AuthDTO.UserResponse(
+                        id = verificationToken.user.id!!,
+                        email = verificationToken.user.email,
+                        username = verificationToken.user.username,
+                        role = verificationToken.user.role.name,
+                        emailVerified = verificationToken.user.emailVerified
+                )
+        }
+
+        @Transactional
+        fun resendVerificationEmail(userId: Long) {
+                val user =
+                        userRepository.findById(userId).orElseThrow {
+                                IllegalArgumentException("User not found")
+                        }
+
+                if (user.emailVerified) {
+                        throw IllegalArgumentException("Email already verified")
+                }
+
+                sendVerificationEmail(user)
+        }
+
+        @Transactional
+        fun resendVerificationEmailByEmail(email: String) {
+                val user =
+                        userRepository.findByEmailAndDeletedAtIsNull(email.lowercase())
+                                ?: throw IllegalArgumentException("User not found")
+
+                if (user.emailVerified) {
+                        throw IllegalArgumentException("Email already verified")
+                }
+
+                sendVerificationEmail(user)
         }
 }

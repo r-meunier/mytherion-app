@@ -26,7 +26,9 @@ class SecurityConfig(private val jwtAuthFilter: JwtAuthFilter) {
                             .requestMatchers(
                                     "/api/auth/register",
                                     "/api/auth/login",
-                                    "/api/auth/logout"
+                                    "/api/auth/logout",
+                                    "/api/auth/verify-email",
+                                    "/api/auth/resend-verification"
                             )
                             .permitAll()
                             .anyRequest()
