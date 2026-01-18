@@ -4,7 +4,7 @@ import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { registerUser, clearError } from "../store/authSlice";
+import { registerUser, clearError, resendVerification } from "../store/authSlice";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -19,6 +19,8 @@ export default function RegisterForm() {
   });
 
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
 
   const [validationErrors, setValidationErrors] = useState<{
     email?: string;
@@ -99,6 +101,20 @@ export default function RegisterForm() {
     }
   };
 
+  const handleResendVerification = async () => {
+    setResending(true);
+    setResendMessage('');
+
+    try {
+      await dispatch(resendVerification(formData.email)).unwrap();
+      setResendMessage('✓ Verification email sent! Check your inbox.');
+    } catch (error: any) {
+      setResendMessage(`✗ ${error || 'Failed to send email. Please try again.'}`);
+    } finally {
+      setResending(false);
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -136,6 +152,26 @@ export default function RegisterForm() {
                 <strong>Note:</strong> You must verify your email before you can log in.
               </p>
             </div>
+
+            {/* Resend verification section */}
+            <div className="mb-6">
+              <p className="text-purple-300/70 text-sm mb-3">
+                Didn't receive the email?
+              </p>
+              <button
+                onClick={handleResendVerification}
+                disabled={resending}
+                className="w-full px-4 py-2 bg-purple-600/20 border border-purple-500/30 text-purple-200 font-medium rounded-lg hover:bg-purple-600/30 hover:border-purple-400/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {resending ? 'Sending...' : 'Resend Verification Email'}
+              </button>
+              {resendMessage && (
+                <p className={`mt-2 text-sm ${resendMessage.startsWith('✓') ? 'text-green-300' : 'text-red-300'}`}>
+                  {resendMessage}
+                </p>
+              )}
+            </div>
+
             <Link
               href="/login"
               className="inline-block w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-500 hover:to-blue-500 transition-all"

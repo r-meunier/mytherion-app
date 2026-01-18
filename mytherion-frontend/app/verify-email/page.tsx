@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAppDispatch } from '../store/hooks';
-import { verifyEmail, clearError } from '../store/authSlice';
+import { verifyEmail, clearError, resendVerification } from '../store/authSlice';
 
 export default function VerifyEmailPage() {
   const searchParams = useSearchParams();
@@ -11,6 +11,9 @@ export default function VerifyEmailPage() {
   const dispatch = useAppDispatch();
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
   const [message, setMessage] = useState('');
+  const [resendEmail, setResendEmail] = useState('');
+  const [resending, setResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
 
   useEffect(() => {
     const token = searchParams.get('token');
@@ -42,6 +45,26 @@ export default function VerifyEmailPage() {
   const handleGoToLogin = () => {
     dispatch(clearError());
     router.push('/login');
+  };
+
+  const handleResendVerification = async () => {
+    if (!resendEmail) {
+      setResendMessage('✗ Please enter your email address.');
+      return;
+    }
+
+    setResending(true);
+    setResendMessage('');
+
+    try {
+      await dispatch(resendVerification(resendEmail)).unwrap();
+      setResendMessage('✓ Verification email sent! Check your inbox.');
+      setResendEmail('');
+    } catch (error: any) {
+      setResendMessage(`✗ ${error || 'Failed to send email. Please try again.'}`);
+    } finally {
+      setResending(false);
+    }
   };
 
   return (
@@ -83,6 +106,33 @@ export default function VerifyEmailPage() {
             </div>
             <h1 className="text-2xl font-bold text-red-400 mb-4">✗ Verification Failed</h1>
             <p className="text-purple-200 mb-6">{message}</p>
+
+            {/* Resend verification section */}
+            <div className="mb-6 p-4 bg-purple-900/20 border border-purple-500/20 rounded-lg">
+              <p className="text-purple-300/80 text-sm mb-3">
+                Need a new verification link?
+              </p>
+              <input
+                type="email"
+                value={resendEmail}
+                onChange={(e) => setResendEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full px-4 py-2 mb-3 bg-slate-800/40 border border-purple-500/30 rounded-lg text-purple-100 placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all"
+              />
+              <button
+                onClick={handleResendVerification}
+                disabled={resending}
+                className="w-full px-4 py-2 bg-purple-600/20 border border-purple-500/30 text-purple-200 font-medium rounded-lg hover:bg-purple-600/30 hover:border-purple-400/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {resending ? 'Sending...' : 'Resend Verification Email'}
+              </button>
+              {resendMessage && (
+                <p className={`mt-2 text-sm ${resendMessage.startsWith('✓') ? 'text-green-300' : 'text-red-300'}`}>
+                  {resendMessage}
+                </p>
+              )}
+            </div>
+
             <button
               onClick={handleGoToLogin}
               className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-500 hover:to-blue-500 transition-all"
