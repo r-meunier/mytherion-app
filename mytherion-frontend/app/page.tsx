@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useAppDispatch } from "./store/hooks";
 import { checkAuth } from "./store/authSlice";
 import Navbar from "./components/Navbar";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTableColumns, faUsers, faMapLocationDot, faClock, faStickyNote } from '@fortawesome/free-solid-svg-icons';
 
 export default function Home() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -38,33 +40,38 @@ export default function Home() {
             <nav className="space-y-2">
               <a
                 href="#"
-                className="block px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600/40 to-blue-600/40 text-purple-100 font-medium shadow-lg shadow-purple-500/20 border border-purple-400/30"
+                className="flex items-center gap-3 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600/40 to-blue-600/40 text-purple-100 font-medium shadow-lg shadow-purple-500/20 border border-purple-400/30"
               >
-                Dashboard
+                <FontAwesomeIcon icon={faTableColumns} className="w-5 h-5" />
+                <span>Dashboard</span>
               </a>
               <a
                 href="#"
-                className="block px-4 py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 hover:text-purple-100 transition-all"
+                className="flex items-center gap-3 px-4 py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 hover:text-purple-100 transition-all"
               >
-                Characters
+                <FontAwesomeIcon icon={faUsers} className="w-5 h-5" />
+                <span>Characters</span>
               </a>
               <a
                 href="#"
-                className="block px-4 py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 hover:text-purple-100 transition-all"
+                className="flex items-center gap-3 px-4 py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 hover:text-purple-100 transition-all"
               >
-                Locations
+                <FontAwesomeIcon icon={faMapLocationDot} className="w-5 h-5" />
+                <span>Locations</span>
               </a>
               <a
                 href="#"
-                className="block px-4 py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 hover:text-purple-100 transition-all"
+                className="flex items-center gap-3 px-4 py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 hover:text-purple-100 transition-all"
               >
-                Timeline
+                <FontAwesomeIcon icon={faClock} className="w-5 h-5" />
+                <span>Timeline</span>
               </a>
               <a
                 href="#"
-                className="block px-4 py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 hover:text-purple-100 transition-all"
+                className="flex items-center gap-3 px-4 py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 hover:text-purple-100 transition-all"
               >
-                Notes
+                <FontAwesomeIcon icon={faStickyNote} className="w-5 h-5" />
+                <span>Notes</span>
               </a>
             </nav>
           </div>
