@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -26,6 +26,11 @@ export default function RegisterForm() {
     password?: string;
     confirmPassword?: string;
   }>({});
+
+  // Clear errors when component mounts
+  useEffect(() => {
+    dispatch(clearError());
+  }, [dispatch]);
 
   const validateForm = (): boolean => {
     const errors: {
