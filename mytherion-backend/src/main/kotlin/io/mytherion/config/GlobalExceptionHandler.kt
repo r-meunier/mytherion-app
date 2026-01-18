@@ -1,7 +1,7 @@
 package io.mytherion.config
 
 import io.mytherion.project.exception.ProjectAccessDeniedException
-import io.mytherion.project.exception.ProjectHasEntriesException
+import io.mytherion.project.exception.ProjectHasEntitiesException
 import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.exception.UserNotFoundException
 import java.time.Instant
@@ -57,8 +57,8 @@ class GlobalExceptionHandler {
                         )
         }
 
-        @ExceptionHandler(ProjectHasEntriesException::class)
-        fun handleProjectHasEntries(ex: ProjectHasEntriesException): ResponseEntity<ErrorResponse> {
+        @ExceptionHandler(ProjectHasEntitiesException::class)
+        fun handleProjectHasEntries(ex: ProjectHasEntitiesException): ResponseEntity<ErrorResponse> {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body(
                                 ErrorResponse(

@@ -4,7 +4,7 @@ import io.mytherion.user.model.User
 import jakarta.persistence.*
 import java.time.Instant
 
-@Entity
+@jakarta.persistence.Entity
 @Table(name = "projects")
 class Project(
         @Id
@@ -15,11 +15,15 @@ class Project(
         val owner: User,
         @Column(nullable = false) var name: String,
         @Column(columnDefinition = "text") var description: String? = null,
+        @Column(columnDefinition = "jsonb") var settings: String? = null,
         @Column(name = "created_at", nullable = false) val createdAt: Instant = Instant.now(),
-        @Column(name = "updated_at", nullable = false) var updatedAt: Instant = Instant.now()
+        @Column(name = "updated_at", nullable = false) var updatedAt: Instant = Instant.now(),
+        @Column(name = "deleted_at") var deletedAt: Instant? = null
 ) {
     @PreUpdate
     fun onPreUpdate() {
         updatedAt = Instant.now()
     }
+
+    fun isDeleted(): Boolean = deletedAt != null
 }

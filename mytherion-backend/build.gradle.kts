@@ -32,6 +32,9 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.boot:spring-boot-starter-mail")
+    
+    // MinIO for object storage
+    implementation("io.minio:minio:8.5.7")
 
     runtimeOnly("org.postgresql:postgresql")
 

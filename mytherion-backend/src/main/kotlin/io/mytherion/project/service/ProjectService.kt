@@ -1,11 +1,11 @@
 package io.mytherion.project.service
 
-import io.mytherion.entry.repository.EntryRepository
+import io.mytherion.entity.repository.EntityRepository
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
 import io.mytherion.project.dto.UpdateProjectRequest
 import io.mytherion.project.exception.ProjectAccessDeniedException
-import io.mytherion.project.exception.ProjectHasEntriesException
+import io.mytherion.project.exception.ProjectHasEntitiesException
 import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional
 class ProjectService(
         private val projectRepository: ProjectRepository,
         private val userRepository: UserRepository,
-        private val entryRepository: EntryRepository
+        private val entityRepository: EntityRepository
 ) {
 
     // TEMP: hard-coded user until auth is in place
@@ -76,16 +76,33 @@ class ProjectService(
         return ProjectResponse.from(projectRepository.save(project))
     }
 
+    @Transactional(readOnly = true)
+    fun getProjectStats(id: Long): io.mytherion.project.dto.ProjectStatsDTO {
+        val user = getCurrentUser()
+        val project = projectRepository.findById(id).orElseThrow { ProjectNotFoundException(id) }
+        verifyOwnership(project, user)
+
+        val entities = entityRepository.findAllByProjectAndDeletedAtIsNull(project)
+        val entityCount = entities.size
+        val entityCountByType = entities.groupBy { it.type.name }.mapValues { it.value.size }
+
+        return io.mytherion.project.dto.ProjectStatsDTO.from(
+                project,
+                entityCount,
+                entityCountByType
+        )
+    }
+
     @Transactional
     fun deleteProject(id: Long) {
         val user = getCurrentUser()
         val project = projectRepository.findById(id).orElseThrow { ProjectNotFoundException(id) }
         verifyOwnership(project, user)
 
-        // Check if project has entries before deleting
-        val entryCount = entryRepository.findAllByProject(project).size
-        if (entryCount > 0) {
-            throw ProjectHasEntriesException(id, entryCount)
+        // Check if project has entities before deleting
+        val entityCount = entityRepository.findAllByProjectAndDeletedAtIsNull(project).size
+        if (entityCount > 0) {
+            throw ProjectHasEntitiesException(id, entityCount)
         }
 
         projectRepository.delete(project)
