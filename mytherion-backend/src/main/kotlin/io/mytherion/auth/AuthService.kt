@@ -138,7 +138,7 @@ class AuthService(
                 verificationTokenRepository.save(verificationToken)
 
                 // Send verification email
-                emailService.sendVerificationEmail(user.email, token)
+                emailService.sendVerificationEmail(user.email, user.username, token)
         }
 
         @Transactional

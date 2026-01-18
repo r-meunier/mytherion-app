@@ -1,7 +1,9 @@
 package io.mytherion.email
 
 import jakarta.mail.internet.MimeMessage
+import java.util.Base64
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.ClassPathResource
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Service
@@ -12,8 +14,17 @@ class EmailService(
         @Value("\${app.frontend.url}") private val frontendUrl: String,
         @Value("\${app.email.from}") private val fromEmail: String
 ) {
+    private val logoBase64: String by lazy {
+        try {
+            val resource = ClassPathResource("static/images/mytherion_logo.png")
+            val bytes = resource.inputStream.readBytes()
+            Base64.getEncoder().encodeToString(bytes)
+        } catch (e: Exception) {
+            "" // Fallback to empty if logo not found
+        }
+    }
 
-    fun sendVerificationEmail(email: String, token: String) {
+    fun sendVerificationEmail(email: String, username: String, token: String) {
         val verificationLink = "$frontendUrl/verify-email?token=$token"
 
         val message: MimeMessage = mailSender.createMimeMessage()
@@ -22,12 +33,12 @@ class EmailService(
         helper.setFrom(fromEmail)
         helper.setTo(email)
         helper.setSubject("Verify Your Email - Mytherion")
-        helper.setText(buildVerificationEmailHtml(verificationLink), true)
+        helper.setText(buildVerificationEmailHtml(username, verificationLink), true)
 
         mailSender.send(message)
     }
 
-    private fun buildVerificationEmailHtml(link: String): String {
+    private fun buildVerificationEmailHtml(username: String, link: String): String {
         return """
             <!DOCTYPE html>
             <html>
@@ -62,12 +73,24 @@ class EmailService(
                         font-size: 28px;
                         font-weight: 600;
                     }
+                    .logo {
+                        width: 80px;
+                        height: 80px;
+                        margin: 0 auto 15px auto;
+                        display: block;
+                    }
                     .content {
                         padding: 40px 30px;
                     }
                     .content p {
                         margin: 0 0 20px 0;
                         font-size: 16px;
+                    }
+                    .greeting {
+                        font-size: 18px;
+                        font-weight: 600;
+                        color: #7c3aed;
+                        margin-bottom: 20px;
                     }
                     .button-container {
                         text-align: center;
@@ -122,9 +145,11 @@ class EmailService(
             <body>
                 <div class="container">
                     <div class="header">
+                        <img src="data:image/png;base64,$logoBase64" alt="Mytherion Logo" class="logo" />
                         <h1>Welcome to Mytherion!</h1>
                     </div>
                     <div class="content">
+                        <p class="greeting">Hello, $username! 👋</p>
                         <p>Thank you for registering with Mytherion. To complete your registration and start using your account, please verify your email address.</p>
                         
                         <div class="button-container">

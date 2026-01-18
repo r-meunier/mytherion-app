@@ -28,9 +28,9 @@ class CookieUtil(
     /** Adds JWT cookie to response with SameSite attribute */
     fun addJwtCookie(response: HttpServletResponse, token: String) {
         val cookie = createJwtCookie(token)
-        response.addCookie(cookie)
 
-        // Add SameSite attribute via header (not directly supported in Cookie class)
+        // Set cookie via header to include SameSite attribute
+        // Note: We use addHeader instead of addCookie to have full control over attributes
         val cookieHeader = buildString {
             append("${cookie.name}=${cookie.value}; ")
             append("Path=${cookie.path}; ")
@@ -49,16 +49,7 @@ class CookieUtil(
 
     /** Clears the JWT cookie (for logout) */
     fun clearJwtCookie(response: HttpServletResponse) {
-        val cookie =
-                Cookie(JWT_COOKIE_NAME, "").apply {
-                    isHttpOnly = true
-                    secure = false // Match the setting used when creating
-                    path = "/"
-                    maxAge = 0 // Expire immediately
-                }
-        response.addCookie(cookie)
-
-        // Also clear via header
+        // Clear cookie via header
         response.addHeader(
                 "Set-Cookie",
                 "${JWT_COOKIE_NAME}=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict"
