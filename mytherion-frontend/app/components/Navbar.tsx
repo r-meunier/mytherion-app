@@ -68,6 +68,21 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
           </Link>
         </div>
 
+        {/* Navigation Links */}
+        {isAuthenticated && (
+          <div className="flex items-center gap-2">
+            <Link
+              href="/projects"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-300 hover:text-purple-100 hover:bg-purple-500/10 rounded-lg transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+              </svg>
+              <span>Projects</span>
+            </Link>
+          </div>
+        )}
+
         <div className="flex items-center gap-4">
           {isAuthenticated ? (
             <>

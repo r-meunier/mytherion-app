@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchProjects, deleteProject } from '@/app/store/projectSlice';
 import ProjectCard from './ProjectCard';
@@ -16,9 +16,15 @@ export default function ProjectList({ onCreateClick, onEditClick }: ProjectListP
   const dispatch = useAppDispatch();
   const { projects, loading, error, pagination } = useAppSelector((state) => state.projects);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [hasFetched, setHasFetched] = useState(false);
+  const fetchedRef = useRef(false);
 
   useEffect(() => {
-    dispatch(fetchProjects());
+    // Prevent duplicate fetches in development mode (React Strict Mode)
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    
+    dispatch(fetchProjects({})).then(() => setHasFetched(true));
   }, [dispatch]);
 
   const handleDelete = async (id: number) => {
@@ -35,8 +41,8 @@ export default function ProjectList({ onCreateClick, onEditClick }: ProjectListP
     dispatch(fetchProjects({ page: newPage, size: pagination.size }));
   };
 
-  // Loading skeleton
-  if (loading && projects.length === 0) {
+  // Loading skeleton - show on initial load
+  if (!hasFetched || (loading && projects.length === 0)) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[1, 2, 3].map((i) => (
@@ -59,8 +65,8 @@ export default function ProjectList({ onCreateClick, onEditClick }: ProjectListP
     );
   }
 
-  // Empty state
-  if (!loading && projects.length === 0) {
+  // Empty state - only show after fetching
+  if (hasFetched && !loading && projects.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4">
         <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-600/20 to-blue-600/20 flex items-center justify-center mb-6">
@@ -72,7 +78,7 @@ export default function ProjectList({ onCreateClick, onEditClick }: ProjectListP
         </p>
         <button
           onClick={onCreateClick}
-          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all hover:scale-105"
+          className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all hover:scale-105"
         >
           <FontAwesomeIcon icon={faPlus} className="mr-2" />
           Create Your First Project

@@ -28,6 +28,14 @@ export default function ProjectsPage() {
     setShowCreateModal(false);
   };
 
+  const handleUpdate = async (data: CreateProjectRequest) => {
+    if (editingProjectId) {
+      await dispatch(updateProject({ id: editingProjectId, data }));
+      setShowCreateModal(false);
+      setEditingProjectId(null);
+    }
+  };
+
   const handleEdit = (id: number) => {
     setEditingProjectId(id);
     setShowCreateModal(true);
@@ -37,6 +45,12 @@ export default function ProjectsPage() {
     setShowCreateModal(false);
     setEditingProjectId(null);
   };
+
+  // Get the project being edited
+  const { projects } = useAppSelector((state) => state.projects);
+  const editingProject = editingProjectId 
+    ? projects.find(p => p.id === editingProjectId) 
+    : undefined;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-[#190525] to-slate-900">
@@ -115,7 +129,8 @@ export default function ProjectsPage() {
                   </div>
                   <div className="p-6">
                     <ProjectForm
-                      onSubmit={handleCreate}
+                      project={editingProject}
+                      onSubmit={editingProjectId ? handleUpdate : handleCreate}
                       onCancel={handleCloseModal}
                       loading={loading}
                     />
