@@ -53,7 +53,7 @@ class EntityServiceTest {
                         id = 1L,
                         username = "testuser",
                         email = "test@example.com",
-                        password = "hashedpassword",
+                        passwordHash = "hashedpassword",
                         emailVerified = true
                 )
 
