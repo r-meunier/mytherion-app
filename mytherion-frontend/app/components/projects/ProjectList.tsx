@@ -29,12 +29,17 @@ export default function ProjectList({ onCreateClick, onEditClick }: ProjectListP
 
   const handleDelete = async (id: number) => {
     if (deleteConfirm === id) {
+      // Actually delete the project
       await dispatch(deleteProject(id));
       setDeleteConfirm(null);
     } else {
+      // Show confirmation overlay
       setDeleteConfirm(id);
-      setTimeout(() => setDeleteConfirm(null), 3000);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteConfirm(null);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -102,6 +107,8 @@ export default function ProjectList({ onCreateClick, onEditClick }: ProjectListP
             project={project}
             onEdit={onEditClick}
             onDelete={handleDelete}
+            onCancelDelete={handleCancelDelete}
+            isDeleteConfirm={deleteConfirm === project.id}
           />
         ))}
       </div>

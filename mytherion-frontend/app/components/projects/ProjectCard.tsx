@@ -2,16 +2,18 @@
 
 import { Project } from '@/app/services/projectService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faFolder } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faFolder, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
 
 interface ProjectCardProps {
   project: Project;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
+  onCancelDelete?: () => void;
+  isDeleteConfirm?: boolean;
 }
 
-export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
+export default function ProjectCard({ project, onEdit, onDelete, onCancelDelete, isDeleteConfirm }: ProjectCardProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -74,6 +76,39 @@ export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardPr
           </button>
         </div>
       </div>
+      
+      {isDeleteConfirm && (
+        <div className="absolute inset-0 bg-gray-900/95 backdrop-blur-sm rounded-lg border-2 border-red-500 flex items-center justify-center z-10">
+          <div className="text-center px-6">
+            <p className="text-red-100 text-lg font-semibold mb-4">Delete this project?</p>
+            <p className="text-gray-300 text-sm mb-6">This action cannot be undone.</p>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onDelete(project.id);
+                }}
+                className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+              >
+                <FontAwesomeIcon icon={faCheck} className="mr-2" />
+                Confirm Delete
+              </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onCancelDelete?.();
+                }}
+                className="inline-flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg font-medium transition-colors"
+              >
+                <FontAwesomeIcon icon={faTimes} className="mr-2" />
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

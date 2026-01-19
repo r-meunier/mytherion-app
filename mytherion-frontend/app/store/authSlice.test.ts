@@ -5,12 +5,12 @@ import authReducer, {
   checkAuth,
   clearError,
   clearUser,
-} from '../authSlice';
-import { AuthState } from '../../types/auth';
+} from './authSlice';
+import { AuthState } from '../types/auth';
 import { configureStore } from '@reduxjs/toolkit';
 
 // Mock the authService
-jest.mock('../../services/authService', () => ({
+jest.mock('../services/authService', () => ({
   authService: {
     register: jest.fn(),
     login: jest.fn(),
@@ -19,7 +19,7 @@ jest.mock('../../services/authService', () => ({
   },
 }));
 
-import { authService } from '../../services/authService';
+import { authService } from '../services/authService';
 
 describe('authSlice', () => {
   const initialState: AuthState = {
@@ -34,6 +34,7 @@ describe('authSlice', () => {
     email: 'test@example.com',
     username: 'testuser',
     role: 'USER',
+    emailVerified: true,
   };
 
   beforeEach(() => {
