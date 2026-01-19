@@ -1,6 +1,11 @@
 package io.mytherion.project.service
 
 import io.mytherion.entity.repository.EntityRepository
+import io.mytherion.logging.debugWith
+import io.mytherion.logging.infoWith
+import io.mytherion.logging.logger
+import io.mytherion.logging.measureTime
+import io.mytherion.logging.warnWith
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
 import io.mytherion.project.dto.UpdateProjectRequest
@@ -24,6 +29,7 @@ class ProjectService(
         private val userRepository: UserRepository,
         private val entityRepository: EntityRepository
 ) {
+    private val logger = logger()
 
     // TEMP: hard-coded user until auth is in place
     private fun getCurrentUser(): User {
@@ -35,6 +41,12 @@ class ProjectService(
     /** Verify that the current user owns the given project */
     private fun verifyOwnership(project: Project, currentUser: User) {
         if (project.owner.id != currentUser.id) {
+            logger.warnWith(
+                    "Access denied to project",
+                    "projectId" to project.id,
+                    "ownerId" to project.owner.id,
+                    "requestingUserId" to currentUser.id
+            )
             throw ProjectAccessDeniedException(project.id!!)
         }
     }
@@ -42,29 +54,73 @@ class ProjectService(
     @Transactional(readOnly = true)
     fun listProjectsForCurrentUser(page: Int = 0, size: Int = 20): Page<ProjectResponse> {
         val user = getCurrentUser()
-        val pageable: Pageable =
-                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"))
-        return projectRepository.findAllByOwner(user, pageable).map(ProjectResponse::from)
+        logger.debugWith("Listing projects", "userId" to user.id, "page" to page, "size" to size)
+
+        return logger.measureTime("Fetch projects") {
+            val pageable: Pageable =
+                    PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"))
+            val result = projectRepository.findAllByOwner(user, pageable).map(ProjectResponse::from)
+
+            logger.infoWith(
+                    "Projects listed",
+                    "userId" to user.id,
+                    "count" to result.content.size,
+                    "totalElements" to result.totalElements
+            )
+            result
+        }
     }
 
     @Transactional(readOnly = true)
     fun getProjectById(id: Long): ProjectResponse {
         val user = getCurrentUser()
-        val project = projectRepository.findById(id).orElseThrow { ProjectNotFoundException(id) }
+        logger.debugWith("Fetching project", "projectId" to id, "userId" to user.id)
+
+        val project =
+                projectRepository.findById(id).orElseThrow {
+                    logger.warnWith("Project not found", "projectId" to id)
+                    ProjectNotFoundException(id)
+                }
         verifyOwnership(project, user)
+
+        logger.infoWith("Project fetched", "projectId" to id, "name" to project.name)
         return ProjectResponse.from(project)
     }
 
     @Transactional
     fun createProject(request: CreateProjectRequest): ProjectResponse {
         val user = getCurrentUser()
-        val project = Project(owner = user, name = request.name, description = request.description)
-        return ProjectResponse.from(projectRepository.save(project))
+        logger.infoWith("Creating project", "userId" to user.id, "name" to request.name)
+
+        return logger.measureTime("Save project") {
+            val project =
+                    Project(owner = user, name = request.name, description = request.description)
+            val saved = projectRepository.save(project)
+
+            logger.infoWith(
+                    "Project created successfully",
+                    "projectId" to saved.id,
+                    "userId" to user.id,
+                    "name" to saved.name
+            )
+            ProjectResponse.from(saved)
+        }
     }
 
     @Transactional
     fun updateProject(id: Long, request: UpdateProjectRequest): ProjectResponse {
         val user = getCurrentUser()
+        logger.infoWith(
+                "Updating project",
+                "projectId" to id,
+                "userId" to user.id,
+                "updates" to
+                        listOfNotNull(
+                                request.name?.let { "name" },
+                                request.description?.let { "description" }
+                        )
+        )
+
         val project = projectRepository.findById(id).orElseThrow { ProjectNotFoundException(id) }
         verifyOwnership(project, user)
 
@@ -72,39 +128,56 @@ class ProjectService(
         request.name?.let { project.name = it }
         request.description?.let { project.description = it }
 
-        // updatedAt will be automatically updated by @PreUpdate callback
-        return ProjectResponse.from(projectRepository.save(project))
+        val saved = projectRepository.save(project)
+        logger.infoWith("Project updated successfully", "projectId" to id)
+
+        return ProjectResponse.from(saved)
     }
 
     @Transactional(readOnly = true)
     fun getProjectStats(id: Long): io.mytherion.project.dto.ProjectStatsDTO {
         val user = getCurrentUser()
+        logger.debugWith("Fetching project stats", "projectId" to id, "userId" to user.id)
+
         val project = projectRepository.findById(id).orElseThrow { ProjectNotFoundException(id) }
         verifyOwnership(project, user)
 
-        val entities = entityRepository.findAllByProjectAndDeletedAtIsNull(project)
-        val entityCount = entities.size
-        val entityCountByType = entities.groupBy { it.type.name }.mapValues { it.value.size }
+        return logger.measureTime("Calculate project stats") {
+            val entities = entityRepository.findAllByProjectAndDeletedAtIsNull(project)
+            val entityCount = entities.size
+            val entityCountByType = entities.groupBy { it.type.name }.mapValues { it.value.size }
 
-        return io.mytherion.project.dto.ProjectStatsDTO.from(
-                project,
-                entityCount,
-                entityCountByType
-        )
+            logger.infoWith(
+                    "Project stats calculated",
+                    "projectId" to id,
+                    "entityCount" to entityCount,
+                    "types" to entityCountByType.keys
+            )
+
+            io.mytherion.project.dto.ProjectStatsDTO.from(project, entityCount, entityCountByType)
+        }
     }
 
     @Transactional
     fun deleteProject(id: Long) {
         val user = getCurrentUser()
+        logger.infoWith("Deleting project", "projectId" to id, "userId" to user.id)
+
         val project = projectRepository.findById(id).orElseThrow { ProjectNotFoundException(id) }
         verifyOwnership(project, user)
 
         // Check if project has entities before deleting
         val entityCount = entityRepository.findAllByProjectAndDeletedAtIsNull(project).size
         if (entityCount > 0) {
+            logger.warnWith(
+                    "Cannot delete project with entities",
+                    "projectId" to id,
+                    "entityCount" to entityCount
+            )
             throw ProjectHasEntitiesException(id, entityCount)
         }
 
         projectRepository.delete(project)
+        logger.infoWith("Project deleted successfully", "projectId" to id)
     }
 }
