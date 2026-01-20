@@ -2,6 +2,7 @@ package io.mytherion.auth
 
 import io.mytherion.auth.dto.AuthDTO
 import io.mytherion.auth.jwt.JwtService
+import io.mytherion.monitoring.MetricsService
 import io.mytherion.user.model.User
 import io.mytherion.user.model.UserRole
 import io.mytherion.user.repository.UserRepository
@@ -16,15 +17,27 @@ class AuthService(
         private val jwtService: JwtService,
         private val verificationTokenRepository:
                 io.mytherion.auth.repository.EmailVerificationTokenRepository,
-        private val emailService: io.mytherion.email.EmailService
+        private val emailService: io.mytherion.email.EmailService,
+        private val metricsService: MetricsService
 ) {
 
         @Transactional
         fun register(req: AuthDTO.RegisterRequest): AuthDTO.AuthResponse {
+                val startTime = System.currentTimeMillis()
+                var success = false
+
                 if (userRepository.existsByEmail(req.email)) {
+                        metricsService.recordRegistration(
+                                durationMs = System.currentTimeMillis() - startTime,
+                                success = false
+                        )
                         throw IllegalArgumentException("Email already in use")
                 }
                 if (userRepository.existsByUsername(req.username)) {
+                        metricsService.recordRegistration(
+                                durationMs = System.currentTimeMillis() - startTime,
+                                success = false
+                        )
                         throw IllegalArgumentException("Username already in use")
                 }
 
@@ -61,21 +74,50 @@ class AuthService(
                                 emailVerified = saved.emailVerified
                         )
 
+                success = true
+
+                val duration = System.currentTimeMillis() - startTime
+                metricsService.recordRegistration(durationMs = duration, success = success)
+
                 return AuthDTO.AuthResponse(accessToken = token, user = userResponse)
         }
 
         @Transactional(readOnly = true)
         fun login(req: AuthDTO.LoginRequest): AuthDTO.AuthResponse {
+                val startTime = System.currentTimeMillis()
+                var success = false
+                var reason = "ok"
+
                 val user =
                         userRepository.findByEmailAndDeletedAtIsNull(req.email.lowercase())
-                                ?: throw IllegalArgumentException("Invalid credentials")
+                                ?: run {
+                                        reason = "invalid_credentials"
+                                        metricsService.recordLogin(
+                                                durationMs = System.currentTimeMillis() - startTime,
+                                                success = false,
+                                                reason = reason
+                                        )
+                                        throw IllegalArgumentException("Invalid credentials")
+                                }
 
                 if (!passwordEncoder.matches(req.password, user.passwordHash)) {
+                        reason = "invalid_credentials"
+                        metricsService.recordLogin(
+                                durationMs = System.currentTimeMillis() - startTime,
+                                success = false,
+                                reason = reason
+                        )
                         throw IllegalArgumentException("Invalid credentials")
                 }
 
                 // Hard enforcement: Require email verification to login
                 if (!user.emailVerified) {
+                        reason = "email_not_verified"
+                        metricsService.recordLogin(
+                                durationMs = System.currentTimeMillis() - startTime,
+                                success = false,
+                                reason = reason
+                        )
                         throw IllegalArgumentException("Please verify your email before logging in")
                 }
 
@@ -94,6 +136,10 @@ class AuthService(
                                 role = user.role.name,
                                 emailVerified = user.emailVerified
                         )
+
+                success = true
+                val duration = System.currentTimeMillis() - startTime
+                metricsService.recordLogin(durationMs = duration, success = success, reason = reason)
 
                 return AuthDTO.AuthResponse(accessToken = token, user = userResponse)
         }

@@ -9,6 +9,7 @@ import io.mytherion.logging.warnWith
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
 import io.mytherion.project.dto.UpdateProjectRequest
+import io.mytherion.monitoring.MetricsService
 import io.mytherion.project.exception.ProjectAccessDeniedException
 import io.mytherion.project.exception.ProjectHasEntitiesException
 import io.mytherion.project.exception.ProjectNotFoundException
@@ -27,7 +28,8 @@ import org.springframework.transaction.annotation.Transactional
 class ProjectService(
         private val projectRepository: ProjectRepository,
         private val userRepository: UserRepository,
-        private val entityRepository: EntityRepository
+        private val entityRepository: EntityRepository,
+        private val metricsService: MetricsService
 ) {
     private val logger = logger()
 
@@ -92,18 +94,31 @@ class ProjectService(
         val user = getCurrentUser()
         logger.infoWith("Creating project", "userId" to user.id, "name" to request.name)
 
-        return logger.measureTime("Save project") {
-            val project =
-                    Project(owner = user, name = request.name, description = request.description)
-            val saved = projectRepository.save(project)
+        val startTime = System.currentTimeMillis()
+        var success = false
 
-            logger.infoWith(
-                    "Project created successfully",
-                    "projectId" to saved.id,
-                    "userId" to user.id,
-                    "name" to saved.name
-            )
-            ProjectResponse.from(saved)
+        return try {
+            logger.measureTime("Save project") {
+                val project =
+                        Project(
+                                owner = user,
+                                name = request.name,
+                                description = request.description
+                        )
+                val saved = projectRepository.save(project)
+
+                logger.infoWith(
+                        "Project created successfully",
+                        "projectId" to saved.id,
+                        "userId" to user.id,
+                        "name" to saved.name
+                )
+                success = true
+                ProjectResponse.from(saved)
+            }
+        } finally {
+            val duration = System.currentTimeMillis() - startTime
+            metricsService.recordProjectCreation(duration, success)
         }
     }
 
@@ -142,10 +157,15 @@ class ProjectService(
         val project = projectRepository.findById(id).orElseThrow { ProjectNotFoundException(id) }
         verifyOwnership(project, user)
 
+        val startTime = System.currentTimeMillis()
+
         return logger.measureTime("Calculate project stats") {
-            val entities = entityRepository.findAllByProjectAndDeletedAtIsNull(project)
-            val entityCount = entities.size
-            val entityCountByType = entities.groupBy { it.type.name }.mapValues { it.value.size }
+            // Use efficient database aggregation instead of loading all entities
+            val entityCount = entityRepository.countByProjectAndDeletedAtIsNull(project).toInt()
+            val entityCountByType =
+                    entityRepository.countByProjectAndTypeGrouped(project).associate {
+                        it.getType().name to it.getCount().toInt()
+                    }
 
             logger.infoWith(
                     "Project stats calculated",
@@ -153,6 +173,9 @@ class ProjectService(
                     "entityCount" to entityCount,
                     "types" to entityCountByType.keys
             )
+
+            val duration = System.currentTimeMillis() - startTime
+            metricsService.recordEntityQuery(id, entityCount, duration)
 
             io.mytherion.project.dto.ProjectStatsDTO.from(project, entityCount, entityCountByType)
         }
@@ -167,7 +190,7 @@ class ProjectService(
         verifyOwnership(project, user)
 
         // Check if project has entities before deleting
-        val entityCount = entityRepository.findAllByProjectAndDeletedAtIsNull(project).size
+        val entityCount = entityRepository.countByProjectAndDeletedAtIsNull(project).toInt()
         if (entityCount > 0) {
             logger.warnWith(
                     "Cannot delete project with entities",

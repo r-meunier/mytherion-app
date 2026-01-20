@@ -69,3 +69,5 @@ certs/
 *.tar.gz
 *.rar
 
+# LLM
+.claude/

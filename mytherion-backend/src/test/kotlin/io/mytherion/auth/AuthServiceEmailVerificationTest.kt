@@ -63,7 +63,7 @@ class AuthServiceEmailVerificationTest {
         // Given
         every { verificationTokenRepository.deleteByUser(testUser) } just Runs
         every { verificationTokenRepository.save(any()) } returnsArgument 0
-        every { emailService.sendVerificationEmail(any(), any()) } just Runs
+        every { emailService.sendVerificationEmail(any(), any(), any()) } just Runs
 
         // When
         authService.sendVerificationEmail(testUser)
@@ -71,7 +71,7 @@ class AuthServiceEmailVerificationTest {
         // Then
         verify { verificationTokenRepository.deleteByUser(testUser) }
         verify { verificationTokenRepository.save(match { it.user == testUser }) }
-        verify { emailService.sendVerificationEmail(testUser.email, any()) }
+        verify { emailService.sendVerificationEmail(testUser.email, any(), any()) }
     }
 
     @Test
@@ -79,7 +79,7 @@ class AuthServiceEmailVerificationTest {
         // Given
         every { verificationTokenRepository.deleteByUser(testUser) } just Runs
         every { verificationTokenRepository.save(any()) } returnsArgument 0
-        every { emailService.sendVerificationEmail(any(), any()) } just Runs
+        every { emailService.sendVerificationEmail(any(), any(), any()) } just Runs
 
         // When
         authService.sendVerificationEmail(testUser)
@@ -94,7 +94,7 @@ class AuthServiceEmailVerificationTest {
         val capturedToken = slot<EmailVerificationToken>()
         every { verificationTokenRepository.deleteByUser(testUser) } just Runs
         every { verificationTokenRepository.save(capture(capturedToken)) } returnsArgument 0
-        every { emailService.sendVerificationEmail(any(), any()) } just Runs
+        every { emailService.sendVerificationEmail(any(), any(), any()) } just Runs
 
         val beforeSend = Instant.now()
 
@@ -213,7 +213,7 @@ class AuthServiceEmailVerificationTest {
         every { userRepository.findByEmailAndDeletedAtIsNull(email) } returns testUser
         every { verificationTokenRepository.deleteByUser(testUser) } just Runs
         every { verificationTokenRepository.save(any()) } returnsArgument 0
-        every { emailService.sendVerificationEmail(any(), any()) } just Runs
+        every { emailService.sendVerificationEmail(any(), any(), any()) } just Runs
 
         // When
         authService.resendVerificationEmailByEmail(email)
@@ -222,7 +222,7 @@ class AuthServiceEmailVerificationTest {
         verify { userRepository.findByEmailAndDeletedAtIsNull(email) }
         verify { verificationTokenRepository.deleteByUser(testUser) }
         verify { verificationTokenRepository.save(any()) }
-        verify { emailService.sendVerificationEmail(email, any()) }
+        verify { emailService.sendVerificationEmail(email, any(), any()) }
     }
 
     @Test
@@ -239,7 +239,7 @@ class AuthServiceEmailVerificationTest {
 
         assertEquals("Email already verified", exception.message)
         verify { userRepository.findByEmailAndDeletedAtIsNull(email) }
-        verify(exactly = 0) { emailService.sendVerificationEmail(any(), any()) }
+        verify(exactly = 0) { emailService.sendVerificationEmail(any(), any(), any()) }
     }
 
     @Test
@@ -256,7 +256,7 @@ class AuthServiceEmailVerificationTest {
 
         assertEquals("User not found", exception.message)
         verify { userRepository.findByEmailAndDeletedAtIsNull(email) }
-        verify(exactly = 0) { emailService.sendVerificationEmail(any(), any()) }
+        verify(exactly = 0) { emailService.sendVerificationEmail(any(), any(), any()) }
     }
 
     @Test
@@ -267,7 +267,7 @@ class AuthServiceEmailVerificationTest {
         every { userRepository.findByEmailAndDeletedAtIsNull(normalizedEmail) } returns testUser
         every { verificationTokenRepository.deleteByUser(testUser) } just Runs
         every { verificationTokenRepository.save(any()) } returnsArgument 0
-        every { emailService.sendVerificationEmail(any(), any()) } just Runs
+        every { emailService.sendVerificationEmail(any(), any(), any()) } just Runs
 
         // When
         authService.resendVerificationEmailByEmail(email)
@@ -285,14 +285,14 @@ class AuthServiceEmailVerificationTest {
         every { userRepository.findById(userId) } returns Optional.of(testUser)
         every { verificationTokenRepository.deleteByUser(testUser) } just Runs
         every { verificationTokenRepository.save(any()) } returnsArgument 0
-        every { emailService.sendVerificationEmail(any(), any()) } just Runs
+        every { emailService.sendVerificationEmail(any(), any(), any()) } just Runs
 
         // When
         authService.resendVerificationEmail(userId)
 
         // Then
         verify { userRepository.findById(userId) }
-        verify { emailService.sendVerificationEmail(testUser.email, any()) }
+        verify { emailService.sendVerificationEmail(testUser.email, any(), any()) }
     }
 
     @Test
@@ -308,7 +308,7 @@ class AuthServiceEmailVerificationTest {
                 }
 
         assertEquals("Email already verified", exception.message)
-        verify(exactly = 0) { emailService.sendVerificationEmail(any(), any()) }
+        verify(exactly = 0) { emailService.sendVerificationEmail(any(), any(), any()) }
     }
 
     @Test
@@ -324,6 +324,6 @@ class AuthServiceEmailVerificationTest {
                 }
 
         assertEquals("User not found", exception.message)
-        verify(exactly = 0) { emailService.sendVerificationEmail(any(), any()) }
+        verify(exactly = 0) { emailService.sendVerificationEmail(any(), any(), any()) }
     }
 }

@@ -13,7 +13,7 @@ class EmailVerificationTokenTest {
         return User(
                 email = "test@example.com",
                 username = "testuser",
-                password = "hashedPassword",
+                passwordHash = "hashedPassword",
                 role = UserRole.USER
         )
     }

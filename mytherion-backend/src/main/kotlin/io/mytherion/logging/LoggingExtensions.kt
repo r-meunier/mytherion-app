@@ -14,6 +14,11 @@ inline fun <reified T> loggerFor(): Logger {
     return LoggerFactory.getLogger(T::class.java)
 }
 
+/** Standalone logger function for use in any class Usage: private val logger = logger() */
+inline fun <reified T : Any> logger(): Logger {
+    return LoggerFactory.getLogger(T::class.java)
+}
+
 /**
  * Structured logging extensions for SLF4J Logger Provides convenient methods for logging with
  * context
