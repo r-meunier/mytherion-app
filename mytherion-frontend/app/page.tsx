@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useAppDispatch } from "./store/hooks";
 import { checkAuth } from "./store/authSlice";
-import Navbar from "./components/Navbar";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTableColumns, faUsers, faMapLocationDot, faClock, faStickyNote } from '@fortawesome/free-solid-svg-icons';
+import DualSidebar from "./components/DualSidebar";
+import DashboardHeader from "./components/DashboardHeader";
+import StatCard from "./components/dashboard/StatCard";
+import RecentChronicles from "./components/dashboard/RecentChronicles";
+import WorldMapCard from "./components/dashboard/WorldMapCard";
+import ArcaneTools from "./components/dashboard/ArcaneTools";
+import PromptCard from "./components/dashboard/PromptCard";
 
 export default function Home() {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const dispatch = useAppDispatch();
 
   // Check authentication status on mount
@@ -17,127 +20,110 @@ export default function Home() {
   }, [dispatch]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-[#190525] to-slate-900">
-      {/* Animated background overlay */}
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#190525]/20 via-transparent to-blue-900/20 pointer-events-none"></div>
-      
-      {/* Navbar */}
-      <Navbar onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
+    <div className="relative z-10 flex h-screen overflow-hidden">
+      {/* Dual Sidebar */}
+      <DualSidebar activeSection="dashboard" />
 
-      {/* Main Layout Container */}
-      <div className="flex relative">
-        {/* Sidebar */}
-        <aside
-          className={`${
-            isSidebarCollapsed ? "w-0" : "w-64"
-          } min-h-[calc(100vh-73px)] bg-slate-900/60 backdrop-blur-md border-r border-purple-500/20 transition-all duration-300 ease-in-out overflow-hidden`}
-        >
-          <div className="p-4 w-64">
-            <h2 className="text-lg font-semibold text-purple-200 mb-4">
-              Navigation
-            </h2>
-            
-            <nav className="space-y-2">
-              <a
-                href="#"
-                className="flex items-center gap-3 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600/40 to-blue-600/40 text-purple-100 font-medium shadow-lg shadow-purple-500/20 border border-purple-400/30"
-              >
-                <FontAwesomeIcon icon={faTableColumns} className="w-5 h-5" />
-                <span>Dashboard</span>
-              </a>
-              <a
-                href="#"
-                className="flex items-center gap-3 px-4 py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 hover:text-purple-100 transition-all"
-              >
-                <FontAwesomeIcon icon={faUsers} className="w-5 h-5" />
-                <span>Characters</span>
-              </a>
-              <a
-                href="#"
-                className="flex items-center gap-3 px-4 py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 hover:text-purple-100 transition-all"
-              >
-                <FontAwesomeIcon icon={faMapLocationDot} className="w-5 h-5" />
-                <span>Locations</span>
-              </a>
-              <a
-                href="#"
-                className="flex items-center gap-3 px-4 py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 hover:text-purple-100 transition-all"
-              >
-                <FontAwesomeIcon icon={faClock} className="w-5 h-5" />
-                <span>Timeline</span>
-              </a>
-              <a
-                href="#"
-                className="flex items-center gap-3 px-4 py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 hover:text-purple-100 transition-all"
-              >
-                <FontAwesomeIcon icon={faStickyNote} className="w-5 h-5" />
-                <span>Notes</span>
-              </a>
-            </nav>
-          </div>
-        </aside>
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <DashboardHeader />
 
-        {/* Main Content Area */}
-        <main className="flex-1 p-8 transition-all duration-300 ease-in-out relative">
-          <div className="max-w-6xl mx-auto">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-300 via-blue-300 to-purple-300 bg-clip-text text-transparent mb-6">
-              Welcome to Mytherion
-            </h1>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {/* Placeholder Card 1 */}
-              <div className="bg-slate-800/40 backdrop-blur-sm rounded-lg shadow-xl shadow-[#190525]/30 p-6 border border-purple-500/30 hover:border-purple-400/50 transition-all hover:shadow-purple-500/40">
-                <h3 className="text-xl font-semibold text-purple-200 mb-2">
-                  Card Title 1
-                </h3>
-                <p className="text-purple-300/80">
-                  This is a placeholder card. Replace with your actual content.
-                </p>
-              </div>
-
-              {/* Placeholder Card 2 */}
-              <div className="bg-slate-800/40 backdrop-blur-sm rounded-lg shadow-xl shadow-[#190525]/30 p-6 border border-purple-500/30 hover:border-purple-400/50 transition-all hover:shadow-purple-500/40">
-                <h3 className="text-xl font-semibold text-purple-200 mb-2">
-                  Card Title 2
-                </h3>
-                <p className="text-purple-300/80">
-                  This is a placeholder card. Replace with your actual content.
-                </p>
-              </div>
-
-              {/* Placeholder Card 3 */}
-              <div className="bg-slate-800/40 backdrop-blur-sm rounded-lg shadow-xl shadow-[#190525]/30 p-6 border border-purple-500/30 hover:border-purple-400/50 transition-all hover:shadow-purple-500/40">
-                <h3 className="text-xl font-semibold text-purple-200 mb-2">
-                  Card Title 3
-                </h3>
-                <p className="text-purple-300/80">
-                  This is a placeholder card. Replace with your actual content.
-                </p>
-              </div>
-            </div>
-
-            {/* Placeholder Content Section */}
-            <div className="bg-slate-800/40 backdrop-blur-sm rounded-lg shadow-xl shadow-[#190525]/30 p-6 border border-purple-500/30">
-              <h2 className="text-2xl font-bold text-purple-200 mb-4">
-                Main Content Section
+        {/* Dashboard Content */}
+        <div className="flex-1 overflow-y-auto p-8 space-y-8">
+          {/* Welcome Section */}
+          <div className="flex items-end justify-between">
+            <div>
+              <h2 className="text-3xl font-display font-bold text-white">
+                Welcome back, Chronicler
               </h2>
-              <p className="text-purple-300/80 mb-4">
-                This is the main content area where you can add your lore tracking and management features.
+              <p className="text-slate-400 mt-1">
+                Your worlds are waiting for your next stroke of genius.
               </p>
-              <p className="text-purple-300/80">
-                The layout includes:
-              </p>
-              <ul className="list-disc list-inside text-purple-300/80 mt-2 space-y-1">
-                <li>A sticky navbar at the top</li>
-                <li>A collapsible sidebar for navigation</li>
-                <li>A flexible main content area</li>
-                <li>Mysterious space-themed design</li>
-              </ul>
+            </div>
+            <button className="bg-primary hover:bg-primary/80 text-white px-5 py-2.5 rounded-lg flex items-center space-x-2 transition-all shadow-lg shadow-primary/20">
+              <span className="material-symbols-outlined text-[20px]">add_box</span>
+              <span className="font-semibold">Create New Entry</span>
+            </button>
+          </div>
+
+          {/* Stat Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <StatCard
+              title="Total Entities"
+              value="1,428"
+              subtitle="+12 this week"
+              icon="auto_stories"
+              badges={
+                <div className="flex -space-x-2">
+                  <div className="w-6 h-6 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[12px] text-primary">
+                      person
+                    </span>
+                  </div>
+                  <div className="w-6 h-6 rounded-full bg-blue-500/20 border border-blue-500/40 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[12px] text-blue-500">
+                      location_on
+                    </span>
+                  </div>
+                  <div className="w-6 h-6 rounded-full bg-secondary/20 border border-secondary/40 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[12px] text-secondary">
+                      diamond
+                    </span>
+                  </div>
+                </div>
+              }
+            />
+
+            <StatCard
+              title="Recent Edits"
+              value="84"
+              subtitle="Past 24h"
+              icon="history_edu"
+              progressBar={{
+                value: 65,
+                label: "Active Session",
+              }}
+            />
+
+            <StatCard
+              title="World Progress"
+              value="67%"
+              subtitle="Book I Complete"
+              icon="public"
+              badges={
+                <div className="text-[12px] text-slate-500 font-medium uppercase tracking-tight">
+                  48/72 Major Milestones reached
+                </div>
+              }
+            />
+          </div>
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Recent Chronicles */}
+            <div className="lg:col-span-2">
+              <RecentChronicles />
+            </div>
+
+            {/* Right Column - Map, Tools, Prompt */}
+            <div className="space-y-8">
+              <WorldMapCard />
+              <ArcaneTools />
+              <PromptCard />
             </div>
           </div>
-        </main>
+        </div>
+      </main>
+
+      {/* Mobile Menu Button */}
+      <div className="fixed bottom-6 right-6 md:hidden">
+        <button className="w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center">
+          <span className="material-symbols-outlined">menu</span>
+        </button>
       </div>
     </div>
   );
 }
+
 

@@ -1,114 +1,180 @@
 'use client';
 
+import { useState } from 'react';
 import { Project } from '@/app/services/projectService';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faFolder, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
 
 interface ProjectCardProps {
   project: Project;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
-  onCancelDelete?: () => void;
-  isDeleteConfirm?: boolean;
 }
 
-export default function ProjectCard({ project, onEdit, onDelete, onCancelDelete, isDeleteConfirm }: ProjectCardProps) {
+export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
+    
+    if (diffHours < 24) {
+      return `${diffHours}h ago`;
+    } else if (diffHours < 48) {
+      return 'Yesterday';
+    } else {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
   };
 
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDelete(project.id);
+    setShowDeleteConfirm(false);
+  };
+
+  const handleCancelDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowDeleteConfirm(false);
+  };
+
+  // Placeholder image - in production this would come from project data
+  const projectImage = 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&h=600&fit=crop';
+  const genre = 'High Fantasy'; // This would come from project data
+
   return (
-    <div className="group relative bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 hover:-translate-y-1">
-      <Link href={`/projects/${project.id}`} className="block">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
-              <FontAwesomeIcon icon={faFolder} className="w-6 h-6 text-white" />
+    <div className={`project-card glass rounded-3xl overflow-hidden border border-white/10 transition-all cursor-pointer shadow-xl relative ${
+      showDeleteConfirm ? '' : 'group hover:border-primary/40'
+    }`}>
+      {/* Delete Confirmation Overlay */}
+      {showDeleteConfirm && (
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-2xl z-20 flex items-center justify-center p-6 rounded-3xl border-2 border-red-500/50">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-red-600/20 flex items-center justify-center mx-auto mb-4 border border-red-500/30">
+              <span className="material-symbols-outlined text-red-400 text-[32px]">warning</span>
             </div>
-            <div>
-              <h3 className="text-xl font-semibold text-purple-100 group-hover:text-purple-300 transition-colors">
-                {project.name}
-              </h3>
-              <p className="text-sm text-gray-400">
-                Created {formatDate(project.createdAt)}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {project.description && (
-          <p className="text-gray-300 text-sm mb-4 line-clamp-2">
-            {project.description}
-          </p>
-        )}
-      </Link>
-
-      <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-700">
-        <span className="text-xs text-gray-400">
-          Updated {formatDate(project.updatedAt)}
-        </span>
-        
-        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              onEdit(project.id);
-            }}
-            className="p-2 rounded-lg bg-gray-700 hover:bg-purple-600 text-gray-300 hover:text-white transition-colors"
-            title="Edit project"
-          >
-            <FontAwesomeIcon icon={faEdit} className="w-4 h-4" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              onDelete(project.id);
-            }}
-            className="p-2 rounded-lg bg-gray-700 hover:bg-red-600 text-gray-300 hover:text-white transition-colors"
-            title="Delete project"
-          >
-            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-      
-      {isDeleteConfirm && (
-        <div className="absolute inset-0 bg-gray-900/95 backdrop-blur-sm rounded-lg border-2 border-red-500 flex items-center justify-center z-10">
-          <div className="text-center px-6">
-            <p className="text-red-100 text-lg font-semibold mb-4">Delete this project?</p>
-            <p className="text-gray-300 text-sm mb-6">This action cannot be undone.</p>
-            <div className="flex gap-3 justify-center">
+            <h3 className="text-xl font-display font-bold text-white">Delete Project?</h3>
+            <p className="text-slate-400 text-sm max-w-xs">
+              Are you sure you want to delete "{project.name}"? This action cannot be undone.
+            </p>
+            <div className="flex gap-3 pt-4">
               <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onDelete(project.id);
-                }}
-                className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                onClick={handleCancelDelete}
+                className="flex-1 px-4 py-2.5 glass text-white rounded-lg hover:bg-white/10 transition-all font-semibold"
               >
-                <FontAwesomeIcon icon={faCheck} className="mr-2" />
-                Confirm Delete
+                Cancel
               </button>
               <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onCancelDelete?.();
-                }}
-                className="inline-flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg font-medium transition-colors"
+                onClick={handleConfirmDelete}
+                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-lg shadow-red-600/20 transition-all font-semibold"
               >
-                <FontAwesomeIcon icon={faTimes} className="mr-2" />
-                Cancel
+                Delete
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Image Section */}
+      <div className="relative h-64 overflow-hidden">
+        <Link href={`/projects/${project.id}`}>
+          <img 
+            src={projectImage}
+            alt={project.name}
+            className={`w-full h-full object-cover transition-transform duration-700 ${
+              showDeleteConfirm ? 'grayscale-[20%]' : 'grayscale-[20%] group-hover:grayscale-0'
+            }`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent opacity-80" />
+          
+          {/* Genre Badge */}
+          <div className="absolute bottom-4 left-6">
+            <span className="px-3 py-1 bg-primary/20 backdrop-blur-md border border-primary/30 text-primary text-[10px] font-bold uppercase tracking-widest rounded-full">
+              {genre}
+            </span>
+          </div>
+        </Link>
+      </div>
+
+      {/* Content Section */}
+      <div className="p-6 space-y-4">
+        <div className="flex justify-between items-start">
+          <Link href={`/projects/${project.id}`} className="flex-1">
+            <h3 className={`text-2xl font-display font-bold text-white transition-colors ${
+              showDeleteConfirm ? '' : 'group-hover:text-primary'
+            }`}>
+              {project.name}
+            </h3>
+            {project.description && (
+              <p className="text-slate-400 text-sm mt-1 line-clamp-2">
+                {project.description}
+              </p>
+            )}
+          </Link>
+          
+          {/* More Menu Button */}
+          <div className="relative">
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              className="text-slate-500 hover:text-white transition-colors p-1"
+            >
+              <span className="material-symbols-outlined">more_vert</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Stats Footer */}
+        <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-slate-400 font-medium">
+          <div className="flex items-center space-x-4">
+            <span className="flex items-center">
+              <span className="material-symbols-outlined text-xs mr-1 text-slate-500">group</span>
+              0 Characters
+            </span>
+            <span className="flex items-center">
+              <span className="material-symbols-outlined text-xs mr-1 text-slate-500">location_on</span>
+              0 Locations
+            </span>
+          </div>
+          <span className="text-slate-600">Updated {formatDate(project.updatedAt)}</span>
+        </div>
+      </div>
+
+      {/* Action buttons - shown on hover */}
+      {!showDeleteConfirm && (
+        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onEdit(project.id);
+            }}
+            className="p-2 rounded-lg glass hover:bg-primary hover:text-white transition-all backdrop-blur-md"
+            title="Edit Project"
+          >
+            <span className="material-symbols-outlined text-[18px]">edit</span>
+          </button>
+          <button
+            onClick={handleDeleteClick}
+            className="p-2 rounded-lg glass hover:bg-red-600 hover:text-white transition-all backdrop-blur-md"
+            title="Delete Project"
+          >
+            <span className="material-symbols-outlined text-[18px]">delete</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
+

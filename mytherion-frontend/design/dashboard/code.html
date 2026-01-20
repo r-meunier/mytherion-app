@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mytherion Enhanced Dashboard</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Outfit:wght@400;600;800&amp;family=Great+Vibes&amp;family=Dancing+Script&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#A855F7", 
+              secondary: "#FBBF24", 
+              "background-light": "#F8FAFC",
+              "background-dark": "#0B0B1E", 
+              "surface-dark": "rgba(30, 30, 50, 0.4)",
+            },
+            fontFamily: {
+              display: ["Outfit", "sans-serif"],
+              sans: ["Inter", "sans-serif"],
+              script: ["Great Vibes", "cursive"],
+            },
+            borderRadius: {
+              DEFAULT: "12px",
+            },
+            backgroundImage: {
+              'starfield': "radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 80%), url('https://www.transparenttextures.com/patterns/stardust.png')",
+            }
+          },
+        },
+      };
+    </script>
+<style type="text/tailwindcss">
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-item-active {
+            background: linear-gradient(90deg, rgba(168, 85, 247, 0.2) 0%, transparent 100%);
+            border-left: 3px solid #A855F7;
+            color: #A855F7;
+        }
+        .sidebar-item-active .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 700;
+        }
+        .glow-gold:hover {
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(168, 85, 247, 0.3);
+            border-radius: 10px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-sans min-h-screen selection:bg-primary/30">
+<div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+<div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px]"></div>
+<div class="absolute inset-0 bg-starfield opacity-40"></div>
+</div>
+<div class="relative z-10 flex h-screen overflow-hidden">
+<div class="flex h-full flex-shrink-0">
+<aside class="w-20 bg-black/40 border-r border-white/5 flex flex-col items-center py-6 space-y-8 backdrop-blur-xl">
+<div class="w-10 h-10 bg-gradient-to-tr from-primary to-purple-400 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-white">auto_awesome</span>
+</div>
+<div class="flex flex-col space-y-6">
+<a class="text-primary" href="#"><span class="material-symbols-outlined text-[24px]">dashboard</span></a>
+<a class="text-slate-500 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-[24px]">group</span></a>
+<a class="text-slate-500 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-[24px]">explore</span></a>
+<a class="text-slate-500 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-[24px]">history_edu</span></a>
+<a class="text-slate-500 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-[24px]">deployed_code</span></a>
+<a class="text-slate-500 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-[24px]">description</span></a>
+<a class="text-slate-500 hover:text-white transition-colors pt-6 border-t border-white/10" href="#"><span class="material-symbols-outlined text-[24px]">menu_book</span></a>
+</div>
+</aside>
+<aside class="w-56 bg-black/20 border-r border-white/10 flex flex-col backdrop-blur-md">
+<div class="p-6">
+<h1 class="text-xl font-display font-extrabold tracking-tight text-white uppercase">Mytherion</h1>
+</div>
+<nav class="flex-1 px-4 space-y-1 overflow-y-auto pt-4">
+<p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Chronicle Navigation</p>
+<a class="flex items-center space-x-3 px-4 py-3 rounded-lg sidebar-item-active transition-all group" href="#">
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="font-medium group-hover:text-white transition-colors">Characters</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="font-medium group-hover:text-white transition-colors">Locations</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="font-medium group-hover:text-white transition-colors">Timeline</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="font-medium group-hover:text-white transition-colors">Artifacts</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="font-medium group-hover:text-white transition-colors">Notes</span>
+</a>
+<div class="pt-10">
+<p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Library</p>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="font-medium">Bestiary</span>
+</a>
+</div>
+</nav>
+<div class="p-4 border-t border-white/10">
+<div class="p-3 bg-primary/5 rounded-xl border border-primary/20">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[11px] font-bold text-primary uppercase">Storage</span>
+<span class="text-[11px] text-slate-500">82%</span>
+</div>
+<div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[82%] rounded-full shadow-[0_0_8px_rgba(168,85,247,0.4)]"></div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+<main class="flex-1 flex flex-col overflow-hidden">
+<header class="h-20 flex items-center justify-between px-8 border-b border-white/10 bg-white/5 backdrop-blur-md">
+<div class="flex items-center space-x-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+<input class="pl-10 pr-4 py-2 bg-white/5 border-none focus:ring-1 focus:ring-primary rounded-full text-sm w-80 text-slate-200" placeholder="Search the multiverse..." type="text"/>
+</div>
+</div>
+<div class="flex items-center space-x-6">
+<button class="relative p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full border-2 border-background-dark"></span>
+</button>
+<div class="flex items-center space-x-3 pl-6 border-l border-white/10">
+<div class="text-right">
+<p class="text-sm font-semibold text-white">Alistair Thorne</p>
+<p class="text-[11px] text-primary font-bold uppercase tracking-wider">Master Chronicler</p>
+</div>
+<div class="w-10 h-10 rounded-full ring-2 ring-primary/30 p-0.5 overflow-hidden">
+<img alt="User Avatar" class="w-full h-full rounded-full bg-slate-800 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvry9BPw0toKXHZitfvudh_yTnhvALhUBsMBwRwStvQGNui5LFqSNTC048e_BEZ1Lfyl8qGQuPAFxZy6-yGPOJFIY42af-nx1RyepYTH2nOQUyhi14rMO7WxOYg8KTSKEzKB1CShueZ8WXU5xkIBaoLIGJmm8eE95elNFKGPqeYkqJBi1dWKr1UMPXhZoCG1P5mXGgq3foSiASmjUjjaXRZerz6CAoz27y61MMx4t6ZBHH25x09QUyCxvii157_R8Vz5N-O-crYyTG"/>
+</div>
+</div>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-8 space-y-8">
+<div class="flex items-end justify-between">
+<div>
+<h2 class="text-3xl font-display font-bold text-white">Welcome back, Chronicler</h2>
+<p class="text-slate-400 mt-1">Your worlds are waiting for your next stroke of genius.</p>
+</div>
+<button class="bg-primary hover:bg-primary/80 text-white px-5 py-2.5 rounded-lg flex items-center space-x-2 transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-[20px]">add_box</span>
+<span class="font-semibold">Create New Entry</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="glass p-6 rounded-2xl relative overflow-hidden group hover:border-primary/50 transition-all">
+<div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[100px]">auto_stories</span>
+</div>
+<p class="text-slate-400 text-sm font-medium">Total Entities</p>
+<div class="flex items-baseline space-x-2 mt-2">
+<h3 class="text-4xl font-display font-bold text-white">1,428</h3>
+<span class="text-emerald-400 text-xs font-bold">+12 this week</span>
+</div>
+<div class="mt-4 flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center"><span class="material-symbols-outlined text-[12px] text-primary">person</span></div>
+<div class="w-6 h-6 rounded-full bg-blue-500/20 border border-blue-500/40 flex items-center justify-center"><span class="material-symbols-outlined text-[12px] text-blue-500">location_on</span></div>
+<div class="w-6 h-6 rounded-full bg-secondary/20 border border-secondary/40 flex items-center justify-center"><span class="material-symbols-outlined text-[12px] text-secondary">diamond</span></div>
+</div>
+</div>
+<div class="glass p-6 rounded-2xl relative overflow-hidden group hover:border-primary/50 transition-all">
+<div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[100px]">history_edu</span>
+</div>
+<p class="text-slate-400 text-sm font-medium">Recent Edits</p>
+<div class="flex items-baseline space-x-2 mt-2">
+<h3 class="text-4xl font-display font-bold text-white">84</h3>
+<span class="text-slate-500 text-xs font-bold">Past 24h</span>
+</div>
+<div class="mt-4 flex items-center space-x-2">
+<div class="h-1.5 flex-1 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[65%] shadow-[0_0_8px_rgba(251,191,36,0.5)]"></div>
+</div>
+<span class="text-[10px] font-bold text-secondary uppercase">Active Session</span>
+</div>
+</div>
+<div class="glass p-6 rounded-2xl relative overflow-hidden group hover:border-primary/50 transition-all">
+<div class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[100px]">public</span>
+</div>
+<p class="text-slate-400 text-sm font-medium">World Progress</p>
+<div class="flex items-baseline space-x-2 mt-2">
+<h3 class="text-4xl font-display font-bold text-white">67%</h3>
+<span class="text-primary text-xs font-bold">Book I Complete</span>
+</div>
+<div class="mt-4 text-[12px] text-slate-500 font-medium uppercase tracking-tight">
+                        48/72 Major Milestones reached
+                    </div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2 space-y-6">
+<div class="flex items-center justify-between">
+<h4 class="text-lg font-display font-bold text-white flex items-center">
+<span class="material-symbols-outlined mr-2 text-primary">history</span> Recent Chronicles
+                        </h4>
+<a class="text-sm text-primary hover:underline font-medium" href="#">View Archive</a>
+</div>
+<div class="space-y-4">
+<div class="glass p-5 rounded-2xl hover:bg-white/5 transition-all group flex items-start space-x-5 border border-white/10">
+<div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border border-white/20 shadow-inner">
+<img alt="Character Portrait" class="w-full h-full object-cover grayscale-[10%] sepia-[5%]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAX6Yev4jBDV6wwAa44dwhhVR-vRF8-35TNH-znLY0p_AjF8AhGQluQvhDSQhECusFq4zrD8kLy854JjxgPkAK0qIQw7CGv_Lx15kP9lqTAbuOCZSTvZMv_IppMPsw9sbS6YqTesiBKZpSukdKi0QGS0hyrEwpGBd-OYAxNwJkImosw8xieOmq2wH2L7k3jjKuNI6QY_xP3zHnSBC_XgXVoC17PFel6QoMJVgAoB3a3fOmu03_IEKiWfxxTNzCU5TewCuK4sGZtDhhg"/>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<h5 class="font-bold text-white group-hover:text-primary transition-colors">The High Priestess of Eldora</h5>
+<span class="text-[11px] text-slate-500">2 hours ago</span>
+</div>
+<p class="text-sm text-slate-400 line-clamp-2 leading-relaxed">Updated character background and added the "Sacred Omen" artifact connection. Adjusted political standing in the Eldorian Council...</p>
+<div class="mt-3 flex items-center space-x-3">
+<span class="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider border border-primary/20">Character</span>
+<span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-wider border border-blue-500/20">Major NPC</span>
+</div>
+</div>
+</div>
+<div class="glass p-5 rounded-2xl hover:bg-white/5 transition-all group flex items-start space-x-5 border border-white/10">
+<div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border border-white/20 shadow-inner">
+<img alt="Location Preview" class="w-full h-full object-cover grayscale-[10%] sepia-[5%]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIbUVclgpmsPW2jmgpdKnFHXZz_FRFaOOliz5M_3pQ2hH-d6LF7G9x09XorVYrATNRx9TXdM_CgGhVgWSXUsHbCtJAWPoXLDb6DL0LP59BH1Fdde-2LDZcmgK8Lu1Bj9gCph_3VZ9GB4OZPD5fJqpK1TqR3jyjH_RM9HHjiVsYanPaOPq5iKyJQI7bMiBcHAclWwdezG0egD7VaFoLhV-QAu5mgnFRTrG4ZrM-kLFsQSJjDyFak7Oe09NsKi50tDhvEfMRnXKP4hAJ"/>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<h5 class="font-bold text-white group-hover:text-primary transition-colors">Obsidian Peaks (Range)</h5>
+<span class="text-[11px] text-slate-500">5 hours ago</span>
+</div>
+<p class="text-sm text-slate-400 line-clamp-2 leading-relaxed">Modified climatic effects to include the 'Shadow Gale' phenomenon. Added lore regarding the Great Wyrm's resting place...</p>
+<div class="mt-3 flex items-center space-x-3">
+<span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-wider border border-blue-500/20">Location</span>
+<span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wider border border-emerald-500/20">Environment</span>
+</div>
+</div>
+</div>
+<div class="glass p-5 rounded-2xl hover:bg-white/5 transition-all group flex items-start space-x-5 border border-white/10">
+<div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border border-white/20 shadow-inner">
+<img alt="Artifact Preview" class="w-full h-full object-cover grayscale-[10%] sepia-[5%]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2Yf9O0YO3qN_VxJ5WAdy7lbUxhs8iUWQTBJESEScoNuDKKaMPZsqpWrykArjSbiL7_e3SesFETN9r5sb0qnf8i10pGVu_Ksil-EGICAJFFQLB_90m_CfXsNDRxh7SzEvdb1lX85G3neLrP4dPJx3W_y_cGi_linVqQDoKFC5qJO1hm9QmDi1fn6-Yxk9BVODvfCm6nSy_0E2_cOXscfsinRmWum8vEm-Tb7xRKva78OFvrAZTAZp24iTVSIR7qXkXeeXVytD4q5mx"/>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<h5 class="font-bold text-white group-hover:text-primary transition-colors">Blade of the Sun King</h5>
+<span class="text-[11px] text-slate-500">Yesterday</span>
+</div>
+<p class="text-sm text-slate-400 line-clamp-2 leading-relaxed">New artifact entry. Legendary sword belonging to King Solari. Includes unique 'Light-bringer' trait and quest hook...</p>
+<div class="mt-3 flex items-center space-x-3">
+<span class="px-2 py-0.5 rounded bg-secondary/10 text-secondary text-[10px] font-bold uppercase tracking-wider border border-secondary/20">Artifact</span>
+<span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-wider border border-purple-500/20">Legendary</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-8">
+<div class="space-y-4">
+<h4 class="text-lg font-display font-bold text-white flex items-center">
+<span class="material-symbols-outlined mr-2 text-secondary">map</span> World Map
+                        </h4>
+<div class="relative rounded-2xl overflow-hidden group border border-white/10 glow-gold cursor-pointer transition-all">
+<img alt="World Map Preview" class="w-full h-56 object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-[10%] sepia-[10%]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeAjmS6YrqQ5jg8Bng7i0ZGGBB37j8jlMocp9_KT206ulGaaL-BU52WZlec62UWpQ941jokRt-sklBoxZk1VkAuF-plpg6YqXowMYKRXS2nkZNC5uUlPB-BZAk15URHObXWZ2uNShBN_zGDPOrXEqS_im-bik1c_YKVr_Z04oSkrWg5VESxJdHIvF_hdKdhQtr3RwWee1l63LTZrHMIRV4JtGcOiZoICgmSR9_BeFifOViInAjKoz182QZZYtJWz_AtQSp2OEqK3iX"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-5">
+<p class="text-white font-bold text-lg">Aetheria Centralis</p>
+<p class="text-white/60 text-xs">8 Regions Discovered • 12 Points of Interest</p>
+</div>
+<div class="absolute top-4 right-4 bg-black/40 backdrop-blur-md p-2 rounded-lg text-white">
+<span class="material-symbols-outlined text-sm">open_in_full</span>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<h4 class="text-lg font-display font-bold text-white flex items-center">
+<span class="material-symbols-outlined mr-2 text-primary">auto_fix_high</span> Arcane Tools
+                        </h4>
+<div class="grid grid-cols-2 gap-3">
+<button class="p-4 glass rounded-xl hover:bg-primary hover:text-white transition-all text-left flex flex-col items-start group">
+<span class="material-symbols-outlined text-primary group-hover:text-white mb-2">casino</span>
+<span class="text-xs font-bold uppercase tracking-wider">Name Gen</span>
+</button>
+<button class="p-4 glass rounded-xl hover:bg-primary hover:text-white transition-all text-left flex flex-col items-start group">
+<span class="material-symbols-outlined text-primary group-hover:text-white mb-2">calendar_month</span>
+<span class="text-xs font-bold uppercase tracking-wider">Calendar</span>
+</button>
+<button class="p-4 glass rounded-xl hover:bg-primary hover:text-white transition-all text-left flex flex-col items-start group">
+<span class="material-symbols-outlined text-primary group-hover:text-white mb-2">psychology</span>
+<span class="text-xs font-bold uppercase tracking-wider">Lore AI</span>
+</button>
+<button class="p-4 glass rounded-xl hover:bg-primary hover:text-white transition-all text-left flex flex-col items-start group">
+<span class="material-symbols-outlined text-primary group-hover:text-white mb-2">share</span>
+<span class="text-xs font-bold uppercase tracking-wider">Export</span>
+</button>
+</div>
+</div>
+<div class="p-6 rounded-2xl bg-gradient-to-br from-indigo-900/60 to-primary/60 border border-white/20 relative overflow-hidden shadow-2xl">
+<span class="material-symbols-outlined absolute -right-6 -top-6 text-white/5 text-[140px] rotate-12">history_edu</span>
+<p class="text-[10px] font-bold text-secondary uppercase mb-3 tracking-widest relative z-10">Prompt of the day</p>
+<p class="text-2xl font-script text-white leading-relaxed relative z-10 drop-shadow-md">"What ancient secret lies beneath the roots of the world-tree, forgotten even by the gods?"</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<div class="fixed bottom-6 right-6 md:hidden">
+<button class="w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+
+</body></html>

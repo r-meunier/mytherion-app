@@ -8,13 +8,13 @@ export default function RegisterPage() {
 
       {/* Register Card */}
       <div className="relative z-10 w-full max-w-md">
-        <div className="bg-slate-800/40 backdrop-blur-sm rounded-lg shadow-xl shadow-[#190525]/30 p-8 border border-purple-500/30">
+        <div className="glass rounded-2xl shadow-2xl p-8 border border-white/20">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-2">
+            <h1 className="text-3xl font-display font-bold text-white mb-2">
               Create Account
             </h1>
-            <p className="text-purple-300/80">
+            <p className="text-slate-400">
               Join Mytherion to start tracking your lore
             </p>
           </div>
@@ -26,3 +26,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

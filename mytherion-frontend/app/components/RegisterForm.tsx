@@ -129,44 +129,42 @@ export default function RegisterForm() {
   if (registrationSuccess) {
     return (
       <div className="w-full max-w-md">
-        <div className="p-8 bg-slate-800/40 backdrop-blur-sm border border-purple-500/30 rounded-lg shadow-xl">
+        <div className="p-8 glass rounded-2xl shadow-2xl border border-white/20">
           <div className="text-center">
             <div className="mb-6">
-              <div className="mx-auto w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
-                <svg className="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
-                </svg>
+              <div className="mx-auto w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center border border-green-500/30">
+                <span className="material-symbols-outlined text-green-400 text-[40px]">mail</span>
               </div>
             </div>
-            <h2 className="text-2xl font-bold text-green-400 mb-4">Check Your Email!</h2>
-            <p className="text-purple-200 mb-2">
+            <h2 className="text-2xl font-display font-bold text-white mb-4">Check Your Email!</h2>
+            <p className="text-slate-300 mb-2">
               We've sent a verification email to:
             </p>
-            <p className="text-purple-100 font-semibold mb-6">{formData.email}</p>
-            <p className="text-purple-300/80 text-sm mb-6">
+            <p className="text-white font-semibold mb-6">{formData.email}</p>
+            <p className="text-slate-400 text-sm mb-6">
               Click the link in the email to verify your account and complete registration.
               The link will expire in 24 hours.
             </p>
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-6">
-              <p className="text-yellow-200 text-sm">
+            <div className="glass border border-secondary/30 rounded-xl p-4 mb-6">
+              <p className="text-secondary text-sm">
                 <strong>Note:</strong> You must verify your email before you can log in.
               </p>
             </div>
 
             {/* Resend verification section */}
             <div className="mb-6">
-              <p className="text-purple-300/70 text-sm mb-3">
+              <p className="text-slate-400 text-sm mb-3">
                 Didn't receive the email?
               </p>
               <button
                 onClick={handleResendVerification}
                 disabled={resending}
-                className="w-full px-4 py-2 bg-purple-600/20 border border-purple-500/30 text-purple-200 font-medium rounded-lg hover:bg-purple-600/30 hover:border-purple-400/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2 glass border border-white/10 text-slate-200 font-medium rounded-lg hover:bg-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {resending ? 'Sending...' : 'Resend Verification Email'}
               </button>
               {resendMessage && (
-                <p className={`mt-2 text-sm ${resendMessage.startsWith('✓') ? 'text-green-300' : 'text-red-300'}`}>
+                <p className={`mt-2 text-sm ${resendMessage.startsWith('✓') ? 'text-green-400' : 'text-red-400'}`}>
                   {resendMessage}
                 </p>
               )}
@@ -174,7 +172,7 @@ export default function RegisterForm() {
 
             <Link
               href="/login"
-              className="inline-block w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-500 hover:to-blue-500 transition-all"
+              className="inline-block w-full px-6 py-3 bg-primary hover:bg-primary/80 text-white font-semibold rounded-lg shadow-lg shadow-primary/20 transition-all"
             >
               Go to Login
             </Link>
@@ -191,7 +189,7 @@ export default function RegisterForm() {
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-purple-200 mb-2"
+            className="block text-sm font-medium text-white mb-2"
           >
             Email
           </label>
@@ -201,7 +199,9 @@ export default function RegisterForm() {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full px-4 py-3 bg-slate-800/40 border border-purple-500/30 rounded-lg text-purple-100 placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all"
+            className={`w-full px-4 py-3 glass border ${
+              validationErrors.email ? 'border-red-500/50' : 'border-white/10'
+            } rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
             placeholder="you@example.com"
             disabled={isLoading}
           />
@@ -216,7 +216,7 @@ export default function RegisterForm() {
         <div>
           <label
             htmlFor="username"
-            className="block text-sm font-medium text-purple-200 mb-2"
+            className="block text-sm font-medium text-white mb-2"
           >
             Username
           </label>
@@ -226,7 +226,9 @@ export default function RegisterForm() {
             name="username"
             value={formData.username}
             onChange={handleChange}
-            className="w-full px-4 py-3 bg-slate-800/40 border border-purple-500/30 rounded-lg text-purple-100 placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all"
+            className={`w-full px-4 py-3 glass border ${
+              validationErrors.username ? 'border-red-500/50' : 'border-white/10'
+            } rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
             placeholder="johndoe"
             disabled={isLoading}
           />
@@ -241,7 +243,7 @@ export default function RegisterForm() {
         <div>
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-purple-200 mb-2"
+            className="block text-sm font-medium text-white mb-2"
           >
             Password
           </label>
@@ -251,7 +253,9 @@ export default function RegisterForm() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full px-4 py-3 bg-slate-800/40 border border-purple-500/30 rounded-lg text-purple-100 placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all"
+            className={`w-full px-4 py-3 glass border ${
+              validationErrors.password ? 'border-red-500/50' : 'border-white/10'
+            } rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
             placeholder="••••••••"
             disabled={isLoading}
           />
@@ -266,7 +270,7 @@ export default function RegisterForm() {
         <div>
           <label
             htmlFor="confirmPassword"
-            className="block text-sm font-medium text-purple-200 mb-2"
+            className="block text-sm font-medium text-white mb-2"
           >
             Confirm Password
           </label>
@@ -276,7 +280,9 @@ export default function RegisterForm() {
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
-            className="w-full px-4 py-3 bg-slate-800/40 border border-purple-500/30 rounded-lg text-purple-100 placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all"
+            className={`w-full px-4 py-3 glass border ${
+              validationErrors.confirmPassword ? 'border-red-500/50' : 'border-white/10'
+            } rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
             placeholder="••••••••"
             disabled={isLoading}
           />
@@ -289,7 +295,8 @@ export default function RegisterForm() {
 
         {/* API Error Display */}
         {error && (
-          <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <div className="p-3 glass border border-red-500/50 rounded-xl flex items-start gap-3">
+            <span className="material-symbols-outlined text-red-400 text-[20px]">error</span>
             <p className="text-sm text-red-400">{error}</p>
           </div>
         )}
@@ -298,17 +305,17 @@ export default function RegisterForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:from-purple-500 hover:to-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-6 py-3 bg-primary hover:bg-primary/80 text-white font-semibold rounded-lg shadow-lg shadow-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? "Creating account..." : "Register"}
         </button>
 
         {/* Login Link */}
-        <p className="text-center text-purple-300/80 text-sm">
+        <p className="text-center text-slate-400 text-sm">
           Already have an account?{" "}
           <Link
             href="/login"
-            className="text-purple-400 hover:text-purple-300 font-medium transition-colors"
+            className="text-primary hover:text-primary/80 font-medium transition-colors"
           >
             Login here
           </Link>

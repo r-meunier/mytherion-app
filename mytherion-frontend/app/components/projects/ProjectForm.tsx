@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Project, CreateProjectRequest } from '@/app/services/projectService';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 interface ProjectFormProps {
   project?: Project;
@@ -51,7 +49,7 @@ export default function ProjectForm({ project, onSubmit, onCancel, loading }: Pr
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-purple-100 mb-2">
+        <label htmlFor="name" className="block text-sm font-medium text-white mb-2">
           Project Name <span className="text-red-400">*</span>
         </label>
         <input
@@ -59,19 +57,19 @@ export default function ProjectForm({ project, onSubmit, onCancel, loading }: Pr
           id="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className={`w-full px-4 py-3 bg-gray-800 border ${
-            errors.name ? 'border-red-500' : 'border-gray-700'
-          } rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all`}
+          className={`w-full px-4 py-3 glass border ${
+            errors.name ? 'border-red-500/50' : 'border-white/10'
+          } rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
           placeholder="Enter project name"
           disabled={loading}
           maxLength={255}
         />
         {errors.name && <p className="mt-2 text-sm text-red-400">{errors.name}</p>}
-        <p className="mt-1 text-xs text-gray-500">{name.length}/255 characters</p>
+        <p className="mt-1 text-xs text-slate-500">{name.length}/255 characters</p>
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-purple-100 mb-2">
+        <label htmlFor="description" className="block text-sm font-medium text-white mb-2">
           Description
         </label>
         <textarea
@@ -79,35 +77,35 @@ export default function ProjectForm({ project, onSubmit, onCancel, loading }: Pr
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
-          className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+          className="w-full px-4 py-3 glass border border-white/10 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
           placeholder="Enter project description (optional)"
           disabled={loading}
         />
       </div>
 
-      <div className="flex gap-3 justify-end pt-4 border-t border-gray-700">
+      <div className="flex gap-3 justify-end pt-4 border-t border-white/10">
         <button
           type="button"
           onClick={onCancel}
           disabled={loading}
-          className="px-6 py-3 bg-gray-800 text-gray-300 rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-3 glass text-slate-300 rounded-lg font-medium hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <FontAwesomeIcon icon={faTimes} className="mr-2" />
+          <span className="material-symbols-outlined text-[18px] mr-2 inline-block align-text-bottom">close</span>
           Cancel
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
+          className="px-6 py-3 bg-primary hover:bg-primary/80 text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
         >
           {loading ? (
             <>
-              <FontAwesomeIcon icon={faSave} className="mr-2 animate-spin" />
+              <span className="material-symbols-outlined text-[18px] mr-2 inline-block align-text-bottom animate-spin">sync</span>
               Saving...
             </>
           ) : (
             <>
-              <FontAwesomeIcon icon={faSave} className="mr-2" />
+              <span className="material-symbols-outlined text-[18px] mr-2 inline-block align-text-bottom">save</span>
               {project ? 'Update Project' : 'Create Project'}
             </>
           )}
@@ -116,3 +114,4 @@ export default function ProjectForm({ project, onSubmit, onCancel, loading }: Pr
     </form>
   );
 }
+

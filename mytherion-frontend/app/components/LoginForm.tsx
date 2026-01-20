@@ -78,7 +78,7 @@ export default function LoginForm() {
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-purple-200 mb-2"
+            className="block text-sm font-medium text-white mb-2"
           >
             Email
           </label>
@@ -88,7 +88,9 @@ export default function LoginForm() {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full px-4 py-3 bg-slate-800/40 border border-purple-500/30 rounded-lg text-purple-100 placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all"
+            className={`w-full px-4 py-3 glass border ${
+              validationErrors.email ? 'border-red-500/50' : 'border-white/10'
+            } rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
             placeholder="you@example.com"
             disabled={isLoading}
           />
@@ -101,7 +103,7 @@ export default function LoginForm() {
         <div>
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-purple-200 mb-2"
+            className="block text-sm font-medium text-white mb-2"
           >
             Password
           </label>
@@ -111,7 +113,9 @@ export default function LoginForm() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full px-4 py-3 bg-slate-800/40 border border-purple-500/30 rounded-lg text-purple-100 placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all"
+            className={`w-full px-4 py-3 glass border ${
+              validationErrors.password ? 'border-red-500/50' : 'border-white/10'
+            } rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
             placeholder="••••••••"
             disabled={isLoading}
           />
@@ -122,7 +126,8 @@ export default function LoginForm() {
 
         {/* API Error Display */}
         {error && (
-          <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <div className="p-3 glass border border-red-500/50 rounded-xl flex items-start gap-3">
+            <span className="material-symbols-outlined text-red-400 text-[20px]">error</span>
             <p className="text-sm text-red-400">{error}</p>
           </div>
         )}
@@ -131,17 +136,17 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:from-purple-500 hover:to-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-6 py-3 bg-primary hover:bg-primary/80 text-white font-semibold rounded-lg shadow-lg shadow-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? "Logging in..." : "Login"}
         </button>
 
         {/* Register Link */}
-        <p className="text-center text-purple-300/80 text-sm">
+        <p className="text-center text-slate-400 text-sm">
           Don't have an account?{" "}
           <Link
             href="/register"
-            className="text-purple-400 hover:text-purple-300 font-medium transition-colors"
+            className="text-primary hover:text-primary/80 font-medium transition-colors"
           >
             Register here
           </Link>
@@ -150,3 +155,4 @@ export default function LoginForm() {
     </div>
   );
 }
+

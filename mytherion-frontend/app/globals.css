@@ -1,26 +1,131 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --primary: #a855f7;
+  --secondary: #fbbf24;
+  --background-light: #f8fafc;
+  --background-dark: #0b0b1e;
+  --surface-dark: rgba(30, 30, 50, 0.4);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-background-light: var(--background-light);
+  --color-background-dark: var(--background-dark);
+  --color-surface-dark: var(--surface-dark);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-outfit);
+  --font-script: var(--font-great-vibes);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--background-dark);
+  color: #f1f5f9;
+  font-family:
+    var(--font-inter),
+    system-ui,
+    -apple-system,
+    sans-serif;
+  min-height: 100vh;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Modal border glow effect */
+.modal-border-glow {
+  box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.3), 
+              0 0 15px rgba(168, 85, 247, 0.2), 
+              inset 0 0 15px rgba(251, 191, 36, 0.1);
+}
+
+/* Cosmic button gradient */
+.cosmic-btn {
+  background: linear-gradient(135deg, #A855F7 0%, #7E22CE 100%);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+}
+
+/* Project card hover effects */
+.project-card:hover img {
+  scale: 1.05;
+}
+
+/* Sidebar active state */
+.sidebar-item-active {
+  background: linear-gradient(
+    90deg,
+    rgba(168, 85, 247, 0.2) 0%,
+    transparent 100%
+  );
+  border-left: 3px solid var(--primary);
+  color: var(--primary);
+}
+
+.sidebar-item-active .material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 700;
+}
+
+/* Glow effects */
+.glow-gold:hover {
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+}
+
+.glow-primary:hover {
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.5);
+}
+
+/* Material Symbols configuration */
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 600,
+    "GRAD" 0,
+    "opsz" 24;
+  user-select: none;
+}
+
+/* Selection styling */
+::selection {
+  background: rgba(168, 85, 247, 0.3);
+  color: white;
+}
+
+/* Starfield background pattern */
+.bg-starfield {
+  background-image:
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(168, 85, 247, 0.05) 0%,
+      transparent 80%
+    ),
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="30" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="80" cy="70" r="1" fill="rgba(255,255,255,0.08)"/><circle cx="30" cy="80" r="0.5" fill="rgba(255,255,255,0.06)"/></svg>');
+  background-size:
+    100% 100%,
+    200px 200px;
 }

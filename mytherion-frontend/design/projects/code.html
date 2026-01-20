@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mytherion Projects Gallery</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Outfit:wght@400;600;800&amp;family=Great+Vibes&amp;family=Dancing+Script&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#A855F7", 
+              secondary: "#FBBF24", 
+              "background-light": "#F8FAFC",
+              "background-dark": "#0B0B1E", 
+              "surface-dark": "rgba(30, 30, 50, 0.4)",
+            },
+            fontFamily: {
+              display: ["Outfit", "sans-serif"],
+              sans: ["Inter", "sans-serif"],
+              script: ["Great Vibes", "cursive"],
+            },
+            borderRadius: {
+              DEFAULT: "12px",
+            },
+            backgroundImage: {
+              'starfield': "radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 80%), url('https://www.transparenttextures.com/patterns/stardust.png')",
+            }
+          },
+        },
+      };
+    </script>
+<style type="text/tailwindcss">
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-item-active {
+            background: linear-gradient(90deg, rgba(168, 85, 247, 0.2) 0%, transparent 100%);
+            border-left: 3px solid #A855F7;
+            color: #A855F7;
+        }
+        .sidebar-item-active .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 700;
+        }
+        .glow-purple:hover {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(168, 85, 247, 0.3);
+            border-radius: 10px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .project-card:hover .project-overlay {
+            opacity: 1;
+        }
+        .project-card:hover img {
+            scale: 1.05;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-sans min-h-screen selection:bg-primary/30">
+<div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+<div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px]"></div>
+<div class="absolute inset-0 bg-starfield opacity-40"></div>
+</div>
+<div class="relative z-10 flex h-screen overflow-hidden">
+<aside class="w-20 bg-black/40 border-r border-white/5 flex flex-col items-center py-6 space-y-8 backdrop-blur-xl">
+<div class="w-10 h-10 bg-gradient-to-tr from-primary to-purple-400 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-white">auto_awesome</span>
+</div>
+<div class="flex flex-col space-y-6">
+<a class="text-slate-500 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-[24px]">dashboard</span></a>
+<a class="text-primary" href="#"><span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">folder_special</span></a>
+<a class="text-slate-500 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-[24px]">group</span></a>
+<a class="text-slate-500 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-[24px]">explore</span></a>
+<a class="text-slate-500 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-[24px]">history_edu</span></a>
+<a class="text-slate-500 hover:text-white transition-colors pt-6 border-t border-white/10" href="#"><span class="material-symbols-outlined text-[24px]">settings</span></a>
+</div>
+</aside>
+<aside class="w-56 bg-black/20 border-r border-white/10 flex flex-col backdrop-blur-md">
+<div class="p-6">
+<h1 class="text-xl font-display font-extrabold tracking-tight text-white uppercase">Mytherion</h1>
+</div>
+<nav class="flex-1 px-4 space-y-1 overflow-y-auto pt-4">
+<p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Multiverse Hub</p>
+<a class="flex items-center space-x-3 px-4 py-3 rounded-lg sidebar-item-active transition-all group" href="#">
+<span class="font-medium">All Projects</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="font-medium group-hover:text-white transition-colors">Shared with Me</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="font-medium group-hover:text-white transition-colors">Templates</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="font-medium group-hover:text-white transition-colors">Archived</span>
+</a>
+<div class="pt-10">
+<p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Quick Links</p>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="font-medium">Recent World</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="font-medium">Community Showcase</span>
+</a>
+</div>
+</nav>
+<div class="p-4 border-t border-white/10">
+<div class="p-3 bg-primary/5 rounded-xl border border-primary/20">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[11px] font-bold text-primary uppercase">Active Worlds</span>
+<span class="text-[11px] text-slate-500">3 / 5</span>
+</div>
+<div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[60%] rounded-full shadow-[0_0_8px_rgba(168,85,247,0.4)]"></div>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col overflow-hidden">
+<header class="h-20 flex items-center justify-between px-8 border-b border-white/10 bg-white/5 backdrop-blur-md">
+<div class="flex items-center space-x-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+<input class="pl-10 pr-4 py-2 bg-white/5 border-none focus:ring-1 focus:ring-primary rounded-full text-sm w-96 text-slate-200" placeholder="Search your multiverses..." type="text"/>
+</div>
+</div>
+<div class="flex items-center space-x-6">
+<button class="relative p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full border-2 border-background-dark"></span>
+</button>
+<div class="flex items-center space-x-3 pl-6 border-l border-white/10">
+<div class="text-right">
+<p class="text-sm font-semibold text-white">Alistair Thorne</p>
+<p class="text-[11px] text-primary font-bold uppercase tracking-wider">Master Chronicler</p>
+</div>
+<div class="w-10 h-10 rounded-full ring-2 ring-primary/30 p-0.5 overflow-hidden">
+<img alt="User Avatar" class="w-full h-full rounded-full bg-slate-800 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvry9BPw0toKXHZitfvudh_yTnhvALhUBsMBwRwStvQGNui5LFqSNTC048e_BEZ1Lfyl8qGQuPAFxZy6-yGPOJFIY42af-nx1RyepYTH2nOQUyhi14rMO7WxOYg8KTSKEzKB1CShueZ8WXU5xkIBaoLIGJmm8eE95elNFKGPqeYkqJBi1dWKr1UMPXhZoCG1P5mXGgq3foSiASmjUjjaXRZerz6CAoz27y61MMx4t6ZBHH25x09QUyCxvii157_R8Vz5N-O-crYyTG"/>
+</div>
+</div>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-8 space-y-8">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="text-3xl font-display font-bold text-white">My Worlds</h2>
+<p class="text-slate-400 mt-1">Manage and explore your active creative projects.</p>
+</div>
+<button class="bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-xl flex items-center space-x-2 transition-all shadow-lg shadow-primary/20 scale-105">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span class="font-semibold">Create New Project</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<div class="project-card glass rounded-3xl overflow-hidden group border border-white/10 hover:border-primary/40 transition-all cursor-pointer shadow-xl">
+<div class="relative h-64 overflow-hidden">
+<img alt="Aetheria Landscape" class="w-full h-full object-cover transition-transform duration-700 grayscale-[20%] group-hover:grayscale-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeAjmS6YrqQ5jg8Bng7i0ZGGBB37j8jlMocp9_KT206ulGaaL-BU52WZlec62UWpQ941jokRt-sklBoxZk1VkAuF-plpg6YqXowMYKRXS2nkZNC5uUlPB-BZAk15URHObXWZ2uNShBN_zGDPOrXEqS_im-bik1c_YKVr_Z04oSkrWg5VESxJdHIvF_hdKdhQtr3RwWee1l63LTZrHMIRV4JtGcOiZoICgmSR9_BeFifOViInAjKoz182QZZYtJWz_AtQSp2OEqK3iX"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent opacity-80"></div>
+<div class="absolute bottom-4 left-6">
+<span class="px-3 py-1 bg-primary/20 backdrop-blur-md border border-primary/30 text-primary text-[10px] font-bold uppercase tracking-widest rounded-full">High Fantasy</span>
+</div>
+</div>
+<div class="p-6 space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-2xl font-display font-bold text-white group-hover:text-primary transition-colors">Aetheria</h3>
+<p class="text-slate-400 text-sm mt-1">A world floating amidst the cosmic winds of the Great Void.</p>
+</div>
+<button class="text-slate-500 hover:text-white"><span class="material-symbols-outlined">more_vert</span></button>
+</div>
+<div class="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-slate-400 font-medium">
+<div class="flex items-center space-x-4">
+<span class="flex items-center"><span class="material-symbols-outlined text-xs mr-1 text-slate-500">group</span> 142 Characters</span>
+<span class="flex items-center"><span class="material-symbols-outlined text-xs mr-1 text-slate-500">location_on</span> 56 Locations</span>
+</div>
+<span class="text-slate-600">Updated 2h ago</span>
+</div>
+</div>
+</div>
+<div class="project-card glass rounded-3xl overflow-hidden group border border-white/10 hover:border-primary/40 transition-all cursor-pointer shadow-xl">
+<div class="relative h-64 overflow-hidden">
+<img alt="The Void Lands" class="w-full h-full object-cover transition-transform duration-700 grayscale-[20%] group-hover:grayscale-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIbUVclgpmsPW2jmgpdKnFHXZz_FRFaOOliz5M_3pQ2hH-d6LF7G9x09XorVYrATNRx9TXdM_CgGhVgWSXUsHbCtJAWPoXLDb6DL0LP59BH1Fdde-2LDZcmgK8Lu1Bj9gCph_3VZ9GB4OZPD5fJqpK1TqR3jyjH_RM9HHjiVsYanPaOPq5iKyJQI7bMiBcHAclWwdezG0egD7VaFoLhV-QAu5mgnFRTrG4ZrM-kLFsQSJjDyFak7Oe09NsKi50tDhvEfMRnXKP4hAJ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent opacity-80"></div>
+<div class="absolute bottom-4 left-6">
+<span class="px-3 py-1 bg-indigo-500/20 backdrop-blur-md border border-indigo-500/30 text-indigo-400 text-[10px] font-bold uppercase tracking-widest rounded-full">Grimdark</span>
+</div>
+</div>
+<div class="p-6 space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-2xl font-display font-bold text-white group-hover:text-primary transition-colors">The Void Lands</h3>
+<p class="text-slate-400 text-sm mt-1">Where shadows manifest and the sun is but a distant memory.</p>
+</div>
+<button class="text-slate-500 hover:text-white"><span class="material-symbols-outlined">more_vert</span></button>
+</div>
+<div class="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-slate-400 font-medium">
+<div class="flex items-center space-x-4">
+<span class="flex items-center"><span class="material-symbols-outlined text-xs mr-1 text-slate-500">group</span> 84 Characters</span>
+<span class="flex items-center"><span class="material-symbols-outlined text-xs mr-1 text-slate-500">location_on</span> 22 Locations</span>
+</div>
+<span class="text-slate-600">Updated 5h ago</span>
+</div>
+</div>
+</div>
+<div class="project-card glass rounded-3xl overflow-hidden group border border-white/10 hover:border-primary/40 transition-all cursor-pointer shadow-xl">
+<div class="relative h-64 overflow-hidden">
+<img alt="Nebula 9" class="w-full h-full object-cover transition-transform duration-700 grayscale-[20%] group-hover:grayscale-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2Yf9O0YO3qN_VxJ5WAdy7lbUxhs8iUWQTBJESEScoNuDKKaMPZsqpWrykArjSbiL7_e3SesFETN9r5sb0qnf8i10pGVu_Ksil-EGICAJFFQLB_90m_CfXsNDRxh7SzEvdb1lX85G3neLrP4dPJx3W_y_cGi_linVqQDoKFC5qJO1hm9QmDi1fn6-Yxk9BVODvfCm6nSy_0E2_cOXscfsinRmWum8vEm-Tb7xRKva78OFvrAZTAZp24iTVSIR7qXkXeeXVytD4q5mx"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent opacity-80"></div>
+<div class="absolute bottom-4 left-6">
+<span class="px-3 py-1 bg-secondary/20 backdrop-blur-md border border-secondary/30 text-secondary text-[10px] font-bold uppercase tracking-widest rounded-full">Sci-Fi Lore</span>
+</div>
+</div>
+<div class="p-6 space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-2xl font-display font-bold text-white group-hover:text-primary transition-colors">Nebula 9</h3>
+<p class="text-slate-400 text-sm mt-1">A sprawling space opera involving seven galactic empires.</p>
+</div>
+<button class="text-slate-500 hover:text-white"><span class="material-symbols-outlined">more_vert</span></button>
+</div>
+<div class="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-slate-400 font-medium">
+<div class="flex items-center space-x-4">
+<span class="flex items-center"><span class="material-symbols-outlined text-xs mr-1 text-slate-500">group</span> 310 Characters</span>
+<span class="flex items-center"><span class="material-symbols-outlined text-xs mr-1 text-slate-500">location_on</span> 14 Planets</span>
+</div>
+<span class="text-slate-600">Updated Yesterday</span>
+</div>
+</div>
+</div>
+<div class="glass rounded-3xl border-2 border-dashed border-white/10 hover:border-primary/40 transition-all flex flex-col items-center justify-center p-8 text-center group cursor-pointer h-[400px]">
+<div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-all">
+<span class="material-symbols-outlined text-4xl text-slate-500 group-hover:text-primary">add</span>
+</div>
+<h4 class="text-xl font-bold text-white mb-2">New Universe</h4>
+<p class="text-slate-400 text-sm max-w-[200px]">Expand your multiverse with a new creative canvas.</p>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>
