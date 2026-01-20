@@ -57,17 +57,17 @@ export default function Home() {
               badges={
                 <div className="flex -space-x-2">
                   <div className="w-6 h-6 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-[12px] text-primary">
+                    <span className="material-symbols-outlined text-primary" style={{ fontSize: '12px' }}>
                       person
                     </span>
                   </div>
                   <div className="w-6 h-6 rounded-full bg-blue-500/20 border border-blue-500/40 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-[12px] text-blue-500">
+                    <span className="material-symbols-outlined text-blue-500" style={{ fontSize: '12px' }}>
                       location_on
                     </span>
                   </div>
                   <div className="w-6 h-6 rounded-full bg-secondary/20 border border-secondary/40 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-[12px] text-secondary">
+                    <span className="material-symbols-outlined text-secondary" style={{ fontSize: '12px' }}>
                       diamond
                     </span>
                   </div>
@@ -79,6 +79,7 @@ export default function Home() {
               title="Recent Edits"
               value="84"
               subtitle="Past 24h"
+              subtitleColor="text-slate-500"
               icon="history_edu"
               progressBar={{
                 value: 65,
@@ -90,6 +91,7 @@ export default function Home() {
               title="World Progress"
               value="67%"
               subtitle="Book I Complete"
+              subtitleColor="text-primary"
               icon="public"
               badges={
                 <div className="text-[12px] text-slate-500 font-medium uppercase tracking-tight">

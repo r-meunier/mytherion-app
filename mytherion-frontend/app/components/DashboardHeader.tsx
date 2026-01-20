@@ -11,7 +11,7 @@ export default function DashboardHeader() {
       {/* Search Bar */}
       <div className="flex items-center space-x-4">
         <div className="relative">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: '20px' }}>
             search
           </span>
           <input

@@ -4,7 +4,7 @@ export default function PromptCard() {
   return (
     <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-900/60 to-primary/60 border border-white/20 relative overflow-hidden shadow-2xl">
       {/* Decorative Background Icon */}
-      <span className="material-symbols-outlined absolute -right-6 -top-6 text-white/5 text-[140px] rotate-12">
+      <span className="material-symbols-outlined absolute -right-6 -top-6 text-white/5 rotate-12" style={{ fontSize: '140px' }}>
         history_edu
       </span>
 

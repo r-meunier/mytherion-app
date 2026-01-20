@@ -76,7 +76,7 @@ export default function RecentChronicles() {
         {mockChronicles.map((chronicle) => (
           <div
             key={chronicle.id}
-            className="glass p-5 rounded-2xl hover:bg-white/5 transition-all group flex items-start space-x-5 border border-white/10 cursor-pointer"
+            className="glass p-5 rounded-2xl hover:!bg-white/5 transition-all group flex items-start space-x-5 border border-white/10 cursor-pointer"
           >
             {/* Thumbnail */}
             <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border border-white/20 shadow-inner">

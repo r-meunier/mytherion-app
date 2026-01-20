@@ -13,7 +13,7 @@ export default function WorldMapCard() {
         <img
           alt="World Map Preview"
           className="w-full h-56 object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-[10%] sepia-[10%]"
-          src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=600&h=400&fit=crop"
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeAjmS6YrqQ5jg8Bng7i0ZGGBB37j8jlMocp9_KT206ulGaaL-BU52WZlec62UWpQ941jokRt-sklBoxZk1VkAuF-plpg6YqXowMYKRXS2nkZNC5uUlPB-BZAk15URHObXWZ2uNShBN_zGDPOrXEqS_im-bik1c_YKVr_Z04oSkrWg5VESxJdHIvF_hdKdhQtr3RwWee1l63LTZrHMIRV4JtGcOiZoICgmSR9_BeFifOViInAjKoz182QZZYtJWz_AtQSp2OEqK3iX"
         />
 
         {/* Gradient Overlay with Info */}
