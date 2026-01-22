@@ -6,6 +6,9 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mytherion.auth.dto.AuthDTO
 import io.mytherion.auth.jwt.JwtService
+import io.mytherion.auth.repository.EmailVerificationTokenRepository
+import io.mytherion.email.EmailService
+import io.mytherion.monitoring.MetricsService
 import io.mytherion.user.model.User
 import io.mytherion.user.model.UserRole
 import io.mytherion.user.repository.UserRepository
@@ -26,6 +29,13 @@ class AuthServiceTest {
 
         @MockK private lateinit var jwtService: JwtService
 
+        @MockK
+        private lateinit var verificationTokenRepository: EmailVerificationTokenRepository
+
+        @MockK private lateinit var emailService: EmailService
+
+        @MockK private lateinit var metricsService: MetricsService
+
         @InjectMockKs private lateinit var authService: AuthService
 
         private lateinit var testUser: User
@@ -38,8 +48,16 @@ class AuthServiceTest {
                                 email = "test@example.com",
                                 username = "testuser",
                                 passwordHash = "hashedPassword",
-                                role = UserRole.USER
+                                role = UserRole.USER,
+                                emailVerified = true
                         )
+
+                // Stub metricsService, verificationTokenRepository, and emailService calls
+                every { metricsService.recordLogin(any(), any(), any()) } just runs
+                every { metricsService.recordRegistration(any(), any()) } just runs
+                every { verificationTokenRepository.deleteByUser(any()) } just runs
+                every { verificationTokenRepository.save(any()) } returnsArgument 0
+                every { emailService.sendVerificationEmail(any(), any(), any()) } just runs
         }
 
         // ==================== Register Tests ====================

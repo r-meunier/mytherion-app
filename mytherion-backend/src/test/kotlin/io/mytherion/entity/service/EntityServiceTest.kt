@@ -39,6 +39,7 @@ class EntityServiceTest {
         projectRepository = mockk()
         userRepository = mockk()
         storageService = mockk()
+        metricsService = mockk()
 
         entityService =
                 EntityService(

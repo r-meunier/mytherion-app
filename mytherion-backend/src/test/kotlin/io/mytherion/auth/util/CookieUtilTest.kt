@@ -113,7 +113,7 @@ class CookieUtilTest {
         cookieUtil.addJwtCookie(response, token)
 
         // Then
-        verify(response, atLeastOnce()).addCookie(any(Cookie::class.java))
+        // Implementation uses addHeader instead of addCookie for SameSite support
         verify(response, atLeastOnce()).addHeader(eq("Set-Cookie"), anyString())
     }
 
@@ -125,7 +125,7 @@ class CookieUtilTest {
         cookieUtil.clearJwtCookie(response)
 
         // Then
-        verify(response, atLeastOnce()).addCookie(any(Cookie::class.java))
+        // Implementation uses addHeader instead of addCookie for SameSite support
         verify(response, atLeastOnce()).addHeader(eq("Set-Cookie"), contains("Max-Age=0"))
     }
 

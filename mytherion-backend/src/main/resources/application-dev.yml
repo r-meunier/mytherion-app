@@ -1,0 +1,30 @@
+# Development-specific configuration
+# Activate this profile by setting SPRING_PROFILES_ACTIVE=dev
+# or by running: ./gradlew bootRun --args='--spring.profiles.active=dev'
+
+app:
+  frontend:
+    url: http://localhost:3000
+  security:
+    jwt:
+      secret: "dev-secret-change-me-to-a-long-random-secret-at-least-32-chars"
+      access-token-minutes: 60
+
+spring:
+  mail:
+    host: localhost
+    port: 1025
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.springframework: info
+    io.mytherion: debug

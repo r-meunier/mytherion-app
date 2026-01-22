@@ -1,10 +1,11 @@
 package io.mytherion.project.rest
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.just
 import io.mockk.runs
+import io.mytherion.auth.jwt.JwtService
+import io.mytherion.auth.util.CookieUtil
 import io.mytherion.project.ProjectTestFixtures
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
@@ -16,17 +17,16 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
-import org.springframework.context.annotation.Import
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import tools.jackson.databind.ObjectMapper
 
 @WebMvcTest(controllers = [ProjectController::class])
 @AutoConfigureMockMvc(addFilters = false)
-@Import(ObjectMapper::class)
 class ProjectControllerTest {
 
         @Autowired private lateinit var mockMvc: MockMvc
@@ -34,6 +34,10 @@ class ProjectControllerTest {
         @Autowired private lateinit var objectMapper: ObjectMapper
 
         @MockkBean private lateinit var projectService: ProjectService
+
+        @MockkBean private lateinit var jwtService: JwtService
+
+        @MockkBean private lateinit var cookieUtil: CookieUtil
 
         // ==================== List Projects Tests ====================
 

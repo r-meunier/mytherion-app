@@ -28,6 +28,12 @@ class AuthServiceEmailVerificationTest {
 
     @MockK private lateinit var emailService: EmailService
 
+    @MockK private lateinit var passwordEncoder: org.springframework.security.crypto.password.PasswordEncoder
+
+    @MockK private lateinit var jwtService: io.mytherion.auth.jwt.JwtService
+
+    @MockK private lateinit var metricsService: io.mytherion.monitoring.MetricsService
+
     @InjectMockKs private lateinit var authService: AuthService
 
     private lateinit var testUser: User

@@ -45,8 +45,6 @@ management:
   endpoint:
     health:
       show-details: when-authorized
-    metrics:
-      enabled: true
   metrics:
     tags:
       application: mytherion-backend
@@ -56,8 +54,6 @@ management:
         http.server.requests: true
       percentiles:
         http.server.requests: 0.5, 0.95, 0.99
-      slo:
-        http.server.requests: 100ms,200ms,500ms,1s,2s
 
 logging:
   level:
@@ -72,7 +68,7 @@ app:
   frontend:
     url: ${FRONTEND_URL:http://localhost:3001}
   email:
-    from: ${EMAIL_FROM:noreply@mytherion.local}
+    from: ${EMAIL_FROM:noreply@mytherion.com}
 
 # MinIO Configuration (can be swapped for S3 in production)
 minio:

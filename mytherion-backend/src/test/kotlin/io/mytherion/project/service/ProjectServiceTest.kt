@@ -33,6 +33,8 @@ class ProjectServiceTest {
         @MockK
         private lateinit var entityRepository: io.mytherion.entity.repository.EntityRepository
 
+        @MockK private lateinit var metricsService: io.mytherion.monitoring.MetricsService
+
         @InjectMockKs private lateinit var projectService: ProjectService
 
         private lateinit var testUser: User
@@ -52,6 +54,10 @@ class ProjectServiceTest {
 
                 // Mock getCurrentUser() to return testUser
                 every { userRepository.findById(1L) } returns Optional.of(testUser)
+
+                // Stub metricsService calls (these methods return Unit)
+                every { metricsService.recordProjectCreation(any(), any()) } just Runs
+                every { metricsService.recordEntityQuery(any(), any(), any()) } just Runs
         }
 
         // ==================== List Projects Tests ====================

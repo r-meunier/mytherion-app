@@ -32,19 +32,19 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    // Jackson 3.x for application use
     implementation("tools.jackson.module:jackson-module-kotlin")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.boot:spring-boot-starter-mail")
-    
+
     // MinIO for object storage
-    implementation("io.minio:minio:8.5.7")
+    implementation("io.minio:minio:8.6.0")
 
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
+        exclude(module = "junit")
     }
 
     // JWT
@@ -58,7 +58,9 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("com.ninja-squad:springmockk:5.0.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:6.0.1")
+    testImplementation("io.mockk:mockk:1.14.7")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine")
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

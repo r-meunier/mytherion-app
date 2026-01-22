@@ -1,7 +1,7 @@
 package io.mytherion.auth
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.ninjasquad.springmockk.MockkBean
+import io.mockk.impl.annotations.MockK
+import tools.jackson.databind.ObjectMapper
 import io.mytherion.auth.dto.AuthDTO
 import io.mytherion.auth.model.EmailVerificationToken
 import io.mytherion.auth.repository.EmailVerificationTokenRepository
@@ -40,7 +40,8 @@ class EmailVerificationIntegrationTest {
 
         @Autowired private lateinit var passwordEncoder: PasswordEncoder
 
-        @MockkBean private lateinit var emailService: io.mytherion.email.EmailService
+        @MockK
+        private lateinit var emailService: io.mytherion.email.EmailService
 
         @AfterEach
         fun cleanup() {

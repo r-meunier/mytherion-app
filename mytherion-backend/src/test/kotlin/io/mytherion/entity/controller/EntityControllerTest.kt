@@ -1,8 +1,9 @@
 package io.mytherion.entity.controller
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mytherion.auth.jwt.JwtService
+import io.mytherion.auth.util.CookieUtil
 import io.mytherion.entity.dto.CreateEntityRequest
 import io.mytherion.entity.dto.EntityDTO
 import io.mytherion.entity.dto.UpdateEntityRequest
@@ -14,17 +15,16 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
-import org.springframework.context.annotation.Import
 import org.springframework.data.domain.PageImpl
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import tools.jackson.databind.ObjectMapper
 
 @WebMvcTest(EntityController::class)
 @AutoConfigureMockMvc(addFilters = false)
-@Import(ObjectMapper::class)
 class EntityControllerTest {
 
         @Autowired private lateinit var mockMvc: MockMvc
@@ -32,6 +32,10 @@ class EntityControllerTest {
         @Autowired private lateinit var objectMapper: ObjectMapper
 
         @MockkBean private lateinit var entityService: EntityService
+
+        @MockkBean private lateinit var jwtService: JwtService
+
+        @MockkBean private lateinit var cookieUtil: CookieUtil
 
         @Test
         fun `listEntities should return paginated entities`() {

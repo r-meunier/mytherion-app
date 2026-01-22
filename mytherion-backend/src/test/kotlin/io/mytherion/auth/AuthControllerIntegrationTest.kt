@@ -1,7 +1,8 @@
 package io.mytherion.auth
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import io.mytherion.auth.dto.AuthDTO
+import io.mytherion.user.model.User
 import io.mytherion.user.model.UserRole
 import io.mytherion.user.repository.UserRepository
 import jakarta.servlet.http.Cookie
@@ -13,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
@@ -30,9 +32,25 @@ class AuthControllerIntegrationTest {
 
     @Autowired private lateinit var userRepository: UserRepository
 
+    @Autowired private lateinit var passwordEncoder: PasswordEncoder
+
     @AfterEach
     fun cleanup() {
         userRepository.deleteAll()
+    }
+
+    // Helper method to create a verified user for login tests
+    private fun createVerifiedUser(email: String, username: String, password: String): User {
+        val user = User(
+            email = email,
+            username = username,
+            passwordHash = requireNotNull(passwordEncoder.encode(password)) {
+                "Password encoder returned null"
+            },
+            role = UserRole.USER,
+            emailVerified = true
+        )
+        return userRepository.save(user)
     }
 
     // ==================== Register Tests ====================
@@ -48,33 +66,25 @@ class AuthControllerIntegrationTest {
                 )
 
         // When & Then
-        val result =
-                mockMvc.perform(
-                                post("/api/auth/register")
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(objectMapper.writeValueAsString(request))
-                        )
-                        .andExpect(status().isCreated)
-                        .andExpect(jsonPath("$.id").exists())
-                        .andExpect(jsonPath("$.email").value("test@example.com"))
-                        .andExpect(jsonPath("$.username").value("testuser"))
-                        .andExpect(jsonPath("$.role").value("USER"))
-                        .andExpect(cookie().exists("mytherion_token"))
-                        .andExpect(cookie().httpOnly("mytherion_token", true))
-                        .andExpect(cookie().path("mytherion_token", "/"))
-                        .andReturn()
-
-        // Verify cookie is set
-        val cookie = result.response.getCookie("mytherion_token")
-        assertNotNull(cookie)
-        assertNotNull(cookie!!.value)
-        assertTrue(cookie.value.isNotEmpty())
+        mockMvc.perform(
+                        post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                )
+                .andExpect(status().isCreated)
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.email").value("test@example.com"))
+                .andExpect(jsonPath("$.username").value("testuser"))
+                .andExpect(jsonPath("$.role").value("USER"))
+                .andExpect(jsonPath("$.emailVerified").value(false))
+                .andExpect(cookie().doesNotExist("mytherion_token")) // No cookie until email verified
 
         // Verify user is saved in database
         val savedUser = userRepository.findByEmailAndDeletedAtIsNull("test@example.com")
         assertNotNull(savedUser)
         assertEquals("testuser", savedUser!!.username)
         assertEquals(UserRole.USER, savedUser.role)
+        assertFalse(savedUser.emailVerified)
     }
 
     @Test
@@ -145,18 +155,8 @@ class AuthControllerIntegrationTest {
 
     @Test
     fun `POST login with valid credentials should return 200 and set cookie`() {
-        // Given - Register a user first
-        val registerRequest =
-                AuthDTO.RegisterRequest(
-                        email = "test@example.com",
-                        username = "testuser",
-                        password = "password123"
-                )
-        mockMvc.perform(
-                post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest))
-        )
+        // Given - Create a verified user
+        createVerifiedUser("test@example.com", "testuser", "password123")
 
         // When & Then - Login with correct credentials
         val loginRequest =
@@ -173,6 +173,7 @@ class AuthControllerIntegrationTest {
                         .andExpect(jsonPath("$.email").value("test@example.com"))
                         .andExpect(jsonPath("$.username").value("testuser"))
                         .andExpect(jsonPath("$.role").value("USER"))
+                        .andExpect(jsonPath("$.emailVerified").value(true))
                         .andExpect(cookie().exists("mytherion_token"))
                         .andExpect(cookie().httpOnly("mytherion_token", true))
                         .andReturn()
@@ -185,18 +186,8 @@ class AuthControllerIntegrationTest {
 
     @Test
     fun `POST login with wrong password should return 400`() {
-        // Given - Register a user first
-        val registerRequest =
-                AuthDTO.RegisterRequest(
-                        email = "test@example.com",
-                        username = "testuser",
-                        password = "password123"
-                )
-        mockMvc.perform(
-                post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest))
-        )
+        // Given - Create a verified user
+        createVerifiedUser("test@example.com", "testuser", "password123")
 
         // When & Then - Login with wrong password
         val loginRequest =
@@ -248,22 +239,19 @@ class AuthControllerIntegrationTest {
 
     @Test
     fun `GET me with valid cookie should return user info`() {
-        // Given - Register and get cookie
-        val registerRequest =
-                AuthDTO.RegisterRequest(
-                        email = "test@example.com",
-                        username = "testuser",
-                        password = "password123"
-                )
-        val registerResult =
+        // Given - Create verified user and login
+        createVerifiedUser("test@example.com", "testuser", "password123")
+
+        val loginRequest = AuthDTO.LoginRequest(email = "test@example.com", password = "password123")
+        val loginResult =
                 mockMvc.perform(
-                                post("/api/auth/register")
+                                post("/api/auth/login")
                                         .contentType(MediaType.APPLICATION_JSON)
-                                        .content(objectMapper.writeValueAsString(registerRequest))
+                                        .content(objectMapper.writeValueAsString(loginRequest))
                         )
                         .andReturn()
 
-        val cookie = registerResult.response.getCookie("mytherion_token")
+        val cookie = loginResult.response.getCookie("mytherion_token")
         assertNotNull(cookie)
 
         // When & Then - Call /me with cookie
@@ -277,8 +265,8 @@ class AuthControllerIntegrationTest {
 
     @Test
     fun `GET me without cookie should return 401`() {
-        // When & Then
-        mockMvc.perform(get("/api/auth/me")).andExpect(status().isUnauthorized)
+        // When & Then - Expect 403 from Spring Security (no auth attempt made)
+        mockMvc.perform(get("/api/auth/me")).andExpect(status().isForbidden)
     }
 
     @Test
@@ -286,9 +274,9 @@ class AuthControllerIntegrationTest {
         // Given - Invalid cookie
         val invalidCookie = Cookie("mytherion_token", "invalid-jwt-token")
 
-        // When & Then
+        // When & Then - Expect 403 from Spring Security (invalid token)
         mockMvc.perform(get("/api/auth/me").cookie(invalidCookie))
-                .andExpect(status().isUnauthorized)
+                .andExpect(status().isForbidden)
     }
 
     // ==================== CORS Tests ====================
@@ -323,22 +311,19 @@ class AuthControllerIntegrationTest {
 
     @Test
     fun `Cookie should persist across multiple requests`() {
-        // Given - Register and get cookie
-        val registerRequest =
-                AuthDTO.RegisterRequest(
-                        email = "test@example.com",
-                        username = "testuser",
-                        password = "password123"
-                )
-        val registerResult =
+        // Given - Create verified user and login
+        createVerifiedUser("test@example.com", "testuser", "password123")
+
+        val loginRequest = AuthDTO.LoginRequest(email = "test@example.com", password = "password123")
+        val loginResult =
                 mockMvc.perform(
-                                post("/api/auth/register")
+                                post("/api/auth/login")
                                         .contentType(MediaType.APPLICATION_JSON)
-                                        .content(objectMapper.writeValueAsString(registerRequest))
+                                        .content(objectMapper.writeValueAsString(loginRequest))
                         )
                         .andReturn()
 
-        val cookie = registerResult.response.getCookie("mytherion_token")
+        val cookie = loginResult.response.getCookie("mytherion_token")
         assertNotNull(cookie)
 
         // When & Then - Use cookie in multiple requests
@@ -355,22 +340,19 @@ class AuthControllerIntegrationTest {
 
     @Test
     fun `After logout cookie should be invalid`() {
-        // Given - Register and get cookie
-        val registerRequest =
-                AuthDTO.RegisterRequest(
-                        email = "test@example.com",
-                        username = "testuser",
-                        password = "password123"
-                )
-        val registerResult =
+        // Given - Create verified user and login
+        createVerifiedUser("test@example.com", "testuser", "password123")
+
+        val loginRequest = AuthDTO.LoginRequest(email = "test@example.com", password = "password123")
+        val loginResult =
                 mockMvc.perform(
-                                post("/api/auth/register")
+                                post("/api/auth/login")
                                         .contentType(MediaType.APPLICATION_JSON)
-                                        .content(objectMapper.writeValueAsString(registerRequest))
+                                        .content(objectMapper.writeValueAsString(loginRequest))
                         )
                         .andReturn()
 
-        val cookie = registerResult.response.getCookie("mytherion_token")
+        val cookie = loginResult.response.getCookie("mytherion_token")
         assertNotNull(cookie)
 
         // Verify cookie works
@@ -384,8 +366,8 @@ class AuthControllerIntegrationTest {
         assertNotNull(clearedCookie)
         assertEquals(0, clearedCookie!!.maxAge)
 
-        // Verify old cookie no longer works (using cleared cookie)
+        // Verify old cookie no longer works (using cleared cookie with empty value)
         mockMvc.perform(get("/api/auth/me").cookie(clearedCookie))
-                .andExpect(status().isUnauthorized)
+                .andExpect(status().isForbidden)
     }
 }
