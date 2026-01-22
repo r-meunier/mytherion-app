@@ -17,7 +17,7 @@ const mockChronicles: Chronicle[] = [
       'Updated character background and added the "Sacred Omen" artifact connection. Adjusted political standing in the Eldorian Council...',
     timestamp: "2 hours ago",
     imageUrl:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuAX6Yev4jBDV6wwAa44dwhhVR-vRF8-35TNH-znLY0p_AjF8AhGQluQvhDSQhECusFq4zrD8kLy854JjxgPkAK0qIQw7CGv_Lx15kP9lqTAbuOCZSTvZMv_IppMPsw9sbS6YqTesiBKZpSukdKi0QGS0hyrEwpGBd-OYAxNwJkImosw8xieOmq2wH2L7k3jjKuNI6QY_xP3zHnSBC_XgXVoC17PFel6QoMJVgAoB3a3fOmu03_IEKiWfxxTNzCU5TewCuK4sGZtDhhg",
     badges: [
       { label: "Character", color: "primary" },
       { label: "Major NPC", color: "blue" },
@@ -30,7 +30,7 @@ const mockChronicles: Chronicle[] = [
       "Modified climatic effects to include the 'Shadow Gale' phenomenon. Added lore regarding the Great Wyrm's resting place...",
     timestamp: "5 hours ago",
     imageUrl:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuDIbUVclgpmsPW2jmgpdKnFHXZz_FRFaOOliz5M_3pQ2hH-d6LF7G9x09XorVYrATNRx9TXdM_CgGhVgWSXUsHbCtJAWPoXLDb6DL0LP59BH1Fdde-2LDZcmgK8Lu1Bj9gCph_3VZ9GB4OZPD5fJqpK1TqR3jyjH_RM9HHjiVsYanPaOPq5iKyJQI7bMiBcHAclWwdezG0egD7VaFoLhV-QAu5mgnFRTrG4ZrM-kLFsQSJjDyFak7Oe09NsKi50tDhvEfMRnXKP4hAJ",
     badges: [
       { label: "Location", color: "blue" },
       { label: "Environment", color: "emerald" },
@@ -102,7 +102,7 @@ export default function RecentChronicles() {
                 {chronicle.badges.map((badge, index) => (
                   <span
                     key={index}
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
                       badgeColors[badge.color]
                     }`}
                   >

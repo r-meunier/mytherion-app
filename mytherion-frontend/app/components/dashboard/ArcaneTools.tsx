@@ -24,7 +24,7 @@ export default function ArcaneTools() {
             <span className="material-symbols-outlined text-primary group-hover:text-white mb-2 transition-colors">
               {tool.icon}
             </span>
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-300 group-hover:text-white transition-colors">{tool.label}</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-white transition-colors">{tool.label}</span>
           </button>
         ))}
       </div>

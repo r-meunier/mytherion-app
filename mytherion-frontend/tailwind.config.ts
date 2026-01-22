@@ -8,6 +8,14 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        display: ["var(--font-outfit)", "sans-serif"],
+        sans: ["var(--font-inter)", "sans-serif"],
+        script: ["var(--font-great-vibes)", "cursive"],
+      },
+      borderRadius: {
+        DEFAULT: "12px",
+      },
       backgroundImage: {
         'starfield': "radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 80%), url('https://www.transparenttextures.com/patterns/stardust.png')",
       },
