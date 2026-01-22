@@ -6,6 +6,7 @@ import io.mytherion.entity.dto.UpdateEntityRequest
 import io.mytherion.entity.model.Entity
 import io.mytherion.entity.model.EntityType
 import io.mytherion.entity.repository.EntityRepository
+import io.mytherion.monitoring.MetricsService
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.storage.StorageService
@@ -26,6 +27,7 @@ class EntityServiceTest {
     private lateinit var projectRepository: ProjectRepository
     private lateinit var userRepository: UserRepository
     private lateinit var storageService: StorageService
+    private lateinit var metricsService: MetricsService
 
     private lateinit var testUser: User
     private lateinit var testProject: Project
@@ -44,6 +46,7 @@ class EntityServiceTest {
                         projectRepository,
                         userRepository,
                         storageService,
+                        metricsService,
                         "test-bucket"
                 )
 
