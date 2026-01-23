@@ -1,7 +1,7 @@
 "use client";
 
 import type { Metadata } from "next";
-import { Inter, Outfit, Great_Vibes, Dancing_Script } from "next/font/google";
+import { Inter, Outfit, Cinzel, Great_Vibes, Dancing_Script } from "next/font/google";
 import "./globals.css";
 import { Provider } from "react-redux";
 import { store } from "./store";
@@ -19,6 +19,13 @@ const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
   weight: ["400", "600", "800"],
+  display: "optional",
+});
+
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
+  subsets: ["latin"],
+  weight: ["400", "700"],
   display: "optional",
 });
 
@@ -64,7 +71,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${outfit.variable} ${greatVibes.variable} ${dancingScript.variable} antialiased bg-background-dark text-slate-100 selection:bg-primary/30`}
+        className={`${inter.variable} ${outfit.variable} ${cinzel.variable} ${greatVibes.variable} ${dancingScript.variable} antialiased bg-background-dark text-slate-100 selection:bg-primary/30`}
       >
         {/* Animated background overlay */}
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">

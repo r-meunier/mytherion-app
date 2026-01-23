@@ -10,7 +10,7 @@ interface ExtendedAuthState extends AuthState {
 const initialState: ExtendedAuthState = {
   user: null,
   isAuthenticated: false,
-  isLoading: true, // Default to true until check checkAuth completes
+  isLoading: false, // Default to false
   isInitialized: false,
   error: null,
 };
@@ -103,7 +103,7 @@ const authSlice = createSlice({
     // Register
     builder
       .addCase(registerUser.pending, (state) => {
-        state.isLoading = false;
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, action: PayloadAction<User>) => {

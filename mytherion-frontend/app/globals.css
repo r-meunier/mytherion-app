@@ -6,6 +6,10 @@
   --background-light: #f8fafc;
   --background-dark: #0b0b1e;
   --surface-dark: rgba(30, 30, 50, 0.4);
+  --glass-bg: rgba(15, 15, 35, 0.4);
+  --glass-border: rgba(251, 191, 36, 0.2);
+  --nebula-purple: rgba(168, 85, 247, 0.15);
+  --nebula-blue: rgba(30, 64, 175, 0.15);
 }
 
 @theme inline {
@@ -16,6 +20,7 @@
   --color-surface-dark: var(--surface-dark);
   --font-sans: var(--font-inter);
   --font-display: var(--font-outfit);
+  --font-serif: var(--font-cinzel);
   --font-script: var(--font-great-vibes);
 }
 
@@ -50,9 +55,66 @@ body {
 }
 
 /* Cosmic button gradient */
-.cosmic-btn {
-  background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+.btn-cosmic {
+  background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
   box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-cosmic:hover {
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
+  transform: translateY(-1px);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
+
+.starfield {
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(1px 1px at 40px 70px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 90px 40px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(1px 1px at 130px 80px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0, 0, 0, 0));
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.3;
+}
+
+.nebula {
+  background:
+    radial-gradient(
+      circle at 20% 30%,
+      var(--nebula-purple) 0%,
+      transparent 50%
+    ),
+    radial-gradient(circle at 80% 70%, var(--nebula-blue) 0%, transparent 50%);
+  filter: blur(60px);
+}
+
+.gold-text {
+  background: linear-gradient(to bottom, #fbbf24 0%, #b45309 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+}
+
+.input-glow:focus {
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+  border-color: rgba(168, 85, 247, 0.5);
+}
+
+.floating-element {
+  pointer-events: none;
+  opacity: 0.15;
+  filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.5));
 }
 
 /* Project card hover effects */
@@ -118,7 +180,7 @@ body {
   line-height: 1;
   /* Prevent showing fallback text before icon font loads */
   font-display: block;
-  
+
   /* Fix layout jumps: ensure icon takes up exactly 1em width/height even if font hasn't loaded */
   width: 1em;
   height: 1em;
@@ -126,7 +188,7 @@ body {
   white-space: nowrap;
   letter-spacing: normal;
   text-transform: none;
-  
+
   /* Prevent layout shifts from ligature text wrapping */
   word-wrap: normal;
   direction: ltr;

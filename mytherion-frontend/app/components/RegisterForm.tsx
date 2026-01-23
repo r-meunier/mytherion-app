@@ -186,25 +186,28 @@ export default function RegisterForm() {
     <div className="w-full max-w-md">
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Email Field */}
-        <div>
+        <div className="space-y-1.5">
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-white mb-2"
+            className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1"
           >
-            Email
+            Email Address
           </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className={`w-full px-4 py-3 glass border ${
-              validationErrors.email ? 'border-red-500/50' : 'border-white/10'
-            } rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
-            placeholder="you@example.com"
-            disabled={isLoading}
-          />
+          <div className="relative">
+             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg">mail</span>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className={`w-full bg-black/30 border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder:text-slate-600 focus:ring-0 focus:outline-none input-glow transition-all ${
+                validationErrors.email ? 'border-red-500/50' : ''
+                }`}
+                placeholder="scribe@mytherion.com"
+                disabled={isLoading}
+            />
+          </div>
           {validationErrors.email && (
             <p className="mt-1 text-sm text-red-400">
               {validationErrors.email}
@@ -213,25 +216,28 @@ export default function RegisterForm() {
         </div>
 
         {/* Username Field */}
-        <div>
+        <div className="space-y-1.5">
           <label
             htmlFor="username"
-            className="block text-sm font-medium text-white mb-2"
+            className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1"
           >
-            Username
+            Chronicler Name
           </label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            className={`w-full px-4 py-3 glass border ${
-              validationErrors.username ? 'border-red-500/50' : 'border-white/10'
-            } rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
-            placeholder="johndoe"
-            disabled={isLoading}
-          />
+          <div className="relative">
+             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg">person_book</span>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                className={`w-full bg-black/30 border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder:text-slate-600 focus:ring-0 focus:outline-none input-glow transition-all ${
+                validationErrors.username ? 'border-red-500/50' : ''
+                }`}
+                placeholder="e.g. Alistair Thorne"
+                disabled={isLoading}
+            />
+          </div>
           {validationErrors.username && (
             <p className="mt-1 text-sm text-red-400">
               {validationErrors.username}
@@ -240,25 +246,28 @@ export default function RegisterForm() {
         </div>
 
         {/* Password Field */}
-        <div>
+        <div className="space-y-1.5">
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-white mb-2"
+            className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1"
           >
-            Password
+            Secret Phrase
           </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className={`w-full px-4 py-3 glass border ${
-              validationErrors.password ? 'border-red-500/50' : 'border-white/10'
-            } rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
-            placeholder="••••••••"
-            disabled={isLoading}
-          />
+           <div className="relative">
+             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg">key</span>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className={`w-full bg-black/30 border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder:text-slate-600 focus:ring-0 focus:outline-none input-glow transition-all ${
+                validationErrors.password ? 'border-red-500/50' : ''
+                }`}
+                placeholder="••••••••"
+                disabled={isLoading}
+            />
+           </div>
           {validationErrors.password && (
             <p className="mt-1 text-sm text-red-400">
               {validationErrors.password}
@@ -267,25 +276,28 @@ export default function RegisterForm() {
         </div>
 
         {/* Confirm Password Field */}
-        <div>
+        <div className="space-y-1.5">
           <label
             htmlFor="confirmPassword"
-            className="block text-sm font-medium text-white mb-2"
+            className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1"
           >
-            Confirm Password
+            Confirm Secret Phrase
           </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className={`w-full px-4 py-3 glass border ${
-              validationErrors.confirmPassword ? 'border-red-500/50' : 'border-white/10'
-            } rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all`}
-            placeholder="••••••••"
-            disabled={isLoading}
-          />
+           <div className="relative">
+             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg">verified_user</span>
+            <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className={`w-full bg-black/30 border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder:text-slate-600 focus:ring-0 focus:outline-none input-glow transition-all ${
+                validationErrors.confirmPassword ? 'border-red-500/50' : ''
+                }`}
+                placeholder="••••••••"
+                disabled={isLoading}
+            />
+           </div>
           {validationErrors.confirmPassword && (
             <p className="mt-1 text-sm text-red-400">
               {validationErrors.confirmPassword}
@@ -305,21 +317,20 @@ export default function RegisterForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full px-6 py-3 bg-primary hover:bg-primary/80 text-white font-semibold rounded-lg shadow-lg shadow-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full btn-cosmic py-4 rounded-xl text-white font-bold uppercase tracking-[0.2em] text-sm mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading ? "Creating account..." : "Register"}
+          {isLoading ? "Creating account..." : "Initiate Journey"}
         </button>
 
         {/* Login Link */}
-        <p className="text-center text-slate-400 text-sm">
-          Already have an account?{" "}
-          <Link
-            href="/login"
-            className="text-primary hover:text-primary/80 font-medium transition-colors"
-          >
-            Login here
-          </Link>
-        </p>
+        <div className="mt-10 text-center">
+             <Link
+                href="/login"
+                className="text-slate-400 hover:text-white text-sm transition-colors border-b border-transparent hover:border-primary pb-0.5"
+            >
+                Already a Chronicler? <span className="text-primary font-semibold">Login</span>
+            </Link>
+        </div>
       </form>
     </div>
   );

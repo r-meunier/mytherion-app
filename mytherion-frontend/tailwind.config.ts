@@ -11,7 +11,13 @@ const config: Config = {
       fontFamily: {
         display: ["var(--font-outfit)", "sans-serif"],
         sans: ["var(--font-inter)", "sans-serif"],
+        serif: ["var(--font-cinzel)", "serif"],
         script: ["var(--font-great-vibes)", "cursive"],
+      },
+      colors: {
+        primary: "#A855F7",
+        secondary: "#FBBF24",
+        "background-dark": "#050510",
       },
       borderRadius: {
         DEFAULT: "12px",
