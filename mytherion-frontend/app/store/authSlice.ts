@@ -3,10 +3,15 @@ import { authService } from "../services/authService";
 import { AuthState, User, RegisterRequest, LoginRequest } from "../types/auth";
 
 // Initial state
-const initialState: AuthState = {
+interface ExtendedAuthState extends AuthState {
+  isInitialized: boolean;
+}
+
+const initialState: ExtendedAuthState = {
   user: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true, // Default to true until check checkAuth completes
+  isInitialized: false,
   error: null,
 };
 
@@ -154,12 +159,14 @@ const authSlice = createSlice({
       })
       .addCase(checkAuth.fulfilled, (state, action: PayloadAction<User>) => {
         state.isLoading = false;
+        state.isInitialized = true;
         state.user = action.payload;
         state.isAuthenticated = true;
         state.error = null;
       })
       .addCase(checkAuth.rejected, (state) => {
         state.isLoading = false;
+        state.isInitialized = true;
         state.user = null;
         state.isAuthenticated = false;
         state.error = null; // Don't show error for failed auth check

@@ -15,7 +15,7 @@ interface NavbarProps {
 export default function Navbar({ onToggleSidebar }: NavbarProps) {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user, isInitialized } = useAppSelector((state) => state.auth);
 
   const handleLogout = async () => {
     await dispatch(logoutUser());
@@ -69,7 +69,9 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
         </div>
 
         {/* Navigation Links */}
-        {isAuthenticated && (
+        {!isInitialized ? (
+          <div className="h-8 w-24 bg-white/5 rounded-lg animate-pulse"></div>
+        ) : isAuthenticated && (
           <div className="flex items-center gap-2">
             <Link
               href="/projects"
@@ -84,7 +86,13 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
         )}
 
         <div className="flex items-center gap-4">
-          {isAuthenticated ? (
+          {!isInitialized ? (
+            /* Loading Skeleton */
+            <div className="flex items-center gap-4">
+              <div className="h-9 w-24 bg-white/5 rounded-lg animate-pulse"></div>
+              <div className="h-9 w-24 bg-white/5 rounded-lg animate-pulse"></div>
+            </div>
+          ) : isAuthenticated ? (
             <>
               {/* Authenticated State */}
               <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 rounded-lg border border-purple-500/20">

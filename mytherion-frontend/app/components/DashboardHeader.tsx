@@ -4,7 +4,7 @@ import { useAppSelector } from "../store/hooks";
 import Link from "next/link";
 
 export default function DashboardHeader() {
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user, isInitialized } = useAppSelector((state) => state.auth);
 
   return (
     <header className="h-20 flex items-center justify-between px-8 border-b border-white/10 bg-white/5 backdrop-blur-md">
@@ -24,7 +24,10 @@ export default function DashboardHeader() {
 
       {/* Right Side - Conditional based on auth state */}
       <div className="flex items-center space-x-6">
-        {isAuthenticated && user ? (
+        {!isInitialized ? (
+          /* Loading Skeleton - Matches dimensions of content to prevent shift */
+          <div className="h-11 w-24 bg-white/5 rounded-lg animate-pulse"></div>
+        ) : isAuthenticated && user ? (
           <>
             {/* Notification Button */}
             <button className="relative p-2 text-slate-400 hover:text-primary transition-colors">
