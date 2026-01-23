@@ -14,6 +14,7 @@ import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.user.model.User
 import io.mytherion.user.repository.UserRepository
 import java.util.*
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -22,6 +23,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextHolder
 
 @ExtendWith(MockKExtension::class)
 class ProjectServiceTest {
@@ -52,12 +56,27 @@ class ProjectServiceTest {
                         )
                 testProject = ProjectTestFixtures.createTestProject(id = 1L, owner = testUser)
 
+                // Mock Security Context
+                mockkStatic(SecurityContextHolder::class)
+                val securityContext = mockk<SecurityContext>()
+                val authentication = mockk<Authentication>()
+
+                every { SecurityContextHolder.getContext() } returns securityContext
+                every { securityContext.authentication } returns authentication
+                every { authentication.isAuthenticated } returns true
+                every { authentication.principal } returns 1L
+
                 // Mock getCurrentUser() to return testUser
                 every { userRepository.findById(1L) } returns Optional.of(testUser)
 
                 // Stub metricsService calls (these methods return Unit)
                 every { metricsService.recordProjectCreation(any(), any()) } just Runs
                 every { metricsService.recordEntityQuery(any(), any(), any()) } just Runs
+        }
+
+        @AfterEach
+        fun tearDown() {
+                unmockkStatic(SecurityContextHolder::class)
         }
 
         // ==================== List Projects Tests ====================

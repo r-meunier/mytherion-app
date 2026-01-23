@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -35,8 +36,15 @@ class ProjectService(
 
     // TEMP: hard-coded user until auth is in place
     private fun getCurrentUser(): User {
-        return userRepository.findById(1L).orElseThrow {
-            IllegalStateException("Demo user with id=1 not found. Create it manually for now.")
+        val authentication = SecurityContextHolder.getContext().authentication
+        if (authentication == null || !authentication.isAuthenticated) {
+             throw IllegalStateException("No authenticated user found")
+        }
+        val userId = authentication.principal as? Long
+            ?: throw IllegalStateException("Principal is not a valid User ID")
+            
+        return userRepository.findById(userId).orElseThrow {
+            IllegalStateException("User with id=$userId not found")
         }
     }
 
