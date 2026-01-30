@@ -18,6 +18,7 @@ const config: Config = {
         primary: "#A855F7",
         secondary: "#FBBF24",
         "background-dark": "#050510",
+        "gold": "#D4AF37",
       },
       borderRadius: {
         DEFAULT: "12px",

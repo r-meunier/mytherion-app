@@ -4,26 +4,14 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchProject, fetchProjectStats, clearCurrentProject } from '@/app/store/projectSlice';
-import ProjectStats from '@/app/components/projects/ProjectStats';
-import Navbar from '@/app/components/Navbar';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faArrowLeft,
-  faEdit,
-  faTrash,
-  faCog,
-  faList,
-  faSpinner,
-} from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
+import DualSidebar from '@/app/components/DualSidebar';
+import DashboardHeader from '@/app/components/DashboardHeader';
 
 export default function ProjectDashboard() {
   const params = useParams();
-  const router = useRouter();
   const dispatch = useAppDispatch();
   const { currentProject, stats, loading, error } = useAppSelector((state) => state.projects);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-
   const projectId = Number(params.projectId);
 
   useEffect(() => {
@@ -37,27 +25,31 @@ export default function ProjectDashboard() {
     };
   }, [projectId, dispatch]);
 
+  const projectNavItems = [
+    { id: "overview", label: "Overview", href: "#" },
+    { id: "codex", label: "Codex", href: "#" },
+    { id: "timeline", label: "Timeline", href: "#" },
+    { id: "maps", label: "Maps", href: "#" },
+  ];
+
   if (loading && !currentProject) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <FontAwesomeIcon icon={faSpinner} className="w-12 h-12 text-purple-400 animate-spin mb-4" />
-          <p className="text-gray-400">Loading project...</p>
-        </div>
+      <div className="min-h-screen bg-background-dark flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   if (error || !currentProject) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="flex h-screen items-center justify-center bg-background-dark">
         <div className="text-center">
           <p className="text-red-400 mb-4">{error || 'Project not found'}</p>
           <Link
             href="/projects"
-            className="text-purple-400 hover:text-purple-300 transition-colors"
+            className="text-primary hover:text-primary/80 transition-colors"
           >
-            ← Back to Projects
+             Back to Projects
           </Link>
         </div>
       </div>
@@ -65,109 +57,119 @@ export default function ProjectDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Navbar */}
-      <Navbar onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
+    <div className="relative z-10 flex h-screen overflow-hidden">
+      {/* Dual Sidebar with Project Context */}
+      <DualSidebar 
+        activeSection="overview" 
+        navItems={projectNavItems}
+        title={currentProject.name}
+        subTitle={`Project: ${currentProject.genre || 'Normal'}`}
+      />
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside
-          className={`${
-            isSidebarCollapsed ? "w-0" : "w-64"
-          } bg-gray-800 border-r border-gray-700 transition-all duration-300 overflow-hidden`}
-        >
-          <nav className="p-4 space-y-2">
-            <Link
-              href="/projects"
-              className="block px-4 py-2 rounded-lg bg-purple-600 text-white"
-            >
-              Projects
-            </Link>
-          </nav>
-        </aside>
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <DashboardHeader />
 
-        {/* Main Content */}
-        <main className="flex-1">
-          <div className="container mx-auto px-4 py-8">
-            {/* Breadcrumb */}
-            <nav className="mb-6">
-              <Link
-                href="/projects"
-                className="text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-2"
-              >
-                <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
-                Back to Projects
-              </Link>
-            </nav>
-
-            {/* Header */}
-            <div className="flex items-start justify-between mb-8">
-              <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-2">
-                  {currentProject.name}
-                </h1>
-                {currentProject.description && (
-                  <p className="text-gray-400 text-lg">{currentProject.description}</p>
-                )}
-              </div>
-              <div className="flex gap-3">
-                <Link
-                  href={`/projects/${projectId}/settings`}
-                  className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors inline-flex items-center gap-2"
-                >
-                  <FontAwesomeIcon icon={faCog} className="w-4 h-4" />
-                  Settings
-                </Link>
-              </div>
-            </div>
-
-            {/* Stats */}
-            {stats && (
-              <div className="mb-8">
-                <ProjectStats stats={stats} />
-              </div>
-            )}
-
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Link
-                href={`/projects/${projectId}/entities`}
-                className="group bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-6 border border-gray-700 hover:border-purple-500 transition-all hover:shadow-lg hover:shadow-purple-500/20"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
-                    <FontAwesomeIcon icon={faList} className="w-8 h-8 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-purple-100 group-hover:text-purple-300 transition-colors mb-1">
-                      View Entities
-                    </h3>
-                    <p className="text-gray-400 text-sm">
-                      Browse and manage all entities in this project
-                    </p>
-                  </div>
-                </div>
-              </Link>
-
-              <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-6 border border-gray-700 opacity-50">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-lg bg-gray-700 flex items-center justify-center">
-                    <FontAwesomeIcon icon={faEdit} className="w-8 h-8 text-gray-500" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-400 mb-1">
-                      More Features Coming Soon
-                    </h3>
-                    <p className="text-gray-500 text-sm">
-                      Timeline, relationships, and more
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-8 space-y-10">
+          
+          {/* Page Title & Back Link */}
+          <div>
+             <Link href="/projects" className="inline-flex items-center text-primary text-sm font-semibold hover:text-primary/80 transition-colors mb-4 group">
+                <span className="material-symbols-outlined text-sm mr-2 group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                Back to Worlds
+             </Link>
+             <h2 className="text-5xl font-serif font-bold text-gold tracking-wide">{currentProject.name}</h2>
           </div>
-        </main>
-      </div>
+
+          {/* Project Overview Card */}
+          <section className="glass rounded-3xl p-8 relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -mr-32 -mt-32"></div>
+             <div className="relative z-10">
+                <h3 className="text-lg font-display font-bold text-white mb-8 uppercase tracking-widest border-l-4 border-primary pl-4">Project Overview</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                   <div className="p-6 bg-white/5 rounded-2xl border border-white/10">
+                      <p className="text-slate-400 text-xs font-bold uppercase tracking-tighter mb-1">Total Entities</p>
+                      <p className="text-4xl font-display font-bold text-white">{stats?.entityCount || 0}</p>
+                   </div>
+                   <div className="p-6 bg-white/5 rounded-2xl border border-white/10">
+                      <p className="text-slate-400 text-xs font-bold uppercase tracking-tighter mb-1">Characters</p>
+                      <p className="text-4xl font-display font-bold text-white">{stats?.entityCountByType?.['Character'] || 0}</p>
+                   </div>
+                   <div className="p-6 bg-white/5 rounded-2xl border border-white/10">
+                      <p className="text-slate-400 text-xs font-bold uppercase tracking-tighter mb-1">Locations</p>
+                      <p className="text-4xl font-display font-bold text-white">{stats?.entityCountByType?.['Location'] || 0}</p>
+                   </div>
+                </div>
+             </div>
+          </section>
+
+          {/* World Modules Section */}
+          <section className="space-y-6">
+             <h3 className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em]">World Modules</h3>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                {/* Codex Browser */}
+                <div className="glass rounded-2xl p-6 border-primary/30 border-2 transition-all cursor-pointer bg-primary/5 hover:bg-primary/10">
+                   <div className="flex items-center justify-between mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                         <span className="material-symbols-outlined text-primary text-3xl">menu_book</span>
+                      </div>
+                      <span className="bg-primary text-white text-[10px] font-bold px-2 py-1 rounded">PRIMARY</span>
+                   </div>
+                   <h4 className="text-xl font-bold text-white mb-2">Codex Browser</h4>
+                   <p className="text-slate-400 text-sm">Explore all entities, lore entries, and myths of {currentProject.name}.</p>
+                </div>
+
+                {/* Timeline */}
+                <div className="glass rounded-2xl p-6 transition-all cursor-not-allowed opacity-60 group">
+                   <div className="flex items-center justify-between mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center">
+                         <span className="material-symbols-outlined text-slate-400 text-3xl">auto_graph</span>
+                      </div>
+                      <span className="bg-white/5 text-slate-500 text-[10px] font-bold px-2 py-1 rounded border border-white/10 uppercase tracking-tighter">Coming Soon</span>
+                   </div>
+                   <h4 className="text-xl font-bold text-white mb-2">Timeline</h4>
+                   <p className="text-slate-400 text-sm">Visualize the chronological history and major eras of your world.</p>
+                </div>
+
+                {/* Relationship Map */}
+                <div className="glass rounded-2xl p-6 transition-all cursor-not-allowed opacity-60 group">
+                   <div className="flex items-center justify-between mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center">
+                         <span className="material-symbols-outlined text-slate-400 text-3xl">hub</span>
+                      </div>
+                      <span className="bg-white/5 text-slate-500 text-[10px] font-bold px-2 py-1 rounded border border-white/10 uppercase tracking-tighter">Coming Soon</span>
+                   </div>
+                   <h4 className="text-xl font-bold text-white mb-2">Relationship Map</h4>
+                   <p className="text-slate-400 text-sm">Map out the intricate connections between characters and factions.</p>
+                </div>
+
+             </div>
+          </section>
+
+          {/* Quick Create Section */}
+          <section className="pt-8 border-t border-white/5 pb-8">
+             <h3 className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em] mb-6">Quick Create</h3>
+             <div className="flex flex-wrap gap-4">
+                <button className="flex items-center space-x-3 px-6 py-4 glass rounded-xl border-white/10 hover:border-primary/50 transition-all hover:bg-white/5 group">
+                   <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">person_add</span>
+                   <span className="font-semibold text-slate-200">New Character</span>
+                </button>
+                <button className="flex items-center space-x-3 px-6 py-4 glass rounded-xl border-white/10 hover:border-primary/50 transition-all hover:bg-white/5 group">
+                   <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">add_location_alt</span>
+                   <span className="font-semibold text-slate-200">New Location</span>
+                </button>
+                <button className="flex items-center space-x-3 px-6 py-4 glass rounded-xl border-white/10 hover:border-primary/50 transition-all hover:bg-white/5 group">
+                   <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">history_edu</span>
+                   <span className="font-semibold text-slate-200">New Lore Entry</span>
+                </button>
+             </div>
+          </section>
+
+        </div>
+      </main>
     </div>
   );
 }

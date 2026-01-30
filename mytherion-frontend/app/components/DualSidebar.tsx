@@ -2,11 +2,28 @@
 
 import { useState } from "react";
 
-interface DualSidebarProps {
-  activeSection?: string;
+interface NavItem {
+  id: string;
+  label: string;
+  href: string;
+  icon?: string; // Optional icon override if needed
 }
 
-export default function DualSidebar({ activeSection = "dashboard" }: DualSidebarProps) {
+interface DualSidebarProps {
+  activeSection?: string;
+  navItems?: NavItem[];
+  libraryItems?: NavItem[];
+  title?: string;
+  subTitle?: string;
+}
+
+export default function DualSidebar({ 
+  activeSection = "dashboard", 
+  navItems, 
+  libraryItems: customLibraryItems,
+  title = "Mytherion",
+  subTitle
+}: DualSidebarProps) {
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
 
   const iconNavItems = [
@@ -19,11 +36,11 @@ export default function DualSidebar({ activeSection = "dashboard" }: DualSidebar
     { id: "notes", icon: "description", label: "Notes", href: "#notes" },
   ];
 
-  const libraryItems = [
-    { id: "bestiary", icon: "menu_book", label: "Bestiary" },
+  const defaultLibraryItems = [
+    { id: "bestiary", icon: "menu_book", label: "Bestiary", href: "#bestiary" },
   ];
 
-  const navigationItems = [
+  const defaultNavItems = [
     { id: "dashboard", label: "Dashboard", href: "/" },
     { id: "projects", label: "Projects", href: "/projects" },
     { id: "characters", label: "Characters", href: "#characters" },
@@ -32,6 +49,9 @@ export default function DualSidebar({ activeSection = "dashboard" }: DualSidebar
     { id: "artifacts", label: "Artifacts", href: "#artifacts" },
     { id: "notes", label: "Notes", href: "#notes" },
   ];
+
+  const currentNavItems = navItems || defaultNavItems;
+  const currentLibraryItems = customLibraryItems || defaultLibraryItems;
 
   return (
     <div className="flex h-full flex-shrink-0">
@@ -61,14 +81,14 @@ export default function DualSidebar({ activeSection = "dashboard" }: DualSidebar
 
           {/* Divider */}
           <div className="pt-6 border-t border-white/10">
-            {libraryItems.map((item) => (
+            {currentLibraryItems.map((item) => (
               <a
                 key={item.id}
-                href={`#${item.id}`}
-                className="text-slate-500 hover:text-white transition-colors"
+                href={item.href}
+                className="text-slate-500 hover:text-white transition-colors block mb-4 last:mb-0"
                 title={item.label}
               >
-                <span className="material-symbols-outlined text-[24px]">{item.icon}</span>
+                <span className="material-symbols-outlined text-[24px]">{item.icon || 'menu_book'}</span>
               </a>
             ))}
           </div>
@@ -80,17 +100,21 @@ export default function DualSidebar({ activeSection = "dashboard" }: DualSidebar
         {/* Header */}
         <div className="p-6">
           <h1 className="text-xl font-display font-extrabold tracking-tight text-white uppercase">
-            Mytherion
+            {title}
           </h1>
+          {subTitle && (
+             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1">{subTitle}</p>
+          )}
         </div>
 
         {/* Navigation */}
+        {/* Navigation */}
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto pt-4">
           <p className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">
-            Chronicle Navigation
+            Navigation
           </p>
 
-          {navigationItems.map((item) => (
+          {currentNavItems.map((item) => (
             <a
               key={item.id}
               href={item.href}
@@ -115,12 +139,16 @@ export default function DualSidebar({ activeSection = "dashboard" }: DualSidebar
             <p className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">
               Library
             </p>
-            <a
-              href="#bestiary"
-              className="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group"
-            >
-              <span className="font-medium">Bestiary</span>
-            </a>
+            {currentLibraryItems.map((item) => (
+              <a
+                key={item.id}
+                href={item.href}
+                className="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group"
+              >
+                <span className="material-symbols-outlined text-[20px]">{item.icon || 'menu_book'}</span>
+                <span className="font-medium">{item.label}</span>
+              </a>
+            ))}
           </div>
         </nav>
 
