@@ -52,7 +52,7 @@ export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardPr
   const genre = 'High Fantasy'; // This would come from project data
 
   return (
-    <div className={`project-card glass rounded-3xl overflow-hidden border border-white/10 transition-all cursor-pointer shadow-xl relative ${
+    <div className={`project-card glass rounded-3xl min-w-[320px] overflow-hidden border border-white/10 transition-all cursor-pointer shadow-xl relative ${
       showDeleteConfirm ? '' : 'group hover:border-primary/40'
     }`}>
       {/* Delete Confirmation Overlay */}
@@ -136,18 +136,18 @@ export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardPr
         </div>
 
         {/* Stats Footer */}
-        <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-slate-400 font-medium">
+        <div className="pt-4 border-t border-white/5 flex flex-wrap gap-2 items-center justify-between text-xs text-slate-400 font-medium">
           <div className="flex items-center space-x-4">
-            <span className="flex items-center">
+            <span className="flex items-center whitespace-nowrap">
               <span className="material-symbols-outlined text-xs mr-1 text-slate-500">group</span>
               0 Characters
             </span>
-            <span className="flex items-center">
+            <span className="flex items-center whitespace-nowrap">
               <span className="material-symbols-outlined text-xs mr-1 text-slate-500">location_on</span>
               0 Locations
             </span>
           </div>
-          <span className="text-slate-600">Updated {formatDate(project.updatedAt)}</span>
+          <span className="text-slate-600 whitespace-nowrap">Updated {formatDate(project.updatedAt)}</span>
         </div>
       </div>
 

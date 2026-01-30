@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Entity, CreateEntityRequest, UpdateEntityRequest, EntityType } from '../types/entity';
 import logger from '../utils/logger';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 // Create a child logger for this service
 const serviceLogger = logger.child({ service: 'entityService' });
@@ -39,7 +39,7 @@ export const entityService = {
     serviceLogger.debug('Fetching entities', { projectId, filters });
 
     try {
-      const response = await axios.get(`${API_URL}/projects/${projectId}/entities?${params}`, {
+      const response = await axios.get(`${API_URL}/api/projects/${projectId}/entities?${params}`, {
         withCredentials: true,
       });
       serviceLogger.info('Entities fetched successfully', { 
@@ -59,7 +59,7 @@ export const entityService = {
     serviceLogger.debug('Fetching entity', { entityId: id });
 
     try {
-      const response = await axios.get(`${API_URL}/entities/${id}`, {
+      const response = await axios.get(`${API_URL}/api/entities/${id}`, {
         withCredentials: true,
       });
       serviceLogger.info('Entity fetched successfully', { entityId: id, name: response.data.name });
@@ -75,7 +75,7 @@ export const entityService = {
     serviceLogger.info('Creating entity', { projectId, type: data.type, name: data.name });
 
     try {
-      const response = await axios.post(`${API_URL}/projects/${projectId}/entities`, data, {
+      const response = await axios.post(`${API_URL}/api/projects/${projectId}/entities`, data, {
         withCredentials: true,
       });
       serviceLogger.info('Entity created successfully', { 
@@ -95,7 +95,7 @@ export const entityService = {
     serviceLogger.info('Updating entity', { entityId: id, updates: Object.keys(data) });
 
     try {
-      const response = await axios.patch(`${API_URL}/entities/${id}`, data, {
+      const response = await axios.patch(`${API_URL}/api/entities/${id}`, data, {
         withCredentials: true,
       });
       serviceLogger.info('Entity updated successfully', { entityId: id });
@@ -111,7 +111,7 @@ export const entityService = {
     serviceLogger.info('Deleting entity', { entityId: id });
 
     try {
-      await axios.delete(`${API_URL}/entities/${id}`, {
+      await axios.delete(`${API_URL}/api/entities/${id}`, {
         withCredentials: true,
       });
       serviceLogger.info('Entity deleted successfully', { entityId: id });

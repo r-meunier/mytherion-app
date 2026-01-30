@@ -1,7 +1,7 @@
 import axios from 'axios';
 import logger from '../utils/logger';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 // Create a child logger for this service
 const serviceLogger = logger.child({ service: 'projectService' });
