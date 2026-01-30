@@ -1,34 +1,60 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { createProject } from '@/app/store/projectSlice';
+import { createProject, updateProject } from '@/app/store/projectSlice';
+import { Project } from '@/app/services/projectService';
 
 interface ProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
+  project?: Project;
 }
 
-export default function ProjectModal({ isOpen, onClose }: ProjectModalProps) {
+export default function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((state) => state.projects);
+  const isEditing = !!project;
 
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    genre: 'High Fantasy', // Default value matching the first option
+    genre: 'High Fantasy', // Default value
   });
+
+  // Pre-fill data when project changes or modal opens
+  useEffect(() => {
+    if (project) {
+      setFormData({
+        name: project.name,
+        description: project.description || '',
+        genre: project.genre || 'High Fantasy',
+      });
+    } else {
+      setFormData({
+        name: '',
+        description: '',
+        genre: 'High Fantasy',
+      });
+    }
+  }, [project, isOpen]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
-    const result = await dispatch(createProject(formData));
+    let result;
+    if (isEditing && project) {
+      result = await dispatch(updateProject({ id: project.id, data: formData }));
+    } else {
+      result = await dispatch(createProject(formData));
+    }
     
-    if (createProject.fulfilled.match(result)) {
+    if (createProject.fulfilled.match(result) || updateProject.fulfilled.match(result)) {
       onClose();
-      setFormData({ name: '', description: '', genre: 'High Fantasy' });
-      // Optionally redirect to the new project
-      // router.push(`/projects/${result.payload.id}`);
+      // Reset form if creating, but keep it if editing (though modal closes)
+      if (!isEditing) {
+        setFormData({ name: '', description: '', genre: 'High Fantasy' });
+      }
     }
   };
 
@@ -52,16 +78,22 @@ export default function ProjectModal({ isOpen, onClose }: ProjectModalProps) {
       <div className="relative w-full max-w-xl glass rounded-3xl p-8 overflow-hidden modal-border-glow border-t-2 border-primary/50 border-b-2 border-secondary/50">
         {/* Decorative animated icon */}
         <div className="absolute top-6 right-6 text-secondary/60 animate-bounce">
-          <span className="material-symbols-outlined text-3xl">history_edu</span>
+          <span className="material-symbols-outlined text-3xl">
+            {isEditing ? 'edit_document' : 'history_edu'}
+          </span>
         </div>
 
         {/* Header */}
         <div className="mb-8">
           <h2 className="text-3xl font-display font-extrabold text-white flex items-center gap-3">
-            <span className="material-symbols-outlined text-primary">auto_awesome</span>
-            Initiate New World
+            <span className="material-symbols-outlined text-primary">
+              {isEditing ? 'edit' : 'auto_awesome'}
+            </span>
+            {isEditing ? 'Edit World' : 'Initiate New World'}
           </h2>
-          <p className="text-slate-400 mt-2">Summon the foundation of your next masterpiece.</p>
+          <p className="text-slate-400 mt-2">
+            {isEditing ? 'Refine the details of your creation.' : 'Summon the foundation of your next masterpiece.'}
+          </p>
         </div>
 
         {/* Form */}
@@ -156,8 +188,14 @@ export default function ProjectModal({ isOpen, onClose }: ProjectModalProps) {
               className="flex-[2] btn-cosmic py-4 px-6 text-white font-bold rounded-2xl flex items-center justify-center space-x-2 group hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
-              <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">bolt</span>
-              <span>{loading ? 'Initiating...' : 'Initiate Creation'}</span>
+              <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">
+                {isEditing ? 'save' : 'bolt'}
+              </span>
+              <span>
+                {loading 
+                  ? (isEditing ? 'Saving...' : 'Initiating...') 
+                  : (isEditing ? 'Save Changes' : 'Initiate Creation')}
+              </span>
             </button>
           </div>
         </form>

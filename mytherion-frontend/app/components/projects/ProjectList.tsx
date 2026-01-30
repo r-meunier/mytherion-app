@@ -13,7 +13,6 @@ interface ProjectListProps {
 export default function ProjectList({ onCreateClick, onEditClick }: ProjectListProps) {
   const dispatch = useAppDispatch();
   const { projects, loading, error, pagination } = useAppSelector((state) => state.projects);
-  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [hasFetched, setHasFetched] = useState(false);
   const fetchedRef = useRef(false);
 
@@ -26,18 +25,8 @@ export default function ProjectList({ onCreateClick, onEditClick }: ProjectListP
   }, [dispatch]);
 
   const handleDelete = async (id: number) => {
-    if (deleteConfirm === id) {
-      // Actually delete the project
-      await dispatch(deleteProject(id));
-      setDeleteConfirm(null);
-    } else {
-      // Show confirmation overlay
-      setDeleteConfirm(id);
-    }
-  };
-
-  const handleCancelDelete = () => {
-    setDeleteConfirm(null);
+    // The card handles the confirmation UI, so we just proceed with deletion
+    await dispatch(deleteProject(id));
   };
 
   const handlePageChange = (newPage: number) => {
@@ -68,8 +57,8 @@ export default function ProjectList({ onCreateClick, onEditClick }: ProjectListP
     );
   }
 
-  // Empty state - only show after fetching
-  if (hasFetched && !loading && projects.length === 0) {
+  // Empty state - only show after fetching and if no error
+  if (hasFetched && !loading && !error && projects.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4">
         <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-6 border border-primary/20">
@@ -106,8 +95,6 @@ export default function ProjectList({ onCreateClick, onEditClick }: ProjectListP
             project={project}
             onEdit={onEditClick}
             onDelete={handleDelete}
-            onCancelDelete={handleCancelDelete}
-            isDeleteConfirm={deleteConfirm === project.id}
           />
         ))}
       </div>
