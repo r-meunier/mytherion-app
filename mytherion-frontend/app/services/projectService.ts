@@ -12,6 +12,7 @@ export interface Project {
   description: string | null;
   createdAt: string;
   updatedAt: string;
+  genre?: string;
 }
 
 export interface ProjectStats {
@@ -26,12 +27,14 @@ export interface ProjectStats {
 
 export interface CreateProjectRequest {
   name: string;
-  description?: string;
+  description: string;
+  genre: string;
 }
 
 export interface UpdateProjectRequest {
   name?: string;
   description?: string;
+  genre?: string;
 }
 
 export interface Page<T> {

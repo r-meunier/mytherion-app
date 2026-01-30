@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { createProject } from '@/app/store/projectSlice';
 
@@ -11,13 +10,13 @@ interface ProjectModalProps {
 }
 
 export default function ProjectModal({ isOpen, onClose }: ProjectModalProps) {
-  const router = useRouter();
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((state) => state.projects);
 
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    genre: 'High Fantasy', // Default value matching the first option
   });
 
   const handleSubmit = async (e: FormEvent) => {
@@ -27,7 +26,7 @@ export default function ProjectModal({ isOpen, onClose }: ProjectModalProps) {
     
     if (createProject.fulfilled.match(result)) {
       onClose();
-      setFormData({ name: '', description: '' });
+      setFormData({ name: '', description: '', genre: 'High Fantasy' });
       // Optionally redirect to the new project
       // router.push(`/projects/${result.payload.id}`);
     }
@@ -89,7 +88,7 @@ export default function ProjectModal({ isOpen, onClose }: ProjectModalProps) {
             </div>
           </div>
 
-          {/* Genre (Optional - can be added to backend later) */}
+          {/* Genre */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2 col-span-2">
               <label className="block text-sm font-bold text-slate-300 uppercase tracking-widest ml-1">
@@ -101,14 +100,15 @@ export default function ProjectModal({ isOpen, onClose }: ProjectModalProps) {
                 </span>
                 <select
                   name="genre"
+                  value={formData.genre}
                   onChange={handleChange}
                   className="w-full pl-12 pr-10 py-4 bg-white/5 border border-white/10 rounded-2xl text-white appearance-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                 >
-                  <option className="bg-slate-900" value="high-fantasy">High Fantasy</option>
-                  <option className="bg-slate-900" value="sci-fi">Sci-Fi</option>
-                  <option className="bg-slate-900" value="grimdark">Grimdark</option>
-                  <option className="bg-slate-900" value="steampunk">Steampunk</option>
-                  <option className="bg-slate-900" value="cyberpunk">Cyberpunk</option>
+                  <option className="bg-slate-900" value="High Fantasy">High Fantasy</option>
+                  <option className="bg-slate-900" value="Sci-Fi">Sci-Fi</option>
+                  <option className="bg-slate-900" value="Grimdark">Grimdark</option>
+                  <option className="bg-slate-900" value="Steampunk">Steampunk</option>
+                  <option className="bg-slate-900" value="Cyberpunk">Cyberpunk</option>
                 </select>
                 <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
                   expand_more
@@ -153,7 +153,7 @@ export default function ProjectModal({ isOpen, onClose }: ProjectModalProps) {
             </button>
             <button
               type="submit"
-              className="flex-[2] cosmic-btn py-4 px-6 text-white font-bold rounded-2xl flex items-center justify-center space-x-2 group hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-[2] btn-cosmic py-4 px-6 text-white font-bold rounded-2xl flex items-center justify-center space-x-2 group hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
               <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">bolt</span>

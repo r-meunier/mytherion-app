@@ -49,7 +49,6 @@ export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardPr
 
   // Placeholder image - in production this would come from project data
   const projectImage = 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&h=600&fit=crop';
-  const genre = 'High Fantasy'; // This would come from project data
 
   return (
     <div className={`project-card glass rounded-3xl min-w-[320px] overflow-hidden border border-white/10 transition-all cursor-pointer shadow-xl relative ${
@@ -99,7 +98,7 @@ export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardPr
           {/* Genre Badge */}
           <div className="absolute bottom-4 left-6">
             <span className="px-3 py-1 bg-primary/20 backdrop-blur-md border border-primary/30 text-primary text-[10px] font-bold uppercase tracking-widest rounded-full">
-              {genre}
+              {project.genre || 'Unknown'}
             </span>
           </div>
         </Link>
