@@ -1,5 +1,7 @@
 package io.mytherion.config
 
+import io.mytherion.logging.errorWith
+import io.mytherion.logging.logger
 import io.mytherion.project.exception.ProjectAccessDeniedException
 import io.mytherion.project.exception.ProjectHasEntitiesException
 import io.mytherion.project.exception.ProjectNotFoundException
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 /** Global exception handler for REST API */
 @RestControllerAdvice
 class GlobalExceptionHandler {
+
+        private val logger = logger()
 
         @ExceptionHandler(ProjectNotFoundException::class)
         fun handleProjectNotFound(ex: ProjectNotFoundException): ResponseEntity<ErrorResponse> {
@@ -109,6 +113,7 @@ class GlobalExceptionHandler {
 
         @ExceptionHandler(Exception::class)
         fun handleGenericException(ex: Exception): ResponseEntity<ErrorResponse> {
+                logger.errorWith("Unhandled exception", ex)
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(
                                 ErrorResponse(
