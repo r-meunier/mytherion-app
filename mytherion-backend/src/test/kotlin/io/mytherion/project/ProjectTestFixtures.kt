@@ -35,6 +35,7 @@ object ProjectTestFixtures {
         owner: User = createTestUser(),
         name: String = "Test Project",
         description: String? = "Test project description",
+        genre: String? = null,
         createdAt: Instant = Instant.now(),
         updatedAt: Instant = Instant.now()
     ) = Project(
@@ -42,6 +43,7 @@ object ProjectTestFixtures {
         owner = owner,
         name = name,
         description = description,
+        genre = genre,
         createdAt = createdAt,
         updatedAt = updatedAt
     )
@@ -53,7 +55,8 @@ object ProjectTestFixtures {
         ownerId: Long = 1L,
         ownerUsername: String = "testuser",
         createdAt: Instant = Instant.now(),
-        updatedAt: Instant = Instant.now()
+        updatedAt: Instant = Instant.now(),
+        genre: String? = null
     ) = ProjectResponse(
         id = id,
         name = name,
@@ -61,22 +64,27 @@ object ProjectTestFixtures {
         ownerId = ownerId,
         ownerUsername = ownerUsername,
         createdAt = createdAt,
-        updatedAt = updatedAt
+        updatedAt = updatedAt,
+        genre = genre
     )
 
     fun createTestCreateProjectRequest(
         name: String = "New Project",
-        description: String? = "New project description"
+        description: String? = "New project description",
+        genre: String? = null
     ) = CreateProjectRequest(
         name = name,
-        description = description
+        description = description,
+        genre = genre
     )
 
     fun createTestUpdateProjectRequest(
         name: String? = "Updated Project",
-        description: String? = "Updated description"
+        description: String? = "Updated description",
+        genre: String? = null
     ) = UpdateProjectRequest(
         name = name,
-        description = description
+        description = description,
+        genre = genre
     )
 }

@@ -12,7 +12,8 @@ data class ProjectResponse(
         val ownerId: Long,
         val ownerUsername: String,
         val createdAt: Instant,
-        val updatedAt: Instant
+        val updatedAt: Instant,
+        val genre: String?
 ) {
     companion object {
         fun from(project: Project) =
@@ -23,7 +24,8 @@ data class ProjectResponse(
                         ownerId = project.owner.id!!,
                         ownerUsername = project.owner.username,
                         createdAt = project.createdAt,
-                        updatedAt = project.updatedAt
+                        updatedAt = project.updatedAt,
+                        genre = project.genre
                 )
     }
 }
@@ -37,7 +39,9 @@ data class CreateProjectRequest(
         )
         val name: String,
         @field:Size(max = 5000, message = "Description must not exceed 5000 characters")
-        val description: String? = null
+        @field:Size(max = 5000, message = "Description must not exceed 5000 characters")
+        val description: String? = null,
+        val genre: String? = null
 )
 
 data class UpdateProjectRequest(
@@ -48,5 +52,6 @@ data class UpdateProjectRequest(
         )
         val name: String? = null,
         @field:Size(max = 5000, message = "Description must not exceed 5000 characters")
-        val description: String? = null
+        val description: String? = null,
+        val genre: String? = null
 )

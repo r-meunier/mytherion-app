@@ -111,7 +111,8 @@ class ProjectService(
                         Project(
                                 owner = user,
                                 name = request.name,
-                                description = request.description
+                                description = request.description,
+                                genre = request.genre
                         )
                 val saved = projectRepository.save(project)
 
@@ -140,7 +141,8 @@ class ProjectService(
                 "updates" to
                         listOfNotNull(
                                 request.name?.let { "name" },
-                                request.description?.let { "description" }
+                                request.description?.let { "description" },
+                                request.genre?.let { "genre" }
                         )
         )
 
@@ -150,6 +152,7 @@ class ProjectService(
         // Update only provided fields
         request.name?.let { project.name = it }
         request.description?.let { project.description = it }
+        request.genre?.let { project.genre = it }
 
         val saved = projectRepository.save(project)
         logger.infoWith("Project updated successfully", "projectId" to id)

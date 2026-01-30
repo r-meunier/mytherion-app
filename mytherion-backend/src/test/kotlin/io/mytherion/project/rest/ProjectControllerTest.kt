@@ -68,6 +68,7 @@ class ProjectControllerTest {
                         .andExpect(jsonPath("$.content[0].name").value("Project 1"))
                         .andExpect(jsonPath("$.content[1].id").value(2))
                         .andExpect(jsonPath("$.content[1].name").value("Project 2"))
+                        .andExpect(jsonPath("$.content[1].genre").doesNotExist())
                         .andExpect(jsonPath("$.totalElements").value(2))
         }
 
@@ -106,6 +107,7 @@ class ProjectControllerTest {
                         .andExpect(jsonPath("$.description").value("Test description"))
                         .andExpect(jsonPath("$.ownerId").value(1))
                         .andExpect(jsonPath("$.ownerUsername").value("testuser"))
+                        .andExpect(jsonPath("$.genre").doesNotExist())
         }
 
         @Test
@@ -220,13 +222,15 @@ class ProjectControllerTest {
                 val request =
                         UpdateProjectRequest(
                                 name = "Updated Name",
-                                description = "Updated description"
+                                description = "Updated description",
+                                genre = "Sci-Fi"
                         )
                 val response =
                         ProjectTestFixtures.createTestProjectResponse(
                                 id = 1L,
                                 name = "Updated Name",
-                                description = "Updated description"
+                                description = "Updated description",
+                                genre = "Sci-Fi"
                         )
                 every { projectService.updateProject(any(), any()) } returns response
 
@@ -240,6 +244,7 @@ class ProjectControllerTest {
                         .andExpect(jsonPath("$.id").value(1))
                         .andExpect(jsonPath("$.name").value("Updated Name"))
                         .andExpect(jsonPath("$.description").value("Updated description"))
+                        .andExpect(jsonPath("$.genre").value("Sci-Fi"))
         }
 
         @Test

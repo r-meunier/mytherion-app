@@ -20,6 +20,7 @@ class Project(
         @JdbcTypeCode(SqlTypes.JSON)
         @Column(columnDefinition = "jsonb")
         var settings: String? = null,
+        var genre: String? = null,
         @Column(name = "created_at", nullable = false) val createdAt: Instant = Instant.now(),
         @Column(name = "updated_at", nullable = false) var updatedAt: Instant = Instant.now(),
         @Column(name = "deleted_at") var deletedAt: Instant? = null
