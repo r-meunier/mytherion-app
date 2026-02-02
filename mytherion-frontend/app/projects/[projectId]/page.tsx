@@ -32,6 +32,11 @@ export default function ProjectDashboard() {
     { id: "maps", label: "Maps", href: "#" },
   ];
 
+  const managementItems = [
+    { id: "settings", label: "Settings", href: "#" },
+    { id: "export", label: "Export Codex", href: "#" },
+  ];
+
   if (loading && !currentProject) {
     return (
       <div className="min-h-screen bg-background-dark flex items-center justify-center">
@@ -61,9 +66,10 @@ export default function ProjectDashboard() {
       {/* Dual Sidebar with Project Context */}
       <DualSidebar 
         activeSection="overview" 
+        activeIcon="projects"
         navItems={projectNavItems}
-        title={currentProject.name}
-        subTitle={`Project: ${currentProject.genre || 'Normal'}`}
+        managementItems={managementItems}
+        subTitle={`PROJECT: ${currentProject.name.toUpperCase()}`}
       />
 
       {/* Main Content Area */}
@@ -123,10 +129,10 @@ export default function ProjectDashboard() {
                 </div>
 
                 {/* Timeline */}
-                <div className="glass rounded-2xl p-6 transition-all cursor-not-allowed opacity-60 group">
+                <div className="glass rounded-2xl p-6 transition-all cursor-not-allowed opacity-80 group">
                    <div className="flex items-center justify-between mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center">
-                         <span className="material-symbols-outlined text-slate-400 text-3xl">auto_graph</span>
+                      <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center group-hover:bg-indigo-900/40 transition-colors">
+                         <span className="material-symbols-outlined text-slate-400 group-hover:text-indigo-400 text-3xl">auto_graph</span>
                       </div>
                       <span className="bg-white/5 text-slate-500 text-[10px] font-bold px-2 py-1 rounded border border-white/10 uppercase tracking-tighter">Coming Soon</span>
                    </div>
@@ -135,10 +141,10 @@ export default function ProjectDashboard() {
                 </div>
 
                 {/* Relationship Map */}
-                <div className="glass rounded-2xl p-6 transition-all cursor-not-allowed opacity-60 group">
+                <div className="glass rounded-2xl p-6 transition-all cursor-not-allowed opacity-80 group">
                    <div className="flex items-center justify-between mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center">
-                         <span className="material-symbols-outlined text-slate-400 text-3xl">hub</span>
+                      <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center group-hover:bg-amber-900/40 transition-colors">
+                         <span className="material-symbols-outlined text-slate-400 group-hover:text-amber-400 text-3xl">hub</span>
                       </div>
                       <span className="bg-white/5 text-slate-500 text-[10px] font-bold px-2 py-1 rounded border border-white/10 uppercase tracking-tighter">Coming Soon</span>
                    </div>

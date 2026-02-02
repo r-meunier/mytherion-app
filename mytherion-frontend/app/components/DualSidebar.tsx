@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 interface NavItem {
   id: string;
@@ -11,28 +12,52 @@ interface NavItem {
 
 interface DualSidebarProps {
   activeSection?: string;
+  activeIcon?: string;
   navItems?: NavItem[];
   libraryItems?: NavItem[];
+  managementItems?: NavItem[];
   title?: string;
   subTitle?: string;
 }
 
-export default function DualSidebar({ 
-  activeSection = "dashboard", 
-  navItems, 
+export default function DualSidebar({
+  activeSection = "dashboard",
+  activeIcon,
+  navItems,
   libraryItems: customLibraryItems,
+  managementItems,
   title = "Mytherion",
-  subTitle
+  subTitle,
 }: DualSidebarProps) {
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
 
   const iconNavItems = [
     { id: "dashboard", icon: "dashboard", label: "Dashboard", href: "/" },
-    { id: "projects", icon: "folder", label: "Projects", href: "/projects" },
-    { id: "characters", icon: "group", label: "Characters", href: "#characters" },
-    { id: "locations", icon: "explore", label: "Locations", href: "#locations" },
-    { id: "timeline", icon: "history_edu", label: "Timeline", href: "#timeline" },
-    { id: "artifacts", icon: "deployed_code", label: "Artifacts", href: "#artifacts" },
+    { id: "projects", icon: "folder_special", label: "Projects", href: "/projects" },
+    {
+      id: "characters",
+      icon: "group",
+      label: "Characters",
+      href: "#characters",
+    },
+    {
+      id: "locations",
+      icon: "explore",
+      label: "Locations",
+      href: "#locations",
+    },
+    {
+      id: "timeline",
+      icon: "history_edu",
+      label: "Timeline",
+      href: "#timeline",
+    },
+    {
+      id: "artifacts",
+      icon: "deployed_code",
+      label: "Artifacts",
+      href: "#artifacts",
+    },
     { id: "notes", icon: "description", label: "Notes", href: "#notes" },
   ];
 
@@ -58,9 +83,14 @@ export default function DualSidebar({
       {/* Icon Sidebar - Left */}
       <aside className="w-20 bg-black/40 border-r border-white/5 flex flex-col items-center py-6 space-y-8 backdrop-blur-xl">
         {/* Logo */}
-        <div className="w-10 h-10 bg-gradient-to-tr from-primary to-purple-400 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-          <span className="material-symbols-outlined text-white">auto_awesome</span>
-        </div>
+        {/* Logo */}
+        <Link href="/" className="group">
+          <div className="w-10 h-10 bg-gradient-to-tr from-primary to-purple-400 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 transition-transform group-hover:scale-110">
+            <span className="material-symbols-outlined text-white">
+              auto_awesome
+            </span>
+          </div>
+        </Link>
 
         {/* Icon Navigation */}
         <div className="flex flex-col space-y-6">
@@ -69,13 +99,20 @@ export default function DualSidebar({
               key={item.id}
               href={item.href}
               className={`${
-                activeSection === item.id ? "text-primary" : "text-slate-500 hover:text-white"
+                (activeIcon || activeSection) === item.id
+                  ? "text-primary"
+                  : "text-slate-500 hover:text-white"
               } transition-colors`}
               onMouseEnter={() => setHoveredIcon(item.id)}
               onMouseLeave={() => setHoveredIcon(null)}
               title={item.label}
             >
-              <span className="material-symbols-outlined text-[24px]">{item.icon}</span>
+              <span 
+                className="material-symbols-outlined text-[24px]"
+                style={{fontVariationSettings: (activeIcon || activeSection) === item.id ? "'FILL' 1, 'wght' 700" : "'FILL' 0, 'wght' 400"}}
+              >
+                {item.icon}
+              </span>
             </a>
           ))}
 
@@ -88,7 +125,9 @@ export default function DualSidebar({
                 className="text-slate-500 hover:text-white transition-colors block mb-4 last:mb-0"
                 title={item.label}
               >
-                <span className="material-symbols-outlined text-[24px]">{item.icon || 'menu_book'}</span>
+                <span className="material-symbols-outlined text-[24px]">
+                  {item.icon || "menu_book"}
+                </span>
               </a>
             ))}
           </div>
@@ -99,11 +138,15 @@ export default function DualSidebar({
       <aside className="w-56 bg-black/20 border-r border-white/10 flex flex-col backdrop-blur-md">
         {/* Header */}
         <div className="p-6">
-          <h1 className="text-xl font-display font-extrabold tracking-tight text-white uppercase">
-            {title}
-          </h1>
+          <Link href="/">
+            <h1 className="text-xl font-display font-extrabold tracking-tight text-white uppercase hover:text-primary transition-colors cursor-pointer">
+              {title}
+            </h1>
+          </Link>
           {subTitle && (
-             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1">{subTitle}</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1">
+              {subTitle}
+            </p>
           )}
         </div>
 
@@ -145,18 +188,40 @@ export default function DualSidebar({
                 href={item.href}
                 className="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group"
               >
-                <span className="material-symbols-outlined text-[20px]">{item.icon || 'menu_book'}</span>
+                <span className="material-symbols-outlined text-[20px]">
+                  {item.icon || "menu_book"}
+                </span>
                 <span className="font-medium">{item.label}</span>
               </a>
             ))}
           </div>
+
+          {/* Management Section */}
+          {managementItems && managementItems.length > 0 && (
+            <div className="pt-10">
+              <p className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">
+                Management
+              </p>
+              {managementItems.map((item) => (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  className="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group"
+                >
+                  <span className="font-medium">{item.label}</span>
+                </a>
+              ))}
+            </div>
+          )}
         </nav>
 
         {/* Storage Indicator */}
         <div className="p-4 border-t border-white/10">
           <div className="p-3 bg-primary/5 rounded-xl border border-primary/20">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-primary uppercase">Storage</span>
+              <span className="text-[11px] font-bold text-primary uppercase">
+                Storage
+              </span>
               <span className="text-[11px] text-slate-500">82%</span>
             </div>
             <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">

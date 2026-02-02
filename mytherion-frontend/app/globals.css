@@ -10,6 +10,7 @@
   --glass-border: rgba(251, 191, 36, 0.2);
   --nebula-purple: rgba(168, 85, 247, 0.15);
   --nebula-blue: rgba(30, 64, 175, 0.15);
+  --gold: #D4AF37;
 }
 
 @theme inline {
@@ -22,6 +23,7 @@
   --font-display: var(--font-outfit);
   --font-serif: var(--font-cinzel);
   --font-script: var(--font-great-vibes);
+  --color-gold: var(--gold);
 }
 
 body {
@@ -146,6 +148,10 @@ body {
 
 .glow-primary:hover {
   box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+}
+
+.glow-purple:hover {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
 }
 
 /* Custom scrollbar */
