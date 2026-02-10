@@ -153,7 +153,7 @@ export default function EntityForm({ entity, onSubmit, onCancel, loading = false
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 px-6 py-3 bg-linear-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Saving...' : isEditMode ? 'Update Entity' : 'Create Entity'}
         </button>

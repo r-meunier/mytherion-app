@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchEntities, setFilters, deleteEntity } from '@/app/store/entitySlice';
 import { EntityType } from '@/app/types/entity';
@@ -18,10 +18,48 @@ export default function EntityList({ projectId, onCreateClick }: EntityListProps
   const { entities, loading, error, filters, pagination } = useAppSelector((state) => state.entities);
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  
+  // Use constant page size to avoid dependency on Redux pagination object
+  const PAGE_SIZE = 20;
+  
+  // Track the last parameters we fetched with to prevent duplicate fetches
+  const lastFetchedParams = useRef<string>('');
 
+  // Fetch entities when filters or page changes
   useEffect(() => {
-    dispatch(fetchEntities({ projectId, filters, page: pagination.page, size: pagination.size }));
-  }, [dispatch, projectId, filters, pagination.page, pagination.size]);
+    // Create a stable key for the current fetch parameters
+    const fetchKey = JSON.stringify({
+      projectId,
+      type: filters.type,
+      search: filters.search,
+      tags: filters.tags,
+      page: currentPage,
+    });
+    
+    // Only fetch if parameters actually changed
+    if (lastFetchedParams.current !== fetchKey) {
+      lastFetchedParams.current = fetchKey;
+      
+      dispatch(fetchEntities({ 
+        projectId, 
+        filters, 
+        page: currentPage, 
+        size: PAGE_SIZE
+      }));
+    }
+  }, [dispatch, projectId, filters, currentPage]);
+
+  // Reset to page 0 when filters change (but not on initial mount)
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    
+    setCurrentPage(0);
+  }, [filters.type, filters.search, filters.tags]);
 
   const handleSearchChange = (search: string) => {
     dispatch(setFilters({ ...filters, search }));
@@ -39,11 +77,11 @@ export default function EntityList({ projectId, onCreateClick }: EntityListProps
     await dispatch(deleteEntity(entityId));
     setShowDeleteConfirm(null);
     // Refresh list
-    dispatch(fetchEntities({ projectId, filters, page: pagination.page, size: pagination.size }));
+    dispatch(fetchEntities({ projectId, filters, page: currentPage, size: PAGE_SIZE }));
   };
 
   const handlePageChange = (newPage: number) => {
-    dispatch(fetchEntities({ projectId, filters, page: newPage, size: pagination.size }));
+    setCurrentPage(newPage);
   };
 
   const hasActiveFilters = filters.type || filters.search || (filters.tags && filters.tags.length > 0);

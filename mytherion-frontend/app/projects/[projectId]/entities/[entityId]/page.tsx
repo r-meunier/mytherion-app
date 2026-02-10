@@ -4,8 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchEntity, deleteEntity, clearCurrentEntity } from '@/app/store/entitySlice';
+import { fetchProject } from '@/app/store/projectSlice';
 import { entityTypeConfig } from '@/app/components/entities/EntityTypeSelector';
-import Navbar from '@/app/components/Navbar';
+import DualSidebar from '@/app/components/DualSidebar';
+import DashboardHeader from '@/app/components/DashboardHeader';
+import Link from 'next/link';
 
 export default function EntityDetailPage() {
   const router = useRouter();
@@ -15,22 +18,20 @@ export default function EntityDetailPage() {
   
   const dispatch = useAppDispatch();
   const { currentEntity, loading, error } = useAppSelector((state) => state.entities);
-  const { user } = useAppSelector((state) => state.auth);
+  const { currentProject } = useAppSelector((state) => state.projects);
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-
     dispatch(fetchEntity(entityId));
+    if (!currentProject || currentProject.id !== projectId) {
+      dispatch(fetchProject(projectId));
+    }
 
     return () => {
       dispatch(clearCurrentEntity());
     };
-  }, [dispatch, entityId, user, router]);
+  }, [dispatch, entityId, projectId, currentProject]);
 
   const handleEdit = () => {
     router.push(`/projects/${projectId}/entities/${entityId}/edit`);
@@ -41,24 +42,44 @@ export default function EntityDetailPage() {
     router.push(`/projects/${projectId}/entities`);
   };
 
-  if (loading || !currentEntity) {
+  const projectNavItems = [
+    { id: "overview", label: "Overview", href: `/projects/${projectId}` },
+    { id: "entities", label: "Entities", href: `/projects/${projectId}/entities` },
+    { id: "timeline", label: "Timeline", href: "#" },
+    { id: "maps", label: "Maps", href: "#" },
+  ];
+
+  const managementItems = [
+    { id: "settings", label: "Settings", href: "#" },
+    { id: "export", label: "Export Codex", href: "#" },
+  ];
+
+  if (loading || !currentEntity || !currentProject) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900">
-        <Navbar />
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-white text-xl">Loading...</div>
-        </div>
+      <div className="relative z-10 flex h-screen overflow-hidden">
+        <DualSidebar activeSection="entities" activeIcon="projects" />
+        <main className="flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader />
+          <div className="flex-1 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          </div>
+        </main>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900">
-        <Navbar />
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-red-400 text-xl">{error}</div>
-        </div>
+      <div className="relative z-10 flex h-screen overflow-hidden">
+        <DualSidebar activeSection="entities" activeIcon="projects" />
+        <main className="flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader />
+          <div className="flex-1 flex items-center justify-center">
+            <div className="glass rounded-xl p-6 border border-red-500/50">
+              <p className="text-red-400 text-lg">{error}</p>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
@@ -66,162 +87,145 @@ export default function EntityDetailPage() {
   const typeConfig = entityTypeConfig[currentEntity.type];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900">
-      {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-purple-500/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-blue-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      </div>
+    <div className="relative z-10 flex h-screen overflow-hidden">
+      <DualSidebar 
+        activeSection="entities"
+        activeIcon="projects"
+        navItems={projectNavItems}
+        managementItems={managementItems}
+        subTitle={`PROJECT: ${currentProject.name.toUpperCase()}`}
+      />
 
-      <Navbar />
+      <main className="flex-1 flex flex-col overflow-hidden">
+        <DashboardHeader />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Breadcrumb */}
-        <nav className="flex mb-8" aria-label="Breadcrumb">
-          <ol className="inline-flex items-center space-x-1 md:space-x-3">
-            <li className="inline-flex items-center">
-              <button
-                onClick={() => router.push('/projects')}
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                Projects
-              </button>
-            </li>
-            <li>
-              <div className="flex items-center">
-                <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
-                <button
-                  onClick={() => router.push(`/projects/${projectId}`)}
-                  className="ml-1 text-gray-400 hover:text-white transition-colors"
-                >
-                  Project
-                </button>
-              </div>
-            </li>
-            <li>
-              <div className="flex items-center">
-                <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
-                <button
-                  onClick={() => router.push(`/projects/${projectId}/entities`)}
-                  className="ml-1 text-gray-400 hover:text-white transition-colors"
-                >
-                  Entities
-                </button>
-              </div>
-            </li>
-            <li>
-              <div className="flex items-center">
-                <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
-                <span className="ml-1 text-white font-medium">{currentEntity.name}</span>
-              </div>
-            </li>
-          </ol>
-        </nav>
+        <div className="flex-1 overflow-y-auto p-8 space-y-8">
+          {/* Back Link */}
+          <div>
+            <Link
+              href={`/projects/${projectId}/entities`}
+              className="inline-flex items-center text-primary text-sm font-semibold hover:text-primary/80 transition-colors mb-4 group"
+            >
+              <span className="material-symbols-outlined text-sm mr-2 group-hover:-translate-x-1 transition-transform">
+                arrow_back
+              </span>
+              Back to Entity Codex
+            </Link>
+          </div>
 
-        {/* Header with Actions */}
-        <div className="flex items-start justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <span className="text-4xl">{typeConfig.icon}</span>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-4xl font-bold text-white">{currentEntity.name}</h1>
-                <span className={`px-2 py-1 rounded text-xs font-medium ${typeConfig.color} bg-gray-800/50 border border-gray-700`}>
-                  {typeConfig.label}
-                </span>
+          {/* Header Section */}
+          <div className="glass rounded-3xl p-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -mr-32 -mt-32"></div>
+            <div className="relative z-10">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <span className="text-5xl">{typeConfig.icon}</span>
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <h1 className="text-4xl font-serif font-bold text-gold tracking-wide">
+                        {currentEntity.name}
+                      </h1>
+                      <span className={`px-3 py-1 rounded-lg text-xs font-medium ${typeConfig.color} glass border border-white/10`}>
+                        {typeConfig.label}
+                      </span>
+                    </div>
+                    {currentEntity.summary && (
+                      <p className="text-slate-300 text-lg">{currentEntity.summary}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleEdit}
+                    className="px-4 py-2 glass hover:bg-primary hover:text-white border border-primary/30 rounded-lg transition-all flex items-center gap-2 text-white"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="px-4 py-2 glass hover:bg-red-600 hover:text-white border border-red-500/30 rounded-lg transition-all flex items-center gap-2 text-white"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                    Delete
+                  </button>
+                </div>
               </div>
-              {currentEntity.summary && (
-                <p className="text-gray-400 text-lg">{currentEntity.summary}</p>
+
+              {/* Tags */}
+              {currentEntity.tags && currentEntity.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {currentEntity.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-3 py-1.5 bg-primary/20 text-primary rounded-lg text-sm border border-primary/30"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={handleEdit}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
 
-        {/* Content */}
-        <div className="space-y-6">
-          {/* Description */}
+          {/* Description Section */}
           {currentEntity.description && (
-            <div className="backdrop-blur-sm bg-gray-800/30 border border-gray-700 rounded-2xl p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">Description</h2>
-              <p className="text-gray-300 whitespace-pre-wrap">{currentEntity.description}</p>
+            <div className="glass rounded-2xl p-6">
+              <h2 className="text-xl font-display font-bold text-white mb-4 uppercase tracking-widest border-l-4 border-primary pl-4">
+                Description
+              </h2>
+              <p className="text-slate-300 whitespace-pre-wrap leading-relaxed">
+                {currentEntity.description}
+              </p>
             </div>
           )}
 
-          {/* Tags */}
-          {currentEntity.tags && currentEntity.tags.length > 0 && (
-            <div className="backdrop-blur-sm bg-gray-800/30 border border-gray-700 rounded-2xl p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">Tags</h2>
-              <div className="flex flex-wrap gap-2">
-                {currentEntity.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1.5 bg-purple-600/20 text-purple-300 rounded-lg text-sm border border-purple-500/30"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Metadata */}
-          <div className="backdrop-blur-sm bg-gray-800/30 border border-gray-700 rounded-2xl p-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Details</h2>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-gray-400">Created:</span>
-                <span className="ml-2 text-white">
+          {/* Details Section */}
+          <div className="glass rounded-2xl p-6">
+            <h2 className="text-xl font-display font-bold text-white mb-4 uppercase tracking-widest border-l-4 border-primary pl-4">
+              Details
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 bg-white/5 rounded-lg">
+                <span className="text-slate-400 text-sm">Created</span>
+                <p className="text-white font-medium mt-1">
                   {new Date(currentEntity.createdAt).toLocaleString()}
-                </span>
+                </p>
               </div>
-              <div>
-                <span className="text-gray-400">Updated:</span>
-                <span className="ml-2 text-white">
+              <div className="p-4 bg-white/5 rounded-lg">
+                <span className="text-slate-400 text-sm">Last Updated</span>
+                <p className="text-white font-medium mt-1">
                   {new Date(currentEntity.updatedAt).toLocaleString()}
-                </span>
+                </p>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold text-white mb-2">Delete Entity?</h3>
-            <p className="text-gray-400 mb-6">
-              Are you sure you want to delete <strong>{currentEntity.name}</strong>? This action cannot be undone.
-            </p>
+          <div className="glass rounded-2xl p-6 max-w-md w-full mx-4 border border-white/20">
+            <div className="flex items-start gap-3 mb-4">
+              <span className="material-symbols-outlined text-secondary text-[32px]">warning</span>
+              <div>
+                <h3 className="text-xl font-display font-bold text-white mb-2">Delete Entity?</h3>
+                <p className="text-slate-400">
+                  Are you sure you want to delete <strong className="text-white">{currentEntity.name}</strong>? This action cannot be undone.
+                </p>
+              </div>
+            </div>
             <div className="flex gap-3">
               <button
                 onClick={handleDelete}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
+                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-lg shadow-red-600/20 transition-all font-semibold"
               >
                 Delete
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-all"
+                className="flex-1 px-4 py-2.5 glass text-white rounded-lg hover:bg-white/10 transition-all font-semibold"
               >
                 Cancel
               </button>

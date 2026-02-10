@@ -27,7 +27,7 @@ export default function ProjectDashboard() {
 
   const projectNavItems = [
     { id: "overview", label: "Overview", href: "#" },
-    { id: "codex", label: "Codex", href: "#" },
+    { id: "codex", label: "Codex", href: `/projects/${projectId}/entities` },
     { id: "timeline", label: "Timeline", href: "#" },
     { id: "maps", label: "Maps", href: "#" },
   ];
@@ -117,7 +117,7 @@ export default function ProjectDashboard() {
              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
                 {/* Codex Browser */}
-                <div className="glass rounded-2xl p-6 border-primary/30 border-2 transition-all cursor-pointer bg-primary/5 hover:bg-primary/10">
+                <Link href={`/projects/${projectId}/entities`} className="glass rounded-2xl p-6 border-primary/30 border-2 transition-all cursor-pointer bg-primary/5 hover:bg-primary/10 block">
                    <div className="flex items-center justify-between mb-6">
                       <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
                          <span className="material-symbols-outlined text-primary text-3xl">menu_book</span>
@@ -126,7 +126,7 @@ export default function ProjectDashboard() {
                    </div>
                    <h4 className="text-xl font-bold text-white mb-2">Codex Browser</h4>
                    <p className="text-slate-400 text-sm">Explore all entities, lore entries, and myths of {currentProject.name}.</p>
-                </div>
+                </Link>
 
                 {/* Timeline */}
                 <div className="glass rounded-2xl p-6 transition-all cursor-not-allowed opacity-80 group">

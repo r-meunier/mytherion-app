@@ -19,7 +19,7 @@ export default function ArcaneTools() {
         {tools.map((tool) => (
           <button
             key={tool.id}
-            className="p-4 glass rounded-xl hover:!bg-primary hover:text-white transition-all text-left flex flex-col items-start group"
+            className="p-4 glass rounded-xl hover:bg-primary! hover:text-white transition-all text-left flex flex-col items-start group"
           >
             <span className="material-symbols-outlined text-primary group-hover:text-white mb-2 transition-colors">
               {tool.icon}

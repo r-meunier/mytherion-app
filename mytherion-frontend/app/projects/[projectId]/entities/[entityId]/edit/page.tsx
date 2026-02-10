@@ -46,7 +46,7 @@ export default function EditEntityPage() {
 
   if (loading || !currentEntity) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900">
+      <div className="min-h-screen bg-linear-to-br from-gray-900 via-purple-900/20 to-gray-900">
         <Navbar />
         <div className="flex items-center justify-center h-screen">
           <div className="text-white text-xl">Loading...</div>
@@ -56,7 +56,7 @@ export default function EditEntityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900">
+    <div className="min-h-screen bg-linear-to-br from-gray-900 via-purple-900/20 to-gray-900">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-purple-500/5 rounded-full blur-3xl animate-pulse"></div>

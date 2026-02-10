@@ -90,10 +90,10 @@ export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardPr
             src={projectImage}
             alt={project.name}
             className={`w-full h-full object-cover transition-transform duration-700 ${
-              showDeleteConfirm ? 'grayscale-[20%]' : 'grayscale-[20%] group-hover:grayscale-0'
+              showDeleteConfirm ? 'grayscale-20' : 'grayscale-20 group-hover:grayscale-0'
             }`}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent opacity-80" />
+          <div className="absolute inset-0 bg-linear-to-t from-background-dark via-transparent to-transparent opacity-80" />
           
           {/* Genre Badge */}
           <div className="absolute bottom-4 left-6">

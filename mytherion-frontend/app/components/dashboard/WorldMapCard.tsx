@@ -12,12 +12,12 @@ export default function WorldMapCard() {
         {/* Map Image */}
         <img
           alt="World Map Preview"
-          className="w-full h-56 object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-[10%] sepia-[10%]"
+          className="w-full h-56 object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-10 sepia-10"
           src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeAjmS6YrqQ5jg8Bng7i0ZGGBB37j8jlMocp9_KT206ulGaaL-BU52WZlec62UWpQ941jokRt-sklBoxZk1VkAuF-plpg6YqXowMYKRXS2nkZNC5uUlPB-BZAk15URHObXWZ2uNShBN_zGDPOrXEqS_im-bik1c_YKVr_Z04oSkrWg5VESxJdHIvF_hdKdhQtr3RwWee1l63LTZrHMIRV4JtGcOiZoICgmSR9_BeFifOViInAjKoz182QZZYtJWz_AtQSp2OEqK3iX"
         />
 
         {/* Gradient Overlay with Info */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-5">
+        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-5">
           <p className="text-white font-bold text-lg">Aetheria Centralis</p>
           <p className="text-white/60 text-xs">
             8 Regions Discovered • 12 Points of Interest

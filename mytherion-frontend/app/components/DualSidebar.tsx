@@ -79,7 +79,7 @@ export default function DualSidebar({
   const currentLibraryItems = customLibraryItems || defaultLibraryItems;
 
   return (
-    <div className="flex h-full flex-shrink-0">
+    <div className="flex h-full shrink-0">
       {/* Icon Sidebar - Left */}
       <aside className="w-20 bg-black/40 border-r border-white/5 flex flex-col items-center py-6 space-y-8 backdrop-blur-xl">
         {/* Logo */}

@@ -22,7 +22,7 @@ export default function RegisterPage() {
         <main className="relative z-10 w-full max-w-md px-6 py-12">
             <div className="glass-card rounded-3xl p-8 md:p-10 border-t border-l border-white/10">
                 <div className="flex flex-col items-center mb-8">
-                    <div className="w-16 h-16 bg-gradient-to-tr from-primary to-purple-400 rounded-2xl flex items-center justify-center shadow-2xl mb-4 border border-white/20">
+                    <div className="w-16 h-16 bg-linear-to-tr from-primary to-purple-400 rounded-2xl flex items-center justify-center shadow-2xl mb-4 border border-white/20">
                         <span className="material-symbols-outlined text-white text-4xl">auto_awesome</span>
                     </div>
                     <h1 className="text-3xl font-serif font-bold gold-text tracking-widest uppercase">Mytherion</h1>

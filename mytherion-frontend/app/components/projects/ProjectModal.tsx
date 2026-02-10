@@ -185,7 +185,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
             </button>
             <button
               type="submit"
-              className="flex-[2] btn-cosmic py-4 px-6 text-white font-bold rounded-2xl flex items-center justify-center space-x-2 group hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-2 btn-cosmic py-4 px-6 text-white font-bold rounded-2xl flex items-center justify-center space-x-2 group hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
               <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">

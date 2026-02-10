@@ -25,7 +25,7 @@ export default function StatCard({
   progressBar,
 }: StatCardProps) {
   return (
-    <div className="glass p-6 rounded-2xl relative overflow-hidden group hover:!border-primary/50 transition-all cursor-pointer">
+    <div className="glass p-6 rounded-2xl relative overflow-hidden group hover:border-primary/50! transition-all cursor-pointer">
       {/* Background Icon Watermark */}
       <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
         <span className="material-symbols-outlined" style={{ fontSize: '100px' }}>{icon}</span>

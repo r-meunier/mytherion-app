@@ -46,7 +46,7 @@ export default function DashboardHeader() {
                 </p>
               </div>
               <div className="w-10 h-10 rounded-full ring-2 ring-primary/30 p-0.5 overflow-hidden">
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+                <div className="w-full h-full rounded-full bg-linear-to-br from-primary to-purple-600 flex items-center justify-center">
                   <span className="material-symbols-outlined text-white text-[20px]">person</span>
                 </div>
               </div>

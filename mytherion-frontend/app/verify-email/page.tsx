@@ -68,7 +68,7 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
       <div className="max-w-md w-full p-8 bg-slate-800/40 backdrop-blur-sm border border-purple-500/30 rounded-lg shadow-xl">
         {status === 'verifying' && (
           <div className="text-center">
@@ -135,7 +135,7 @@ export default function VerifyEmailPage() {
 
             <button
               onClick={handleGoToLogin}
-              className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-500 hover:to-blue-500 transition-all"
+              className="w-full px-6 py-3 bg-linear-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-500 hover:to-blue-500 transition-all"
             >
               Go to Login
             </button>
