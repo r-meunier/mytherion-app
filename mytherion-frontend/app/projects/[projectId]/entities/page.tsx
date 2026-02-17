@@ -8,6 +8,7 @@ import EntityList from '@/app/components/entities/EntityList';
 import DualSidebar from '@/app/components/DualSidebar';
 import DashboardHeader from '@/app/components/DashboardHeader';
 import Link from 'next/link';
+import { getProjectNavItems, getManagementItems } from '@/app/config/projectNavigation';
 
 export default function EntitiesPage() {
   const router = useRouter();
@@ -25,23 +26,14 @@ export default function EntitiesPage() {
     return () => {
       dispatch(clearCurrentProject());
     };
-  }, [dispatch, projectId, currentProject]);
+  }, [dispatch, projectId]);
 
   const handleCreateClick = () => {
     router.push(`/projects/${projectId}/entities/new`);
   };
 
-  const projectNavItems = [
-    { id: "overview", label: "Overview", href: `/projects/${projectId}` },
-    { id: "entities", label: "Entities", href: `/projects/${projectId}/entities` },
-    { id: "timeline", label: "Timeline", href: "#" },
-    { id: "maps", label: "Maps", href: "#" },
-  ];
-
-  const managementItems = [
-    { id: "settings", label: "Settings", href: "#" },
-    { id: "export", label: "Export Codex", href: "#" },
-  ];
+  const projectNavItems = getProjectNavItems(projectId);
+  const managementItems = getManagementItems();
 
   if (loading || !currentProject) {
     return (

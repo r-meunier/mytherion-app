@@ -7,6 +7,7 @@ import { fetchProject, fetchProjectStats, clearCurrentProject } from '@/app/stor
 import Link from 'next/link';
 import DualSidebar from '@/app/components/DualSidebar';
 import DashboardHeader from '@/app/components/DashboardHeader';
+import { getProjectNavItems, getManagementItems } from '@/app/config/projectNavigation';
 
 export default function ProjectDashboard() {
   const params = useParams();
@@ -25,17 +26,8 @@ export default function ProjectDashboard() {
     };
   }, [projectId, dispatch]);
 
-  const projectNavItems = [
-    { id: "overview", label: "Overview", href: "#" },
-    { id: "codex", label: "Codex", href: `/projects/${projectId}/entities` },
-    { id: "timeline", label: "Timeline", href: "#" },
-    { id: "maps", label: "Maps", href: "#" },
-  ];
-
-  const managementItems = [
-    { id: "settings", label: "Settings", href: "#" },
-    { id: "export", label: "Export Codex", href: "#" },
-  ];
+  const projectNavItems = getProjectNavItems(projectId);
+  const managementItems = getManagementItems();
 
   if (loading && !currentProject) {
     return (
