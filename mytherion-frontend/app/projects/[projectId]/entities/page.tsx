@@ -1,22 +1,23 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchProject, clearCurrentProject } from '@/app/store/projectSlice';
 import EntityList from '@/app/components/entities/EntityList';
+import EntityModal from '@/app/components/entities/EntityModal';
 import DualSidebar from '@/app/components/DualSidebar';
 import DashboardHeader from '@/app/components/DashboardHeader';
 import Link from 'next/link';
 import { getProjectNavItems, getManagementItems } from '@/app/config/projectNavigation';
 
 export default function EntitiesPage() {
-  const router = useRouter();
   const params = useParams();
   const projectId = parseInt(params.projectId as string);
   
   const dispatch = useAppDispatch();
   const { currentProject, loading } = useAppSelector((state) => state.projects);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     if (!currentProject || currentProject.id !== projectId) {
@@ -29,7 +30,11 @@ export default function EntitiesPage() {
   }, [dispatch, projectId]);
 
   const handleCreateClick = () => {
-    router.push(`/projects/${projectId}/entities/new`);
+    setShowCreateModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowCreateModal(false);
   };
 
   const projectNavItems = getProjectNavItems(projectId);
@@ -89,6 +94,13 @@ export default function EntitiesPage() {
           <EntityList projectId={projectId} onCreateClick={handleCreateClick} />
         </div>
       </main>
+
+      {/* Create Entity Modal */}
+      <EntityModal
+        isOpen={showCreateModal}
+        onClose={handleCloseModal}
+        projectId={projectId}
+      />
     </div>
   );
 }
