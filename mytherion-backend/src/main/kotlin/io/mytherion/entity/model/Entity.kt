@@ -3,6 +3,8 @@ package io.mytherion.entity.model
 import io.mytherion.project.model.Project
 import jakarta.persistence.*
 import java.time.Instant
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 
 @jakarta.persistence.Entity
 @Table(name = "entities")
@@ -23,7 +25,9 @@ class Entity(
         @Column(name = "image_url", columnDefinition = "text") var imageUrl: String? = null,
 
         // JSONB in DB for type-specific metadata
-        @Column(columnDefinition = "jsonb") var metadata: String? = null,
+        @JdbcTypeCode(SqlTypes.JSON)
+        @Column(columnDefinition = "jsonb")
+        var metadata: String? = null,
         @Column(name = "created_at", nullable = false) val createdAt: Instant = Instant.now(),
         @Column(name = "updated_at", nullable = false) var updatedAt: Instant = Instant.now(),
         @Column(name = "deleted_at") var deletedAt: Instant? = null
