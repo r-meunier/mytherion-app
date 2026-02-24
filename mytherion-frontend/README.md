@@ -40,6 +40,31 @@ Mytherion is a lightweight worldbuilding and codex-style application for organiz
 - **Backend API** running on `http://localhost:8080`
 
 ---
+## What I Learned
+
+### Redux Toolkit over local component state only
+I used Redux Toolkit because auth/session state and project data are shared across multiple screens and actions. It gave me a predictable way to handle loading/error/success states and made flows easier.
+
+**Tradeoff:** Redux adds boilerplate that's sometimes heavy for a smaller app like this. For a simpler project, local state + context could be enough.
+
+### Axios for API calls
+I used Axios mainly for a clean API layer and interceptors (especially for auth/session handling and consistent error handling).
+
+**Tradeoff:** `fetch` could've been enough. Axios is another dependency to maintain, so the benefit's mostly in consistency and ergonomics.
+
+### Entity management scope limited in MVP
+I intentionally focused on auth + project CRUD first before building the full entity management UI. I wanted to stabilize the main app flow before expanding feature breadth.
+
+**Tradeoff:** the README roadmap grew faster than the implemented UI in some areas, which is something I want to keep tighter going forward.
+
+### What I’d improve next
+- Generate a typed API client from backend contracts (or shared types)
+- Improve error handling UX (clearer field-level messages and retry states)
+- Add more integration tests around auth/session restore flows
+- Tighten loading states and optimistic update behavior
+- Keep README/API status more strictly aligned with what is actually implemented
+
+---
 
 ## Local Development Setup
 
