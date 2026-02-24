@@ -1,20 +1,19 @@
 package io.mytherion.entity.service
 
+import io.mytherion.auth.CurrentUserProvider
 import io.mytherion.entity.dto.*
+import io.mytherion.entity.exception.*
 import io.mytherion.entity.model.Entity
 import io.mytherion.entity.repository.EntityRepository
 import io.mytherion.logging.debugWith
 import io.mytherion.logging.errorWith
 import io.mytherion.logging.infoWith
 import io.mytherion.logging.measureTime
-import io.mytherion.project.exception.ProjectAccessDeniedException
-import io.mytherion.project.exception.ProjectNotFoundException
-import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.monitoring.MetricsService
+import io.mytherion.project.service.ProjectService
 import io.mytherion.storage.StorageService
 import io.mytherion.storage.dto.UploadResponse
 import io.mytherion.user.model.User
-import io.mytherion.user.repository.UserRepository
 import java.time.Instant
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -28,8 +27,8 @@ import org.springframework.web.multipart.MultipartFile
 @Service
 class EntityService(
         private val entityRepository: EntityRepository,
-        private val projectRepository: ProjectRepository,
-        private val userRepository: UserRepository,
+        private val projectService: ProjectService,
+        private val currentUserProvider: CurrentUserProvider,
         private val storageService: StorageService,
         private val metricsService: MetricsService,
         @Value("\${minio.bucket-name}") private val bucketName: String
@@ -37,12 +36,7 @@ class EntityService(
 
     private val logger = LoggerFactory.getLogger(EntityService::class.java)
 
-    // TEMP: hard-coded user until auth is in place
-    private fun getCurrentUser(): User {
-        return userRepository.findById(1L).orElseThrow {
-            IllegalStateException("Demo user with id=1 not found. Create it manually for now.")
-        }
-    }
+    private fun getCurrentUser(): User = currentUserProvider.getCurrentUser()
 
     /** Verify that the current user owns the project that contains this entity */
     private fun verifyEntityAccess(entity: Entity, currentUser: User) {
@@ -64,14 +58,7 @@ class EntityService(
         )
 
         return logger.measureTime("Create entity") {
-            val project =
-                    projectRepository.findByIdAndDeletedAtIsNull(projectId)
-                            ?: throw ProjectNotFoundException(projectId)
-
-            // Verify user owns the project
-            if (project.owner.id != user.id) {
-                throw ProjectAccessDeniedException(projectId)
-            }
+            val project = projectService.getVerifiedProject(projectId, user.id!!)
 
             val entity =
                     Entity(
@@ -195,13 +182,7 @@ class EntityService(
         val startTime = System.currentTimeMillis()
 
         return logger.measureTime("Search entities") {
-            val project =
-                    projectRepository.findByIdAndDeletedAtIsNull(projectId)
-                            ?: throw ProjectNotFoundException(projectId)
-
-            if (project.owner.id != user.id) {
-                throw ProjectAccessDeniedException(projectId)
-            }
+            val project = projectService.getVerifiedProject(projectId, user.id!!)
 
             val pageable =
                     PageRequest.of(
@@ -298,14 +279,13 @@ class EntityService(
         val url =
                 try {
                     storageService.uploadFile(
-                            bucketName,
-                            objectKey,
-                            file.inputStream,
-                            file.contentType ?: "application/octet-stream",
-                            file.size
-                    ).also {
-                        uploadSuccess = true
-                    }
+                                    bucketName,
+                                    objectKey,
+                                    file.inputStream,
+                                    file.contentType ?: "application/octet-stream",
+                                    file.size
+                            )
+                            .also { uploadSuccess = true }
                 } finally {
                     val uploadDuration = System.currentTimeMillis() - uploadStart
                     metricsService.recordStorageUpload(
@@ -362,18 +342,3 @@ class EntityService(
                 ?: throw ImageNotFoundException(id)
     }
 }
-
-// Custom exceptions
-class EntityNotFoundException(id: Long) : RuntimeException("Entity not found with id: $id")
-
-class EntityAccessDeniedException(id: Long) :
-        RuntimeException("Access denied to entity with id: $id")
-
-class ProjectAccessDeniedException(id: Long) :
-        RuntimeException("Access denied to project with id: $id")
-
-class ImageNotFoundException(entityId: Long) :
-        RuntimeException("No image found for entity with id: $entityId")
-
-class ImageDeletionException(entityId: Long, cause: Throwable) :
-        RuntimeException("Failed to delete image for entity with id: $entityId", cause)

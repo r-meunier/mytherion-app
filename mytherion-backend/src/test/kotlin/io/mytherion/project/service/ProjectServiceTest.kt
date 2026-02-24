@@ -4,6 +4,7 @@ import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mytherion.auth.CurrentUserProvider
 import io.mytherion.project.ProjectTestFixtures
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.UpdateProjectRequest
@@ -12,7 +13,6 @@ import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.user.model.User
-import io.mytherion.user.repository.UserRepository
 import java.util.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
@@ -23,19 +23,16 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContext
-import org.springframework.security.core.context.SecurityContextHolder
 
 @ExtendWith(MockKExtension::class)
 class ProjectServiceTest {
 
         @MockK private lateinit var projectRepository: ProjectRepository
 
-        @MockK private lateinit var userRepository: UserRepository
+        @MockK private lateinit var currentUserProvider: CurrentUserProvider
 
         @MockK
-        private lateinit var entityRepository: io.mytherion.entity.repository.EntityRepository
+        private lateinit var entityQueryService: io.mytherion.entity.service.EntityQueryService
 
         @MockK private lateinit var metricsService: io.mytherion.monitoring.MetricsService
 
@@ -56,18 +53,8 @@ class ProjectServiceTest {
                         )
                 testProject = ProjectTestFixtures.createTestProject(id = 1L, owner = testUser)
 
-                // Mock Security Context
-                mockkStatic(SecurityContextHolder::class)
-                val securityContext = mockk<SecurityContext>()
-                val authentication = mockk<Authentication>()
-
-                every { SecurityContextHolder.getContext() } returns securityContext
-                every { securityContext.authentication } returns authentication
-                every { authentication.isAuthenticated } returns true
-                every { authentication.principal } returns 1L
-
-                // Mock getCurrentUser() to return testUser
-                every { userRepository.findById(1L) } returns Optional.of(testUser)
+                // Mock CurrentUserProvider to return testUser
+                every { currentUserProvider.getCurrentUser() } returns testUser
 
                 // Stub metricsService calls (these methods return Unit)
                 every { metricsService.recordProjectCreation(any(), any()) } just Runs
@@ -76,7 +63,7 @@ class ProjectServiceTest {
 
         @AfterEach
         fun tearDown() {
-                unmockkStatic(SecurityContextHolder::class)
+                clearAllMocks()
         }
 
         // ==================== List Projects Tests ====================
@@ -288,7 +275,7 @@ class ProjectServiceTest {
         fun `deleteProject when valid should delete project`() {
                 // Given
                 every { projectRepository.findById(1L) } returns Optional.of(testProject)
-                every { entityRepository.countByProjectAndDeletedAtIsNull(testProject) } returns 0L
+                every { entityQueryService.countByProject(testProject) } returns 0L
                 every { projectRepository.delete(testProject) } just Runs
 
                 // When
@@ -296,7 +283,7 @@ class ProjectServiceTest {
 
                 // Then
                 verify { projectRepository.findById(1L) }
-                verify { entityRepository.countByProjectAndDeletedAtIsNull(testProject) }
+                verify { entityQueryService.countByProject(testProject) }
                 verify { projectRepository.delete(testProject) }
         }
 
@@ -337,22 +324,9 @@ class ProjectServiceTest {
                 // Given
                 val projectId = 1L
                 every { projectRepository.findById(projectId) } returns Optional.of(testProject)
-                every { entityRepository.countByProjectAndDeletedAtIsNull(testProject) } returns 10L
-
-                val typeCountMock1 =
-                        mockk<io.mytherion.entity.repository.EntityRepository.EntityTypeCount>()
-                every { typeCountMock1.getType() } returns
-                        io.mytherion.entity.model.EntityType.CHARACTER
-                every { typeCountMock1.getCount() } returns 5L
-
-                val typeCountMock2 =
-                        mockk<io.mytherion.entity.repository.EntityRepository.EntityTypeCount>()
-                every { typeCountMock2.getType() } returns
-                        io.mytherion.entity.model.EntityType.LOCATION
-                every { typeCountMock2.getCount() } returns 5L
-
-                every { entityRepository.countByProjectAndTypeGrouped(testProject) } returns
-                        listOf(typeCountMock1, typeCountMock2)
+                every { entityQueryService.countByProject(testProject) } returns 10L
+                every { entityQueryService.countByProjectGrouped(testProject) } returns
+                        mapOf("CHARACTER" to 5, "LOCATION" to 5)
 
                 // When
                 val result = projectService.getProjectStats(projectId)
@@ -365,8 +339,8 @@ class ProjectServiceTest {
                 assertEquals(5, result.entityCountByType["CHARACTER"])
                 assertEquals(5, result.entityCountByType["LOCATION"])
 
-                verify { entityRepository.countByProjectAndDeletedAtIsNull(testProject) }
-                verify { entityRepository.countByProjectAndTypeGrouped(testProject) }
+                verify { entityQueryService.countByProject(testProject) }
+                verify { entityQueryService.countByProjectGrouped(testProject) }
         }
 
         @Test
@@ -374,9 +348,8 @@ class ProjectServiceTest {
                 // Given
                 val projectId = 1L
                 every { projectRepository.findById(projectId) } returns Optional.of(testProject)
-                every { entityRepository.countByProjectAndDeletedAtIsNull(testProject) } returns 0L
-                every { entityRepository.countByProjectAndTypeGrouped(testProject) } returns
-                        emptyList()
+                every { entityQueryService.countByProject(testProject) } returns 0L
+                every { entityQueryService.countByProjectGrouped(testProject) } returns emptyMap()
 
                 // When
                 val result = projectService.getProjectStats(projectId)

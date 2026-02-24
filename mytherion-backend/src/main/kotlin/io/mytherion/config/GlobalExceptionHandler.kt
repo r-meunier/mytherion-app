@@ -1,11 +1,14 @@
 package io.mytherion.config
 
+import io.mytherion.entity.exception.EntityAccessDeniedException
+import io.mytherion.entity.exception.EntityNotFoundException
+import io.mytherion.entity.exception.ImageNotFoundException
 import io.mytherion.logging.errorWith
 import io.mytherion.logging.logger
 import io.mytherion.project.exception.ProjectAccessDeniedException
 import io.mytherion.project.exception.ProjectHasEntitiesException
 import io.mytherion.project.exception.ProjectNotFoundException
-import io.mytherion.project.exception.UserNotFoundException
+import io.mytherion.user.exception.UserNotFoundException
 import java.time.Instant
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -19,6 +22,47 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class GlobalExceptionHandler {
 
         private val logger = logger()
+
+        @ExceptionHandler(EntityNotFoundException::class)
+        fun handleEntityNotFound(ex: EntityNotFoundException): ResponseEntity<ErrorResponse> {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(
+                                ErrorResponse(
+                                        status = HttpStatus.NOT_FOUND.value(),
+                                        error = "Not Found",
+                                        message = ex.message ?: "Entity not found",
+                                        timestamp = Instant.now()
+                                )
+                        )
+        }
+
+        @ExceptionHandler(EntityAccessDeniedException::class)
+        fun handleEntityAccessDenied(
+                ex: EntityAccessDeniedException
+        ): ResponseEntity<ErrorResponse> {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(
+                                ErrorResponse(
+                                        status = HttpStatus.FORBIDDEN.value(),
+                                        error = "Forbidden",
+                                        message = ex.message ?: "Access denied",
+                                        timestamp = Instant.now()
+                                )
+                        )
+        }
+
+        @ExceptionHandler(ImageNotFoundException::class)
+        fun handleImageNotFound(ex: ImageNotFoundException): ResponseEntity<ErrorResponse> {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(
+                                ErrorResponse(
+                                        status = HttpStatus.NOT_FOUND.value(),
+                                        error = "Not Found",
+                                        message = ex.message ?: "Image not found",
+                                        timestamp = Instant.now()
+                                )
+                        )
+        }
 
         @ExceptionHandler(ProjectNotFoundException::class)
         fun handleProjectNotFound(ex: ProjectNotFoundException): ResponseEntity<ErrorResponse> {
@@ -62,7 +106,9 @@ class GlobalExceptionHandler {
         }
 
         @ExceptionHandler(ProjectHasEntitiesException::class)
-        fun handleProjectHasEntries(ex: ProjectHasEntitiesException): ResponseEntity<ErrorResponse> {
+        fun handleProjectHasEntries(
+                ex: ProjectHasEntitiesException
+        ): ResponseEntity<ErrorResponse> {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body(
                                 ErrorResponse(

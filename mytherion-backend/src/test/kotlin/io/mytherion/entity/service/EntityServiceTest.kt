@@ -1,17 +1,19 @@
 package io.mytherion.entity.service
 
 import io.mockk.*
+import io.mytherion.auth.CurrentUserProvider
 import io.mytherion.entity.dto.CreateEntityRequest
 import io.mytherion.entity.dto.UpdateEntityRequest
+import io.mytherion.entity.exception.EntityNotFoundException
 import io.mytherion.entity.model.Entity
 import io.mytherion.entity.model.EntityType
 import io.mytherion.entity.repository.EntityRepository
 import io.mytherion.monitoring.MetricsService
+import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.model.Project
-import io.mytherion.project.repository.ProjectRepository
+import io.mytherion.project.service.ProjectService
 import io.mytherion.storage.StorageService
 import io.mytherion.user.model.User
-import io.mytherion.user.repository.UserRepository
 import java.time.Instant
 import java.util.*
 import org.junit.jupiter.api.AfterEach
@@ -24,8 +26,8 @@ class EntityServiceTest {
 
     private lateinit var entityService: EntityService
     private lateinit var entityRepository: EntityRepository
-    private lateinit var projectRepository: ProjectRepository
-    private lateinit var userRepository: UserRepository
+    private lateinit var projectService: ProjectService
+    private lateinit var currentUserProvider: CurrentUserProvider
     private lateinit var storageService: StorageService
     private lateinit var metricsService: MetricsService
 
@@ -36,16 +38,16 @@ class EntityServiceTest {
     @BeforeEach
     fun setup() {
         entityRepository = mockk()
-        projectRepository = mockk()
-        userRepository = mockk()
+        projectService = mockk()
+        currentUserProvider = mockk()
         storageService = mockk()
         metricsService = mockk()
 
         entityService =
                 EntityService(
                         entityRepository,
-                        projectRepository,
-                        userRepository,
+                        projectService,
+                        currentUserProvider,
                         storageService,
                         metricsService,
                         "test-bucket"
@@ -79,8 +81,8 @@ class EntityServiceTest {
                         description = "Detailed description"
                 )
 
-        // Mock user repository to return test user
-        every { userRepository.findById(1L) } returns Optional.of(testUser)
+        // Mock current user provider to return test user
+        every { currentUserProvider.getCurrentUser() } returns testUser
     }
 
     @AfterEach
@@ -100,7 +102,7 @@ class EntityServiceTest {
                         tags = listOf("hero", "mage")
                 )
 
-        every { projectRepository.findByIdAndDeletedAtIsNull(1L) } returns testProject
+        every { projectService.getVerifiedProject(1L, 1L) } returns testProject
         every { entityRepository.save(any()) } returns testEntity
 
         // When
@@ -117,7 +119,7 @@ class EntityServiceTest {
         // Given
         val request = CreateEntityRequest(type = EntityType.CHARACTER, name = "New Character")
 
-        every { projectRepository.findByIdAndDeletedAtIsNull(1L) } returns null
+        every { projectService.getVerifiedProject(1L, 1L) } throws ProjectNotFoundException(1L)
 
         // When/Then
         assertThrows<io.mytherion.project.exception.ProjectNotFoundException> {

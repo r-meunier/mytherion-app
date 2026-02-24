@@ -1,52 +1,39 @@
 package io.mytherion.project.service
 
-import io.mytherion.entity.repository.EntityRepository
+import io.mytherion.auth.CurrentUserProvider
+import io.mytherion.entity.service.EntityQueryService
 import io.mytherion.logging.debugWith
 import io.mytherion.logging.infoWith
 import io.mytherion.logging.logger
 import io.mytherion.logging.measureTime
 import io.mytherion.logging.warnWith
+import io.mytherion.monitoring.MetricsService
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
 import io.mytherion.project.dto.UpdateProjectRequest
-import io.mytherion.monitoring.MetricsService
 import io.mytherion.project.exception.ProjectAccessDeniedException
 import io.mytherion.project.exception.ProjectHasEntitiesException
 import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.user.model.User
-import io.mytherion.user.repository.UserRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class ProjectService(
         private val projectRepository: ProjectRepository,
-        private val userRepository: UserRepository,
-        private val entityRepository: EntityRepository,
+        private val currentUserProvider: CurrentUserProvider,
+        private val entityQueryService: EntityQueryService,
         private val metricsService: MetricsService
 ) {
     private val logger = logger()
 
-    // TEMP: hard-coded user until auth is in place
-    private fun getCurrentUser(): User {
-        val authentication = SecurityContextHolder.getContext().authentication
-        if (authentication == null || !authentication.isAuthenticated) {
-             throw IllegalStateException("No authenticated user found")
-        }
-        val userId = authentication.principal as? Long
-            ?: throw IllegalStateException("Principal is not a valid User ID")
-            
-        return userRepository.findById(userId).orElseThrow {
-            IllegalStateException("User with id=$userId not found")
-        }
-    }
+    private fun getCurrentUser(): User = currentUserProvider.getCurrentUser()
 
     /** Verify that the current user owns the given project */
     private fun verifyOwnership(project: Project, currentUser: User) {
@@ -59,6 +46,20 @@ class ProjectService(
             )
             throw ProjectAccessDeniedException(project.id!!)
         }
+    }
+
+    /**
+     * Fetch a project and verify that the given user owns it. Used by other services (e.g.
+     * EntityService) to validate project access without directly querying ProjectRepository.
+     */
+    fun getVerifiedProject(projectId: Long, userId: Long): Project {
+        val project =
+                projectRepository.findByIdAndDeletedAtIsNull(projectId)
+                        ?: throw ProjectNotFoundException(projectId)
+        if (project.owner.id != userId) {
+            throw ProjectAccessDeniedException(projectId)
+        }
+        return project
     }
 
     @Transactional(readOnly = true)
@@ -172,11 +173,8 @@ class ProjectService(
 
         return logger.measureTime("Calculate project stats") {
             // Use efficient database aggregation instead of loading all entities
-            val entityCount = entityRepository.countByProjectAndDeletedAtIsNull(project).toInt()
-            val entityCountByType =
-                    entityRepository.countByProjectAndTypeGrouped(project).associate {
-                        it.getType().name to it.getCount().toInt()
-                    }
+            val entityCount = entityQueryService.countByProject(project).toInt()
+            val entityCountByType = entityQueryService.countByProjectGrouped(project)
 
             logger.infoWith(
                     "Project stats calculated",
@@ -201,7 +199,7 @@ class ProjectService(
         verifyOwnership(project, user)
 
         // Check if project has entities before deleting
-        val entityCount = entityRepository.countByProjectAndDeletedAtIsNull(project).toInt()
+        val entityCount = entityQueryService.countByProject(project).toInt()
         if (entityCount > 0) {
             logger.warnWith(
                     "Cannot delete project with entities",

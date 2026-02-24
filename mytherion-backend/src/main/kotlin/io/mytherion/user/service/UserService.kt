@@ -1,8 +1,8 @@
 package io.mytherion.user.service
 
-import io.mytherion.project.exception.UserNotFoundException
 import io.mytherion.user.dto.UpdateUserRequest
 import io.mytherion.user.dto.UserResponse
+import io.mytherion.user.exception.UserNotFoundException
 import io.mytherion.user.repository.UserRepository
 import java.time.Instant
 import org.springframework.stereotype.Service
