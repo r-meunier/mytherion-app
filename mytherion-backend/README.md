@@ -1,11 +1,9 @@
 # Mytherion Backend
 
 Mytherion is the backend service for a lightweight worldbuilding and codex-style application.
-It provides structured storage for projects, entities (characters, locations, cultures, etc.),
-image management, email verification, and comprehensive performance monitoring.
+It provides structured storage for projects, entities (characters, locations, cultures, etc.), image management, email verification, and comprehensive performance monitoring.
 
-This repository contains the **Spring Boot + Kotlin backend**, database migrations, and local
-development setup.
+This repository contains the Spring Boot + Kotlin backend, database migrations, and local development setup.
 
 ---
 
@@ -14,22 +12,22 @@ development setup.
 - **Kotlin 2.2.21**
 - **Spring Boot 4.0.1**
 - **Spring Data JPA (Hibernate)**
-- **Spring Security** – JWT-based authentication
-- **Spring Boot Actuator** – Operational metrics and monitoring
-- **Micrometer + Prometheus** – Performance metrics collection
-- **Spring Mail** – Email verification system
-- **Flyway** – Database migrations
-- **PostgreSQL** – Primary database
-- **MinIO** – Object storage for images
-- **Docker / Docker Compose** – Local infrastructure
-- **Gradle (Kotlin DSL)** – Build tool
-- **JUnit 5 + MockK** – Testing framework
+- **Spring Security** (JWT-based authentication)
+- **Spring Boot Actuator** (Operational metrics and monitoring)
+- **Micrometer + Prometheus**
+- **Spring Mail**
+- **Flyway**
+- **PostgreSQL**
+- **MinIO**
+- **Docker / Docker Compose**
+- **Gradle (Kotlin DSL)**
+- **JUnit 5 + MockK**
 
 ---
 
 ## Project Status
 
-✅ **Production-Ready MVP**
+**MVP**
 
 - Core authentication with JWT httpOnly cookies
 - User registration, login, and email verification
@@ -45,16 +43,13 @@ development setup.
 
 ## Prerequisites
 
-You need the following installed:
-
 - **JDK 17 or newer** (project uses JDK 24)
 - **Docker**
 - **Docker Compose**
-- (Optional) IntelliJ IDEA
 
 ---
 
-## Local Development Setup
+## Local Dev Setup
 
 ### 1. Clone the repository
 
@@ -73,34 +68,13 @@ Copy the example environment file:
 cp .env.example .env
 ```
 
-Adjust values if needed. Defaults are suitable for local development.
-
 ---
 
 ### 3. Start PostgreSQL and MinIO
 
-The database and object storage are run via Docker Compose.
-
 ```bash
 docker compose up -d
 ```
-
-⚠️ **Important note about persistence**
-
-This project uses a **bind-mounted Postgres data directory**.
-If you need a completely clean database during development:
-
-1. Stop containers:
-   ```bash
-   docker compose down
-   ```
-2. Delete the contents of the `data/` directory
-3. Restart:
-   ```bash
-   docker compose up -d
-   ```
-
-Flyway will re-run migrations on startup.
 
 ---
 
@@ -135,14 +109,6 @@ Expected response:
 }
 ```
 
-Actuator metrics:
-
-```
-GET http://localhost:8080/actuator/health
-GET http://localhost:8080/actuator/metrics
-GET http://localhost:8080/actuator/prometheus
-```
-
 ---
 
 ## Database Migrations (Flyway)
@@ -155,10 +121,8 @@ src/main/resources/db/migration
 
 ### Important rules
 
-- Migrations run **once per database**
-- **Do not edit** a migration that has already been applied
+- Migrations run once per database
 - New schema changes → create a new migration (`V2__`, `V3__`, etc.)
-- During early development, it is acceptable to wipe the local DB
 
 Flyway tracks applied migrations in the `flyway_schema_history` table.
 
@@ -187,25 +151,25 @@ src/main/kotlin/io/mytherion
 
 ### Authentication System
 
-- **JWT-based authentication** with httpOnly cookies
-- **User registration** with email and password validation
-- **Login/logout** with session persistence
-- **Email verification** via token-based links
+- **JWT-based authentication** (httpOnly cookies)
+- **User registration** (email + password validation)
+- **Login/logout** (session persistence)
+- **Email verification** (token-based links)
 - **Secure password hashing** (BCrypt)
 - **CSRF protection** (SameSite=Strict cookies)
-- **Session restoration** on page refresh
+- **Session restoration** (page refresh)
 
 ### Project Management
 
 - **Project CRUD operations** (Create, Read, Update, Delete)
-- **Soft delete** functionality
+- **Soft delete**
 - **User-scoped projects** with ownership verification
 - **Project statistics** (entity counts by type)
 - **Pagination support**
 
 ### Entity Management
 
-Supports **6 entity types**:
+(Planned) Support for 6 entity types:
 
 - **CHARACTER** – Age, role, personality traits
 - **LOCATION** – Region, climate, population
@@ -214,7 +178,7 @@ Supports **6 entity types**:
 - **CULTURE** – Language, traditions, values
 - **ITEM** – Origin, purpose, rarity
 
-**Features:**
+**Features:** (Planned)
 
 - Full CRUD operations for all entity types
 - **Type-specific metadata** stored as JSONB
@@ -240,8 +204,6 @@ Supports **6 entity types**:
 - **Structured logging** with execution timing
 - **MDC request correlation** IDs
 - **Health checks** and readiness probes
-
-See [PERFORMANCE_MONITORING.md](docs/PERFORMANCE_MONITORING.md) for detailed setup.
 
 ### Database
 
@@ -391,9 +353,9 @@ JWT stored in httpOnly cookies:
 
 ## Performance Monitoring
 
-The application includes comprehensive performance monitoring:
+The application is planned to include performance monitoring:
 
-### Metrics Available
+### Metrics (Planned)
 
 - **HTTP request metrics** (count, duration, percentiles)
 - **JVM metrics** (memory, GC, threads)
@@ -409,25 +371,13 @@ curl http://localhost:8080/actuator/health
 # All metrics
 curl http://localhost:8080/actuator/metrics
 
-# Specific metric
-curl http://localhost:8080/actuator/metrics/http.server.requests
-
 # Prometheus format
 curl http://localhost:8080/actuator/prometheus
 ```
 
-### Monitoring Stack (Optional)
-
-For production monitoring, see [PERFORMANCE_MONITORING.md](docs/PERFORMANCE_MONITORING.md) for:
-
-- Prometheus + Grafana setup
-- Pre-built dashboards
-- Alerting rules
-- Docker Compose configuration
-
 ---
 
-## Planned Features
+## Further Planned Features
 
 ### Short-term
 
@@ -455,27 +405,26 @@ For production monitoring, see [PERFORMANCE_MONITORING.md](docs/PERFORMANCE_MONI
 
 ---
 
-## Development Notes
+## Dev Notes
 
 ### Code Style
 
-- **Kotlin** with idiomatic patterns
-- **Functional programming** where appropriate
+- **Kotlin**
 - **Immutability** preferred for DTOs
-- **Null safety** enforced by Kotlin
+- **Null safety**
 
 ### Best Practices
 
-- Domain-driven design
+- DDD
 - Separation of concerns
-- Dependency injection via Spring
+- Dependency injection
 - Validation at API boundary
 - Comprehensive error handling
-- Structured logging throughout
+- Structured logging
 
 ### Performance
 
-- Connection pooling (HikariCP)
+- Connection pooling
 - Lazy loading for relationships
 - Pagination for large datasets
 - Database indexing on foreign keys
@@ -508,21 +457,15 @@ For production monitoring, see [PERFORMANCE_MONITORING.md](docs/PERFORMANCE_MONI
 
 ### Database Connection Issues
 
-Ensure PostgreSQL is running:
-
 ```bash
 docker compose ps
 ```
-
-Check connection:
 
 ```bash
 docker compose exec postgres psql -U mytherion_user -d mytherion
 ```
 
-### MinIO Connection Issues
-
-Verify MinIO is running:
+### MinIO Health Check
 
 ```bash
 curl http://localhost:9000/minio/health/live
@@ -538,17 +481,7 @@ Check Flyway history:
 SELECT * FROM flyway_schema_history;
 ```
 
-Reset database (development only):
-
-```bash
-docker compose down
-rm -rf data/
-docker compose up -d
-```
-
 ### Performance Issues
-
-Check Actuator metrics:
 
 ```bash
 curl http://localhost:8080/actuator/metrics/hikaricp.connections.active
@@ -567,29 +500,13 @@ logging:
 
 ## Contributing
 
-This is a personal project, but contributions are welcome!
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Write/update tests
-5. Submit a pull request
+This is a personal project for now.
 
 ---
 
 ## Related Repositories
 
-- **Frontend:** [mytherion-frontend](https://github.com/Adelaice7/mytherion-frontend)
-
----
-
-## Documentation
-
-Additional documentation:
-
-- [Performance Monitoring Guide](docs/PERFORMANCE_MONITORING.md)
-- [Authentication Future Features](docs/auth-feature/auth-future-features.md)
-- [Manual Testing Checklist](docs/auth-feature/auth-manual-testing-checklist.md)
+- **Frontend:** [mytherion-frontend](https://github.com/r-meunier/mytherion-frontend)
 
 ---
 

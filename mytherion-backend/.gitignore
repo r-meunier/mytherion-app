@@ -73,3 +73,6 @@ certs/
 .claude/
 
 .DS_Store
+
+# Docs
+/docs
