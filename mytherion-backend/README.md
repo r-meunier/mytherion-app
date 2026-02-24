@@ -29,7 +29,7 @@ This repository contains the Spring Boot + Kotlin backend, database migrations, 
 
 **MVP**
 
-- Core authentication with JWT httpOnly cookies
+- Authentication with JWT httpOnly cookies
 - User registration, login, and email verification
 - Project CRUD operations with soft delete
 - Entity management (6 entity types with metadata)
@@ -46,6 +46,41 @@ This repository contains the Spring Boot + Kotlin backend, database migrations, 
 - **JDK 17 or newer** (project uses JDK 24)
 - **Docker**
 - **Docker Compose**
+
+---
+
+## What I Learned
+
+This project was a way for me to practice making backend decisions. A few choices were tradeoffs:
+
+### httpOnly cookies for auth over storing JWTs in localStorage
+I used JWTs in httpOnly cookies instead of localStorage because I wanted safety against token theft via XSS. It also helped with browser session handling (cookies are sent automatically).
+
+**Tradeoff:** cookie auth requires more care around CORS/CSRF and local dev setup. Can't just drop a token into an Authorization header everywhere.
+
+### Soft delete for projects (and later entities)
+I used soft delete (`deletedAt`) because this app is for creative/worldbuilding content, where accidental deletion is very likely.
+
+**Tradeoff:** soft delete makes queries and uniqueness rules more complex. We need to consistently filter out deleted rows and think about restore behavior and indexing.
+
+### JSONB for entity metadata
+Different entity types (character, location, item, etc.) need different fields. JSONB let me move faster without creating many type-specific tables too early and deciding on a hard schema.
+
+**Tradeoff:** this gives flexibility, but needs more validation in code and can make querying/reporting more complex than a fully normalized schema. If the product grows, some fields should probably be promoted into dedicated columns/tables.
+
+### Early monitoring/logging
+PI added Actuator/Micrometer/structured logging early for practicing operability using Prometheus and Grafana. I also wanted to be able to debug performance and request flow as the app grows.
+
+**Tradeoff:** this adds extra setup early in a side project, and not every metric is very useful (yet). But it helped me build better habits.
+
+### What I’d improve next
+
+- Contract tests between frontend and backend (to avoid docs/API drift)
+- Stricter API error schema and consistency across endpoints
+- Pagination/filtering strategy finalized across list endpoints
+- Better validation for JSONB metadata per entity type
+- Role-based permissions / project sharing model
+- CI checks for formatting/linting/tests to keep repo quality consistent
 
 ---
 
