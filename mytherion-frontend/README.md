@@ -1,26 +1,26 @@
 # Mytherion Frontend
 
-Mytherion is a lightweight worldbuilding and codex-style application for organizing creative projects. This repository contains the **Next.js + React + TypeScript frontend** with Redux state management, modern UI design, and comprehensive project management features.
+Mytherion is a lightweight worldbuilding and codex-style application for organizing creative projects. This repository contains the Next.js + React + TypeScript frontend with Redux state management, modern UI design, and project management features.
 
 ---
 
 ## Tech Stack
 
-- **Next.js 16.1.1** (App Router)
+- **Next.js 16.1.1**
 - **React 19.2.3**
 - **TypeScript 5**
-- **Redux Toolkit 2.11.2** – State management
-- **Axios 1.13.2** – API client
-- **Tailwind CSS 4** – Styling
-- **FontAwesome** – Icons
-- **Jest 30.2.0** – Testing framework
-- **React Testing Library** – Component testing
+- **Redux Toolkit 2.11.2**
+- **Axios 1.13.2**
+- **Tailwind CSS 4**
+- **FontAwesome**
+- **Jest 30.2.0**
+- **React Testing Library**
 
 ---
 
 ## Project Status
 
-✅ **Production-Ready MVP**
+**MVP**
 
 - User registration, login, and email verification
 - Project management UI with full CRUD operations
@@ -35,8 +35,6 @@ Mytherion is a lightweight worldbuilding and codex-style application for organiz
 
 ## Prerequisites
 
-You need the following installed:
-
 - **Node.js 20+**
 - **npm** or **yarn**
 - **Backend API** running on `http://localhost:8080`
@@ -48,7 +46,7 @@ You need the following installed:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Adelaice7/mytherion-frontend.git
+git clone https://github.com/r-meunier/mytherion-frontend.git
 cd mytherion-frontend
 ```
 
@@ -87,11 +85,9 @@ The application will be available at:
 
 ---
 
-### 5. Verify it's running
+### 5. Check it's running
 
 Navigate to `http://localhost:3000` in your browser.
-
-You should see the Mytherion home page with a login button.
 
 ---
 
@@ -170,9 +166,6 @@ mytherion-frontend/
 │   ├── page.tsx              # Home page
 │   └── globals.css           # Global styles and design system
 ├── public/                   # Static assets
-├── docs/                     # Documentation
-│   ├── IMPLEMENTATION_PLAN.md
-│   └── PHASE_3_TASKS.md
 ├── .env.local                # Environment variables (create this)
 ├── jest.config.ts            # Jest configuration
 ├── jest.setup.ts             # Jest setup
@@ -183,7 +176,7 @@ mytherion-frontend/
 
 ---
 
-## Current Features
+## Features (Still in progress)
 
 ### Authentication
 
@@ -338,7 +331,7 @@ mytherion-frontend/
 
 ## API Integration
 
-The frontend communicates with the backend API via service layers.
+The frontend communicates with the backend REST API.
 
 ### Authentication Service
 
@@ -678,34 +671,19 @@ npx tsc --noEmit
 
 ## Contributing
 
-This is a personal project, but contributions are welcome!
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Write/update tests
-5. Submit a pull request
+This is a personal project for now.
 
 ---
 
 ## Related Repositories
 
-- **Backend:** [mytherion-backend](https://github.com/Adelaice7/mytherion-backend)
+- **Backend:** [mytherion-backend](https://github.com/r-meunier/mytherion-backend)
 
 ---
 
 ## License
 
 This project is currently not licensed for redistribution.
-
----
-
-## Documentation
-
-Additional documentation:
-
-- [Implementation Plan](docs/IMPLEMENTATION_PLAN.md)
-- [Phase 3 Tasks](docs/PHASE_3_TASKS.md)
 
 ---
 
