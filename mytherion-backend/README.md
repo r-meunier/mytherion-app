@@ -1,9 +1,40 @@
 # Mytherion Backend
 
-Mytherion is the backend service for a lightweight worldbuilding and codex-style application.
-It provides structured storage for projects, entities (characters, locations, cultures, etc.), image management, email verification, and comprehensive performance monitoring.
+Mytherion is a worldbuilding (and later, writing) platform built for creators who want to come away from the classic boxes. It gives writers and worldbuilders creative freedom over structure, AI support that works the way coding tools do, and the infrastructure to own their creative work as real, versioned, navigable data.
 
 This repository contains the Spring Boot + Kotlin backend, database migrations, and local development setup.
+
+---
+
+## What is Mytherion?
+
+A lot of writing apps — Scrivener, NovelCrafter, and the rest — share the same flaw: they give you a pre-defined structure and expect your story to fit inside it. When AI gets bolted on, it fires a complex prompt in the background and hopes it picks up the relevant context as you go.
+
+I don't believe in forcing creativity into boxes. And I don't think AI for writing should work any differently to AI for code.
+
+### Three core pillars
+
+#### 1. Creative freedom over structure
+
+Mytherion ships with a default structure — a Codex with entity types like Character, Location, Organization, Culture, Species, and Item, and some pre-defined project genres. These are starting points, not hard requirements.
+
+The goal down the line is to be able to customise everything: custom categories, custom tags, custom metadata fields. If your world has Factions, Deities, Starships, or Arcane Schools, you should be able to define those as first-class entities. The platform should fit the project — not the other way around.
+
+#### 2. AI support that works the way coding tools do
+
+Writing a novel _is_ engineering in its form. An author building a world, defining characters, structuring arcs, plotting narrative threads — it's the same interconnected, multi-file project as a complex codebase.
+
+Coding AI agents handle context differently than their web chat counterparts do. They _go find what's relevant to your current prompt_, on the fly. Ask it to summarise all chapters? It'll pull the chapter files. Ask it to revise a single paragraph? It pulls that section and the context. It dynamically scopes what it needs. That makes a huge difference when you're working on a 50k+ word project across dozens if not hundreds of files.
+
+That's the model Mytherion brings to writing — tools like Claude Code, Cursor, Codex, Gemini CLI. Instead of forcing you to craft elaborate prompts and cross your fingers, the AI should navigate the Codex, read entity definitions, trace relationship threads, and apply it exactly where it matters.
+
+#### 3. Your world is your data — and you should own it
+
+A manuscript, a Codex, a set of interlocking narrative threads — all of it is data. Structured, relational, versioned data. A software project treats version history, diff views, structural navigation, and multi-file continuity as _baseline infrastructure_. A creative project should have exactly the same.
+
+The assumption that writers don't want this, or can't handle it, is wrong. It's not a complexity problem — it's a representation problem, and a matter of trust. Writers already mentally track who said what in Chapter 3, what a character's backstory was in the first draft, whether that subplot ever got resolved. Version history and structural visibility aren't alien concepts. The tooling just hasn't caught up.
+
+Mytherion wants to build that infrastructure: a platform where your creative project is as navigable, recoverable, and structurally visible as a well-maintained codebase. Where no draft is ever truly lost. Writers deserve that level of trust in their tools.
 
 ---
 
@@ -54,26 +85,30 @@ This repository contains the Spring Boot + Kotlin backend, database migrations, 
 This project was a way for me to practice making backend decisions. A few choices were tradeoffs:
 
 ### httpOnly cookies for auth over storing JWTs in localStorage
+
 I used JWTs in httpOnly cookies instead of localStorage because I wanted safety against token theft via XSS. It also helped with browser session handling (cookies are sent automatically).
 
 **Tradeoff:** cookie auth requires more care around CORS/CSRF and local dev setup. Can't just drop a token into an Authorization header everywhere.
 
 ### Soft delete for projects (and later entities)
+
 I used soft delete (`deletedAt`) because this app is for creative/worldbuilding content, where accidental deletion is very likely.
 
 **Tradeoff:** soft delete makes queries and uniqueness rules more complex. We need to consistently filter out deleted rows and think about restore behavior and indexing.
 
 ### JSONB for entity metadata
+
 Different entity types (character, location, item, etc.) need different fields. JSONB let me move faster without creating many type-specific tables too early and deciding on a hard schema.
 
-**Tradeoff:** this gives flexibility, but needs more validation in code and can make querying/reporting more complex than a fully normalized schema. If the product grows, some fields should probably be promoted into dedicated columns/tables.
+**Tradeoff:** this gives flexibility, but needs more validation in code and can make querying/reporting more complex than a fully normalized schema. As the product grows and custom fields become first-class, some fields may need to be promoted into dedicated tables or a proper EAV model.
 
 ### Early monitoring/logging
-PI added Actuator/Micrometer/structured logging early for practicing operability using Prometheus and Grafana. I also wanted to be able to debug performance and request flow as the app grows.
+
+I added Actuator/Micrometer/structured logging early for practicing operability using Prometheus and Grafana. I also wanted to be able to debug performance and request flow as the app grows.
 
 **Tradeoff:** this adds extra setup early in a side project, and not every metric is very useful (yet). But it helped me build better habits.
 
-### What I’d improve next
+### What I'd improve next
 
 - Contract tests between frontend and backend (to avoid docs/API drift)
 - Stricter API error schema and consistency across endpoints
@@ -202,9 +237,9 @@ src/main/kotlin/io/mytherion
 - **Project statistics** (entity counts by type)
 - **Pagination support**
 
-### Entity Management
+### Entity Management (Codex)
 
-(Planned) Support for 6 entity types:
+Support for 6 built-in entity types (the defaults — more to come):
 
 - **CHARACTER** – Age, role, personality traits
 - **LOCATION** – Region, climate, population
@@ -213,7 +248,7 @@ src/main/kotlin/io/mytherion
 - **CULTURE** – Language, traditions, values
 - **ITEM** – Origin, purpose, rarity
 
-**Features:** (Planned)
+**Features:**
 
 - Full CRUD operations for all entity types
 - **Type-specific metadata** stored as JSONB
@@ -339,6 +374,7 @@ Entity-specific fields stored as JSONB:
 - No need for separate tables per type
 - Easy to add new fields without migrations
 - PostgreSQL provides efficient JSONB querying
+- Lays groundwork for fully custom user-defined fields
 
 ### Structured Logging
 
@@ -388,9 +424,7 @@ JWT stored in httpOnly cookies:
 
 ## Performance Monitoring
 
-The application is planned to include performance monitoring:
-
-### Metrics (Planned)
+### Metrics
 
 - **HTTP request metrics** (count, duration, percentiles)
 - **JVM metrics** (memory, GC, threads)
@@ -424,19 +458,31 @@ curl http://localhost:8080/actuator/prometheus
 
 ### Medium-term
 
+- **Custom entity categories** — user-defined types beyond the 6 defaults
+- **Custom metadata fields** — define your own fields per entity type
+- **Custom tags** — full tag taxonomy ownership
 - Relationship mapping between entities
-- Rich text editor for descriptions
-- Export functionality (PDF, JSON)
-- Tagging system enhancements
+- Rich text editor support for entity descriptions
+- Export functionality (PDF, JSON, Markdown)
 - Bulk operations
 
 ### Long-term
 
-- AI-assisted content generation
-- Graph visualization of relationships
-- Version history for entities
-- Real-time collaborative editing
-- Advanced analytics and insights
+**Version history and structural infrastructure**
+
+Before AI can be genuinely useful at scale, the underlying data model needs to be right. That means treating every entity, chapter, and narrative thread as versioned, diffable, structurally navigable content. The goal is to build the same baseline infrastructure a software project takes for granted: history, recovery, visibility, and coherence across the whole project graph.
+
+**AI Layer**
+
+The AI layer is modeled on how coding agents work. Instead of static prompts and full-context document dumps, it should:
+
+- **Navigate the Codex** — find relevant entities by type, tag, or relationship before responding
+- **Scope context dynamically** — pull only what's needed for the current request (a character's sheet, a chapter section, a location's lore) rather than sending everything at once
+- **Make targeted edits** — revise a specific paragraph, add a detail to one entity, without touching unrelated content
+- **Respect project structure** — understand that a 100k-word novel across 200 Codex entries is a project graph, not a flat document
+- **Work with version history** — understand what changed, when, and why, and use that as context
+
+This is the model that makes AI actually useful at scale. The same principles that let Claude Code handle a large codebase apply directly to a complex fictional world.
 
 ---
 
