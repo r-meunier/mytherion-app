@@ -1,6 +1,40 @@
 # Mytherion Frontend
 
-Mytherion is a lightweight worldbuilding and codex-style application for organizing creative projects. This repository contains the Next.js + React + TypeScript frontend with Redux state management, modern UI design, and project management features.
+Mytherion is a worldbuilding (and later, writing) platform built for creators who want to come away from the classic boxes. It gives writers and worldbuilders creative freedom over structure, AI support that works the way coding tools do, and the infrastructure to own their creative work as real, versioned, navigable data.
+
+This repository contains the Next.js + React + TypeScript frontend with Redux state management, modern UI design, and project management features.
+
+---
+
+## What is Mytherion?
+
+A lot of writing apps — Scrivener, NovelCrafter, and the rest — share the same flaw: they give you a pre-defined structure and expect your story to fit inside it. When AI gets bolted on, it fires a complex prompt in the background and hopes it picks up the relevant context as you go.
+
+I don't believe in forcing creativity into boxes. And I don't think AI for writing should work any differently to AI for code.
+
+### Three core pillars
+
+#### 1. Creative freedom over structure
+
+Mytherion ships with a default structure — a Codex with entity types like Character, Location, Organization, Culture, Species, and Item, and some pre-defined project genres. These are starting points, not hard requirements.
+
+The goal down the line is to be able to customise everything: custom categories, custom tags, custom metadata fields. If your world has Factions, Deities, Starships, or Arcane Schools, you should be able to define those as first-class entities. The platform should fit the project — not the other way around.
+
+#### 2. AI support that works the way coding tools do
+
+Writing a novel _is_ engineering in its form. An author building a world, defining characters, structuring arcs, plotting narrative threads — it's the same interconnected, multi-file project as a complex codebase.
+
+Coding AI agents handle context differently than their web chat counterparts do. They _go find what's relevant to your current prompt_, on the fly. Ask it to summarise all chapters? It'll pull the chapter files. Ask it to revise a single paragraph? It pulls that section and the context. It dynamically scopes what it needs. That makes a huge difference when you're working on a 50k+ word project across dozens if not hundreds of files.
+
+That's the model Mytherion brings to writing — tools like Claude Code, Cursor, Codex, Gemini CLI. Instead of forcing you to craft elaborate prompts and cross your fingers, the AI should navigate the Codex, read entity definitions, trace relationship threads, and apply it exactly where it matters.
+
+#### 3. Your world is your data — and you should own it
+
+A manuscript, a Codex, a set of interlocking narrative threads — all of it is data. Structured, relational, versioned data. A software project treats version history, diff views, structural navigation, and multi-file continuity as _baseline infrastructure_. A creative project should have exactly the same.
+
+The assumption that writers don't want this, or can't handle it, is wrong. It's not a complexity problem — it's a representation problem, and a matter of trust. Writers already mentally track who said what in Chapter 3, what a character's backstory was in the first draft, whether that subplot ever got resolved. Version history and structural visibility aren't alien concepts. The tooling just hasn't caught up.
+
+Mytherion wants to build that infrastructure: a platform where your creative project is as navigable, recoverable, and structurally visible as a well-maintained codebase. Where no draft is ever truly lost. Writers deserve that level of trust in their tools.
 
 ---
 
@@ -29,7 +63,7 @@ Mytherion is a lightweight worldbuilding and codex-style application for organiz
 - Responsive design with modern aesthetics
 - Session persistence
 - Email verification flow
-- Ready for entity management features
+- Entity management (Codex) UI
 
 ---
 
@@ -97,8 +131,8 @@ Navigate to `http://localhost:3000` in your browser.
 
 ```bash
 npm run dev          # Start development server (Turbopack)
-npm run build        # Build for production
-npm run start        # Start production server
+npm run build        # Build for prod
+npm run start        # Start prod server
 npm run lint         # Run ESLint
 ```
 
@@ -160,7 +194,7 @@ mytherion-frontend/
 │   │   └── [projectId]/      # Dynamic project routes
 │   │       ├── page.tsx      # Project dashboard
 │   │       ├── settings/     # Project settings
-│   │       ├── entities/     # Entity management (planned)
+│   │       ├── entities/     # Entity management
 │   │       └── analytics/    # Analytics (planned)
 │   ├── layout.tsx            # Root layout with Redux Provider
 │   ├── page.tsx              # Home page
@@ -176,7 +210,7 @@ mytherion-frontend/
 
 ---
 
-## Features (Still in progress)
+## Features
 
 ### Authentication
 
@@ -289,7 +323,7 @@ mytherion-frontend/
 - **State Slices**
   - `authSlice` – User authentication and session
   - `projectSlice` – Project management
-  - (Planned) `entitySlice` – Entity management
+  - `entitySlice` – Entity (Codex) management
 
 ### Security
 
@@ -470,7 +504,7 @@ await dispatch(fetchProjects());
 
 ### Unit Tests
 
-Tests are written using Jest and React Testing Library.
+Tests are using Jest and React Testing Library.
 
 ```bash
 npm test
@@ -478,40 +512,29 @@ npm test
 
 ### Test Coverage
 
-- Redux auth slice (20+ tests)
+- Redux auth slice
 - Redux project slice
 - Component rendering tests (planned)
 - Integration tests (planned)
 
-### Testing Best Practices
-
-- Test user interactions, not implementation
-- Use semantic queries (getByRole, getByLabelText)
-- Mock API calls
-- Test loading and error states
-
 ---
 
-## Planned Features
+## Further Planned Features
 
-### Short-term (Phase 4)
+### Short-term
 
-- **Entity Management UI**
-  - Entity list with filters
-  - Entity CRUD operations
-  - Search functionality
-  - Tag management
-  - Type-specific forms
+- **Entity Management enhancements**
+  - Advanced filtering and search
+  - Tag management UI
+  - Type-specific metadata forms
 
-### Medium-term (Phase 5-6)
+### Medium-term
 
-- **Entity Types with Metadata**
-  - Character fields (age, role, personality)
-  - Location fields (region, climate, population)
-  - Organization fields (type, leader, founded)
-  - Species fields (lifespan, traits, habitat)
-  - Culture fields (language, traditions, values)
-  - Item fields (origin, purpose, rarity)
+- **Custom Codex structure**
+  - User-defined entity categories (beyond the 6 defaults)
+  - Custom metadata field editor per entity type
+  - Custom tag taxonomies
+  - Genre and project type customisation
 
 - **Image Upload**
   - Drag-and-drop upload
@@ -519,7 +542,12 @@ npm test
   - Image management
   - Fallback images
 
-### Long-term (Phase 7+)
+- **Relationship Mapping**
+  - Visual graph of entity connections
+  - Relationship types (ally, rival, origin, etc.)
+  - Filterable by entity type
+
+### Long-term
 
 - **Polish & UX**
   - Toast notifications
@@ -528,14 +556,23 @@ npm test
   - Accessibility improvements
   - Performance optimization
 
-- **Advanced Features**
-  - Relationship mapping visualization
-  - Export functionality (PDF, images)
-  - AI-assisted content generation
+- **AI Layer**
+  - AI assistant that navigates the Codex like a codebase — dynamically scoping what's relevant to your current request rather than loading everything at once
+  - Ask it to summarise all chapters → it pulls the chapter files; ask it to revise a paragraph → it pulls that section and the surrounding context
+  - Targeted edits to individual entities, scenes, or passages without touching unrelated content
+  - Context-aware suggestions backed by your own world's lore (not generic fiction tropes)
+  - Works _with_ version history — understands what changed, when, and why
+
+- **Version history and structural infrastructure**
+  - Every entity, chapter, and narrative thread treated as versioned, diffable, structurally navigable content
+  - The same baseline infrastructure a software project takes for granted: history, recovery, visibility, and coherence across the whole project graph
+  - No draft is ever truly lost
+
+- **Collaboration & Export**
   - Collaborative editing
+  - Export to PDF, Markdown, or Docx
   - Mobile app (React Native)
-  - Advanced search and filtering
-  - Version history
+  - Version history for entities and narrative content
 
 ---
 
@@ -554,7 +591,7 @@ npm test
 - **Redux for global state:**
   - Authentication
   - Projects
-  - Entities (planned)
+  - Entities
 
 - **Local state for component state:**
   - Form inputs
@@ -582,30 +619,29 @@ npm test
 
 ### Code Style
 
-- **TypeScript** for type safety
-- **Functional components** with hooks
-- **Tailwind CSS** for styling
-- **ESLint** for code quality
-- **Consistent naming** conventions
+- TypeScript
+- Functional components
+- Tailwind CSS
+- ESLint
+- Consistent naming conventions
 
 ### Best Practices
 
-- Keep components small and focused
-- Use Redux for global state only
-- Prefer server components when possible
+- Small, focused components
+- Use Redux for global state
+- Prefer server components
 - Validate on both client and server
 - Handle loading and error states
-- Use semantic HTML
 - Ensure accessibility
 
 ### Performance Optimization
 
-- Next.js Turbopack for fast development
+- Next.js Turbopack
 - Automatic code splitting
-- Image optimization with Next.js Image
+- Image optimization
 - CSS optimization
-- Lazy loading for heavy components
-- Memoization where appropriate
+- Lazy loading
+- Memoization
 
 ---
 
@@ -619,9 +655,7 @@ npm test
 
 ## Troubleshooting
 
-### Port Already in Use
-
-If port 3000 is already in use, Next.js will automatically use port 3001.
+### Different Port
 
 To specify a different port:
 
@@ -629,7 +663,7 @@ To specify a different port:
 PORT=3002 npm run dev
 ```
 
-### API Connection Issues
+### API Connection
 
 Ensure the backend is running on `http://localhost:8080`:
 
@@ -637,7 +671,7 @@ Ensure the backend is running on `http://localhost:8080`:
 curl http://localhost:8080/api/health
 ```
 
-### CORS Errors
+### CORS
 
 The backend must allow `http://localhost:3000` and `http://localhost:3001` in CORS configuration.
 
@@ -650,7 +684,7 @@ cors:
     - http://localhost:3001
 ```
 
-### Build Errors
+### Build
 
 Clear Next.js cache:
 
@@ -659,7 +693,7 @@ rm -rf .next
 npm run dev
 ```
 
-### TypeScript Errors
+### TypeScript
 
 Restart TypeScript server in your IDE or run:
 
