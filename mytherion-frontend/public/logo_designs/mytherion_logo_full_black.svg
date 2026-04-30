@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="1093" viewBox="0 0 2048 1093">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glowStrong" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.8 0" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <radialGradient id="starGrad" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1"/>
+      <stop offset="45%" stop-color="#EFFFFF" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#5CF3FF" stop-opacity="0.95"/>
+    </radialGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="#000"/>
+    <g>
+    <line x1="824.6" y1="317.0" x2="799.4" y2="606.5" stroke="#5CF3FF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" filter="url(#glow)"/>
+    <line x1="799.4" y1="606.5" x2="873.7" y2="612.0" stroke="#A7F6E9" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" filter="url(#glow)"/>
+    <line x1="824.6" y1="317.0" x2="873.7" y2="612.0" stroke="#A7F6E9" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" filter="url(#glow)"/>
+    <line x1="873.7" y1="612.0" x2="898.8" y2="455.3" stroke="#FFD46A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" filter="url(#glow)"/>
+    <line x1="824.6" y1="317.0" x2="898.8" y2="455.3" stroke="#5CF3FF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" filter="url(#glow)"/>
+    <line x1="898.8" y1="455.3" x2="1023.3" y2="518.5" stroke="#5CF3FF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" filter="url(#glow)"/>
+    <line x1="1220.2" y1="317.8" x2="1248.0" y2="607.0" stroke="#FFD46A" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" filter="url(#glow)"/>
+    <line x1="1174.0" y1="613.7" x2="1248.0" y2="607.0" stroke="#A7F6E9" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" filter="url(#glow)"/>
+    <line x1="1220.2" y1="317.8" x2="1174.0" y2="613.7" stroke="#A7F6E9" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" filter="url(#glow)"/>
+    <line x1="1142.6" y1="459.9" x2="1174.0" y2="613.7" stroke="#5CF3FF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" filter="url(#glow)"/>
+    <line x1="1220.2" y1="317.8" x2="1142.6" y2="459.9" stroke="#FFD46A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" filter="url(#glow)"/>
+    <line x1="1142.6" y1="459.9" x2="1023.3" y2="518.5" stroke="#5CF3FF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity="1.0" filter="url(#glow)"/>
+    <path d="M 824.6,317.0 Q 980.0,260.0 1142.6,459.9" fill="none" stroke="#A7F6E9" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" filter="url(#glow)"/>
+    <path d="M 1220.2,317.8 Q 1070.0,260.0 898.8,455.3" fill="none" stroke="#A7F6E9" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" filter="url(#glow)"/>
+    <path d="M 824.6,317.0 Q 915.0,310.0 1028.9,449.2" fill="none" stroke="#FFD46A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.95" filter="url(#glow)"/>
+    <path d="M 1220.2,317.8 Q 1135.0,310.0 1028.9,449.2" fill="none" stroke="#FFD46A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.95" filter="url(#glow)"/>
+    <line x1="1028.9" y1="449.2" x2="1023.2" y2="309.0" stroke="#FFD46A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" filter="url(#glow)"/>
+    <path d="M 799.4,606.5 Q 1023.0,170.0 1220.2,317.8" fill="none" stroke="#A7F6E9" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.75" filter="url(#glow)"/>
+    <path d="M 824.6,317.0 Q 1023.0,170.0 1174.0,613.7" fill="none" stroke="#5CF3FF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.75" filter="url(#glow)"/>
+    <path d="M 873.7,612.0 Q 1023.0,210.0 1220.2,317.8" fill="none" stroke="#FFD46A" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.7" filter="url(#glow)"/>
+    <path d="M 824.6,317.0 Q 1023.0,210.0 1248.0,607.0" fill="none" stroke="#A7F6E9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.7" filter="url(#glow)"/>
+    <path d="M 824.6,317.0 Q 1023.0,135.0 1220.2,317.8" fill="none" stroke="#A7F6E9" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.55" filter="url(#glow)"/>
+    <path d="M 1023.2,219.0 L 1063.2,269.0 L 1118.2,309.0 L 1063.2,349.0 L 1023.2,399.0 L 983.2,349.0 L 928.2,309.0 L 983.2,269.0 Z" fill="url(#starGrad)" filter="url(#glowStrong)"/>
+    <circle cx="824.6" cy="317.0" r="18" fill="#5CF3FF" filter="url(#glowStrong)"/>
+    <circle cx="1220.2" cy="317.8" r="18" fill="#FFD46A" filter="url(#glowStrong)"/>
+    <circle cx="799.4" cy="606.5" r="18" fill="#5CF3FF" filter="url(#glowStrong)"/>
+    <circle cx="873.7" cy="612.0" r="18" fill="#FFD46A" filter="url(#glowStrong)"/>
+    <circle cx="1174.0" cy="613.7" r="18" fill="#5CF3FF" filter="url(#glowStrong)"/>
+    <circle cx="1248.0" cy="607.0" r="18" fill="#FFD46A" filter="url(#glowStrong)"/>
+    <circle cx="898.8" cy="455.3" r="16" fill="#5CF3FF" filter="url(#glowStrong)"/>
+    <circle cx="1142.6" cy="459.9" r="16" fill="#5CF3FF" filter="url(#glowStrong)"/>
+    <circle cx="1023.3" cy="518.5" r="16" fill="#5CF3FF" filter="url(#glowStrong)"/>
+    <circle cx="1028.9" cy="449.2" r="16" fill="#FFD46A" filter="url(#glowStrong)"/>
+    </g>
+    <text x="1024" y="840" text-anchor="middle" font-family="Poppins, Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="190" font-weight="500" fill="#FFFFFF">Mytherion</text>
+</svg>
