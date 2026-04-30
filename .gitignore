@@ -3,12 +3,71 @@
 .vscode/
 *.swp
 *.swo
+*.iws
+*.iml
+*.ipr
+.settings/
+.classpath
+.project
+.factorypath
+.apt_generated/
+.sts4-cache/
+.kotlin/
 
 # OS files
 .DS_Store
 Thumbs.db
+*.pem
 
-# Dependencies (redundant but safe)
-node_modules/
-build/
-.gradle/
+# Build and Dependencies - Backend
+mytherion-backend/.gradle/
+mytherion-backend/build/
+mytherion-backend/bin/
+mytherion-backend/out/
+mytherion-backend/.nb-gradle/
+
+# Build and Dependencies - Frontend
+mytherion-frontend/node_modules/
+mytherion-frontend/.next/
+mytherion-frontend/out/
+mytherion-frontend/build/
+mytherion-frontend/coverage/
+mytherion-frontend/.pnp
+mytherion-frontend/.pnp.*
+mytherion-frontend/.yarn/*
+!mytherion-frontend/.yarn/patches
+!mytherion-frontend/.yarn/plugins
+!mytherion-frontend/.yarn/releases
+!mytherion-frontend/.yarn/versions
+mytherion-frontend/*.tsbuildinfo
+mytherion-frontend/next-env.d.ts
+
+# Logs and Debug
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+mytherion-backend/logs/
+
+# Environment and Secrets
+.env
+.env.*
+!.env.example
+mytherion-backend/secrets/
+mytherion-backend/data/
+mytherion-backend/certs/
+
+# LLM / AI
+.claude/
+.cursor/
+
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+!mytherion-backend/gradle/wrapper/gradle-wrapper.jar
