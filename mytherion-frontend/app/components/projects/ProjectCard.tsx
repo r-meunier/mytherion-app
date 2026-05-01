@@ -97,7 +97,7 @@ export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardPr
           
           {/* Genre Badge */}
           <div className="absolute bottom-4 left-6">
-            <span className="px-3 py-1 bg-primary/20 backdrop-blur-md border border-primary/30 text-primary text-[10px] font-bold uppercase tracking-widest rounded-full">
+            <span className="px-3 py-1 bg-primary/20 backdrop-blur-md border border-primary/30 text-primary text-micro-badge rounded-full">
               {project.genre || 'Unknown'}
             </span>
           </div>

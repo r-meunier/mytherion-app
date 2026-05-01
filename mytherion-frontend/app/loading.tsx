@@ -21,14 +21,14 @@ export default function Loading() {
 
         {/* Text and Progress */}
         <div className="text-center space-y-4">
-          <h2 className="text-2xl font-display font-bold text-white tracking-widest uppercase">
+          <h2 className="text-logo text-2xl !text-white">
             Mytherion
           </h2>
           <div className="flex flex-col items-center gap-2">
             <div className="w-48 h-1 bg-white/5 rounded-full overflow-hidden relative">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary to-transparent w-full animate-loading-bar"></div>
             </div>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] animate-pulse">
+            <p className="text-micro-badge text-slate-500 animate-pulse !tracking-[0.4em]">
               Channeling the Multiverse...
             </p>
           </div>

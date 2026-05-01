@@ -100,7 +100,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Project Name */}
           <div className="space-y-2">
-            <label className="block text-sm font-bold text-slate-300 uppercase tracking-widest ml-1">
+            <label className="text-input-label ml-1">
               Project Name
             </label>
             <div className="relative">
@@ -123,7 +123,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
           {/* Genre */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2 col-span-2">
-              <label className="block text-sm font-bold text-slate-300 uppercase tracking-widest ml-1">
+              <label className="text-input-label ml-1">
                 Genre
               </label>
               <div className="relative">
@@ -151,7 +151,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
 
           {/* Description */}
           <div className="space-y-2">
-            <label className="block text-sm font-bold text-slate-300 uppercase tracking-widest ml-1">
+            <label className="text-input-label ml-1">
               Description
             </label>
             <textarea
@@ -185,7 +185,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
             </button>
             <button
               type="submit"
-              className="flex-2 btn-cosmic py-4 px-6 text-white font-bold rounded-2xl flex items-center justify-center space-x-2 group hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-2 btn-primary py-4 px-6 rounded-2xl flex items-center justify-center space-x-2 group hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
               <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">

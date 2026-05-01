@@ -127,10 +127,10 @@ export default function EntityDetailPage() {
                   <span className="text-5xl">{typeConfig.icon}</span>
                   <div>
                     <div className="flex items-center gap-3 mb-2">
-                      <h1 className="text-4xl font-serif font-bold text-gold tracking-wide">
+                      <h1 className="text-display text-4xl">
                         {currentEntity.name}
                       </h1>
-                      <span className={`px-3 py-1 rounded-lg text-xs font-medium ${typeConfig.color} glass border border-white/10`}>
+                      <span className={`px-3 py-1 rounded-lg text-micro-badge ${typeConfig.color} glass border border-white/10`}>
                         {typeConfig.label}
                       </span>
                     </div>
@@ -176,7 +176,7 @@ export default function EntityDetailPage() {
           {/* Description Section */}
           {currentEntity.description && (
             <div className="glass rounded-2xl p-6">
-              <h2 className="text-xl font-display font-bold text-white mb-4 uppercase tracking-widest border-l-4 border-primary pl-4">
+              <h2 className="text-h2 text-xl mb-4 uppercase tracking-widest border-l-4 border-primary pl-4">
                 Description
               </h2>
               <p className="text-slate-300 whitespace-pre-wrap leading-relaxed">
@@ -187,18 +187,18 @@ export default function EntityDetailPage() {
 
           {/* Details Section */}
           <div className="glass rounded-2xl p-6">
-            <h2 className="text-xl font-display font-bold text-white mb-4 uppercase tracking-widest border-l-4 border-primary pl-4">
+            <h2 className="text-h2 text-xl mb-4 uppercase tracking-widest border-l-4 border-primary pl-4">
               Details
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-white/5 rounded-lg">
-                <span className="text-slate-400 text-sm">Created</span>
+                <span className="text-card-title text-sm">Created</span>
                 <p className="text-white font-medium mt-1">
                   {mounted ? new Date(currentEntity.createdAt).toLocaleString() : '...'}
                 </p>
               </div>
               <div className="p-4 bg-white/5 rounded-lg">
-                <span className="text-slate-400 text-sm">Last Updated</span>
+                <span className="text-card-title text-sm">Last Updated</span>
                 <p className="text-white font-medium mt-1">
                   {mounted ? new Date(currentEntity.updatedAt).toLocaleString() : '...'}
                 </p>
@@ -215,7 +215,7 @@ export default function EntityDetailPage() {
             <div className="flex items-start gap-3 mb-4">
               <span className="material-symbols-outlined text-secondary text-[32px]">warning</span>
               <div>
-                <h3 className="text-xl font-display font-bold text-white mb-2">Delete Entity?</h3>
+                <h3 className="text-h3 text-xl mb-2">Delete Entity?</h3>
                 <p className="text-slate-400">
                   Are you sure you want to delete <strong className="text-white">{currentEntity.name}</strong>? This action cannot be undone.
                 </p>

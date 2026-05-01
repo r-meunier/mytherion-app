@@ -189,7 +189,7 @@ export default function RegisterForm() {
         <div className="space-y-1.5">
           <label
             htmlFor="email"
-            className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1"
+            className="text-input-label ml-1"
           >
             Email Address
           </label>
@@ -219,7 +219,7 @@ export default function RegisterForm() {
         <div className="space-y-1.5">
           <label
             htmlFor="username"
-            className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1"
+            className="text-input-label ml-1"
           >
             Chronicler Name
           </label>
@@ -249,7 +249,7 @@ export default function RegisterForm() {
         <div className="space-y-1.5">
           <label
             htmlFor="password"
-            className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1"
+            className="text-input-label ml-1"
           >
             Secret Phrase
           </label>
@@ -279,7 +279,7 @@ export default function RegisterForm() {
         <div className="space-y-1.5">
           <label
             htmlFor="confirmPassword"
-            className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1"
+            className="text-input-label ml-1"
           >
             Confirm Secret Phrase
           </label>
@@ -317,7 +317,7 @@ export default function RegisterForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full btn-cosmic py-4 rounded-xl text-white font-bold uppercase tracking-[0.2em] text-sm mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full btn-primary py-4 rounded-xl mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? "Creating account..." : "Initiate Journey"}
         </button>

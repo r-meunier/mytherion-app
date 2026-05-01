@@ -20,12 +20,12 @@ export default function AdminDashboard() {
     <div className="space-y-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold text-white tracking-tight">Overview</h1>
-          <p className="text-slate-400 mt-1">Real-time status of the Mytherion multiverse.</p>
+          <h1 className="text-h1 text-3xl">Overview</h1>
+          <p className="text-body-muted mt-1">Real-time status of the Mytherion multiverse.</p>
         </div>
         <div className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-          <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">All Portals Stable</span>
+          <span className="text-micro-badge text-emerald-400">All Portals Stable</span>
         </div>
       </div>
 
@@ -38,7 +38,7 @@ export default function AdminDashboard() {
                 <FontAwesomeIcon icon={stat.icon} className={`${stat.color} text-xl`} />
               </div>
             </div>
-            <p className="text-slate-400 text-sm font-medium">{stat.label}</p>
+            <p className="text-card-title">{stat.label}</p>
             <h3 className="text-2xl font-bold text-white mt-1 tracking-tight">{stat.value}</h3>
           </div>
         ))}
@@ -47,8 +47,8 @@ export default function AdminDashboard() {
       {/* System Logs Placeholder */}
       <div className="glass-card rounded-3xl border border-white/5 overflow-hidden">
         <div className="p-6 border-b border-white/5 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white">Recent Security Logs</h2>
-          <button className="text-xs font-bold text-primary uppercase tracking-widest hover:text-white transition-colors">View All Logs</button>
+          <h2 className="text-h2 text-lg">Recent Security Logs</h2>
+          <button className="text-micro-badge text-primary hover:text-white transition-colors">View All Logs</button>
         </div>
         <div className="divide-y divide-white/5">
           {[1, 2, 3, 4, 5].map((item) => (
@@ -57,10 +57,10 @@ export default function AdminDashboard() {
                 <div className="w-2 h-2 rounded-full bg-slate-600"></div>
                 <div>
                   <p className="text-sm text-slate-300 font-medium">Session initialized for Chronicler #8821</p>
-                  <p className="text-[11px] text-slate-500 mt-0.5">2 minutes ago • IP: 192.168.1.{item}</p>
+                  <p className="text-timestamp mt-0.5">2 minutes ago • IP: 192.168.1.{item}</p>
                 </div>
               </div>
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2 py-1 bg-white/5 rounded">Info</span>
+              <span className="text-micro-badge text-slate-500 px-2 py-1 bg-white/5 rounded">Info</span>
             </div>
           ))}
         </div>

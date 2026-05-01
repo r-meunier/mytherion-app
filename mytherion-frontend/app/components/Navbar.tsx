@@ -81,7 +81,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
               </svg>
-              <span className="uppercase tracking-wide">Projects</span>
+              <span className="text-top-nav-header">Projects</span>
             </Link>
 
             {isAdmin && (
@@ -90,7 +90,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-amber-400 hover:text-amber-200 hover:bg-amber-500/10 rounded-lg transition-colors font-(family-name:--font-montserrat)"
               >
                 <FontAwesomeIcon icon={faShieldHalved} className="w-4 h-4" />
-                <span className="uppercase tracking-wide">Admin</span>
+                <span className="text-top-nav-header">Admin</span>
               </Link>
             )}
           </div>
@@ -114,18 +114,18 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
               </div>
               <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-300 hover:text-purple-100 transition-colors font-(family-name:--font-montserrat)">
                 <FontAwesomeIcon icon={faUserCircle} size="sm" />
-                <span className="uppercase tracking-wide">Profile</span>
+                <span className="text-top-nav-header">Profile</span>
               </button>
               <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-300 hover:text-purple-100 transition-colors font-(family-name:--font-montserrat)">
                 <FontAwesomeIcon icon={faGear} size="sm" />
-                <span className="uppercase tracking-wide">Settings</span>
+                <span className="text-top-nav-header">Settings</span>
               </button>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-300 hover:text-purple-100 transition-colors font-(family-name:--font-montserrat)"
               >
                 <FontAwesomeIcon icon={faRightFromBracket} size="sm" />
-                <span className="uppercase tracking-wide">Logout</span>
+                <span className="text-top-nav-header">Logout</span>
               </button>
             </>
           ) : (
@@ -136,7 +136,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-300 hover:text-purple-100 transition-colors font-(family-name:--font-montserrat)"
               >
                 <FontAwesomeIcon icon={faRightToBracket} size="sm" />
-                <span className="uppercase tracking-wide">Login</span>
+                <span className="text-top-nav-header">Login</span>
               </button>
             </>
           )}

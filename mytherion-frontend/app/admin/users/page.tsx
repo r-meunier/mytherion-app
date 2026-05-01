@@ -71,8 +71,8 @@ export default function UserManagementPage() {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold text-white tracking-tight">User Management</h1>
-          <p className="text-slate-400 mt-1">Oversee all chroniclers across the multiverse.</p>
+          <h1 className="text-h1 text-3xl">User Management</h1>
+          <p className="text-body-muted mt-1">Oversee all chroniclers across the multiverse.</p>
         </div>
         
         <div className="relative w-full md:w-80">
@@ -91,7 +91,7 @@ export default function UserManagementPage() {
         <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm flex items-center gap-3">
           <FontAwesomeIcon icon={faTimesCircle} />
           {error}
-          <button onClick={fetchUsers} className="ml-auto underline font-bold uppercase tracking-widest text-[10px]">Retry</button>
+          <button onClick={fetchUsers} className="ml-auto underline text-micro-badge">Retry</button>
         </div>
       )}
 
@@ -99,7 +99,7 @@ export default function UserManagementPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-white/5 border-b border-white/5 text-[11px] font-bold text-slate-500 uppercase tracking-[0.2em]">
+              <tr className="bg-white/5 border-b border-white/5 text-sidebar-nav-header">
                 <th className="px-6 py-4">Chronicler</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4">Role</th>
@@ -136,19 +136,19 @@ export default function UserManagementPage() {
                     </td>
                     <td className="px-6 py-5">
                       {user.emailVerified ? (
-                        <div className="flex items-center gap-2 text-emerald-400 text-[10px] font-bold uppercase tracking-widest">
+                        <div className="flex items-center gap-2 text-emerald-400 text-micro-badge">
                           <FontAwesomeIcon icon={faCheckCircle} className="text-xs" />
                           Verified
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2 text-slate-500 text-[10px] font-bold uppercase tracking-widest">
+                        <div className="flex items-center gap-2 text-slate-500 text-micro-badge">
                           <FontAwesomeIcon icon={faTimesCircle} className="text-xs" />
                           Pending
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-5">
-                      <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest border ${
+                      <span className={`px-2.5 py-1 rounded-md text-micro-badge border ${
                         user.role === 'ADMIN' 
                           ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' 
                           : 'bg-blue-500/10 text-blue-400 border-blue-500/20'

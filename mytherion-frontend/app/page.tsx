@@ -34,10 +34,10 @@ export default function Home() {
           {/* Welcome Section */}
           <div className="flex items-end justify-between">
             <div>
-              <h2 className="text-3xl font-display font-bold text-white">
+              <h2 className="text-h1 text-3xl">
                 Welcome back, Chronicler
               </h2>
-              <p className="text-slate-400 mt-1">
+              <p className="text-body-muted mt-1">
                 Your worlds are waiting for your next stroke of genius.
               </p>
             </div>
@@ -94,7 +94,7 @@ export default function Home() {
               subtitleColor="text-primary"
               icon="public"
               badges={
-                <div className="text-[12px] text-slate-500 font-medium uppercase tracking-tight">
+                <div className="text-micro-badge text-slate-500 tracking-tight">
                   48/72 Major Milestones reached
                 </div>
               }

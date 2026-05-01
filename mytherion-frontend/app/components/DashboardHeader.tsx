@@ -58,11 +58,11 @@ export default function DashboardHeader() {
                     {user.username || user.email}
                   </p>
                   <div className="flex items-center justify-end gap-2 mt-0.5">
-                    <p className="text-[10px] text-primary font-bold uppercase tracking-wider">
+                    <p className="text-top-nav-header !text-primary">
                       {user.emailVerified ? "Verified User" : "Unverified"}
                     </p>
                     {user.role === 'ADMIN' && (
-                      <span className="px-1.5 py-0.5 rounded-sm bg-amber-500/20 text-amber-500 text-[9px] font-black uppercase tracking-tighter border border-amber-500/30">
+                      <span className="px-2 py-0.5 rounded-sm bg-amber-500/20 text-amber-500 text-micro-badge !tracking-tighter border border-amber-500/30">
                         Arbiter
                       </span>
                     )}

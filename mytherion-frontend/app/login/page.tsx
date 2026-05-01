@@ -25,7 +25,7 @@ export default function LoginPage() {
                     <div className="w-16 h-16 bg-linear-to-tr from-primary to-purple-400 rounded-2xl flex items-center justify-center shadow-2xl mb-4 border border-white/20">
                         <span className="material-symbols-outlined text-white text-4xl">auto_awesome</span>
                     </div>
-                    <h1 className="text-3xl font-serif font-bold gold-text tracking-widest uppercase">Mytherion</h1>
+                    <h1 className="text-logo text-3xl">Mytherion</h1>
                     <p className="text-slate-400 text-sm mt-2 font-medium tracking-tight">Login to the Library</p>
                 </div>
                 
@@ -34,11 +34,11 @@ export default function LoginPage() {
                 <div className="mt-8 flex justify-center space-x-6">
                     <div className="flex items-center space-x-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></div>
-                        <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Archives Online</span>
+                        <span className="text-micro-badge text-slate-500">Archives Online</span>
                     </div>
                     <div className="flex items-center space-x-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                        <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Portal Stable</span>
+                        <span className="text-micro-badge text-slate-500">Portal Stable</span>
                     </div>
                 </div>
             </div>

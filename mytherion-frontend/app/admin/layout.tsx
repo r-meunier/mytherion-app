@@ -52,8 +52,8 @@ export default function AdminLayout({
               <FontAwesomeIcon icon={faShieldHalved} className="text-amber-400 text-xl" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white tracking-tight">Admin Portal</h2>
-              <p className="text-[10px] uppercase tracking-widest text-amber-500 font-bold">Arbiter Oversight</p>
+              <h2 className="text-h3 !text-lg tracking-tight">Admin Portal</h2>
+              <p className="text-admin-badge text-amber-500">Arbiter Oversight</p>
             </div>
           </div>
 

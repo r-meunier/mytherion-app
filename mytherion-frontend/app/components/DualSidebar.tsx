@@ -155,12 +155,12 @@ export default function DualSidebar({
         {/* Header */}
         <div className="p-6">
           <Link href="/">
-            <h1 className="text-xl font-display font-extrabold tracking-tight text-white uppercase hover:text-primary transition-colors cursor-pointer">
+            <h1 className="text-logo text-xl !text-white hover:!text-primary transition-colors cursor-pointer">
               {title}
             </h1>
           </Link>
           {subTitle && (
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1">
+            <p className="text-subtitle-label mt-1.5">
               {subTitle}
             </p>
           )}
@@ -169,7 +169,7 @@ export default function DualSidebar({
         {/* Navigation */}
         {/* Navigation */}
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto pt-4">
-          <p className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">
+          <p className="px-4 text-sidebar-nav-header mb-4">
             Navigation
           </p>
 
@@ -195,7 +195,7 @@ export default function DualSidebar({
 
           {/* Library Section */}
           <div className="pt-10">
-            <p className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">
+            <p className="px-4 text-sidebar-nav-header mb-4">
               Library
             </p>
             {currentLibraryItems.map((item) => (
@@ -215,7 +215,7 @@ export default function DualSidebar({
           {/* Management Section */}
           {finalManagementItems && finalManagementItems.length > 0 && (
             <div className="pt-10">
-              <p className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">
+              <p className="px-4 text-sidebar-nav-header mb-4">
                 Management
               </p>
               {finalManagementItems.map((item) => (
@@ -244,10 +244,10 @@ export default function DualSidebar({
         <div className="p-4 border-t border-white/10">
           <div className="p-3 bg-primary/5 rounded-xl border border-primary/20">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-primary uppercase">
+              <span className="text-micro-badge text-primary">
                 Storage
               </span>
-              <span className="text-[11px] text-slate-500">82%</span>
+              <span className="text-micro-badge text-slate-500">82%</span>
             </div>
             <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
               <div className="h-full bg-primary w-[82%] rounded-full shadow-[0_0_8px_rgba(168,85,247,0.4)]"></div>

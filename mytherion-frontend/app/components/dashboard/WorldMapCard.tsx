@@ -3,7 +3,7 @@
 export default function WorldMapCard() {
   return (
     <div className="space-y-4">
-      <h4 className="text-lg font-display font-bold text-white flex items-center">
+      <h4 className="text-h3 flex items-center">
         <span className="material-symbols-outlined mr-2 text-secondary">map</span>
         World Map
       </h4>
@@ -19,7 +19,7 @@ export default function WorldMapCard() {
         {/* Gradient Overlay with Info */}
         <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-5">
           <p className="text-white font-bold text-lg">Aetheria Centralis</p>
-          <p className="text-white/60 text-xs">
+          <p className="text-timestamp !text-white/60">
             8 Regions Discovered • 12 Points of Interest
           </p>
         </div>

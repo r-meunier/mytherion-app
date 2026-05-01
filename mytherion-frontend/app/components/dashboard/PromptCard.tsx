@@ -9,7 +9,7 @@ export default function PromptCard() {
       </span>
 
       {/* Content */}
-      <p className="text-[10px] font-bold text-secondary uppercase mb-3 tracking-widest relative z-10">
+      <p className="text-micro-badge text-secondary mb-3 relative z-10">
         Prompt of the day
       </p>
       <p className="text-2xl font-script text-white leading-relaxed relative z-10 drop-shadow-md">

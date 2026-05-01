@@ -10,7 +10,7 @@ const tools = [
 export default function ArcaneTools() {
   return (
     <div className="space-y-4">
-      <h4 className="text-lg font-display font-bold text-white flex items-center">
+      <h4 className="text-h3 flex items-center">
         <span className="material-symbols-outlined mr-2 text-primary">auto_fix_high</span>
         Arcane Tools
       </h4>
@@ -24,7 +24,7 @@ export default function ArcaneTools() {
             <span className="material-symbols-outlined text-primary group-hover:text-white mb-2 transition-colors">
               {tool.icon}
             </span>
-            <span className="text-xs font-bold uppercase tracking-wider text-white transition-colors">{tool.label}</span>
+            <span className="text-micro-badge text-white transition-colors">{tool.label}</span>
           </button>
         ))}
       </div>

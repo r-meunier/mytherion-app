@@ -63,7 +63,7 @@ export default function RecentChronicles() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h4 className="text-lg font-display font-bold text-white flex items-center">
+        <h4 className="text-h3 flex items-center">
           <span className="material-symbols-outlined mr-2 text-primary">history</span>
           Recent Chronicles
         </h4>
@@ -93,7 +93,7 @@ export default function RecentChronicles() {
                 <h5 className="font-bold text-white group-hover:text-primary transition-colors">
                   {chronicle.title}
                 </h5>
-                <span className="text-[11px] text-slate-500">{chronicle.timestamp}</span>
+                <span className="text-timestamp">{chronicle.timestamp}</span>
               </div>
               <p className="text-sm text-slate-400 line-clamp-2 leading-relaxed">
                 {chronicle.description}
@@ -102,7 +102,7 @@ export default function RecentChronicles() {
                 {chronicle.badges.map((badge, index) => (
                   <span
                     key={index}
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                    className={`px-2 py-0.5 rounded-full text-micro-badge border ${
                       badgeColors[badge.color]
                     }`}
                   >

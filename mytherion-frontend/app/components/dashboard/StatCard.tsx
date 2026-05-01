@@ -32,7 +32,7 @@ export default function StatCard({
       </div>
 
       {/* Content */}
-      <p className="text-slate-400 text-sm font-medium relative z-10">{title}</p>
+      <p className="text-card-title relative z-10">{title}</p>
       <div className="flex items-baseline space-x-2 mt-2 relative z-10">
         <h3 className="text-4xl font-display font-bold text-white">{value}</h3>
         {subtitle && (
@@ -52,7 +52,7 @@ export default function StatCard({
               style={{ width: `${progressBar.value}%` }}
             ></div>
           </div>
-          <span className="text-[10px] font-bold text-secondary uppercase">
+          <span className="text-micro-badge text-secondary">
             {progressBar.label}
           </span>
         </div>

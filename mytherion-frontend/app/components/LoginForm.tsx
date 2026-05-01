@@ -78,7 +78,7 @@ export default function LoginForm() {
         <div className="space-y-1.5">
           <label
             htmlFor="email"
-            className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1"
+            className="text-input-label ml-1"
           >
             Email Address
           </label>
@@ -107,7 +107,7 @@ export default function LoginForm() {
             <div className="flex justify-between items-end mb-1">
                 <label
                     htmlFor="password"
-                    className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1"
+                    className="text-input-label ml-1"
                 >
                     Secret Phrase
                 </label>
@@ -143,7 +143,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full btn-cosmic py-4 rounded-xl text-white font-bold uppercase tracking-[0.2em] text-sm mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full btn-primary py-4 rounded-xl mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? "Authenticating..." : "Resume Journey"}
         </button>

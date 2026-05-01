@@ -11,6 +11,12 @@
   --nebula-purple: rgba(168, 85, 247, 0.15);
   --nebula-blue: rgba(30, 64, 175, 0.15);
   --gold: #D4AF37;
+  
+  /* Semantic Text Colors */
+  --text-main: #f1f5f9;      /* Slate-100 */
+  --text-card: #e2e8f0;      /* Slate-200 */
+  --text-muted: #94a3b8;     /* Slate-400 */
+  --text-dim: #64748b;       /* Slate-500 */
 }
 
 @theme inline {
@@ -237,4 +243,112 @@ body {
 
 .animate-bounce-subtle {
   animation: bounce-subtle 3s infinite ease-in-out;
+}
+
+/* --- Semantic Typography Design System --- */
+
+@utility text-display {
+  font-family: var(--font-cinzel);
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+}
+
+@utility text-h1 {
+  font-family: var(--font-outfit);
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+@utility text-h2 {
+  font-family: var(--font-outfit);
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+@utility text-h3 {
+  font-family: var(--font-outfit);
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+@utility text-sidebar-nav-header {
+  font-size: 0.75rem; /* 12px */
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+@utility text-top-nav-header {
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+@utility text-subtitle-label {
+  font-size: 0.75rem; /* 12px */
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+@utility text-micro-badge {
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+@utility text-body-muted {
+  font-size: 0.875rem; /* 14px */
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+@utility text-timestamp {
+  font-size: 0.75rem; /* 12px */
+  color: var(--text-dim);
+}
+
+@utility text-card-title {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+@utility text-input-label {
+  font-size: 0.75rem; /* 12px */
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+@utility btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, #6366f1 100%);
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.875rem; /* 14px */
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+  transition: all 0.3s ease;
+}
+
+@utility text-admin-badge {
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+@utility text-logo {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--gold);
 }
