@@ -10,7 +10,7 @@ import org.hibernate.type.SqlTypes
  * Represents a single component within the entity metadata (ECS-lite).
  */
 data class EntityComponent(
-        val type: String,
+        val type: String = "",
         val data: Map<String, Any> = emptyMap()
 )
 
