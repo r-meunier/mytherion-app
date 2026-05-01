@@ -1,47 +1,52 @@
-"use client";
-
 import type { Metadata } from "next";
 import { Inter, Outfit, Cinzel, Great_Vibes, Dancing_Script } from "next/font/google";
 import "./globals.css";
-import { Provider } from "react-redux";
-import { store } from "./store";
+import ClientProviders from "./components/ClientProviders";
 import VerificationBanner from "./components/VerificationBanner";
-import Script from "next/script";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-  display: "optional",
+  display: "swap",
 });
 
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
   weight: ["400", "600", "800"],
-  display: "optional",
+  display: "swap",
 });
 
 const cinzel = Cinzel({
   variable: "--font-cinzel",
   subsets: ["latin"],
   weight: ["400", "700"],
-  display: "optional",
+  display: "swap",
 });
 
 const greatVibes = Great_Vibes({
   variable: "--font-great-vibes",
   subsets: ["latin"],
   weight: ["400"],
-  display: "optional",
+  display: "swap",
 });
 
 const dancingScript = Dancing_Script({
   variable: "--font-dancing-script",
   subsets: ["latin"],
   weight: ["400", "600"],
-  display: "optional",
+  display: "swap",
 });
+
+export const metadata: Metadata = {
+  title: "Mytherion | Your World, Structured",
+  description: "The ultimate platform for worldbuilders and storytellers to structure their lore, characters, and timelines with AI-powered assistance.",
+  keywords: ["worldbuilding", "storytelling", "writing", "RPG", "fantasy", "lore"],
+  icons: {
+    icon: "/favicon.png",
+  },
+};
 
 export default function RootLayout({
   children,
@@ -51,7 +56,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <link rel="icon" href="/favicon.png" type="image/png" />
         {/* Preconnect to Google Fonts for faster loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -80,10 +84,10 @@ export default function RootLayout({
           <div className="absolute inset-0 bg-starfield opacity-40"></div>
         </div>
 
-        <Provider store={store}>
+        <ClientProviders>
           <VerificationBanner />
           {children}
-        </Provider>
+        </ClientProviders>
       </body>
     </html>
   );

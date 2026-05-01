@@ -111,7 +111,7 @@ export default function DualSidebar({
         {/* Icon Navigation */}
         <div className="flex flex-col space-y-6">
           {iconNavItems.map((item) => (
-            <a
+            <Link
               key={item.id}
               href={item.href}
               className={`${
@@ -129,13 +129,13 @@ export default function DualSidebar({
               >
                 {item.icon}
               </span>
-            </a>
+            </Link>
           ))}
 
           {/* Divider */}
           <div className="pt-6 border-t border-white/10">
             {currentLibraryItems.map((item) => (
-              <a
+              <Link
                 key={item.id}
                 href={item.href}
                 className="text-slate-500 hover:text-white transition-colors block mb-4 last:mb-0"
@@ -144,7 +144,7 @@ export default function DualSidebar({
                 <span className="material-symbols-outlined text-[24px]">
                   {item.icon || "menu_book"}
                 </span>
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -174,7 +174,7 @@ export default function DualSidebar({
           </p>
 
           {currentNavItems.map((item) => (
-            <a
+            <Link
               key={item.id}
               href={item.href}
               className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group ${
@@ -190,7 +190,7 @@ export default function DualSidebar({
               >
                 {item.label}
               </span>
-            </a>
+            </Link>
           ))}
 
           {/* Library Section */}
@@ -199,7 +199,7 @@ export default function DualSidebar({
               Library
             </p>
             {currentLibraryItems.map((item) => (
-              <a
+              <Link
                 key={item.id}
                 href={item.href}
                 className="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group"
@@ -208,7 +208,7 @@ export default function DualSidebar({
                   {item.icon || "menu_book"}
                 </span>
                 <span className="font-medium">{item.label}</span>
-              </a>
+              </Link>
             ))}
           </div>
 
@@ -219,7 +219,7 @@ export default function DualSidebar({
                 Management
               </p>
               {finalManagementItems.map((item) => (
-                <a
+                <Link
                   key={item.id}
                   href={item.href}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group ${
@@ -234,7 +234,7 @@ export default function DualSidebar({
                     </span>
                   )}
                   <span className="font-medium">{item.label}</span>
-                </a>
+                </Link>
               ))}
             </div>
           )}
