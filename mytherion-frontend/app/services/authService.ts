@@ -67,6 +67,7 @@ class AuthService {
     const response = await fetch(`${API_URL}/api/auth/me`, {
       method: "GET",
       credentials: "include", // Important: send cookies
+      cache: "no-store", // Ensure we always get the latest data from the server
     });
 
     if (!response.ok) {

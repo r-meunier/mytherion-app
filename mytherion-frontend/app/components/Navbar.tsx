@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faUserCircle, faGear, faRightFromBracket, faRightToBracket } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faUserCircle, faGear, faRightFromBracket, faRightToBracket, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 
 interface NavbarProps {
   onToggleSidebar?: () => void;
@@ -16,6 +16,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { isAuthenticated, user, isInitialized } = useAppSelector((state) => state.auth);
+  const isAdmin = user?.role === 'ADMIN';
 
   const handleLogout = async () => {
     await dispatch(logoutUser());
@@ -82,6 +83,16 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
               </svg>
               <span className="uppercase tracking-wide">Projects</span>
             </Link>
+
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-amber-400 hover:text-amber-200 hover:bg-amber-500/10 rounded-lg transition-colors font-(family-name:--font-montserrat)"
+              >
+                <FontAwesomeIcon icon={faShieldHalved} className="w-4 h-4" />
+                <span className="uppercase tracking-wide">Admin</span>
+              </Link>
+            )}
           </div>
         )}
 

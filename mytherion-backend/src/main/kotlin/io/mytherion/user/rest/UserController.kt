@@ -8,11 +8,16 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.*
+
 @RestController
 @RequestMapping("/api/user")
 class UserController(private val userService: UserService) {
 
-    @GetMapping fun getUsers(): List<UserResponse> = userService.getAll()
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    fun getUsers(): List<UserResponse> = userService.getAll()
 
     @GetMapping("/{id}")
     fun getUserById(@PathVariable id: Long): UserResponse = userService.getUserById(id)
@@ -24,13 +29,15 @@ class UserController(private val userService: UserService) {
             authentication: Authentication
     ): UserResponse {
         val currentUserId = authentication.name.toLong()
-        return userService.updateUser(id, currentUserId, request)
+        val isAdmin = authentication.authorities.any { it.authority == "ROLE_ADMIN" }
+        return userService.updateUser(id, currentUserId, isAdmin, request)
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteUser(@PathVariable id: Long, authentication: Authentication) {
         val currentUserId = authentication.name.toLong()
-        userService.deleteUser(id, currentUserId)
+        val isAdmin = authentication.authorities.any { it.authority == "ROLE_ADMIN" }
+        userService.deleteUser(id, currentUserId, isAdmin)
     }
 }

@@ -22,15 +22,14 @@ class UserService(private val userRepository: UserRepository) {
     }
 
     @Transactional
-    fun updateUser(userId: Long, currentUserId: Long, request: UpdateUserRequest): UserResponse {
-        // Authorization: users can only update their own profile
-        if (userId != currentUserId) {
+    fun updateUser(userId: Long, currentUserId: Long, isAdmin: Boolean, request: UpdateUserRequest): UserResponse {
+        val user = userRepository.findByIdAndDeletedAtIsNull(userId)
+                ?: throw UserNotFoundException(userId)
+
+        // Authorization: users can only update their own profile unless they are an admin
+        if (userId != currentUserId && !isAdmin) {
             throw IllegalArgumentException("You can only update your own profile")
         }
-
-        val user =
-                userRepository.findByIdAndDeletedAtIsNull(userId)
-                        ?: throw UserNotFoundException(userId)
 
         // Update username if provided and validate uniqueness
         request.username?.let { newUsername ->
@@ -42,19 +41,31 @@ class UserService(private val userRepository: UserRepository) {
             }
         }
 
+        // Update role if provided (Admin only)
+        request.role?.let { roleName ->
+            if (isAdmin) {
+                try {
+                    user.role = io.mytherion.user.model.UserRole.valueOf(roleName.uppercase())
+                } catch (e: Exception) {
+                    throw IllegalArgumentException("Invalid role: $roleName")
+                }
+            } else {
+                throw IllegalArgumentException("Only administrators can change roles")
+            }
+        }
+
         return UserResponse.from(userRepository.save(user))
     }
 
     @Transactional
-    fun deleteUser(userId: Long, currentUserId: Long) {
-        // Authorization: users can only delete their own account
-        if (userId != currentUserId) {
+    fun deleteUser(userId: Long, currentUserId: Long, isAdmin: Boolean) {
+        val user = userRepository.findByIdAndDeletedAtIsNull(userId)
+                ?: throw UserNotFoundException(userId)
+
+        // Authorization: users can only delete their own account unless they are an admin
+        if (userId != currentUserId && !isAdmin) {
             throw IllegalArgumentException("You can only delete your own account")
         }
-
-        val user =
-                userRepository.findByIdAndDeletedAtIsNull(userId)
-                        ?: throw UserNotFoundException(userId)
 
         // Soft delete: mark as deleted instead of removing from database
         user.deletedAt = Instant.now()

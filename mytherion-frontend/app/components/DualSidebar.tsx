@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useAppSelector } from "../store/hooks";
 
 interface NavItem {
   id: string;
@@ -30,6 +31,8 @@ export default function DualSidebar({
   subTitle,
 }: DualSidebarProps) {
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
+  const { user } = useAppSelector((state) => state.auth);
+  const isAdmin = user?.role === "ADMIN";
 
   const iconNavItems = [
     { id: "dashboard", icon: "dashboard", label: "Dashboard", href: "/" },
@@ -77,6 +80,19 @@ export default function DualSidebar({
 
   const currentNavItems = navItems || defaultNavItems;
   const currentLibraryItems = customLibraryItems || defaultLibraryItems;
+
+  // Automatically add Admin Portal to management items if user is admin
+  const baseManagementItems = managementItems || [];
+  const finalManagementItems = [...baseManagementItems];
+  
+  if (isAdmin && !finalManagementItems.some(item => item.id === 'admin')) {
+    finalManagementItems.push({ 
+      id: 'admin', 
+      label: 'Admin Portal', 
+      href: '/admin',
+      icon: 'shield_person'
+    });
+  }
 
   return (
     <div className="flex h-full shrink-0">
@@ -197,17 +213,26 @@ export default function DualSidebar({
           </div>
 
           {/* Management Section */}
-          {managementItems && managementItems.length > 0 && (
+          {finalManagementItems && finalManagementItems.length > 0 && (
             <div className="pt-10">
               <p className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">
                 Management
               </p>
-              {managementItems.map((item) => (
+              {finalManagementItems.map((item) => (
                 <a
                   key={item.id}
                   href={item.href}
-                  className="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:bg-white/10 rounded-lg transition-all group"
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group ${
+                    activeSection === item.id
+                      ? "sidebar-item-active"
+                      : "text-slate-400 hover:bg-white/10"
+                  }`}
                 >
+                  {item.icon && (
+                    <span className="material-symbols-outlined text-[20px]">
+                      {item.icon}
+                    </span>
+                  )}
                   <span className="font-medium">{item.label}</span>
                 </a>
               ))}

@@ -21,6 +21,11 @@ export default function EntityDetailPage() {
   const { currentProject } = useAppSelector((state) => state.projects);
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     dispatch(fetchEntity(entityId));
@@ -189,13 +194,13 @@ export default function EntityDetailPage() {
               <div className="p-4 bg-white/5 rounded-lg">
                 <span className="text-slate-400 text-sm">Created</span>
                 <p className="text-white font-medium mt-1">
-                  {new Date(currentEntity.createdAt).toLocaleString()}
+                  {mounted ? new Date(currentEntity.createdAt).toLocaleString() : '...'}
                 </p>
               </div>
               <div className="p-4 bg-white/5 rounded-lg">
                 <span className="text-slate-400 text-sm">Last Updated</span>
                 <p className="text-white font-medium mt-1">
-                  {new Date(currentEntity.updatedAt).toLocaleString()}
+                  {mounted ? new Date(currentEntity.updatedAt).toLocaleString() : '...'}
                 </p>
               </div>
             </div>
