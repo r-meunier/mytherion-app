@@ -1,0 +1,90 @@
+---
+services:
+  # Infrastructure
+  mytherion_postgres:
+    image: postgres:17.4
+    container_name: mytherion_postgres
+    hostname: mytherion_postgres
+    environment:
+      POSTGRES_USER_FILE: /run/secrets/pg_user
+      POSTGRES_DB: ${POSTGRES_DB:-mytheriondb}
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg_pw
+    secrets:
+      - pg_user
+      - pg_pw
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - ./mytherion-backend/logs:/var/log/postgresql
+      - ./mytherion-backend/certs:/var/lib/postgresql/certs
+      - pg_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: mytherion_mailhog
+    ports:
+      - "1025:1025" # SMTP server
+      - "8025:8025" # Web UI
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    container_name: mytherion_minio
+    ports:
+      - "9000:9000" # API
+      - "9001:9001" # Console
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+  # Application Services
+  backend:
+    build:
+      context: ./mytherion-backend
+      dockerfile: Dockerfile
+    container_name: mytherion_backend
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - POSTGRES_HOST=mytherion_postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB:-mytheriondb}
+      - POSTGRES_USER=mytherion
+      - POSTGRES_PASSWORD=mytherion
+      - FRONTEND_URL=http://localhost:3000
+      - MAIL_HOST=mailhog
+      - MINIO_ENDPOINT=http://minio:9000
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mytherion_postgres
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./mytherion-frontend
+      dockerfile: Dockerfile
+    container_name: mytherion_frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  minio_data:
+    driver: local
+  pg_data:
+    driver: local
+
+secrets:
+  pg_user:
+    file: ./mytherion-backend/secrets/pg_user.txt
+  pg_pw:
+    file: ./mytherion-backend/secrets/pg_pw.txt

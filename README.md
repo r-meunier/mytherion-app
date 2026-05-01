@@ -22,36 +22,48 @@ Mytherion is organized into two main services:
 
 ---
 
-## 🚀 Quick Start (Local Development)
+## 🚀 Getting Started
 
-To get the full system running locally, follow these steps:
+You can run the entire Mytherion stack either using Docker (recommended for a quick start) or by running the services manually.
 
-### 1. Prerequisites
-*   **Node.js 20+**
-*   **JDK 17+**
+### Prerequisites
 *   **Docker & Docker Compose**
+*   **Node.js 22+** (for manual frontend dev)
+*   **JDK 24** (for manual backend dev)
 
-### 2. Infrastructure (PostgreSQL & MinIO)
-Navigate to the backend directory and start the services:
+### Option 1: Dockerized Setup (One-Click)
+This is the easiest way to get the entire stack (Database, MinIO, Mailhog, Backend, and Frontend) running.
+
+From the root directory:
+```bash
+docker compose up -d --build
+```
+*   **Frontend UI:** `http://localhost:3000`
+*   **Backend API:** `http://localhost:8080`
+*   **Mailhog (Email Test):** `http://localhost:8025`
+*   **MinIO Console:** `http://localhost:9001`
+
+### Option 2: Local Development (Manual)
+Use this if you want to develop on a specific service with hot-reloading.
+
+#### 1. Infrastructure (Database & Object Storage)
 ```bash
 cd mytherion-backend
 docker compose up -d
 ```
 
-### 3. Start the Backend
+#### 2. Start the Backend
 ```bash
+cd mytherion-backend
 ./gradlew bootRun
 ```
-*API will be available at: `http://localhost:8080`*
 
-### 4. Start the Frontend
-In a new terminal, navigate to the frontend directory:
+#### 3. Start the Frontend
 ```bash
 cd mytherion-frontend
 npm install
 npm run dev
 ```
-*UI will be available at: `http://localhost:3000`*
 
 ---
 
