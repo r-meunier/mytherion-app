@@ -6,6 +6,21 @@ import java.time.Instant
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
 
+/**
+ * Represents a single component within the entity metadata (ECS-lite).
+ */
+data class EntityComponent(
+        val type: String,
+        val data: Map<String, Any> = emptyMap()
+)
+
+/**
+ * Root object for entity metadata stored in JSONB.
+ */
+data class EntityMetadata(
+        val components: MutableList<EntityComponent> = mutableListOf()
+)
+
 @jakarta.persistence.Entity
 @Table(name = "entities")
 class Entity(
@@ -24,10 +39,10 @@ class Entity(
         @Column(columnDefinition = "text[]") var tags: Array<String>? = null,
         @Column(name = "image_url", columnDefinition = "text") var imageUrl: String? = null,
 
-        // JSONB in DB for type-specific metadata
+        // JSONB in DB for type-specific metadata (ECS-lite)
         @JdbcTypeCode(SqlTypes.JSON)
         @Column(columnDefinition = "jsonb")
-        var metadata: String? = null,
+        var metadata: EntityMetadata? = null,
         @Column(name = "created_at", nullable = false) val createdAt: Instant = Instant.now(),
         @Column(name = "updated_at", nullable = false) var updatedAt: Instant = Instant.now(),
         @Column(name = "deleted_at") var deletedAt: Instant? = null
@@ -46,5 +61,6 @@ enum class EntityType {
     CULTURE,
     SPECIES,
     LOCATION,
-    ITEM
+    ITEM,
+    CUSTOM
 }

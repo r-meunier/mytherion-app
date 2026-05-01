@@ -75,7 +75,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={handleOverlayClick}>
       <div className="absolute inset-0 bg-background-dark/80 backdrop-blur-sm" />
       
-      <div className="relative w-full max-w-xl glass rounded-3xl p-8 overflow-hidden modal-border-glow border-t-2 border-primary/50 border-b-2 border-secondary/50">
+      <div className="relative w-full max-w-2xl glass rounded-3xl p-8 overflow-hidden modal-border-glow border-t-2 border-primary/50 border-b-2 border-secondary/50 shadow-2xl">
         {/* Decorative animated icon */}
         <div className="absolute top-6 right-6 text-secondary/60 animate-bounce">
           <span className="material-symbols-outlined text-3xl">

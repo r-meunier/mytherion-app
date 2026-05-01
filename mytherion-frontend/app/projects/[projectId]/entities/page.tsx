@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchProject, clearCurrentProject } from '@/app/store/projectSlice';
+import { Entity } from '@/app/types/entity';
 import EntityList from '@/app/components/entities/EntityList';
 import EntityModal from '@/app/components/entities/EntityModal';
 import DualSidebar from '@/app/components/DualSidebar';
@@ -16,37 +17,46 @@ export default function EntitiesPage() {
   const projectId = parseInt(params.projectId as string);
   
   const dispatch = useAppDispatch();
-  const { currentProject, loading } = useAppSelector((state) => state.projects);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const { currentProject, loading, error } = useAppSelector((state) => state.projects);
+  const [showModal, setShowModal] = useState(false);
+  const [editingEntity, setEditingEntity] = useState<Entity | null>(null);
 
   useEffect(() => {
+    if (isNaN(projectId)) return;
+
     if (!currentProject || currentProject.id !== projectId) {
       dispatch(fetchProject(projectId));
     }
+  }, [dispatch, projectId, currentProject]);
 
+  useEffect(() => {
     return () => {
       dispatch(clearCurrentProject());
     };
-  }, [dispatch, projectId]);
+  }, [dispatch]);
 
   const handleCreateClick = () => {
-    setShowCreateModal(true);
+    setEditingEntity(null);
+    setShowModal(true);
+  };
+
+  const handleEditClick = (entity: Entity) => {
+    setEditingEntity(entity);
+    setShowModal(true);
   };
 
   const handleCloseModal = () => {
-    setShowCreateModal(false);
+    setShowModal(false);
+    setEditingEntity(null);
   };
 
   const projectNavItems = getProjectNavItems(projectId);
   const managementItems = getManagementItems();
 
-  if (loading || !currentProject) {
+  if (loading && !currentProject) {
     return (
       <div className="relative z-10 flex h-screen overflow-hidden">
-        <DualSidebar 
-          activeSection="entities" 
-          activeIcon="projects"
-        />
+        <DualSidebar activeSection="entities" activeIcon="projects" />
         <main className="flex-1 flex flex-col overflow-hidden">
           <DashboardHeader />
           <div className="flex-1 flex items-center justify-center">
@@ -56,6 +66,32 @@ export default function EntitiesPage() {
       </div>
     );
   }
+
+  if (error && !currentProject) {
+    return (
+      <div className="relative z-10 flex h-screen overflow-hidden">
+        <DualSidebar activeSection="entities" activeIcon="projects" />
+        <main className="flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader />
+          <div className="flex-1 flex items-center justify-center">
+            <div className="glass rounded-xl p-6 border border-red-500/50 max-w-md text-center">
+              <span className="material-symbols-outlined text-red-400 text-4xl mb-4">error</span>
+              <h3 className="text-xl font-bold text-white mb-2">Failed to Load Project</h3>
+              <p className="text-red-400 mb-6">{error}</p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-all"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!currentProject) return null;
 
   return (
     <div className="relative z-10 flex h-screen overflow-hidden">
@@ -71,7 +107,6 @@ export default function EntitiesPage() {
         <DashboardHeader />
 
         <div className="flex-1 overflow-y-auto p-8 space-y-8">
-          {/* Page Title & Back Link */}
           <div>
             <Link
               href={`/projects/${projectId}`}
@@ -90,18 +125,20 @@ export default function EntitiesPage() {
             </p>
           </div>
 
-          {/* Entity List */}
-          <EntityList projectId={projectId} onCreateClick={handleCreateClick} />
+          <EntityList 
+            projectId={projectId} 
+            onCreateClick={handleCreateClick}
+            onEditClick={handleEditClick}
+          />
         </div>
       </main>
 
-      {/* Create Entity Modal */}
       <EntityModal
-        isOpen={showCreateModal}
+        isOpen={showModal}
         onClose={handleCloseModal}
         projectId={projectId}
+        entity={editingEntity}
       />
     </div>
   );
 }
-

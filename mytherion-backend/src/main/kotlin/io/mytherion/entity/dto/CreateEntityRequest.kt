@@ -1,5 +1,6 @@
 package io.mytherion.entity.dto
 
+import io.mytherion.entity.model.EntityMetadata
 import io.mytherion.entity.model.EntityType
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
@@ -15,5 +16,5 @@ data class CreateEntityRequest(
         val summary: String? = null,
         val description: String? = null,
         val tags: List<String>? = null,
-        val metadata: String? = null
+        val metadata: EntityMetadata? = null
 )

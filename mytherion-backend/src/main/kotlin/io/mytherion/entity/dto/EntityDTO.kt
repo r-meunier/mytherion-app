@@ -1,6 +1,7 @@
 package io.mytherion.entity.dto
 
 import io.mytherion.entity.model.Entity
+import io.mytherion.entity.model.EntityMetadata
 import io.mytherion.entity.model.EntityType
 import java.time.Instant
 
@@ -14,7 +15,7 @@ data class EntityDTO(
         val description: String?,
         val tags: List<String>?,
         val imageUrl: String?,
-        val metadata: String?,
+        val metadata: EntityMetadata?,
         val createdAt: Instant,
         val updatedAt: Instant
 ) {

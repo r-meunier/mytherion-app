@@ -9,6 +9,8 @@ import { entityTypeConfig } from '@/app/components/entities/EntityTypeSelector';
 import DualSidebar from '@/app/components/DualSidebar';
 import DashboardHeader from '@/app/components/DashboardHeader';
 import Link from 'next/link';
+import ComponentDispatcher from '@/app/components/entities/metadata/ComponentDispatcher';
+import { EntityMetadata } from '@/app/types/entity';
 
 export default function EntityDetailPage() {
   const router = useRouter();
@@ -32,11 +34,13 @@ export default function EntityDetailPage() {
     if (!currentProject || currentProject.id !== projectId) {
       dispatch(fetchProject(projectId));
     }
+  }, [dispatch, entityId, projectId, currentProject]);
 
+  useEffect(() => {
     return () => {
       dispatch(clearCurrentEntity());
     };
-  }, [dispatch, entityId, projectId, currentProject]);
+  }, [dispatch]);
 
   const handleEdit = () => {
     router.push(`/projects/${projectId}/entities/${entityId}/edit`);
@@ -45,6 +49,20 @@ export default function EntityDetailPage() {
   const handleDelete = async () => {
     await dispatch(deleteEntity(entityId));
     router.push(`/projects/${projectId}/entities`);
+  };
+
+  // Helper to normalize metadata (handles legacy strings or nulls)
+  const normalizeMetadata = (meta: any): EntityMetadata => {
+    if (!meta) return { components: [] };
+    if (typeof meta === 'string') {
+      try {
+        const parsed = JSON.parse(meta);
+        if (parsed && Array.isArray(parsed.components)) return parsed;
+      } catch (e) { /* ignore parse error */ }
+      return { components: [] };
+    }
+    if (meta && typeof meta === 'object' && Array.isArray(meta.components)) return meta;
+    return { components: [] };
   };
 
   const projectNavItems = [
@@ -90,6 +108,7 @@ export default function EntityDetailPage() {
   }
 
   const typeConfig = entityTypeConfig[currentEntity.type];
+  const metadata = normalizeMetadata(currentEntity.metadata);
 
   return (
     <div className="relative z-10 flex h-screen overflow-hidden">
@@ -172,6 +191,31 @@ export default function EntityDetailPage() {
               )}
             </div>
           </div>
+
+          {/* Metadata Section */}
+          {metadata.components && metadata.components.length > 0 && (
+            <div className="space-y-6">
+              <h2 className="text-h2 text-xl mb-4 uppercase tracking-widest border-l-4 border-primary pl-4">
+                Typed Metadata
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {metadata.components.map((component, idx) => (
+                  <div key={`${component.type}-${idx}`} className="glass rounded-2xl p-6 relative overflow-hidden">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-xs font-bold text-purple-400 uppercase tracking-widest">
+                        {component.type} Component
+                      </span>
+                    </div>
+                    <ComponentDispatcher
+                      component={component}
+                      onChange={() => {}} // Read-only
+                      disabled={true}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Description Section */}
           {currentEntity.description && (

@@ -3,32 +3,27 @@
 import { useEffect, useState, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchEntities, setFilters, deleteEntity } from '@/app/store/entitySlice';
-import { EntityType } from '@/app/types/entity';
+import { Entity, EntityType } from '@/app/types/entity';
 import EntityCard from './EntityCard';
 import SearchBar from './SearchBar';
-import EntityTypeSelector from './EntityTypeSelector';
 
 interface EntityListProps {
   projectId: number;
   onCreateClick?: () => void;
+  onEditClick?: (entity: Entity) => void;
 }
 
-export default function EntityList({ projectId, onCreateClick }: EntityListProps) {
+export default function EntityList({ projectId, onCreateClick, onEditClick }: EntityListProps) {
   const dispatch = useAppDispatch();
   const { entities, loading, error, filters, pagination } = useAppSelector((state) => state.entities);
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   
-  // Use constant page size to avoid dependency on Redux pagination object
   const PAGE_SIZE = 20;
-  
-  // Track the last parameters we fetched with to prevent duplicate fetches
   const lastFetchedParams = useRef<string>('');
 
-  // Fetch entities when filters or page changes
   useEffect(() => {
-    // Create a stable key for the current fetch parameters
     const fetchKey = JSON.stringify({
       projectId,
       type: filters.type,
@@ -37,7 +32,6 @@ export default function EntityList({ projectId, onCreateClick }: EntityListProps
       page: currentPage,
     });
     
-    // Only fetch if parameters actually changed
     if (lastFetchedParams.current !== fetchKey) {
       lastFetchedParams.current = fetchKey;
       
@@ -50,14 +44,12 @@ export default function EntityList({ projectId, onCreateClick }: EntityListProps
     }
   }, [dispatch, projectId, filters, currentPage]);
 
-  // Reset to page 0 when filters change (but not on initial mount)
   const isInitialMount = useRef(true);
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
-    
     setCurrentPage(0);
   }, [filters.type, filters.search, filters.tags]);
 
@@ -76,7 +68,6 @@ export default function EntityList({ projectId, onCreateClick }: EntityListProps
   const handleDelete = async (entityId: number) => {
     await dispatch(deleteEntity(entityId));
     setShowDeleteConfirm(null);
-    // Refresh list
     dispatch(fetchEntities({ projectId, filters, page: currentPage, size: PAGE_SIZE }));
   };
 
@@ -118,7 +109,6 @@ export default function EntityList({ projectId, onCreateClick }: EntityListProps
           )}
         </div>
         <div className="space-y-4">
-          {/* Type Filter */}
           <div>
             <label className="block text-xs font-medium text-slate-300 mb-2">Entity Type</label>
             <div className="flex flex-wrap gap-2">
@@ -162,10 +152,7 @@ export default function EntityList({ projectId, onCreateClick }: EntityListProps
       {loading && entities.length === 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="glass rounded-2xl p-6 animate-pulse"
-            >
+            <div key={i} className="glass rounded-2xl p-6 animate-pulse">
               <div className="h-6 bg-slate-700/50 rounded w-3/4 mb-4"></div>
               <div className="h-4 bg-slate-700/50 rounded w-full mb-2"></div>
               <div className="h-4 bg-slate-700/50 rounded w-2/3"></div>
@@ -206,6 +193,7 @@ export default function EntityList({ projectId, onCreateClick }: EntityListProps
               <EntityCard
                 key={entity.id}
                 entity={entity}
+                onEdit={onEditClick}
                 onDelete={(entity) => setShowDeleteConfirm(entity.id)}
               />
             ))}

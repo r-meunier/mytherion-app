@@ -16,6 +16,7 @@ const entityTypeConfig = {
   [EntityType.SPECIES]: { icon: '🧬', label: 'Species', color: 'text-pink-400' },
   [EntityType.CULTURE]: { icon: '🎭', label: 'Culture', color: 'text-yellow-400' },
   [EntityType.ITEM]: { icon: '⚔️', label: 'Item', color: 'text-orange-400' },
+  [EntityType.CUSTOM]: { icon: '🛠️', label: 'Custom', color: 'text-gray-400' },
 };
 
 export default function EntityTypeSelector({ 
