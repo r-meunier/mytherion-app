@@ -150,9 +150,9 @@ export default function LoginForm() {
 
         {/* Register Link */}
         <div className="mt-6 text-center space-y-4">
-            <a href="#" className="block text-slate-500 hover:text-slate-300 text-xs transition-colors">
+            <Link href="/forgot-phrase" className="block text-slate-500 hover:text-slate-300 text-xs transition-colors">
                 Forgot Secret Phrase?
-            </a>
+            </Link>
             <div className="pt-4 border-t border-white/5">
                 <Link
                     href="/register"

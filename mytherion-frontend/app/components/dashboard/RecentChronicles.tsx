@@ -1,4 +1,5 @@
 "use client";
+import Link from 'next/link';
 
 interface Chronicle {
   id: string;
@@ -67,9 +68,9 @@ export default function RecentChronicles() {
           <span className="material-symbols-outlined mr-2 text-primary">history</span>
           Recent Chronicles
         </h4>
-        <a href="#archive" className="text-sm text-primary hover:underline font-medium">
+        <Link href="/archive" className="text-sm text-primary hover:underline font-medium">
           View Archive
-        </a>
+        </Link>
       </div>
 
       <div className="space-y-4">

@@ -51,9 +51,18 @@ export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardPr
   const projectImage = 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&h=600&fit=crop';
 
   return (
-    <div className={`project-card glass rounded-3xl min-w-[320px] overflow-hidden border border-white/10 transition-all cursor-pointer shadow-xl relative ${
+    <div className={`project-card glass rounded-3xl min-w-[320px] overflow-hidden border border-white/10 transition-all relative ${
       showDeleteConfirm ? '' : 'group hover:border-primary/40'
     }`}>
+      {/* Whole-card link wrapper */}
+      {!showDeleteConfirm && (
+        <Link 
+          href={`/projects/${project.id}`} 
+          className="absolute inset-0 z-10 cursor-pointer"
+          aria-label={`View project ${project.name}`}
+        />
+      )}
+
       {/* Delete Confirmation Overlay */}
       {showDeleteConfirm && (
         <div className="absolute inset-0 bg-black/80 backdrop-blur-2xl z-20 flex items-center justify-center p-6 rounded-3xl border-2 border-red-500/50">
@@ -85,29 +94,27 @@ export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardPr
 
       {/* Image Section */}
       <div className="relative h-64 overflow-hidden">
-        <Link href={`/projects/${project.id}`}>
-          <img 
-            src={projectImage}
-            alt={project.name}
-            className={`w-full h-full object-cover transition-transform duration-700 ${
-              showDeleteConfirm ? 'grayscale-20' : 'grayscale-20 group-hover:grayscale-0'
-            }`}
-          />
-          <div className="absolute inset-0 bg-linear-to-t from-background-dark via-transparent to-transparent opacity-80" />
-          
-          {/* Genre Badge */}
-          <div className="absolute bottom-4 left-6">
-            <span className="px-3 py-1 bg-primary/20 backdrop-blur-md border border-primary/30 text-primary text-micro-badge rounded-full">
-              {project.genre || 'Unknown'}
-            </span>
-          </div>
-        </Link>
+        <img 
+          src={projectImage}
+          alt={project.name}
+          className={`w-full h-full object-cover transition-transform duration-700 ${
+            showDeleteConfirm ? 'grayscale-20' : 'grayscale-20 group-hover:grayscale-0'
+          }`}
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-background-dark via-transparent to-transparent opacity-80" />
+        
+        {/* Genre Badge */}
+        <div className="absolute bottom-4 left-6 z-20">
+          <span className="px-3 py-1 bg-primary/20 backdrop-blur-md border border-primary/30 text-primary text-micro-badge rounded-full">
+            {project.genre || 'Unknown'}
+          </span>
+        </div>
       </div>
 
       {/* Content Section */}
       <div className="p-6 space-y-4">
         <div className="flex justify-between items-start">
-          <Link href={`/projects/${project.id}`} className="flex-1">
+          <div className="flex-1">
             <h3 className={`text-2xl font-display font-bold text-white transition-colors ${
               showDeleteConfirm ? '' : 'group-hover:text-primary'
             }`}>
@@ -118,10 +125,10 @@ export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardPr
                 {project.description}
               </p>
             )}
-          </Link>
+          </div>
           
           {/* More Menu Button */}
-          <div className="relative">
+          <div className="relative z-20">
             <button 
               onClick={(e) => {
                 e.preventDefault();
@@ -152,7 +159,7 @@ export default function ProjectCard({ project, onEdit, onDelete }: ProjectCardPr
 
       {/* Action buttons - shown on hover */}
       {!showDeleteConfirm && (
-        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
           <button
             onClick={(e) => {
               e.preventDefault();
