@@ -11,10 +11,6 @@ data class PsychologyData(
         val arc: CharacterArc = CharacterArc(),
         val positiveTraits: List<String> = emptyList(),
         val negativeTraits: List<String> = emptyList(),
-        val fears: String? = null,
-        val wound: String? = null,
-        val lie: String? = null,
-        val secrets: String? = null,
         val quirks: List<String> = emptyList(),
         val mannerisms: String? = null,
         val perspective: String? = null // General worldview/opinion text field

@@ -27,6 +27,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
         JsonSubTypes.Type(value = CultureComponent::class, name = "CULTURE"),
         JsonSubTypes.Type(value = CultureRelationsComponent::class, name = "CULTURE_RELATIONS"),
         JsonSubTypes.Type(value = PerspectivesComponent::class, name = "PERSPECTIVES"),
+        JsonSubTypes.Type(value = SpeciesComponent::class, name = "SPECIES"),
+        JsonSubTypes.Type(value = SpeciesRelationsComponent::class, name = "SPECIES_RELATIONS"),
+        JsonSubTypes.Type(value = LocationComponent::class, name = "LOCATION"),
+        JsonSubTypes.Type(value = LocationRelationsComponent::class, name = "LOCATION_RELATIONS"),
+        JsonSubTypes.Type(value = ItemComponent::class, name = "ITEM"),
+        JsonSubTypes.Type(value = ItemRelationsComponent::class, name = "ITEM_RELATIONS"),
         JsonSubTypes.Type(value = CustomComponent::class, name = "CUSTOM")
 )
 sealed interface EntityComponent {
