@@ -19,13 +19,19 @@ export default function QuantityInput({
   placeholder = "Amount",
   units = []
 }: QuantityInputProps) {
+  const inputId = `quantity-${label.toLowerCase().replace(/\s+/g, '-')}`;
+
   return (
     <div className="space-y-2">
-      <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider">
+      <label 
+        htmlFor={inputId}
+        className="block text-xs font-semibold text-gray-400 uppercase tracking-wider"
+      >
         {label}
       </label>
       <div className="flex gap-2">
         <input
+          id={inputId}
           type="number"
           step="any"
           value={value.value ?? ''}
@@ -38,6 +44,7 @@ export default function QuantityInput({
           <input
             type="text"
             list={`units-${label}`}
+            aria-label={`Unit for ${label}`}
             value={value.unit ?? ''}
             onChange={(e) => onChange({ ...value, unit: e.target.value })}
             disabled={disabled}

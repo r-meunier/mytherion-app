@@ -55,8 +55,6 @@ export interface BioData {
   gender?: string;
   sex?: string;
   role?: string;
-  height: Quantity;
-  weight: Quantity;
   condition?: string;
 }
 
@@ -65,6 +63,8 @@ export interface AppearanceData {
   clothingStyle?: string;
   distinguishingMarks?: string;
   skinAndMarkings?: string;
+  height: Quantity;
+  weight: Quantity;
 }
 
 export interface PsychologyData {

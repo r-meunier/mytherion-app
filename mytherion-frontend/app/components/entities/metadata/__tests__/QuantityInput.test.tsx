@@ -17,7 +17,7 @@ describe('QuantityInput', () => {
   it('renders correctly with initial values', () => {
     render(<QuantityInput {...defaultProps} />);
     
-    expect(screen.getByLabelText(/Age/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Age')).toBeInTheDocument();
     expect(screen.getByDisplayValue('25')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Years')).toBeInTheDocument();
   });

@@ -1,6 +1,7 @@
 'use client';
 
 import { AppearanceData } from '@/app/types/entity';
+import QuantityInput from './QuantityInput';
 
 interface AppearanceFieldsProps {
   data: AppearanceData;
@@ -13,21 +14,45 @@ export default function AppearanceFields({ data, onChange, disabled = false }: A
     physicalFeatures: data.physicalFeatures || '',
     clothingStyle: data.clothingStyle || '',
     distinguishingMarks: data.distinguishingMarks || '',
-    skinAndMarkings: data.skinAndMarkings || ''
+    skinAndMarkings: data.skinAndMarkings || '',
+    height: data.height || {},
+    weight: data.weight || {}
   };
 
-  const handleChange = (field: keyof AppearanceData, value: string) => {
+  const handleChange = (field: keyof AppearanceData, value: any) => {
     onChange({ [field]: value });
   };
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <QuantityInput 
+          label="Height"
+          value={safeData.height}
+          onChange={(val) => handleChange('height', val)}
+          disabled={disabled}
+          units={['cm', 'm', 'ft', 'inches']}
+        />
+
+        <QuantityInput 
+          label="Weight"
+          value={safeData.weight}
+          onChange={(val) => handleChange('weight', val)}
+          disabled={disabled}
+          units={['kg', 'g', 'lbs', 'tons']}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="appearance-physical"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Physical Features
           </label>
           <textarea
+            id="appearance-physical"
             value={safeData.physicalFeatures}
             onChange={(e) => handleChange('physicalFeatures', e.target.value)}
             disabled={disabled}
@@ -38,10 +63,14 @@ export default function AppearanceFields({ data, onChange, disabled = false }: A
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="appearance-clothing"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Clothing Style
           </label>
           <textarea
+            id="appearance-clothing"
             value={safeData.clothingStyle}
             onChange={(e) => handleChange('clothingStyle', e.target.value)}
             disabled={disabled}
@@ -54,10 +83,14 @@ export default function AppearanceFields({ data, onChange, disabled = false }: A
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="appearance-marks"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Distinguishing Marks
           </label>
           <textarea
+            id="appearance-marks"
             value={safeData.distinguishingMarks}
             onChange={(e) => handleChange('distinguishingMarks', e.target.value)}
             disabled={disabled}
@@ -68,10 +101,14 @@ export default function AppearanceFields({ data, onChange, disabled = false }: A
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="appearance-skin"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Skin and Markings
           </label>
           <textarea
+            id="appearance-skin"
             value={safeData.skinAndMarkings}
             onChange={(e) => handleChange('skinAndMarkings', e.target.value)}
             disabled={disabled}

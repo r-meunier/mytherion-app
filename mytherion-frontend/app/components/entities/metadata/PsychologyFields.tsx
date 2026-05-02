@@ -41,10 +41,14 @@ export default function PsychologyFields({ data, onChange, disabled = false }: P
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <label 
+              htmlFor="psych-goal"
+              className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+            >
               External Goal
             </label>
             <input
+              id="psych-goal"
               type="text"
               value={safeData.motivations.externalGoal || ''}
               onChange={(e) => handleMotivationChange('externalGoal', e.target.value)}
@@ -54,10 +58,14 @@ export default function PsychologyFields({ data, onChange, disabled = false }: P
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <label 
+              htmlFor="psych-need"
+              className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+            >
               Internal Need
             </label>
             <input
+              id="psych-need"
               type="text"
               value={safeData.motivations.internalNeed || ''}
               onChange={(e) => handleMotivationChange('internalNeed', e.target.value)}
@@ -67,10 +75,14 @@ export default function PsychologyFields({ data, onChange, disabled = false }: P
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <label 
+              htmlFor="psych-justification"
+              className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+            >
               Justification
             </label>
             <input
+              id="psych-justification"
               type="text"
               value={safeData.motivations.justification || ''}
               onChange={(e) => handleMotivationChange('justification', e.target.value)}
@@ -85,10 +97,14 @@ export default function PsychologyFields({ data, onChange, disabled = false }: P
       {/* Traits & Quirks */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="psych-pos-traits"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Positive Traits
           </label>
           <input
+            id="psych-pos-traits"
             type="text"
             value={safeData.positiveTraits.join(', ')}
             onChange={(e) => handleListChange('positiveTraits', e.target.value)}
@@ -98,10 +114,14 @@ export default function PsychologyFields({ data, onChange, disabled = false }: P
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="psych-neg-traits"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Negative Traits
           </label>
           <input
+            id="psych-neg-traits"
             type="text"
             value={safeData.negativeTraits.join(', ')}
             onChange={(e) => handleListChange('negativeTraits', e.target.value)}
@@ -111,10 +131,14 @@ export default function PsychologyFields({ data, onChange, disabled = false }: P
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="psych-quirks"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Quirks
           </label>
           <input
+            id="psych-quirks"
             type="text"
             value={safeData.quirks.join(', ')}
             onChange={(e) => handleListChange('quirks', e.target.value)}
@@ -128,10 +152,14 @@ export default function PsychologyFields({ data, onChange, disabled = false }: P
       {/* Narrative Context */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="psych-mannerisms"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Mannerisms
           </label>
           <textarea
+            id="psych-mannerisms"
             value={safeData.mannerisms || ''}
             onChange={(e) => onChange({ mannerisms: e.target.value })}
             disabled={disabled}
@@ -141,10 +169,14 @@ export default function PsychologyFields({ data, onChange, disabled = false }: P
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="psych-perspective"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Perspective / Worldview
           </label>
           <textarea
+            id="psych-perspective"
             value={safeData.perspective || ''}
             onChange={(e) => onChange({ perspective: e.target.value })}
             disabled={disabled}

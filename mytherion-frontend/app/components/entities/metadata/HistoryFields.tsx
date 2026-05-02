@@ -12,10 +12,14 @@ export default function HistoryFields({ data, onChange, disabled = false }: Hist
   return (
     <div className="space-y-6">
       <div>
-        <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+        <label 
+          htmlFor="history-backstory"
+          className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+        >
           Backstory / Origin Story
         </label>
         <textarea
+          id="history-backstory"
           value={data.backstory || ''}
           onChange={(e) => onChange({ backstory: e.target.value })}
           disabled={disabled}
@@ -26,10 +30,14 @@ export default function HistoryFields({ data, onChange, disabled = false }: Hist
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+        <label 
+          htmlFor="history-journey"
+          className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+        >
           The Journey / Current Arc Progress
         </label>
         <textarea
+          id="history-journey"
           value={data.journey || ''}
           onChange={(e) => onChange({ journey: e.target.value })}
           disabled={disabled}

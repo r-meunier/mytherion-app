@@ -31,10 +31,14 @@ export default function BioFields({ data, onChange, disabled = false }: BioField
       {/* Basic Status */}
       <div className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="bio-status"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Status
           </label>
           <input
+            id="bio-status"
             type="text"
             value={safeData.status}
             onChange={(e) => handleChange('status', e.target.value)}
@@ -53,10 +57,14 @@ export default function BioFields({ data, onChange, disabled = false }: BioField
         />
 
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="bio-role"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Role
           </label>
           <input
+            id="bio-role"
             type="text"
             value={safeData.role}
             onChange={(e) => handleChange('role', e.target.value)}
@@ -71,10 +79,14 @@ export default function BioFields({ data, onChange, disabled = false }: BioField
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <label 
+              htmlFor="bio-gender"
+              className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+            >
               Gender
             </label>
             <input
+              id="bio-gender"
               type="text"
               value={safeData.gender}
               onChange={(e) => handleChange('gender', e.target.value)}
@@ -84,10 +96,14 @@ export default function BioFields({ data, onChange, disabled = false }: BioField
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <label 
+              htmlFor="bio-sex"
+              className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+            >
               Sex
             </label>
             <input
+              id="bio-sex"
               type="text"
               value={safeData.sex}
               onChange={(e) => handleChange('sex', e.target.value)}
@@ -97,30 +113,18 @@ export default function BioFields({ data, onChange, disabled = false }: BioField
             />
           </div>
         </div>
-
-        <QuantityInput 
-          label="Height"
-          value={safeData.height}
-          onChange={(val) => handleChange('height', val)}
-          disabled={disabled}
-          units={['cm', 'm', 'ft', 'inches']}
-        />
-
-        <QuantityInput 
-          label="Weight"
-          value={safeData.weight}
-          onChange={(val) => handleChange('weight', val)}
-          disabled={disabled}
-          units={['kg', 'g', 'lbs', 'tons']}
-        />
       </div>
 
       {/* Condition (Full Width) */}
       <div className="md:col-span-2">
-        <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+        <label 
+          htmlFor="bio-condition"
+          className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+        >
           Overall Condition / Presentation
         </label>
         <textarea
+          id="bio-condition"
           value={safeData.condition}
           onChange={(e) => handleChange('condition', e.target.value)}
           disabled={disabled}

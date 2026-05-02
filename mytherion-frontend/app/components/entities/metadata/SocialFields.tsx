@@ -27,10 +27,14 @@ export default function SocialFields({ data, onChange, disabled = false }: Socia
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="social-occupations"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Occupations
           </label>
           <input
+            id="social-occupations"
             type="text"
             value={safeData.occupations.join(', ')}
             onChange={(e) => handleListChange('occupations', e.target.value)}
@@ -40,10 +44,14 @@ export default function SocialFields({ data, onChange, disabled = false }: Socia
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="social-skills"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Skills / Expertise
           </label>
           <input
+            id="social-skills"
             type="text"
             value={safeData.skills.join(', ')}
             onChange={(e) => handleListChange('skills', e.target.value)}
@@ -56,10 +64,14 @@ export default function SocialFields({ data, onChange, disabled = false }: Socia
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="social-hobbies"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Hobbies / Interests
           </label>
           <input
+            id="social-hobbies"
             type="text"
             value={safeData.hobbies.join(', ')}
             onChange={(e) => handleListChange('hobbies', e.target.value)}
@@ -69,10 +81,14 @@ export default function SocialFields({ data, onChange, disabled = false }: Socia
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="social-talents"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Natural Talents
           </label>
           <input
+            id="social-talents"
             type="text"
             value={safeData.talents.join(', ')}
             onChange={(e) => handleListChange('talents', e.target.value)}
@@ -85,10 +101,14 @@ export default function SocialFields({ data, onChange, disabled = false }: Socia
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="social-sociology"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Sociology / Class / Standing
           </label>
           <textarea
+            id="social-sociology"
             value={safeData.sociology || ''}
             onChange={(e) => onChange({ sociology: e.target.value })}
             disabled={disabled}
@@ -98,10 +118,14 @@ export default function SocialFields({ data, onChange, disabled = false }: Socia
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label 
+            htmlFor="social-affiliations"
+            className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"
+          >
             Other Affiliations
           </label>
           <textarea
+            id="social-affiliations"
             value={safeData.affiliations || ''}
             onChange={(e) => onChange({ affiliations: e.target.value })}
             disabled={disabled}

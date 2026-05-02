@@ -35,7 +35,7 @@ const TAB_CONFIG: Record<string, TabDefinition[]> = {
     { id: 'evolution', label: 'Evolution', components: ['SPECIES_RELATIONS'] },
   ],
   [EntityType.LOCATION]: [
-    { id: 'details', label: 'Details', components: ['LOCATION'] },
+    { id: 'details', label: 'Environment', components: ['LOCATION'] },
     { id: 'occupants', label: 'Occupants', components: ['LOCATION_RELATIONS'] },
   ],
   [EntityType.ITEM]: [

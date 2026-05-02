@@ -10,5 +10,7 @@ data class AppearanceData(
         val physicalFeatures: String? = null,
         val clothingStyle: String? = null,
         val distinguishingMarks: String? = null,
-        val skinAndMarkings: String? = null
+        val skinAndMarkings: String? = null,
+        val height: Quantity = Quantity(),
+        val weight: Quantity = Quantity()
 )

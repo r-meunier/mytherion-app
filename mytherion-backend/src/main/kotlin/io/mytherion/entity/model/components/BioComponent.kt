@@ -12,7 +12,5 @@ data class BioData(
         val gender: String? = null,
         val sex: String? = null,
         val role: String? = null,
-        val height: Quantity = Quantity(),
-        val weight: Quantity = Quantity(),
         val condition: String? = null // Overall Condition/Presentation
 )
