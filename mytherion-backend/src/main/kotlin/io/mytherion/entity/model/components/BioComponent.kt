@@ -1,8 +1,10 @@
 package io.mytherion.entity.model.components
 
+import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 /** Standard Biography component (Physical & Vitality). */
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class BioComponent(
     override val id: String = "BIO",
     override val type: String = "BIO",
@@ -17,4 +19,9 @@ data class BioData(
     val sex: String? = null,
     val role: String? = null,
     val condition: String? = null // Overall Condition/Presentation
-)
+) {
+    @JsonAnySetter
+    fun handleUnknown(key: String, value: Any?) {
+        // Ignore unknown fields like legacy height/weight
+    }
+}

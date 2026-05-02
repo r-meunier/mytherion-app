@@ -1,5 +1,6 @@
 package io.mytherion.entity.model.components
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
@@ -8,56 +9,58 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
  * into concrete classes based on the 'type' field.
  */
 @JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.EXISTING_PROPERTY,
-        property = "type",
-        visible = true,
-        defaultImpl = GenericComponent::class
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    property = "type",
+    visible = true,
+    defaultImpl = GenericComponent::class
 )
 @JsonSubTypes(
-        JsonSubTypes.Type(value = BioComponent::class, name = "BIO"),
-        JsonSubTypes.Type(value = OriginsComponent::class, name = "ORIGINS"),
-        JsonSubTypes.Type(value = PsychologyComponent::class, name = "PSYCHOLOGY"),
-        JsonSubTypes.Type(value = AppearanceComponent::class, name = "APPEARANCE"),
-        JsonSubTypes.Type(value = SocialComponent::class, name = "SOCIAL"),
-        JsonSubTypes.Type(value = HistoryComponent::class, name = "HISTORY"),
-        JsonSubTypes.Type(value = CharacterRelationsComponent::class, name = "CHARACTER_RELATIONS"),
-        JsonSubTypes.Type(value = OrganizationComponent::class, name = "ORGANIZATION"),
-        JsonSubTypes.Type(value = OrgRelationsComponent::class, name = "ORG_RELATIONS"),
-        JsonSubTypes.Type(value = CultureComponent::class, name = "CULTURE"),
-        JsonSubTypes.Type(value = CultureRelationsComponent::class, name = "CULTURE_RELATIONS"),
-        JsonSubTypes.Type(value = PerspectivesComponent::class, name = "PERSPECTIVES"),
-        JsonSubTypes.Type(value = SpeciesComponent::class, name = "SPECIES"),
-        JsonSubTypes.Type(value = SpeciesRelationsComponent::class, name = "SPECIES_RELATIONS"),
-        JsonSubTypes.Type(value = LocationComponent::class, name = "LOCATION"),
-        JsonSubTypes.Type(value = LocationRelationsComponent::class, name = "LOCATION_RELATIONS"),
-        JsonSubTypes.Type(value = ItemComponent::class, name = "ITEM"),
-        JsonSubTypes.Type(value = ItemRelationsComponent::class, name = "ITEM_RELATIONS"),
-        JsonSubTypes.Type(value = CustomComponent::class, name = "CUSTOM")
+    JsonSubTypes.Type(value = BioComponent::class, name = "BIO"),
+    JsonSubTypes.Type(value = OriginsComponent::class, name = "ORIGINS"),
+    JsonSubTypes.Type(value = PsychologyComponent::class, name = "PSYCHOLOGY"),
+    JsonSubTypes.Type(value = AppearanceComponent::class, name = "APPEARANCE"),
+    JsonSubTypes.Type(value = SocialComponent::class, name = "SOCIAL"),
+    JsonSubTypes.Type(value = HistoryComponent::class, name = "HISTORY"),
+    JsonSubTypes.Type(value = CharacterRelationsComponent::class, name = "CHARACTER_RELATIONS"),
+    JsonSubTypes.Type(value = OrganizationComponent::class, name = "ORGANIZATION"),
+    JsonSubTypes.Type(value = OrgRelationsComponent::class, name = "ORG_RELATIONS"),
+    JsonSubTypes.Type(value = CultureComponent::class, name = "CULTURE"),
+    JsonSubTypes.Type(value = CultureRelationsComponent::class, name = "CULTURE_RELATIONS"),
+    JsonSubTypes.Type(value = PerspectivesComponent::class, name = "PERSPECTIVES"),
+    JsonSubTypes.Type(value = SpeciesComponent::class, name = "SPECIES"),
+    JsonSubTypes.Type(value = SpeciesRelationsComponent::class, name = "SPECIES_RELATIONS"),
+    JsonSubTypes.Type(value = LocationComponent::class, name = "LOCATION"),
+    JsonSubTypes.Type(value = LocationRelationsComponent::class, name = "LOCATION_RELATIONS"),
+    JsonSubTypes.Type(value = ItemComponent::class, name = "ITEM"),
+    JsonSubTypes.Type(value = ItemRelationsComponent::class, name = "ITEM_RELATIONS"),
+    JsonSubTypes.Type(value = CustomComponent::class, name = "CUSTOM")
 )
 @JsonIgnoreProperties(ignoreUnknown = true)
 sealed interface EntityComponent {
-        val id: String
-                get() = type
-        val type: String
+    val id: String
+        get() = type
+    val type: String
 }
 
 /**
  * A unified structure for linking one entity to another. Allows for metadata and custom labels on
  * the relationship.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class EntityLink(
-        val targetId: Long,
-        val label: String? = null,
-        val metadata: Map<String, Any> = emptyMap()
+    val targetId: Long,
+    val label: String? = null,
+    val metadata: Map<String, Any> = emptyMap()
 )
 
 /**
  * A generic structure for numerical values with units. Allows for sorting, filtering, and unit
  * conversion logic.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class Quantity(
-        val value: Double? = null,
-        val unit: String? = null, // e.g. "kg", "years", "people", "gold"
-        val label: String? = null // Optional override for display
+    val value: Double? = null,
+    val unit: String? = null, // e.g. "kg", "years", "people", "gold"
+    val label: String? = null // Optional override for display
 )
