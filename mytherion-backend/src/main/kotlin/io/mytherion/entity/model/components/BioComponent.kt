@@ -8,11 +8,11 @@ data class BioComponent(
 
 data class BioData(
         val status: String? = null, // e.g. Alive, Dead, Missing
-        val age: String? = null,
+        val age: Quantity = Quantity(),
         val gender: String? = null,
         val sex: String? = null,
         val role: String? = null,
-        val height: String? = null,
-        val weight: String? = null,
+        val height: Quantity = Quantity(),
+        val weight: Quantity = Quantity(),
         val condition: String? = null // Overall Condition/Presentation
 )

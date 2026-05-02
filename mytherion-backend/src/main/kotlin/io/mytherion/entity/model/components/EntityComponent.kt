@@ -48,3 +48,13 @@ data class EntityLink(
         val label: String? = null,
         val metadata: Map<String, Any> = emptyMap()
 )
+
+/**
+ * A generic structure for numerical values with units.
+ * Allows for sorting, filtering, and unit conversion logic.
+ */
+data class Quantity(
+    val value: Double? = null,
+    val unit: String? = null, // e.g. "kg", "years", "people", "gold"
+    val label: String? = null  // Optional override for display
+)

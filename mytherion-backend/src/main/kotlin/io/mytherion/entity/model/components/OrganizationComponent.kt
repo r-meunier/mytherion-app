@@ -7,7 +7,7 @@ data class OrganizationComponent(
 ) : EntityComponent
 
 data class OrganizationData(
-        val population: Int? = null,
+        val population: Quantity = Quantity(),
         val agenda: String? = null,
         val powerStructure: String? = null,
         val laws: String? = null,

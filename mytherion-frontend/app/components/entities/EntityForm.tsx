@@ -4,18 +4,55 @@ import { useState, useEffect } from 'react';
 import { Entity, EntityType, CreateEntityRequest, UpdateEntityRequest, EntityMetadata, EntityComponent } from '@/app/types/entity';
 import EntityTypeSelector from './EntityTypeSelector';
 import TagInput from './TagInput';
+import EntityMetadataEditor from './metadata/EntityMetadataEditor';
 import ComponentDispatcher from './metadata/ComponentDispatcher';
 
 interface EntityFormProps {
   entity?: Entity;
+  isOpen?: boolean; // New prop to track visibility
   onSubmit: (data: CreateEntityRequest | UpdateEntityRequest) => void;
   onCancel: () => void;
   loading?: boolean;
   error?: string | null;
 }
 
-export default function EntityForm({ entity, onSubmit, onCancel, loading = false, error }: EntityFormProps) {
+export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading = false, error }: EntityFormProps) {
   const isEditMode = !!entity;
+
+  // Sync internal state when entity prop changes
+  useEffect(() => {
+    if (entity) {
+      setFormData({
+        type: entity.type,
+        name: entity.name,
+        category: entity.category || '',
+        summary: entity.summary || '',
+        description: entity.description || '',
+        notes: entity.notes || '',
+        tags: entity.tags || [],
+        metadata: normalizeMetadata(entity.metadata),
+      });
+    } else {
+      // Reset to defaults for new entity
+      setFormData({
+        type: EntityType.CHARACTER,
+        name: '',
+        category: '',
+        summary: '',
+        description: '',
+        notes: '',
+        tags: [],
+        metadata: { components: [] },
+      });
+    }
+  }, [entity]);
+
+  // Clear internal errors when modal reopens
+  useEffect(() => {
+    if (isOpen) {
+      setErrors({});
+    }
+  }, [isOpen]);
 
   // Helper to normalize metadata (handles legacy strings or nulls)
   const normalizeMetadata = (meta: any): EntityMetadata => {
@@ -34,8 +71,10 @@ export default function EntityForm({ entity, onSubmit, onCancel, loading = false
   const [formData, setFormData] = useState({
     type: entity?.type || EntityType.CHARACTER,
     name: entity?.name || '',
+    category: entity?.category || '',
     summary: entity?.summary || '',
     description: entity?.description || '',
+    notes: entity?.notes || '',
     tags: entity?.tags || [],
     metadata: normalizeMetadata(entity?.metadata),
   });
@@ -47,15 +86,30 @@ export default function EntityForm({ entity, onSubmit, onCancel, loading = false
     if (isEditMode) return;
 
     const archetype = formData.type;
-    let requiredType = '';
-    if (archetype === EntityType.CHARACTER) requiredType = 'BIO';
-    if (archetype === EntityType.LOCATION) requiredType = 'LOCATION';
-    if (archetype === EntityType.ITEM) requiredType = 'ITEM';
-
-    // When type changes, we replace the components with the default for that archetype
     const newComponents: EntityComponent[] = [];
-    if (requiredType) {
-      newComponents.push({ type: requiredType, data: {} });
+    
+    // Add default components based on type
+    if (archetype === EntityType.CHARACTER) {
+      newComponents.push({ type: 'BIO', data: {} });
+      newComponents.push({ type: 'APPEARANCE', data: {} });
+      newComponents.push({ type: 'PSYCHOLOGY', data: {} });
+      newComponents.push({ type: 'SOCIAL', data: {} });
+      newComponents.push({ type: 'HISTORY', data: {} });
+    } else if (archetype === EntityType.LOCATION) {
+      newComponents.push({ type: 'LOCATION', data: {} });
+      newComponents.push({ type: 'LOCATION_RELATIONS', data: {} });
+    } else if (archetype === EntityType.ORGANIZATION) {
+      newComponents.push({ type: 'ORGANIZATION', data: {} });
+      newComponents.push({ type: 'ORG_RELATIONS', data: {} });
+    } else if (archetype === EntityType.CULTURE) {
+      newComponents.push({ type: 'CULTURE', data: {} });
+      newComponents.push({ type: 'CULTURE_RELATIONS', data: {} });
+    } else if (archetype === EntityType.SPECIES) {
+      newComponents.push({ type: 'SPECIES', data: {} });
+      newComponents.push({ type: 'SPECIES_RELATIONS', data: {} });
+    } else if (archetype === EntityType.ITEM) {
+      newComponents.push({ type: 'ITEM', data: {} });
+      newComponents.push({ type: 'ITEM_RELATIONS', data: {} });
     }
     
     setFormData(prev => ({
@@ -82,19 +136,6 @@ export default function EntityForm({ entity, onSubmit, onCancel, loading = false
       return {
         ...prev,
         metadata: { ...prev.metadata, components }
-      };
-    });
-  };
-
-  const removeComponent = (type: string) => {
-    setFormData(prev => {
-      const metadata = normalizeMetadata(prev.metadata);
-      return {
-        ...prev,
-        metadata: {
-          ...metadata,
-          components: metadata.components.filter(c => c.type !== type)
-        }
       };
     });
   };
@@ -126,8 +167,10 @@ export default function EntityForm({ entity, onSubmit, onCancel, loading = false
     if (isEditMode) {
       const updateData: UpdateEntityRequest = {};
       if (formData.name !== entity.name) updateData.name = formData.name;
+      if (formData.category !== entity.category) updateData.category = formData.category;
       if (formData.summary !== entity.summary) updateData.summary = formData.summary;
       if (formData.description !== entity.description) updateData.description = formData.description;
+      if (formData.notes !== entity.notes) updateData.notes = formData.notes;
       if (JSON.stringify(formData.tags) !== JSON.stringify(entity.tags)) updateData.tags = formData.tags;
       if (JSON.stringify(formData.metadata) !== JSON.stringify(entity.metadata)) updateData.metadata = formData.metadata;
       
@@ -137,48 +180,94 @@ export default function EntityForm({ entity, onSubmit, onCancel, loading = false
     }
   };
 
+  const handleClear = () => {
+    if (window.confirm('Are you sure you want to clear all fields? This will lose all unsaved progress on this draft.')) {
+      setFormData({
+        type: entity?.type || EntityType.CHARACTER,
+        name: '',
+        category: '',
+        summary: '',
+        description: '',
+        notes: '',
+        tags: [],
+        metadata: { components: [] },
+      });
+      setErrors({});
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-8 pb-12">
       <div className="space-y-6">
-        {/* Entity Type Selector */}
-        <EntityTypeSelector
-          value={formData.type}
-          onChange={(type) => setFormData({ ...formData, type })}
-          disabled={isEditMode}
-          label={isEditMode ? 'Entity Type (cannot be changed)' : 'Entity Type'}
-        />
+        {/* ... existing header ... */}
+        <div className="flex items-center justify-between border-b border-gray-800 pb-2">
+          <EntityTypeSelector
+            value={formData.type}
+            onChange={(type) => setFormData({ ...formData, type })}
+            disabled={isEditMode}
+            label={isEditMode ? 'Entity Type (cannot be changed)' : 'Entity Type'}
+          />
+          {!isEditMode && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="px-3 py-1 text-xs font-bold text-amber-500/60 hover:text-amber-500 border border-amber-500/20 hover:border-amber-500/50 rounded-lg transition-all flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-sm">restart_alt</span>
+              Clear Form
+            </button>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Basic Info Column */}
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">info</span>
-              Basic Information
+              Identity & Classification
             </h3>
             
-            {/* Name */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-                Name <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className={`w-full px-4 py-2 bg-gray-800/50 border ${
-                  errors.name ? 'border-red-500' : 'border-gray-700'
-                } rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all`}
-                placeholder="Enter entity name"
-                disabled={loading}
-              />
-              {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name}</p>}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Name */}
+              <div className="md:col-span-1">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+                  Name <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className={`w-full px-4 py-2 bg-gray-800/50 border ${
+                    errors.name ? 'border-red-500' : 'border-gray-700'
+                  } rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all`}
+                  placeholder="Enter entity name"
+                  disabled={loading}
+                />
+                {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name}</p>}
+              </div>
+
+              {/* Category */}
+              <div className="md:col-span-1">
+                <label htmlFor="category" className="block text-sm font-medium text-gray-300 mb-2">
+                  Category
+                </label>
+                <input
+                  type="text"
+                  id="category"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                  placeholder="e.g. Protagonist, Kingdom"
+                  disabled={loading}
+                />
+              </div>
             </div>
 
             {/* Summary */}
             <div>
               <label htmlFor="summary" className="block text-sm font-medium text-gray-300 mb-2">
-                Summary
+                Short Summary
               </label>
               <input
                 type="text"
@@ -188,7 +277,7 @@ export default function EntityForm({ entity, onSubmit, onCancel, loading = false
                 className={`w-full px-4 py-2 bg-gray-800/50 border ${
                   errors.summary ? 'border-red-500' : 'border-gray-700'
                 } rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all`}
-                placeholder="Brief summary (optional)"
+                placeholder="Brief one-liner summary"
                 disabled={loading}
               />
               <p className="mt-1 text-xs text-gray-500 text-right">
@@ -206,77 +295,63 @@ export default function EntityForm({ entity, onSubmit, onCancel, loading = false
             </div>
           </div>
 
-          {/* Metadata Column */}
+          {/* Description & Notes Column */}
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-white border-b border-gray-800 pb-2 flex items-center gap-2">
-              <span className="material-symbols-outlined text-purple-400">category</span>
-              Typed Metadata
+              <span className="material-symbols-outlined text-gray-400">description</span>
+              Narrative & Lore
             </h3>
             
-            {formData.metadata.components.length === 0 && (
-              <div className="p-8 text-center bg-gray-900/20 border border-dashed border-gray-800 rounded-xl">
-                <p className="text-sm text-gray-500 italic">No components added yet.</p>
-              </div>
-            )}
+            {/* Description */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-2">
+                Public Description
+              </label>
+              <textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={4}
+                className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all resize-none"
+                placeholder="The main lore text..."
+                disabled={loading}
+              />
+            </div>
 
-            <div className="space-y-4">
-              {formData.metadata.components.map((component, idx) => {
-                const isCustom = component.type === 'CUSTOM';
-                return (
-                  <div key={`${component.type}-${idx}`} className="p-4 bg-gray-800/30 rounded-xl border border-gray-700/50">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className={`text-[10px] font-bold uppercase tracking-widest ${isCustom ? 'text-blue-400' : 'text-purple-400'}`}>
-                        {component.type} Component
-                      </span>
-                      {isCustom && !loading && (
-                        <button
-                          type="button"
-                          onClick={() => removeComponent('CUSTOM')}
-                          className="text-gray-500 hover:text-red-400 transition-colors"
-                        >
-                          <span className="material-symbols-outlined text-[16px]">close</span>
-                        </button>
-                      )}
-                    </div>
-                    <ComponentDispatcher
-                      component={component}
-                      onChange={(data) => updateComponentData(component.type, data)}
-                      disabled={loading}
-                    />
-                  </div>
-                );
-              })}
-
-              {/* Add Custom Fields Button (only if not already there) */}
-              {!formData.metadata.components.find(c => c.type === 'CUSTOM') && (
-                <button
-                  type="button"
-                  onClick={() => updateComponentData('CUSTOM', {})}
-                  className="w-full py-3 border border-dashed border-gray-700 rounded-lg text-xs font-medium text-gray-500 hover:text-gray-300 hover:border-gray-500 transition-all flex items-center justify-center gap-2"
-                >
-                  <span className="material-symbols-outlined text-[16px]">add</span>
-                  Add Custom Fields
-                </button>
-              )}
+            {/* Notes */}
+            <div>
+              <label htmlFor="notes" className="block text-sm font-medium text-amber-400/80 mb-2 flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm">edit_note</span>
+                Private Notes / Scratchpad
+              </label>
+              <textarea
+                id="notes"
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                rows={4}
+                className="w-full px-4 py-2 bg-amber-900/10 border border-amber-900/30 rounded-lg text-amber-100 placeholder-amber-900/50 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-all resize-none italic text-sm"
+                placeholder="Thoughts, secrets, or internal reminders..."
+                disabled={loading}
+              />
             </div>
           </div>
         </div>
 
-        {/* Description - Full Width */}
-        <div className="pt-4">
-          <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-            <span className="material-symbols-outlined text-gray-400">notes</span>
-            Detailed Description
-          </label>
-          <textarea
-            id="description"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            rows={8}
-            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all resize-none"
-            placeholder="Detailed description (optional)"
-            disabled={loading}
-          />
+        {/* Semantic Components Section - Full Width */}
+        <div className="pt-8 space-y-6">
+          <h3 className="text-xl font-bold text-white border-b border-gray-800 pb-3 flex items-center gap-3">
+            <span className="material-symbols-outlined text-purple-500 text-3xl">psychology</span>
+            Semantic Data Modules
+          </h3>
+          
+          <div className="bg-gray-900/40 rounded-2xl p-2 border border-gray-800/50">
+            <EntityMetadataEditor 
+              entityType={formData.type}
+              metadata={formData.metadata}
+              onUpdateComponent={updateComponentData}
+              disabled={loading}
+            />
+          </div>
         </div>
       </div>
 

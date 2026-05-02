@@ -9,6 +9,7 @@ import { entityTypeConfig } from '@/app/components/entities/EntityTypeSelector';
 import DualSidebar from '@/app/components/DualSidebar';
 import DashboardHeader from '@/app/components/DashboardHeader';
 import Link from 'next/link';
+import EntityMetadataEditor from '@/app/components/entities/metadata/EntityMetadataEditor';
 import ComponentDispatcher from '@/app/components/entities/metadata/ComponentDispatcher';
 import { EntityMetadata } from '@/app/types/entity';
 
@@ -149,9 +150,16 @@ export default function EntityDetailPage() {
                       <h1 className="text-display text-4xl">
                         {currentEntity.name}
                       </h1>
-                      <span className={`px-3 py-1 rounded-lg text-micro-badge ${typeConfig.color} glass border border-white/10`}>
-                        {typeConfig.label}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-3 py-1 rounded-lg text-micro-badge ${typeConfig.color} glass border border-white/10`}>
+                          {typeConfig.label}
+                        </span>
+                        {currentEntity.category && (
+                          <span className="px-3 py-1 rounded-lg text-micro-badge bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                            {currentEntity.category}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     {currentEntity.summary && (
                       <p className="text-slate-300 text-lg">{currentEntity.summary}</p>
@@ -192,60 +200,73 @@ export default function EntityDetailPage() {
             </div>
           </div>
 
-          {/* Metadata Section */}
-          {metadata.components && metadata.components.length > 0 && (
-            <div className="space-y-6">
-              <h2 className="text-h2 text-xl mb-4 uppercase tracking-widest border-l-4 border-primary pl-4">
-                Typed Metadata
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {metadata.components.map((component, idx) => (
-                  <div key={`${component.type}-${idx}`} className="glass rounded-2xl p-6 relative overflow-hidden">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-xs font-bold text-purple-400 uppercase tracking-widest">
-                        {component.type} Component
-                      </span>
-                    </div>
-                    <ComponentDispatcher
-                      component={component}
-                      onChange={() => {}} // Read-only
-                      disabled={true}
-                    />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Main Lore */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Semantic Components Section - Tabbed */}
+              <div className="space-y-6">
+                <h2 className="text-h2 text-xl mb-4 uppercase tracking-widest border-l-4 border-primary pl-4">
+                  Lore & Characteristics
+                </h2>
+                <div className="glass rounded-3xl p-4 border border-white/5">
+                  <EntityMetadataEditor 
+                    entityType={currentEntity.type}
+                    metadata={metadata}
+                    readOnly={true}
+                  />
+                </div>
+              </div>
+
+              {/* Description Section */}
+              {currentEntity.description && (
+                <div className="glass rounded-2xl p-6">
+                  <h2 className="text-h2 text-xl mb-4 uppercase tracking-widest border-l-4 border-primary pl-4">
+                    Description
+                  </h2>
+                  <p className="text-slate-300 whitespace-pre-wrap leading-relaxed">
+                    {currentEntity.description}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Right Column - Meta & Notes */}
+            <div className="space-y-8">
+              {/* Private Notes Section */}
+              {currentEntity.notes && (
+                <div className="bg-amber-950/20 border border-amber-900/30 rounded-2xl p-6 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <span className="material-symbols-outlined text-6xl text-amber-500">edit_note</span>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                  <h2 className="text-amber-400 font-bold text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">lock</span>
+                    Private Scratchpad
+                  </h2>
+                  <p className="text-amber-100/80 italic whitespace-pre-wrap text-sm leading-relaxed relative z-10">
+                    {currentEntity.notes}
+                  </p>
+                </div>
+              )}
 
-          {/* Description Section */}
-          {currentEntity.description && (
-            <div className="glass rounded-2xl p-6">
-              <h2 className="text-h2 text-xl mb-4 uppercase tracking-widest border-l-4 border-primary pl-4">
-                Description
-              </h2>
-              <p className="text-slate-300 whitespace-pre-wrap leading-relaxed">
-                {currentEntity.description}
-              </p>
-            </div>
-          )}
-
-          {/* Details Section */}
-          <div className="glass rounded-2xl p-6">
-            <h2 className="text-h2 text-xl mb-4 uppercase tracking-widest border-l-4 border-primary pl-4">
-              Details
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-white/5 rounded-lg">
-                <span className="text-card-title text-sm">Created</span>
-                <p className="text-white font-medium mt-1">
-                  {mounted ? new Date(currentEntity.createdAt).toLocaleString() : '...'}
-                </p>
-              </div>
-              <div className="p-4 bg-white/5 rounded-lg">
-                <span className="text-card-title text-sm">Last Updated</span>
-                <p className="text-white font-medium mt-1">
-                  {mounted ? new Date(currentEntity.updatedAt).toLocaleString() : '...'}
-                </p>
+              {/* Details Section */}
+              <div className="glass rounded-2xl p-6">
+                <h2 className="text-h2 text-xl mb-4 uppercase tracking-widest border-l-4 border-primary pl-4">
+                  Metadata
+                </h2>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="p-4 bg-white/5 rounded-lg">
+                    <span className="text-card-title text-sm">Created</span>
+                    <p className="text-white font-medium mt-1">
+                      {mounted ? new Date(currentEntity.createdAt).toLocaleString() : '...'}
+                    </p>
+                  </div>
+                  <div className="p-4 bg-white/5 rounded-lg">
+                    <span className="text-card-title text-sm">Last Updated</span>
+                    <p className="text-white font-medium mt-1">
+                      {mounted ? new Date(currentEntity.updatedAt).toLocaleString() : '...'}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

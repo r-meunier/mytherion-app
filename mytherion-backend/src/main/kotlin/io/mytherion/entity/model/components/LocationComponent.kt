@@ -7,7 +7,7 @@ data class LocationComponent(
 ) : EntityComponent
 
 data class LocationData(
-        val population: Int? = null,
+        val population: Quantity = Quantity(),
         val geology: String? = null,
         val ecology: String? = null,
         val economy: String? = null,
