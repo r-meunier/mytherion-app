@@ -2,15 +2,8 @@
 
 import { useState, FormEvent, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { createProject, updateProject } from '@/app/store/projectSlice';
+import { createProject, updateProject, clearError } from '@/app/store/projectSlice';
 import { Project } from '@/app/services/projectService';
-
-interface ProjectModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  project?: Project;
-}
-
 import BaseModal from '../ui/modals/BaseModal';
 
 interface ProjectModalProps {
@@ -23,6 +16,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((state) => state.projects);
   const isEditing = !!project;
+  const [formKey, setFormKey] = useState(0);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -30,7 +24,14 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
     genre: 'High Fantasy', // Default value
   });
 
-  // Pre-fill data when project changes or modal opens
+  // Clear errors when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(clearError());
+    }
+  }, [isOpen, dispatch]);
+
+  // Pre-fill data only when project changes or form is cleared
   useEffect(() => {
     if (project) {
       setFormData({
@@ -45,7 +46,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
         genre: 'High Fantasy',
       });
     }
-  }, [project, isOpen]);
+  }, [project, formKey]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -58,11 +59,8 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
     }
     
     if (createProject.fulfilled.match(result) || updateProject.fulfilled.match(result)) {
+      setFormKey(prev => prev + 1);
       onClose();
-      // Reset form if creating, but keep it if editing (though modal closes)
-      if (!isEditing) {
-        setFormData({ name: '', description: '', genre: 'High Fantasy' });
-      }
     }
   };
 
@@ -80,6 +78,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
       icon={isEditing ? 'edit' : 'auto_awesome'}
       decorativeIcon={isEditing ? 'edit_document' : 'history_edu'}
       maxWidth="max-w-2xl"
+      onClear={() => setFormKey(prev => prev + 1)}
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Project Name */}
