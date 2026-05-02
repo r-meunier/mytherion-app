@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAppDispatch } from "./store/hooks";
+import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { checkAuth } from "./store/authSlice";
+import { fetchDashboardStats } from "./store/dashboardSlice";
 import DualSidebar from "./components/DualSidebar";
 import DashboardHeader from "./components/DashboardHeader";
 import StatCard from "./components/dashboard/StatCard";
@@ -13,11 +14,18 @@ import PromptCard from "./components/dashboard/PromptCard";
 
 export default function Home() {
   const dispatch = useAppDispatch();
+  const { stats, loading } = useAppSelector((state) => state.dashboard);
 
-  // Check authentication status on mount
+  // Check authentication and fetch stats on mount
   useEffect(() => {
     dispatch(checkAuth());
+    dispatch(fetchDashboardStats());
   }, [dispatch]);
+
+  const formatNumber = (num: number | undefined) => {
+    if (num === undefined) return "...";
+    return new Intl.NumberFormat().format(num);
+  };
 
   return (
     <div className="relative z-10 flex h-screen overflow-hidden">
@@ -51,8 +59,9 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <StatCard
               title="Total Entities"
-              value="1,428"
-              subtitle="+12 this week"
+              value={formatNumber(stats?.totalEntities)}
+              subtitle={stats && stats.entitiesThisWeek > 0 ? `+${formatNumber(stats.entitiesThisWeek)} this week` : undefined}
+              loading={loading}
               icon="auto_stories"
               badges={
                 <div className="flex -space-x-2">
@@ -77,8 +86,9 @@ export default function Home() {
 
             <StatCard
               title="Recent Edits"
-              value="84"
+              value={formatNumber(stats?.recentEdits)}
               subtitle="Past 24h"
+              loading={loading}
               subtitleColor="text-slate-500"
               icon="history_edu"
               progressBar={{
@@ -88,14 +98,15 @@ export default function Home() {
             />
 
             <StatCard
-              title="World Progress"
-              value="67%"
-              subtitle="Book I Complete"
+              title="Total Projects"
+              value={formatNumber(stats?.totalProjects)}
+              subtitle="Active Worlds"
+              loading={loading}
               subtitleColor="text-primary"
               icon="public"
               badges={
                 <div className="text-micro-badge text-slate-500 tracking-tight">
-                  48/72 Major Milestones reached
+                  Across all dimensions
                 </div>
               }
             />

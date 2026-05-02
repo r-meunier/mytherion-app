@@ -4,11 +4,12 @@ import { ReactNode } from "react";
 
 interface StatCardProps {
   title: string;
-  value: string | number;
+  value: string | number | undefined;
   subtitle?: string;
   subtitleColor?: string;
   icon: string;
   badges?: ReactNode;
+  loading?: boolean;
   progressBar?: {
     value: number;
     label: string;
@@ -22,6 +23,7 @@ export default function StatCard({
   subtitleColor = "text-emerald-400",
   icon,
   badges,
+  loading,
   progressBar,
 }: StatCardProps) {
   return (
@@ -34,17 +36,21 @@ export default function StatCard({
       {/* Content */}
       <p className="text-card-title relative z-10">{title}</p>
       <div className="flex items-baseline space-x-2 mt-2 relative z-10">
-        <h3 className="text-4xl font-display font-bold text-white">{value}</h3>
-        {subtitle && (
+        {loading ? (
+          <div className="h-10 w-24 bg-white/10 rounded animate-pulse" />
+        ) : (
+          <h3 className="text-4xl font-display font-bold text-white">{value}</h3>
+        )}
+        {!loading && subtitle && (
           <span className={`${subtitleColor} text-xs font-bold`}>{subtitle}</span>
         )}
       </div>
 
       {/* Optional Badges */}
-      {badges && <div className="mt-4 relative z-10">{badges}</div>}
+      {badges && !loading && <div className="mt-4 relative z-10">{badges}</div>}
 
       {/* Optional Progress Bar */}
-      {progressBar && (
+      {progressBar && !loading && (
         <div className="mt-4 flex items-center space-x-2 relative z-10">
           <div className="h-1.5 flex-1 bg-white/10 rounded-full overflow-hidden">
             <div

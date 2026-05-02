@@ -15,4 +15,6 @@ interface ProjectRepository : JpaRepository<Project, Long> {
 
     fun findAllByOwnerAndDeletedAtIsNull(owner: User, pageable: Pageable): Page<Project>
     fun findByIdAndDeletedAtIsNull(id: Long): Project?
+
+    fun countByOwnerAndDeletedAtIsNull(owner: User): Long
 }

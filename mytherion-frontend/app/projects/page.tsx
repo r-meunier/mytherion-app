@@ -71,31 +71,29 @@ export default function ProjectsPage() {
         <DashboardHeader />
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-8">
-          <div className="max-w-7xl mx-auto space-y-8">
-            {/* Page Header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-3xl font-display font-bold text-white">My Worlds</h2>
-                <p className="text-slate-400 mt-1">Manage and explore your active creative projects.</p>
-              </div>
-              {showTopCreateButton && (
-                <button
-                  onClick={handleCreateClick}
-                  className="bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-xl flex items-center space-x-2 transition-all shadow-lg shadow-primary/20 scale-105 hover:scale-110"
-                >
-                  <span className="material-symbols-outlined text-[20px]">add_circle</span>
-                  <span className="font-semibold">Create New Project</span>
-                </button>
-              )}
+        <div className="flex-1 overflow-y-auto p-8 space-y-8">
+          {/* Page Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-3xl font-display font-bold text-white">My Worlds</h2>
+              <p className="text-slate-400 mt-1">Manage and explore your active creative projects.</p>
             </div>
-
-            {/* Project List */}
-            <ProjectList 
-              onCreateClick={handleCreateClick}
-              onEditClick={handleEditClick}
-            />
+            {showTopCreateButton && (
+              <button
+                onClick={handleCreateClick}
+                className="bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-xl flex items-center space-x-2 transition-all shadow-lg shadow-primary/20 scale-105 hover:scale-110"
+              >
+                <span className="material-symbols-outlined text-[20px]">add_circle</span>
+                <span className="font-semibold">Create New Project</span>
+              </button>
+            )}
           </div>
+
+          {/* Project List */}
+          <ProjectList 
+            onCreateClick={handleCreateClick}
+            onEditClick={handleEditClick}
+          />
         </div>
       </main>
 
