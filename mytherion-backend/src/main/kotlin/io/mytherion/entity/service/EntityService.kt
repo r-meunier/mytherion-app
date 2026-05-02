@@ -65,6 +65,7 @@ class EntityService(
                             project = project,
                             type = request.type,
                             name = request.name,
+                            category = request.category,
                             summary = request.summary,
                             description = request.description,
                             tags = request.tags?.toTypedArray(),
@@ -130,6 +131,7 @@ class EntityService(
         // Update only provided fields
         request.type?.let { entity.type = it }
         request.name?.let { entity.name = it }
+        request.category?.let { entity.category = it }
         request.summary?.let { entity.summary = it }
         request.description?.let { entity.description = it }
         request.tags?.let { entity.tags = it.toTypedArray() }

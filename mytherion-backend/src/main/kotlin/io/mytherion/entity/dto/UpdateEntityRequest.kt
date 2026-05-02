@@ -12,6 +12,8 @@ data class UpdateEntityRequest(
         val type: EntityType? = null,
         @field:Size(min = 1, max = 255, message = "Name must be between 1 and 255 characters")
         val name: String? = null,
+        @field:Size(max = 100, message = "Category must not exceed 100 characters")
+        val category: String? = null,
         @field:Size(max = 1000, message = "Summary must not exceed 1000 characters")
         val summary: String? = null,
         val description: String? = null,

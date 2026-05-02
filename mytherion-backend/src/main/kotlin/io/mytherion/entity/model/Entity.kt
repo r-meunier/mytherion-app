@@ -1,25 +1,14 @@
 package io.mytherion.entity.model
 
+import io.mytherion.entity.model.components.EntityComponent
 import io.mytherion.project.model.Project
 import jakarta.persistence.*
 import java.time.Instant
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
 
-/**
- * Represents a single component within the entity metadata (ECS-lite).
- */
-data class EntityComponent(
-        val type: String = "",
-        val data: Map<String, Any> = emptyMap()
-)
-
-/**
- * Root object for entity metadata stored in JSONB.
- */
-data class EntityMetadata(
-        val components: MutableList<EntityComponent> = mutableListOf()
-)
+/** Root object for entity metadata stored in JSONB. */
+data class EntityMetadata(val components: MutableList<EntityComponent> = mutableListOf())
 
 @jakarta.persistence.Entity
 @Table(name = "entities")
@@ -32,6 +21,7 @@ class Entity(
         val project: Project,
         @Column(nullable = false) @Enumerated(EnumType.STRING) var type: EntityType,
         @Column(nullable = false) var name: String,
+        @Column var category: String? = null,
         @Column(columnDefinition = "text") var summary: String? = null,
         @Column(columnDefinition = "text") var description: String? = null,
 
