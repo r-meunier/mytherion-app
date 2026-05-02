@@ -34,7 +34,10 @@ interface EntityRepository : JpaRepository<Entity, Long> {
     fun countByOwnerAndCreatedAtAfter(owner: io.mytherion.user.model.User, since: java.time.Instant): Long
 
     @Query("SELECT e FROM Entity e JOIN FETCH e.project WHERE e.project.owner = :owner AND e.deletedAt IS NULL ORDER BY e.updatedAt DESC")
-    fun findRecentEntitiesByOwner(owner: io.mytherion.user.model.User, pageable: org.springframework.data.domain.Pageable): List<Entity>
+    fun findRecentEntitiesByOwner(
+        owner: io.mytherion.user.model.User,
+        pageable: org.springframework.data.domain.Pageable
+    ): List<Entity>
 
     @Query(
         """

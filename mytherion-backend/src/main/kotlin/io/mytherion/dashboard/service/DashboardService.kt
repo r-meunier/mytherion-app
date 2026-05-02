@@ -11,9 +11,9 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class DashboardService(
-        private val entityRepository: EntityRepository,
-        private val projectRepository: ProjectRepository,
-        private val currentUserProvider: CurrentUserProvider
+    private val entityRepository: EntityRepository,
+    private val projectRepository: ProjectRepository,
+    private val currentUserProvider: CurrentUserProvider
 ) {
 
     @Transactional(readOnly = true)
@@ -30,16 +30,16 @@ class DashboardService(
         val entitiesThisWeek = entityRepository.countByOwnerAndCreatedAtAfter(currentUser, weekAgo)
 
         val recentEntities = entityRepository.findRecentEntitiesByOwner(
-                currentUser,
-                org.springframework.data.domain.PageRequest.of(0, 3)
+            currentUser,
+            org.springframework.data.domain.PageRequest.of(0, 3)
         ).map(io.mytherion.entity.dto.EntityDTO::from)
 
         return DashboardStatsDTO(
-                totalEntities = totalEntities,
-                entitiesThisWeek = entitiesThisWeek,
-                recentEdits = recentEdits,
-                totalProjects = totalProjects,
-                recentEntities = recentEntities
+            totalEntities = totalEntities,
+            entitiesThisWeek = entitiesThisWeek,
+            recentEdits = recentEdits,
+            totalProjects = totalProjects,
+            recentEntities = recentEntities
         )
     }
 }
