@@ -86,7 +86,7 @@ export default function BaseModal({
         </button>
 
         {/* Header */}
-        <div className="mb-8 relative z-10 flex items-center justify-between">
+        <div className={`mb-8 relative z-10 flex items-center justify-between ${onClear ? 'pr-32' : 'pr-14'}`}>
           <div className="flex items-center gap-4">
             {icon && (
               <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
@@ -106,20 +106,20 @@ export default function BaseModal({
               )}
             </div>
           </div>
-
-          {onClear && (
-            <button
-              onClick={onClear}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-slate-400 hover:bg-white/10 hover:text-white transition-all group"
-              title="Clear all inputs"
-            >
-              <span className="material-symbols-outlined text-[18px] group-hover:rotate-12 transition-transform">
-                mop
-              </span>
-              Clear Form
-            </button>
-          )}
         </div>
+
+        {onClear && (
+          <button
+            onClick={onClear}
+            className="absolute top-[72px] right-8 z-20 px-3 py-1.5 text-xs font-bold text-amber-500/60 hover:text-amber-500 border border-amber-500/20 hover:border-amber-500/50 rounded-xl transition-all flex items-center gap-1.5 bg-amber-500/5"
+            title="Clear all inputs"
+          >
+            <span className="material-symbols-outlined text-[18px]">
+              restart_alt
+            </span>
+            Clear Form
+          </button>
+        )}
 
         {/* Content */}
         <div className="relative z-10">

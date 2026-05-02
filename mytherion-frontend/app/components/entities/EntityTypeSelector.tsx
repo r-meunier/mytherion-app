@@ -28,7 +28,7 @@ export default function EntityTypeSelector({
   return (
     <div className="space-y-2">
       {label && <label className="block text-sm font-medium text-gray-300">{label}</label>}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 w-full">
         {Object.entries(entityTypeConfig).map(([type, config]) => {
           const isSelected = value === type;
           return (

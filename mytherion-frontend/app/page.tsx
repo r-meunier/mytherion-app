@@ -6,7 +6,7 @@ import { checkAuth } from "./store/authSlice";
 import { fetchDashboardStats } from "./store/dashboardSlice";
 import DualSidebar from "./components/DualSidebar";
 import DashboardHeader from "./components/DashboardHeader";
-import StatCard from "./components/dashboard/StatCard";
+import StatCard from "./components/ui/StatCard";
 import RecentChronicles from "./components/dashboard/RecentChronicles";
 import WorldMapCard from "./components/dashboard/WorldMapCard";
 import ArcaneTools from "./components/dashboard/ArcaneTools";
@@ -45,7 +45,7 @@ export default function Home() {
               <h2 className="text-h1 text-3xl">
                 Welcome back, Chronicler
               </h2>
-              <p className="text-body-muted mt-1">
+              <p className="text-page-subheader mt-1">
                 Your worlds are waiting for your next stroke of genius.
               </p>
             </div>

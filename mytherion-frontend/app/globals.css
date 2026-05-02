@@ -308,6 +308,12 @@ body {
   line-height: 1.5;
 }
 
+@utility text-page-subheader {
+  font-size: 1rem; /* 16px */
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
 @utility text-timestamp {
   font-size: 0.75rem; /* 12px */
   color: var(--text-dim);

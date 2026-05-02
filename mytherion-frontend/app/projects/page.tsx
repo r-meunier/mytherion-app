@@ -76,7 +76,7 @@ export default function ProjectsPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-3xl font-display font-bold text-white">My Worlds</h2>
-              <p className="text-slate-400 mt-1">Manage and explore your active creative projects.</p>
+              <p className="text-page-subheader mt-1">Manage and explore your active creative projects.</p>
             </div>
             {showTopCreateButton && (
               <button

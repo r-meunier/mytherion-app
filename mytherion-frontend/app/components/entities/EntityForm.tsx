@@ -32,19 +32,9 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
         tags: entity.tags || [],
         metadata: normalizeMetadata(entity.metadata),
       });
-    } else {
-      // Reset to defaults for new entity
-      setFormData({
-        type: EntityType.CHARACTER,
-        name: '',
-        category: '',
-        summary: '',
-        description: '',
-        notes: '',
-        tags: [],
-        metadata: { components: [] },
-      });
     }
+    // Removed 'else' block that was resetting form data unnecessarily on re-renders,
+    // which caused the form to clear during typing in 'New Entity' mode.
   }, [entity]);
 
   // Clear internal errors when modal reopens
@@ -112,30 +102,53 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
       newComponents.push({ id: ComponentType.ITEM_RELATIONS, type: ComponentType.ITEM_RELATIONS, data: {} as any });
     }
     
-    setFormData(prev => ({
-      ...prev,
-      metadata: {
-        ...prev.metadata,
-        components: newComponents
-      }
-    }));
-  }, [formData.type, isEditMode]);
-
-  const updateComponentData = (type: string, data: Record<string, any>) => {
     setFormData(prev => {
-      const metadata = normalizeMetadata(prev.metadata);
-      const components = [...metadata.components];
-      const index = components.findIndex(c => c.type === type);
-      
-      if (index >= 0) {
-        components[index] = { ...components[index], data };
-      } else {
-        components.push({ type, data });
+      // Only update if the type actually changed or if components are missing
+      if (prev.metadata.components.length > 0 && prev.type === archetype) {
+        return prev;
       }
 
       return {
         ...prev,
-        metadata: { ...prev.metadata, components }
+        metadata: {
+          ...prev.metadata,
+          components: newComponents
+        }
+      };
+    });
+  }, [formData.type, isEditMode]);
+
+  const updateComponentData = (type: string, data: Record<string, any>) => {
+    setFormData(prev => {
+      // Ensure we have a valid metadata structure to work with
+      const currentMetadata = prev.metadata || { components: [] };
+      const currentComponents = Array.isArray(currentMetadata.components) 
+        ? [...currentMetadata.components] 
+        : [];
+      
+      const index = currentComponents.findIndex(c => c.type === type);
+      
+      if (index >= 0) {
+        // Deep merge data to prevent field loss within a component
+        currentComponents[index] = { 
+          ...currentComponents[index], 
+          data: { ...(currentComponents[index].data || {}), ...data } 
+        };
+      } else {
+        // Add new component if it doesn't exist
+        currentComponents.push({ 
+          id: type, // Use type as a fallback ID for new components
+          type: type as any, 
+          data 
+        });
+      }
+
+      return {
+        ...prev,
+        metadata: { 
+          ...currentMetadata, 
+          components: currentComponents 
+        }
       };
     });
   };
@@ -200,23 +213,13 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
     <form onSubmit={handleSubmit} className="space-y-8 pb-12">
       <div className="space-y-6">
         {/* ... existing header ... */}
-        <div className="flex items-center justify-between border-b border-gray-800 pb-2">
+        <div className="border-b border-gray-800 pb-6">
           <EntityTypeSelector
             value={formData.type}
-            onChange={(type) => setFormData({ ...formData, type })}
+            onChange={(type) => setFormData(prev => ({ ...prev, type }))}
             disabled={isEditMode}
             label={isEditMode ? 'Entity Type (cannot be changed)' : 'Entity Type'}
           />
-          {!isEditMode && (
-            <button
-              type="button"
-              onClick={handleClear}
-              className="px-3 py-1 text-xs font-bold text-amber-500/60 hover:text-amber-500 border border-amber-500/20 hover:border-amber-500/50 rounded-lg transition-all flex items-center gap-1"
-            >
-              <span className="material-symbols-outlined text-sm">restart_alt</span>
-              Clear Form
-            </button>
-          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -237,7 +240,7 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
                   type="text"
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   className={`w-full px-4 py-2 bg-gray-800/50 border ${
                     errors.name ? 'border-red-500' : 'border-gray-700'
                   } rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all`}
@@ -256,7 +259,7 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
                   type="text"
                   id="category"
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
                   className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                   placeholder="e.g. Protagonist, Kingdom"
                   disabled={loading}
@@ -273,7 +276,7 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
                 type="text"
                 id="summary"
                 value={formData.summary}
-                onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
+                onChange={(e) => setFormData(prev => ({ ...prev, summary: e.target.value }))}
                 className={`w-full px-4 py-2 bg-gray-800/50 border ${
                   errors.summary ? 'border-red-500' : 'border-gray-700'
                 } rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all`}
@@ -310,7 +313,7 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
               <textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 rows={4}
                 className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all resize-none"
                 placeholder="The main lore text..."
@@ -327,7 +330,7 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
               <textarea
                 id="notes"
                 value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                 rows={4}
                 className="w-full px-4 py-2 bg-amber-900/10 border border-amber-900/30 rounded-lg text-amber-100 placeholder-amber-900/50 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-all resize-none italic text-sm"
                 placeholder="Thoughts, secrets, or internal reminders..."

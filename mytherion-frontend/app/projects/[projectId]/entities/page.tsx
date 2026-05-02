@@ -120,7 +120,7 @@ export default function EntitiesPage() {
             <h2 className="text-5xl font-serif font-bold text-gold tracking-wide">
               Entity Codex
             </h2>
-            <p className="text-slate-400 mt-2">
+            <p className="text-page-subheader mt-2">
               Browse, search, and manage all entities in {currentProject.name}
             </p>
           </div>
