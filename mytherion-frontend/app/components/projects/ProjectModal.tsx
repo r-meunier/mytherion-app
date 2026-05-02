@@ -11,6 +11,14 @@ interface ProjectModalProps {
   project?: Project;
 }
 
+import BaseModal from '../ui/modals/BaseModal';
+
+interface ProjectModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  project?: Project;
+}
+
 export default function ProjectModal({ isOpen, onClose, project }: ProjectModalProps) {
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((state) => state.projects);
@@ -63,143 +71,118 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={handleOverlayClick}>
-      <div className="absolute inset-0 bg-background-dark/80 backdrop-blur-sm" />
-      
-      <div className="relative w-full max-w-2xl glass rounded-3xl p-8 overflow-hidden modal-border-glow border-t-2 border-primary/50 border-b-2 border-secondary/50 shadow-2xl">
-        {/* Decorative animated icon */}
-        <div className="absolute top-6 right-6 text-secondary/60 animate-bounce">
-          <span className="material-symbols-outlined text-3xl">
-            {isEditing ? 'edit_document' : 'history_edu'}
-          </span>
-        </div>
-
-        {/* Header */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-display font-extrabold text-white flex items-center gap-3">
-            <span className="material-symbols-outlined text-primary">
-              {isEditing ? 'edit' : 'auto_awesome'}
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEditing ? 'Edit World' : 'Initiate New World'}
+      description={isEditing ? 'Refine the details of your creation.' : 'Summon the foundation of your next masterpiece.'}
+      icon={isEditing ? 'edit' : 'auto_awesome'}
+      decorativeIcon={isEditing ? 'edit_document' : 'history_edu'}
+      maxWidth="max-w-2xl"
+    >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Project Name */}
+        <div className="space-y-2">
+          <label className="text-input-label ml-1">
+            Project Name
+          </label>
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60">
+              title
             </span>
-            {isEditing ? 'Edit World' : 'Initiate New World'}
-          </h2>
-          <p className="text-slate-400 mt-2">
-            {isEditing ? 'Refine the details of your creation.' : 'Summon the foundation of your next masterpiece.'}
-          </p>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Project Name */}
-          <div className="space-y-2">
-            <label className="text-input-label ml-1">
-              Project Name
-            </label>
-            <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60">
-                title
-              </span>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-slate-600 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                placeholder="Name your universe..."
-                required
-                disabled={loading}
-              />
-            </div>
-          </div>
-
-          {/* Genre */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2 col-span-2">
-              <label className="text-input-label ml-1">
-                Genre
-              </label>
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60">
-                  category
-                </span>
-                <select
-                  name="genre"
-                  value={formData.genre}
-                  onChange={handleChange}
-                  className="w-full pl-12 pr-10 py-4 bg-white/5 border border-white/10 rounded-2xl text-white appearance-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                >
-                  <option className="bg-slate-900" value="High Fantasy">High Fantasy</option>
-                  <option className="bg-slate-900" value="Sci-Fi">Sci-Fi</option>
-                  <option className="bg-slate-900" value="Grimdark">Grimdark</option>
-                  <option className="bg-slate-900" value="Steampunk">Steampunk</option>
-                  <option className="bg-slate-900" value="Cyberpunk">Cyberpunk</option>
-                </select>
-                <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
-                  expand_more
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <label className="text-input-label ml-1">
-              Description
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
               onChange={handleChange}
-              className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-slate-600 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
-              placeholder="Describe the echoes of this world..."
-              rows={4}
+              className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-slate-600 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+              placeholder="Name your universe..."
+              required
               disabled={loading}
             />
           </div>
+        </div>
 
-          {/* Error Message */}
-          {error && (
-            <div className="p-3 glass border border-red-500/50 rounded-xl flex items-start gap-3">
-              <span className="material-symbols-outlined text-red-400 text-[20px]">error</span>
-              <p className="text-sm text-red-400">{error}</p>
+        {/* Genre */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2 col-span-2">
+            <label className="text-input-label ml-1">
+              Genre
+            </label>
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60">
+                category
+              </span>
+              <select
+                name="genre"
+                value={formData.genre}
+                onChange={handleChange}
+                className="w-full pl-12 pr-10 py-4 bg-white/5 border border-white/10 rounded-2xl text-white appearance-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+              >
+                <option className="bg-slate-900" value="High Fantasy">High Fantasy</option>
+                <option className="bg-slate-900" value="Sci-Fi">Sci-Fi</option>
+                <option className="bg-slate-900" value="Grimdark">Grimdark</option>
+                <option className="bg-slate-900" value="Steampunk">Steampunk</option>
+                <option className="bg-slate-900" value="Cyberpunk">Cyberpunk</option>
+              </select>
+              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
+                expand_more
+              </span>
             </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="pt-4 flex gap-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-4 px-6 border border-white/10 text-slate-400 font-bold rounded-2xl hover:bg-white/5 transition-colors"
-              disabled={loading}
-            >
-              Abandon Rite
-            </button>
-            <button
-              type="submit"
-              className="flex-2 btn-primary py-4 px-6 rounded-2xl flex items-center justify-center space-x-2 group hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={loading}
-            >
-              <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">
-                {isEditing ? 'save' : 'bolt'}
-              </span>
-              <span>
-                {loading 
-                  ? (isEditing ? 'Saving...' : 'Initiating...') 
-                  : (isEditing ? 'Save Changes' : 'Initiate Creation')}
-              </span>
-            </button>
           </div>
-        </form>
-      </div>
-    </div>
+        </div>
+
+        {/* Description */}
+        <div className="space-y-2">
+          <label className="text-input-label ml-1">
+            Description
+          </label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-slate-600 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
+            placeholder="Describe the echoes of this world..."
+            rows={4}
+            disabled={loading}
+          />
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="p-3 glass border border-red-500/50 rounded-xl flex items-start gap-3">
+            <span className="material-symbols-outlined text-red-400 text-[20px]">error</span>
+            <p className="text-sm text-red-400">{error}</p>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="pt-4 flex gap-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-4 px-6 border border-white/10 text-slate-400 font-bold rounded-2xl hover:bg-white/5 transition-colors"
+            disabled={loading}
+          >
+            Abandon Rite
+          </button>
+          <button
+            type="submit"
+            className="flex-2 btn-primary py-4 px-6 rounded-2xl flex items-center justify-center space-x-2 group hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading}
+          >
+            <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">
+              {isEditing ? 'save' : 'bolt'}
+            </span>
+            <span>
+              {loading 
+                ? (isEditing ? 'Saving...' : 'Initiating...') 
+                : (isEditing ? 'Save Changes' : 'Initiate Creation')}
+            </span>
+          </button>
+        </div>
+      </form>
+    </BaseModal>
   );
 }
