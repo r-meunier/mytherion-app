@@ -68,6 +68,7 @@ class EntityService(
                             category = request.category,
                             summary = request.summary,
                             description = request.description,
+                            notes = request.notes,
                             tags = request.tags?.toTypedArray(),
                             metadata = request.metadata
                     )
@@ -134,6 +135,7 @@ class EntityService(
         request.category?.let { entity.category = it }
         request.summary?.let { entity.summary = it }
         request.description?.let { entity.description = it }
+        request.notes?.let { entity.notes = it }
         request.tags?.let { entity.tags = it.toTypedArray() }
         request.metadata?.let { entity.metadata = it }
 

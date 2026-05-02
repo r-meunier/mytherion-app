@@ -17,6 +17,7 @@ data class CreateEntityRequest(
         @field:Size(max = 1000, message = "Summary must not exceed 1000 characters")
         val summary: String? = null,
         val description: String? = null,
+        val notes: String? = null,
         val tags: List<String>? = null,
         val metadata: EntityMetadata? = null
 )

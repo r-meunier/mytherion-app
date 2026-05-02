@@ -24,6 +24,7 @@ class Entity(
         @Column var category: String? = null,
         @Column(columnDefinition = "text") var summary: String? = null,
         @Column(columnDefinition = "text") var description: String? = null,
+        @Column(columnDefinition = "text") var notes: String? = null,
 
         // PostgreSQL array for tags
         @Column(columnDefinition = "text[]") var tags: Array<String>? = null,

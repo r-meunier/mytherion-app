@@ -10,5 +10,7 @@ data class SocialData(
         val occupations: List<String> = emptyList(),
         val hobbies: List<String> = emptyList(),
         val skills: List<String> = emptyList(),
-        val talents: List<String> = emptyList()
+        val talents: List<String> = emptyList(),
+        val sociology: String? = null, // External social standing/context
+        val affiliations: String? = null // General text-based affiliations
 )

@@ -7,8 +7,8 @@ data class OriginsComponent(
 ) : EntityComponent
 
 data class OriginsData(
-        val birthplaceId: Long? = null,
-        val residenceId: Long? = null,
-        val speciesId: Long? = null,
-        val cultureId: Long? = null
+        val birthplace: EntityLink? = null,
+        val residence: EntityLink? = null,
+        val species: EntityLink? = null,
+        val culture: EntityLink? = null
 )
