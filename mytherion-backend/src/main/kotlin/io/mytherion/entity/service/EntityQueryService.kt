@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service
 class EntityQueryService(private val entityRepository: EntityRepository) {
 
     fun countByProject(project: Project): Long =
-            entityRepository.countByProjectAndDeletedAtIsNull(project)
+        entityRepository.countByProjectAndDeletedAtIsNull(project)
 
     fun countByProjectGrouped(project: Project): Map<String, Int> =
-            entityRepository.countByProjectAndTypeGrouped(project).associate {
-                it.getType().name to it.getCount().toInt()
-            }
+        entityRepository.countByProjectAndTypeGrouped(project).associate {
+            it.getType().name to it.getCount().toInt()
+        }
 }

@@ -12,237 +12,237 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class AuthService(
-        private val userRepository: UserRepository,
-        private val passwordEncoder: PasswordEncoder,
-        private val jwtService: JwtService,
-        private val verificationTokenRepository:
-                io.mytherion.auth.repository.EmailVerificationTokenRepository,
-        private val emailService: io.mytherion.email.EmailService,
-        private val metricsService: MetricsService
+    private val userRepository: UserRepository,
+    private val passwordEncoder: PasswordEncoder,
+    private val jwtService: JwtService,
+    private val verificationTokenRepository:
+    io.mytherion.auth.repository.EmailVerificationTokenRepository,
+    private val emailService: io.mytherion.email.EmailService,
+    private val metricsService: MetricsService
 ) {
 
-        @Transactional
-        fun register(req: AuthDTO.RegisterRequest): AuthDTO.AuthResponse {
-                val startTime = System.currentTimeMillis()
-                var success = false
+    @Transactional
+    fun register(req: AuthDTO.RegisterRequest): AuthDTO.AuthResponse {
+        val startTime = System.currentTimeMillis()
+        var success = false
 
-                if (userRepository.existsByEmail(req.email)) {
-                        metricsService.recordRegistration(
-                                durationMs = System.currentTimeMillis() - startTime,
-                                success = false
-                        )
-                        throw IllegalArgumentException("Email already in use")
-                }
-                if (userRepository.existsByUsername(req.username)) {
-                        metricsService.recordRegistration(
-                                durationMs = System.currentTimeMillis() - startTime,
-                                success = false
-                        )
-                        throw IllegalArgumentException("Username already in use")
-                }
-
-                val encodedPassword =
-                        passwordEncoder.encode(req.password)
-                                ?: throw IllegalArgumentException("Password must not be null")
-
-                val user =
-                        User(
-                                email = req.email.lowercase(),
-                                username = req.username,
-                                passwordHash = encodedPassword,
-                                role = UserRole.USER
-                        )
-
-                val saved = userRepository.save(user)
-
-                // Send verification email
-                sendVerificationEmail(saved)
-
-                val token =
-                        jwtService.generateAccessToken(
-                                userId = saved.id!!,
-                                email = saved.email,
-                                role = saved.role.name
-                        )
-
-                val userResponse =
-                        AuthDTO.UserResponse(
-                                id = saved.id!!,
-                                email = saved.email,
-                                username = saved.username,
-                                role = saved.role.name,
-                                emailVerified = saved.emailVerified
-                        )
-
-                success = true
-
-                val duration = System.currentTimeMillis() - startTime
-                metricsService.recordRegistration(durationMs = duration, success = success)
-
-                return AuthDTO.AuthResponse(accessToken = token, user = userResponse)
+        if (userRepository.existsByEmail(req.email)) {
+            metricsService.recordRegistration(
+                durationMs = System.currentTimeMillis() - startTime,
+                success = false
+            )
+            throw IllegalArgumentException("Email already in use")
+        }
+        if (userRepository.existsByUsername(req.username)) {
+            metricsService.recordRegistration(
+                durationMs = System.currentTimeMillis() - startTime,
+                success = false
+            )
+            throw IllegalArgumentException("Username already in use")
         }
 
-        @Transactional(readOnly = true)
-        fun login(req: AuthDTO.LoginRequest): AuthDTO.AuthResponse {
-                val startTime = System.currentTimeMillis()
-                var success = false
-                var reason = "ok"
+        val encodedPassword =
+            passwordEncoder.encode(req.password)
+                ?: throw IllegalArgumentException("Password must not be null")
 
-                val user =
-                        userRepository.findByEmailAndDeletedAtIsNull(req.email.lowercase())
-                                ?: run {
-                                        reason = "invalid_credentials"
-                                        metricsService.recordLogin(
-                                                durationMs = System.currentTimeMillis() - startTime,
-                                                success = false,
-                                                reason = reason
-                                        )
-                                        throw IllegalArgumentException("Invalid credentials")
-                                }
+        val user =
+            User(
+                email = req.email.lowercase(),
+                username = req.username,
+                passwordHash = encodedPassword,
+                role = UserRole.USER
+            )
 
-                if (!passwordEncoder.matches(req.password, user.passwordHash)) {
-                        reason = "invalid_credentials"
-                        metricsService.recordLogin(
-                                durationMs = System.currentTimeMillis() - startTime,
-                                success = false,
-                                reason = reason
-                        )
-                        throw IllegalArgumentException("Invalid credentials")
+        val saved = userRepository.save(user)
+
+        // Send verification email
+        sendVerificationEmail(saved)
+
+        val token =
+            jwtService.generateAccessToken(
+                userId = saved.id!!,
+                email = saved.email,
+                role = saved.role.name
+            )
+
+        val userResponse =
+            AuthDTO.UserResponse(
+                id = saved.id!!,
+                email = saved.email,
+                username = saved.username,
+                role = saved.role.name,
+                emailVerified = saved.emailVerified
+            )
+
+        success = true
+
+        val duration = System.currentTimeMillis() - startTime
+        metricsService.recordRegistration(durationMs = duration, success = success)
+
+        return AuthDTO.AuthResponse(accessToken = token, user = userResponse)
+    }
+
+    @Transactional(readOnly = true)
+    fun login(req: AuthDTO.LoginRequest): AuthDTO.AuthResponse {
+        val startTime = System.currentTimeMillis()
+        var success = false
+        var reason = "ok"
+
+        val user =
+            userRepository.findByEmailAndDeletedAtIsNull(req.email.lowercase())
+                ?: run {
+                    reason = "invalid_credentials"
+                    metricsService.recordLogin(
+                        durationMs = System.currentTimeMillis() - startTime,
+                        success = false,
+                        reason = reason
+                    )
+                    throw IllegalArgumentException("Invalid credentials")
                 }
 
-                // Hard enforcement: Require email verification to login
-                if (!user.emailVerified) {
-                        reason = "email_not_verified"
-                        metricsService.recordLogin(
-                                durationMs = System.currentTimeMillis() - startTime,
-                                success = false,
-                                reason = reason
-                        )
-                        throw IllegalArgumentException("Please verify your email before logging in")
-                }
-
-                val token =
-                        jwtService.generateAccessToken(
-                                userId = user.id!!,
-                                email = user.email,
-                                role = user.role.name
-                        )
-
-                val userResponse =
-                        AuthDTO.UserResponse(
-                                id = user.id!!,
-                                email = user.email,
-                                username = user.username,
-                                role = user.role.name,
-                                emailVerified = user.emailVerified
-                        )
-
-                success = true
-                val duration = System.currentTimeMillis() - startTime
-                metricsService.recordLogin(durationMs = duration, success = success, reason = reason)
-
-                return AuthDTO.AuthResponse(accessToken = token, user = userResponse)
+        if (!passwordEncoder.matches(req.password, user.passwordHash)) {
+            reason = "invalid_credentials"
+            metricsService.recordLogin(
+                durationMs = System.currentTimeMillis() - startTime,
+                success = false,
+                reason = reason
+            )
+            throw IllegalArgumentException("Invalid credentials")
         }
 
-        @Transactional(readOnly = true)
-        fun getUserById(userId: Long): AuthDTO.UserResponse {
-                val user =
-                        userRepository.findById(userId).orElseThrow {
-                                IllegalArgumentException("User not found")
-                        }
-
-                if (user.isDeleted()) {
-                        throw IllegalArgumentException("User not found")
-                }
-
-                return AuthDTO.UserResponse(
-                        id = user.id!!,
-                        email = user.email,
-                        username = user.username,
-                        role = user.role.name,
-                        emailVerified = user.emailVerified
-                )
+        // Hard enforcement: Require email verification to login
+        if (!user.emailVerified) {
+            reason = "email_not_verified"
+            metricsService.recordLogin(
+                durationMs = System.currentTimeMillis() - startTime,
+                success = false,
+                reason = reason
+            )
+            throw IllegalArgumentException("Please verify your email before logging in")
         }
 
-        @Transactional
-        fun sendVerificationEmail(user: User) {
-                // Delete any existing unverified tokens for this user
-                verificationTokenRepository.deleteByUser(user)
+        val token =
+            jwtService.generateAccessToken(
+                userId = user.id!!,
+                email = user.email,
+                role = user.role.name
+            )
 
-                // Generate new verification token
-                val token = java.util.UUID.randomUUID().toString()
-                val expiresAt =
-                        java.time.Instant.now().plus(24, java.time.temporal.ChronoUnit.HOURS)
+        val userResponse =
+            AuthDTO.UserResponse(
+                id = user.id!!,
+                email = user.email,
+                username = user.username,
+                role = user.role.name,
+                emailVerified = user.emailVerified
+            )
 
-                val verificationToken =
-                        io.mytherion.auth.model.EmailVerificationToken(
-                                token = token,
-                                user = user,
-                                expiresAt = expiresAt
-                        )
+        success = true
+        val duration = System.currentTimeMillis() - startTime
+        metricsService.recordLogin(durationMs = duration, success = success, reason = reason)
 
-                verificationTokenRepository.save(verificationToken)
+        return AuthDTO.AuthResponse(accessToken = token, user = userResponse)
+    }
 
-                // Send verification email
-                emailService.sendVerificationEmail(user.email, user.username, token)
+    @Transactional(readOnly = true)
+    fun getUserById(userId: Long): AuthDTO.UserResponse {
+        val user =
+            userRepository.findById(userId).orElseThrow {
+                IllegalArgumentException("User not found")
+            }
+
+        if (user.isDeleted()) {
+            throw IllegalArgumentException("User not found")
         }
 
-        @Transactional
-        fun verifyEmail(token: String): AuthDTO.UserResponse {
-                val verificationToken =
-                        verificationTokenRepository.findByToken(token)
-                                ?: throw IllegalArgumentException("Invalid verification token")
+        return AuthDTO.UserResponse(
+            id = user.id!!,
+            email = user.email,
+            username = user.username,
+            role = user.role.name,
+            emailVerified = user.emailVerified
+        )
+    }
 
-                if (verificationToken.isVerified()) {
-                        throw IllegalArgumentException("Email already verified")
-                }
+    @Transactional
+    fun sendVerificationEmail(user: User) {
+        // Delete any existing unverified tokens for this user
+        verificationTokenRepository.deleteByUser(user)
 
-                if (verificationToken.isExpired()) {
-                        throw IllegalArgumentException("Verification token expired")
-                }
+        // Generate new verification token
+        val token = java.util.UUID.randomUUID().toString()
+        val expiresAt =
+            java.time.Instant.now().plus(24, java.time.temporal.ChronoUnit.HOURS)
 
-                // Mark token as verified
-                verificationToken.verifiedAt = java.time.Instant.now()
+        val verificationToken =
+            io.mytherion.auth.model.EmailVerificationToken(
+                token = token,
+                user = user,
+                expiresAt = expiresAt
+            )
 
-                // Mark user email as verified
-                verificationToken.user.emailVerified = true
+        verificationTokenRepository.save(verificationToken)
 
-                userRepository.save(verificationToken.user)
-                verificationTokenRepository.save(verificationToken)
+        // Send verification email
+        emailService.sendVerificationEmail(user.email, user.username, token)
+    }
 
-                return AuthDTO.UserResponse(
-                        id = verificationToken.user.id!!,
-                        email = verificationToken.user.email,
-                        username = verificationToken.user.username,
-                        role = verificationToken.user.role.name,
-                        emailVerified = verificationToken.user.emailVerified
-                )
+    @Transactional
+    fun verifyEmail(token: String): AuthDTO.UserResponse {
+        val verificationToken =
+            verificationTokenRepository.findByToken(token)
+                ?: throw IllegalArgumentException("Invalid verification token")
+
+        if (verificationToken.isVerified()) {
+            throw IllegalArgumentException("Email already verified")
         }
 
-        @Transactional
-        fun resendVerificationEmail(userId: Long) {
-                val user =
-                        userRepository.findById(userId).orElseThrow {
-                                IllegalArgumentException("User not found")
-                        }
-
-                if (user.emailVerified) {
-                        throw IllegalArgumentException("Email already verified")
-                }
-
-                sendVerificationEmail(user)
+        if (verificationToken.isExpired()) {
+            throw IllegalArgumentException("Verification token expired")
         }
 
-        @Transactional
-        fun resendVerificationEmailByEmail(email: String) {
-                val user =
-                        userRepository.findByEmailAndDeletedAtIsNull(email.lowercase())
-                                ?: throw IllegalArgumentException("User not found")
+        // Mark token as verified
+        verificationToken.verifiedAt = java.time.Instant.now()
 
-                if (user.emailVerified) {
-                        throw IllegalArgumentException("Email already verified")
-                }
+        // Mark user email as verified
+        verificationToken.user.emailVerified = true
 
-                sendVerificationEmail(user)
+        userRepository.save(verificationToken.user)
+        verificationTokenRepository.save(verificationToken)
+
+        return AuthDTO.UserResponse(
+            id = verificationToken.user.id!!,
+            email = verificationToken.user.email,
+            username = verificationToken.user.username,
+            role = verificationToken.user.role.name,
+            emailVerified = verificationToken.user.emailVerified
+        )
+    }
+
+    @Transactional
+    fun resendVerificationEmail(userId: Long) {
+        val user =
+            userRepository.findById(userId).orElseThrow {
+                IllegalArgumentException("User not found")
+            }
+
+        if (user.emailVerified) {
+            throw IllegalArgumentException("Email already verified")
         }
+
+        sendVerificationEmail(user)
+    }
+
+    @Transactional
+    fun resendVerificationEmailByEmail(email: String) {
+        val user =
+            userRepository.findByEmailAndDeletedAtIsNull(email.lowercase())
+                ?: throw IllegalArgumentException("User not found")
+
+        if (user.emailVerified) {
+            throw IllegalArgumentException("Email already verified")
+        }
+
+        sendVerificationEmail(user)
+    }
 }

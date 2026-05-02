@@ -19,9 +19,9 @@ class RequestLoggingFilter : OncePerRequestFilter() {
     private val logger = LoggerFactory.getLogger(RequestLoggingFilter::class.java)
 
     override fun doFilterInternal(
-            request: HttpServletRequest,
-            response: HttpServletResponse,
-            filterChain: FilterChain
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        filterChain: FilterChain
     ) {
         val requestId = UUID.randomUUID().toString()
         val startTime = System.currentTimeMillis()
@@ -34,20 +34,20 @@ class RequestLoggingFilter : OncePerRequestFilter() {
             MDC.put("remoteAddr", request.remoteAddr)
 
             logger.infoWith(
-                    "Incoming request",
-                    "method" to request.method,
-                    "path" to request.requestURI,
-                    "queryString" to request.queryString,
-                    "userAgent" to request.getHeader("User-Agent")
+                "Incoming request",
+                "method" to request.method,
+                "path" to request.requestURI,
+                "queryString" to request.queryString,
+                "userAgent" to request.getHeader("User-Agent")
             )
 
             filterChain.doFilter(request, response)
 
             val duration = System.currentTimeMillis() - startTime
             logger.infoWith(
-                    "Request completed",
-                    "status" to response.status,
-                    "duration_ms" to duration
+                "Request completed",
+                "status" to response.status,
+                "duration_ms" to duration
             )
         } catch (e: Exception) {
             val duration = System.currentTimeMillis() - startTime

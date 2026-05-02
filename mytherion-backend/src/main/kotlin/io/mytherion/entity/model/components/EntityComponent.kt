@@ -35,7 +35,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
         JsonSubTypes.Type(value = ItemRelationsComponent::class, name = "ITEM_RELATIONS"),
         JsonSubTypes.Type(value = CustomComponent::class, name = "CUSTOM")
 )
+@JsonIgnoreProperties(ignoreUnknown = true)
 sealed interface EntityComponent {
+        val id: String
+                get() = type
         val type: String
 }
 
@@ -50,11 +53,11 @@ data class EntityLink(
 )
 
 /**
- * A generic structure for numerical values with units.
- * Allows for sorting, filtering, and unit conversion logic.
+ * A generic structure for numerical values with units. Allows for sorting, filtering, and unit
+ * conversion logic.
  */
 data class Quantity(
-    val value: Double? = null,
-    val unit: String? = null, // e.g. "kg", "years", "people", "gold"
-    val label: String? = null  // Optional override for display
+        val value: Double? = null,
+        val unit: String? = null, // e.g. "kg", "years", "people", "gold"
+        val label: String? = null // Optional override for display
 )

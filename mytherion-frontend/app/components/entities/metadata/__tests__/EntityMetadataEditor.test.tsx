@@ -1,14 +1,14 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import EntityMetadataEditor from '../EntityMetadataEditor';
-import { EntityType } from '@/app/types/entity';
+import { EntityType, ComponentType } from '@/app/types/entity';
 import '@testing-library/jest-dom';
 
 describe('EntityMetadataEditor', () => {
   const mockOnUpdate = jest.fn();
   const mockMetadata = {
     components: [
-      { type: 'BIO', data: { status: 'Alive' } },
-      { type: 'APPEARANCE', data: { height: { value: 180, unit: 'cm' } } },
+      { type: ComponentType.BIO, data: { status: 'Alive' } },
+      { type: ComponentType.APPEARANCE, data: { height: { value: 180, unit: 'cm' } } },
     ],
   };
 
@@ -20,7 +20,7 @@ describe('EntityMetadataEditor', () => {
     render(
       <EntityMetadataEditor
         entityType={EntityType.CHARACTER}
-        metadata={mockMetadata}
+        metadata={mockMetadata as any}
         onUpdateComponent={mockOnUpdate}
       />
     );
@@ -36,7 +36,7 @@ describe('EntityMetadataEditor', () => {
     render(
       <EntityMetadataEditor
         entityType={EntityType.CHARACTER}
-        metadata={mockMetadata}
+        metadata={mockMetadata as any}
         onUpdateComponent={mockOnUpdate}
       />
     );
@@ -55,7 +55,7 @@ describe('EntityMetadataEditor', () => {
     render(
       <EntityMetadataEditor
         entityType={EntityType.CHARACTER}
-        metadata={mockMetadata}
+        metadata={mockMetadata as any}
         onUpdateComponent={mockOnUpdate}
       />
     );
@@ -63,7 +63,7 @@ describe('EntityMetadataEditor', () => {
     const statusInput = screen.getByLabelText('Status');
     fireEvent.change(statusInput, { target: { value: 'Missing' } });
 
-    expect(mockOnUpdate).toHaveBeenCalledWith('BIO', expect.objectContaining({ status: 'Missing' }));
+    expect(mockOnUpdate).toHaveBeenCalledWith(ComponentType.BIO, expect.objectContaining({ status: 'Missing' }));
   });
 
   it('handles LOCATION entity specific tabs', () => {

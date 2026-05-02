@@ -26,13 +26,17 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 @Import(ObjectMapper::class)
 class AuthControllerIntegrationTest {
 
-    @Autowired private lateinit var mockMvc: MockMvc
+    @Autowired
+    private lateinit var mockMvc: MockMvc
 
-    @Autowired private lateinit var objectMapper: ObjectMapper
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper
 
-    @Autowired private lateinit var userRepository: UserRepository
+    @Autowired
+    private lateinit var userRepository: UserRepository
 
-    @Autowired private lateinit var passwordEncoder: PasswordEncoder
+    @Autowired
+    private lateinit var passwordEncoder: PasswordEncoder
 
     @AfterEach
     fun cleanup() {
@@ -59,25 +63,25 @@ class AuthControllerIntegrationTest {
     fun `POST register with valid data should return 201 and set cookie`() {
         // Given
         val request =
-                AuthDTO.RegisterRequest(
-                        email = "test@example.com",
-                        username = "testuser",
-                        password = "password123"
-                )
+            AuthDTO.RegisterRequest(
+                email = "test@example.com",
+                username = "testuser",
+                password = "password123"
+            )
 
         // When & Then
         mockMvc.perform(
-                        post("/api/auth/register")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isCreated)
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.email").value("test@example.com"))
-                .andExpect(jsonPath("$.username").value("testuser"))
-                .andExpect(jsonPath("$.role").value("USER"))
-                .andExpect(jsonPath("$.emailVerified").value(false))
-                .andExpect(cookie().doesNotExist("mytherion_token")) // No cookie until email verified
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+            .andExpect(status().isCreated)
+            .andExpect(jsonPath("$.id").exists())
+            .andExpect(jsonPath("$.email").value("test@example.com"))
+            .andExpect(jsonPath("$.username").value("testuser"))
+            .andExpect(jsonPath("$.role").value("USER"))
+            .andExpect(jsonPath("$.emailVerified").value(false))
+            .andExpect(cookie().doesNotExist("mytherion_token")) // No cookie until email verified
 
         // Verify user is saved in database
         val savedUser = userRepository.findByEmailAndDeletedAtIsNull("test@example.com")
@@ -91,64 +95,64 @@ class AuthControllerIntegrationTest {
     fun `POST register with duplicate email should return 400`() {
         // Given - Create existing user
         val existingRequest =
-                AuthDTO.RegisterRequest(
-                        email = "existing@example.com",
-                        username = "existinguser",
-                        password = "password123"
-                )
+            AuthDTO.RegisterRequest(
+                email = "existing@example.com",
+                username = "existinguser",
+                password = "password123"
+            )
         mockMvc.perform(
-                post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(existingRequest))
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(existingRequest))
         )
 
         // When & Then - Try to register with same email
         val duplicateRequest =
-                AuthDTO.RegisterRequest(
-                        email = "existing@example.com",
-                        username = "newuser",
-                        password = "password123"
-                )
+            AuthDTO.RegisterRequest(
+                email = "existing@example.com",
+                username = "newuser",
+                password = "password123"
+            )
 
         mockMvc.perform(
-                        post("/api/auth/register")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(duplicateRequest))
-                )
-                .andExpect(status().isBadRequest)
-                .andExpect(cookie().doesNotExist("mytherion_token"))
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(duplicateRequest))
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(cookie().doesNotExist("mytherion_token"))
     }
 
     @Test
     fun `POST register with duplicate username should return 400`() {
         // Given - Create existing user
         val existingRequest =
-                AuthDTO.RegisterRequest(
-                        email = "existing@example.com",
-                        username = "existinguser",
-                        password = "password123"
-                )
+            AuthDTO.RegisterRequest(
+                email = "existing@example.com",
+                username = "existinguser",
+                password = "password123"
+            )
         mockMvc.perform(
-                post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(existingRequest))
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(existingRequest))
         )
 
         // When & Then - Try to register with same username
         val duplicateRequest =
-                AuthDTO.RegisterRequest(
-                        email = "newuser@example.com",
-                        username = "existinguser",
-                        password = "password123"
-                )
+            AuthDTO.RegisterRequest(
+                email = "newuser@example.com",
+                username = "existinguser",
+                password = "password123"
+            )
 
         mockMvc.perform(
-                        post("/api/auth/register")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(duplicateRequest))
-                )
-                .andExpect(status().isBadRequest)
-                .andExpect(cookie().doesNotExist("mytherion_token"))
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(duplicateRequest))
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(cookie().doesNotExist("mytherion_token"))
     }
 
     // ==================== Login Tests ====================
@@ -160,23 +164,23 @@ class AuthControllerIntegrationTest {
 
         // When & Then - Login with correct credentials
         val loginRequest =
-                AuthDTO.LoginRequest(email = "test@example.com", password = "password123")
+            AuthDTO.LoginRequest(email = "test@example.com", password = "password123")
 
         val result =
-                mockMvc.perform(
-                                post("/api/auth/login")
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(objectMapper.writeValueAsString(loginRequest))
-                        )
-                        .andExpect(status().isOk)
-                        .andExpect(jsonPath("$.id").exists())
-                        .andExpect(jsonPath("$.email").value("test@example.com"))
-                        .andExpect(jsonPath("$.username").value("testuser"))
-                        .andExpect(jsonPath("$.role").value("USER"))
-                        .andExpect(jsonPath("$.emailVerified").value(true))
-                        .andExpect(cookie().exists("mytherion_token"))
-                        .andExpect(cookie().httpOnly("mytherion_token", true))
-                        .andReturn()
+            mockMvc.perform(
+                post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(loginRequest))
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.email").value("test@example.com"))
+                .andExpect(jsonPath("$.username").value("testuser"))
+                .andExpect(jsonPath("$.role").value("USER"))
+                .andExpect(jsonPath("$.emailVerified").value(true))
+                .andExpect(cookie().exists("mytherion_token"))
+                .andExpect(cookie().httpOnly("mytherion_token", true))
+                .andReturn()
 
         // Verify cookie is set
         val cookie = result.response.getCookie("mytherion_token")
@@ -191,30 +195,30 @@ class AuthControllerIntegrationTest {
 
         // When & Then - Login with wrong password
         val loginRequest =
-                AuthDTO.LoginRequest(email = "test@example.com", password = "wrongpassword")
+            AuthDTO.LoginRequest(email = "test@example.com", password = "wrongpassword")
 
         mockMvc.perform(
-                        post("/api/auth/login")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(loginRequest))
-                )
-                .andExpect(status().isBadRequest)
-                .andExpect(cookie().doesNotExist("mytherion_token"))
+            post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest))
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(cookie().doesNotExist("mytherion_token"))
     }
 
     @Test
     fun `POST login with non-existent email should return 400`() {
         // When & Then
         val loginRequest =
-                AuthDTO.LoginRequest(email = "nonexistent@example.com", password = "password123")
+            AuthDTO.LoginRequest(email = "nonexistent@example.com", password = "password123")
 
         mockMvc.perform(
-                        post("/api/auth/login")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(loginRequest))
-                )
-                .andExpect(status().isBadRequest)
-                .andExpect(cookie().doesNotExist("mytherion_token"))
+            post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest))
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(cookie().doesNotExist("mytherion_token"))
     }
 
     // ==================== Logout Tests ====================
@@ -223,11 +227,11 @@ class AuthControllerIntegrationTest {
     fun `POST logout should clear cookie`() {
         // When & Then
         val result =
-                mockMvc.perform(post("/api/auth/logout"))
-                        .andExpect(status().isNoContent)
-                        .andExpect(cookie().exists("mytherion_token"))
-                        .andExpect(cookie().maxAge("mytherion_token", 0))
-                        .andReturn()
+            mockMvc.perform(post("/api/auth/logout"))
+                .andExpect(status().isNoContent)
+                .andExpect(cookie().exists("mytherion_token"))
+                .andExpect(cookie().maxAge("mytherion_token", 0))
+                .andReturn()
 
         // Verify cookie is cleared (maxAge = 0)
         val cookie = result.response.getCookie("mytherion_token")
@@ -244,23 +248,23 @@ class AuthControllerIntegrationTest {
 
         val loginRequest = AuthDTO.LoginRequest(email = "test@example.com", password = "password123")
         val loginResult =
-                mockMvc.perform(
-                                post("/api/auth/login")
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(objectMapper.writeValueAsString(loginRequest))
-                        )
-                        .andReturn()
+            mockMvc.perform(
+                post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(loginRequest))
+            )
+                .andReturn()
 
         val cookie = loginResult.response.getCookie("mytherion_token")
         assertNotNull(cookie)
 
         // When & Then - Call /me with cookie
         mockMvc.perform(get("/api/auth/me").cookie(cookie!!))
-                .andExpect(status().isOk)
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.email").value("test@example.com"))
-                .andExpect(jsonPath("$.username").value("testuser"))
-                .andExpect(jsonPath("$.role").value("USER"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").exists())
+            .andExpect(jsonPath("$.email").value("test@example.com"))
+            .andExpect(jsonPath("$.username").value("testuser"))
+            .andExpect(jsonPath("$.role").value("USER"))
     }
 
     @Test
@@ -276,7 +280,7 @@ class AuthControllerIntegrationTest {
 
         // When & Then - Expect 403 from Spring Security (invalid token)
         mockMvc.perform(get("/api/auth/me").cookie(invalidCookie))
-                .andExpect(status().isForbidden)
+            .andExpect(status().isForbidden)
     }
 
     // ==================== CORS Tests ====================
@@ -285,26 +289,26 @@ class AuthControllerIntegrationTest {
     fun `CORS should allow requests from localhost 3000`() {
         // When & Then
         mockMvc.perform(
-                        options("/api/auth/login")
-                                .header("Origin", "http://localhost:3000")
-                                .header("Access-Control-Request-Method", "POST")
-                )
-                .andExpect(status().isOk)
-                .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:3000"))
-                .andExpect(header().string("Access-Control-Allow-Credentials", "true"))
+            options("/api/auth/login")
+                .header("Origin", "http://localhost:3000")
+                .header("Access-Control-Request-Method", "POST")
+        )
+            .andExpect(status().isOk)
+            .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:3000"))
+            .andExpect(header().string("Access-Control-Allow-Credentials", "true"))
     }
 
     @Test
     fun `CORS should allow requests from localhost 3001`() {
         // When & Then
         mockMvc.perform(
-                        options("/api/auth/login")
-                                .header("Origin", "http://localhost:3001")
-                                .header("Access-Control-Request-Method", "POST")
-                )
-                .andExpect(status().isOk)
-                .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:3001"))
-                .andExpect(header().string("Access-Control-Allow-Credentials", "true"))
+            options("/api/auth/login")
+                .header("Origin", "http://localhost:3001")
+                .header("Access-Control-Request-Method", "POST")
+        )
+            .andExpect(status().isOk)
+            .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:3001"))
+            .andExpect(header().string("Access-Control-Allow-Credentials", "true"))
     }
 
     // ==================== Session Persistence Tests ====================
@@ -316,12 +320,12 @@ class AuthControllerIntegrationTest {
 
         val loginRequest = AuthDTO.LoginRequest(email = "test@example.com", password = "password123")
         val loginResult =
-                mockMvc.perform(
-                                post("/api/auth/login")
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(objectMapper.writeValueAsString(loginRequest))
-                        )
-                        .andReturn()
+            mockMvc.perform(
+                post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(loginRequest))
+            )
+                .andReturn()
 
         val cookie = loginResult.response.getCookie("mytherion_token")
         assertNotNull(cookie)
@@ -329,13 +333,13 @@ class AuthControllerIntegrationTest {
         // When & Then - Use cookie in multiple requests
         // Request 1: Get user info
         mockMvc.perform(get("/api/auth/me").cookie(cookie!!))
-                .andExpect(status().isOk)
-                .andExpect(jsonPath("$.email").value("test@example.com"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.email").value("test@example.com"))
 
         // Request 2: Get user info again (same cookie)
         mockMvc.perform(get("/api/auth/me").cookie(cookie))
-                .andExpect(status().isOk)
-                .andExpect(jsonPath("$.email").value("test@example.com"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.email").value("test@example.com"))
     }
 
     @Test
@@ -345,12 +349,12 @@ class AuthControllerIntegrationTest {
 
         val loginRequest = AuthDTO.LoginRequest(email = "test@example.com", password = "password123")
         val loginResult =
-                mockMvc.perform(
-                                post("/api/auth/login")
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(objectMapper.writeValueAsString(loginRequest))
-                        )
-                        .andReturn()
+            mockMvc.perform(
+                post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(loginRequest))
+            )
+                .andReturn()
 
         val cookie = loginResult.response.getCookie("mytherion_token")
         assertNotNull(cookie)
@@ -368,6 +372,6 @@ class AuthControllerIntegrationTest {
 
         // Verify old cookie no longer works (using cleared cookie with empty value)
         mockMvc.perform(get("/api/auth/me").cookie(clearedCookie))
-                .andExpect(status().isForbidden)
+            .andExpect(status().isForbidden)
     }
 }

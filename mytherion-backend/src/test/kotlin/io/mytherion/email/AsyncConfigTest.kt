@@ -56,9 +56,9 @@ class AsyncConfigTest {
         // Should complete without throwing — fire-and-forget contract
         assertDoesNotThrow {
             handler.handleUncaughtException(
-                    RuntimeException("SMTP connection refused"),
-                    method,
-                    "test@example.com"
+                RuntimeException("SMTP connection refused"),
+                method,
+                "test@example.com"
             )
         }
     }
@@ -80,11 +80,11 @@ class AsyncConfigTest {
 
         assertDoesNotThrow {
             handler.handleUncaughtException(
-                    RuntimeException("Connection timeout"),
-                    method,
-                    "user@example.com",
-                    "testuser",
-                    "token-abc-123"
+                RuntimeException("Connection timeout"),
+                method,
+                "user@example.com",
+                "testuser",
+                "token-abc-123"
             )
         }
     }

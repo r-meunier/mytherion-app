@@ -21,20 +21,20 @@ class MinIOStorageService(
     @Value("\${minio.bucket-name:mytherion-uploads}") private val defaultBucket: String,
     private val metricsService: MetricsService
 ) : StorageService {
-    
+
     private val logger = LoggerFactory.getLogger(MinIOStorageService::class.java)
-    
+
     private val minioClient: MinioClient = MinioClient.builder()
         .endpoint(endpoint)
         .credentials(accessKey, secretKey)
         .build()
-    
+
     init {
         // Ensure default bucket exists on startup
         ensureBucketExists(defaultBucket)
         logger.info("MinIO storage service initialized with endpoint: $endpoint")
     }
-    
+
     override fun uploadFile(
         bucketName: String,
         objectName: String,
@@ -72,7 +72,7 @@ class MinIOStorageService(
             )
         }
     }
-    
+
     override fun deleteFile(bucketName: String, objectName: String) {
         val startTime = System.currentTimeMillis()
         var success = false
@@ -97,7 +97,7 @@ class MinIOStorageService(
             )
         }
     }
-    
+
     override fun getPresignedUrl(
         bucketName: String,
         objectName: String,
@@ -128,7 +128,7 @@ class MinIOStorageService(
             )
         }
     }
-    
+
     override fun ensureBucketExists(bucketName: String) {
         try {
             val exists = minioClient.bucketExists(
@@ -136,7 +136,7 @@ class MinIOStorageService(
                     .bucket(bucketName)
                     .build()
             )
-            
+
             if (!exists) {
                 minioClient.makeBucket(
                     MakeBucketArgs.builder()

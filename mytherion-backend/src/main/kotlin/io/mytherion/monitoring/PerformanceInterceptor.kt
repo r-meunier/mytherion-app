@@ -29,51 +29,51 @@ class PerformanceInterceptor : HandlerInterceptor {
     }
 
     override fun preHandle(
-            request: HttpServletRequest,
-            response: HttpServletResponse,
-            handler: Any
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        handler: Any
     ): Boolean {
         request.setAttribute(START_TIME_ATTRIBUTE, System.currentTimeMillis())
         return true
     }
 
     override fun postHandle(
-            request: HttpServletRequest,
-            response: HttpServletResponse,
-            handler: Any,
-            modelAndView: ModelAndView?
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        handler: Any,
+        modelAndView: ModelAndView?
     ) {
         val startTime = request.getAttribute(START_TIME_ATTRIBUTE) as? Long ?: return
         val duration = System.currentTimeMillis() - startTime
 
         // Log all API requests with performance data
         logger.infoWith(
-                "API Request Completed",
-                "method" to request.method,
-                "path" to request.requestURI,
-                "status" to response.status,
-                "duration_ms" to duration,
-                "query_params" to (request.queryString ?: "none")
+            "API Request Completed",
+            "method" to request.method,
+            "path" to request.requestURI,
+            "status" to response.status,
+            "duration_ms" to duration,
+            "query_params" to (request.queryString ?: "none")
         )
 
         // Warn on slow requests
         if (duration > SLOW_REQUEST_THRESHOLD_MS) {
             logger.warnWith(
-                    "Slow API Request Detected",
-                    "method" to request.method,
-                    "path" to request.requestURI,
-                    "duration_ms" to duration,
-                    "threshold_ms" to SLOW_REQUEST_THRESHOLD_MS,
-                    "status" to response.status
+                "Slow API Request Detected",
+                "method" to request.method,
+                "path" to request.requestURI,
+                "duration_ms" to duration,
+                "threshold_ms" to SLOW_REQUEST_THRESHOLD_MS,
+                "status" to response.status
             )
         }
     }
 
     override fun afterCompletion(
-            request: HttpServletRequest,
-            response: HttpServletResponse,
-            handler: Any,
-            ex: Exception?
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        handler: Any,
+        ex: Exception?
     ) {
         // Log exceptions if they occurred
         if (ex != null) {
@@ -81,11 +81,11 @@ class PerformanceInterceptor : HandlerInterceptor {
             val duration = startTime?.let { System.currentTimeMillis() - it }
 
             logger.warnWith(
-                    "API Request Failed with Exception",
-                    "method" to request.method,
-                    "path" to request.requestURI,
-                    "duration_ms" to (duration ?: "unknown"),
-                    "exception_type" to ex.javaClass.simpleName
+                "API Request Failed with Exception",
+                "method" to request.method,
+                "path" to request.requestURI,
+                "duration_ms" to (duration ?: "unknown"),
+                "exception_type" to ex.javaClass.simpleName
             )
         }
     }

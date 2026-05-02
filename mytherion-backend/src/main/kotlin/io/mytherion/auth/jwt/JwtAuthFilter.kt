@@ -12,12 +12,12 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class JwtAuthFilter(private val jwtService: JwtService, private val cookieUtil: CookieUtil) :
-        OncePerRequestFilter() {
+    OncePerRequestFilter() {
 
     override fun doFilterInternal(
-            request: HttpServletRequest,
-            response: HttpServletResponse,
-            filterChain: FilterChain
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        filterChain: FilterChain
     ) {
         // Try to get token from cookie first
         var token = cookieUtil.getJwtFromCookie(request)
@@ -42,11 +42,11 @@ class JwtAuthFilter(private val jwtService: JwtService, private val cookieUtil: 
             val role = claims["role"]?.toString() ?: "USER"
 
             val auth =
-                    UsernamePasswordAuthenticationToken(
-                            userId,
-                            null,
-                            listOf(SimpleGrantedAuthority("ROLE_$role"))
-                    )
+                UsernamePasswordAuthenticationToken(
+                    userId,
+                    null,
+                    listOf(SimpleGrantedAuthority("ROLE_$role"))
+                )
             SecurityContextHolder.getContext().authentication = auth
         } catch (_: Exception) {
             // invalid token -> treat as anonymous

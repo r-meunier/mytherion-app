@@ -1,4 +1,3 @@
-
 package io.mytherion.project
 
 import io.mytherion.project.dto.CreateProjectRequest

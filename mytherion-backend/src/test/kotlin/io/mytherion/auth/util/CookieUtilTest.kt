@@ -47,11 +47,11 @@ class CookieUtilTest {
         // Given
         val expectedToken = "test-jwt-token"
         val cookies =
-                arrayOf(
-                        Cookie("other_cookie", "other_value"),
-                        Cookie(CookieUtil.JWT_COOKIE_NAME, expectedToken),
-                        Cookie("another_cookie", "another_value")
-                )
+            arrayOf(
+                Cookie("other_cookie", "other_value"),
+                Cookie(CookieUtil.JWT_COOKIE_NAME, expectedToken),
+                Cookie("another_cookie", "another_value")
+            )
         `when`(request.cookies).thenReturn(cookies)
 
         // When
@@ -65,10 +65,10 @@ class CookieUtilTest {
     fun `getJwtFromCookie should return null when cookie does not exist`() {
         // Given
         val cookies =
-                arrayOf(
-                        Cookie("other_cookie", "other_value"),
-                        Cookie("another_cookie", "another_value")
-                )
+            arrayOf(
+                Cookie("other_cookie", "other_value"),
+                Cookie("another_cookie", "another_value")
+            )
         `when`(request.cookies).thenReturn(cookies)
 
         // When

@@ -44,42 +44,42 @@ class EntityServiceTest {
         metricsService = mockk()
 
         entityService =
-                EntityService(
-                        entityRepository,
-                        projectService,
-                        currentUserProvider,
-                        storageService,
-                        metricsService,
-                        "test-bucket"
-                )
+            EntityService(
+                entityRepository,
+                projectService,
+                currentUserProvider,
+                storageService,
+                metricsService,
+                "test-bucket"
+            )
 
         // Setup test data
         testUser =
-                User(
-                        id = 1L,
-                        username = "testuser",
-                        email = "test@example.com",
-                        passwordHash = "hashedpassword",
-                        emailVerified = true
-                )
+            User(
+                id = 1L,
+                username = "testuser",
+                email = "test@example.com",
+                passwordHash = "hashedpassword",
+                emailVerified = true
+            )
 
         testProject =
-                Project(
-                        id = 1L,
-                        owner = testUser,
-                        name = "Test Project",
-                        description = "Test Description"
-                )
+            Project(
+                id = 1L,
+                owner = testUser,
+                name = "Test Project",
+                description = "Test Description"
+            )
 
         testEntity =
-                Entity(
-                        id = 1L,
-                        project = testProject,
-                        type = EntityType.CHARACTER,
-                        name = "Test Character",
-                        summary = "A test character",
-                        description = "Detailed description"
-                )
+            Entity(
+                id = 1L,
+                project = testProject,
+                type = EntityType.CHARACTER,
+                name = "Test Character",
+                summary = "A test character",
+                description = "Detailed description"
+            )
 
         // Mock current user provider to return test user
         every { currentUserProvider.getCurrentUser() } returns testUser
@@ -94,13 +94,13 @@ class EntityServiceTest {
     fun `createEntity should create entity successfully`() {
         // Given
         val request =
-                CreateEntityRequest(
-                        type = EntityType.CHARACTER,
-                        name = "New Character",
-                        summary = "A new character",
-                        description = "Detailed description",
-                        tags = listOf("hero", "mage")
-                )
+            CreateEntityRequest(
+                type = EntityType.CHARACTER,
+                name = "New Character",
+                summary = "A new character",
+                description = "Detailed description",
+                tags = listOf("hero", "mage")
+            )
 
         every { projectService.getVerifiedProject(1L, 1L) } returns testProject
         every { entityRepository.save(any()) } returns testEntity

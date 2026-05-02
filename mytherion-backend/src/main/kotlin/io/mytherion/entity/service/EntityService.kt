@@ -26,12 +26,12 @@ import org.springframework.web.multipart.MultipartFile
 
 @Service
 class EntityService(
-        private val entityRepository: EntityRepository,
-        private val projectService: ProjectService,
-        private val currentUserProvider: CurrentUserProvider,
-        private val storageService: StorageService,
-        private val metricsService: MetricsService,
-        @Value("\${minio.bucket-name}") private val bucketName: String
+    private val entityRepository: EntityRepository,
+    private val projectService: ProjectService,
+    private val currentUserProvider: CurrentUserProvider,
+    private val storageService: StorageService,
+    private val metricsService: MetricsService,
+    @Value("\${minio.bucket-name}") private val bucketName: String
 ) {
 
     private val logger = LoggerFactory.getLogger(EntityService::class.java)
@@ -50,36 +50,36 @@ class EntityService(
     fun createEntity(projectId: Long, request: CreateEntityRequest): EntityDTO {
         val user = getCurrentUser()
         logger.infoWith(
-                "Creating entity",
-                "projectId" to projectId,
-                "userId" to user.id,
-                "type" to request.type.name,
-                "name" to request.name
+            "Creating entity",
+            "projectId" to projectId,
+            "userId" to user.id,
+            "type" to request.type.name,
+            "name" to request.name
         )
 
         return logger.measureTime("Create entity") {
             val project = projectService.getVerifiedProject(projectId, user.id!!)
 
             val entity =
-                    Entity(
-                            project = project,
-                            type = request.type,
-                            name = request.name,
-                            category = request.category,
-                            summary = request.summary,
-                            description = request.description,
-                            notes = request.notes,
-                            tags = request.tags?.toTypedArray(),
-                            metadata = request.metadata
-                    )
+                Entity(
+                    project = project,
+                    type = request.type,
+                    name = request.name,
+                    category = request.category,
+                    summary = request.summary,
+                    description = request.description,
+                    notes = request.notes,
+                    tags = request.tags?.toTypedArray(),
+                    metadata = request.metadata
+                )
 
             val saved = entityRepository.save(entity)
             logger.infoWith(
-                    "Entity created successfully",
-                    "entityId" to saved.id,
-                    "projectId" to projectId,
-                    "type" to saved.type.name,
-                    "name" to saved.name
+                "Entity created successfully",
+                "entityId" to saved.id,
+                "projectId" to projectId,
+                "type" to saved.type.name,
+                "name" to saved.name
             )
             EntityDTO.from(saved)
         }
@@ -107,18 +107,18 @@ class EntityService(
     fun updateEntity(id: Long, request: UpdateEntityRequest): EntityDTO {
         val user = getCurrentUser()
         logger.infoWith(
-                "Updating entity",
-                "entityId" to id,
-                "userId" to user.id,
-                "updates" to
-                        listOfNotNull(
-                                request.type?.let { "type" },
-                                request.name?.let { "name" },
-                                request.summary?.let { "summary" },
-                                request.description?.let { "description" },
-                                request.tags?.let { "tags" },
-                                request.metadata?.let { "metadata" }
-                        )
+            "Updating entity",
+            "entityId" to id,
+            "userId" to user.id,
+            "updates" to
+                    listOfNotNull(
+                        request.type?.let { "type" },
+                        request.name?.let { "name" },
+                        request.summary?.let { "summary" },
+                        request.description?.let { "description" },
+                        request.tags?.let { "tags" },
+                        request.metadata?.let { "metadata" }
+                    )
         )
 
         val entity = entityRepository.findById(id).orElseThrow { EntityNotFoundException(id) }
@@ -162,9 +162,9 @@ class EntityService(
         entity.deletedAt = Instant.now()
         entityRepository.save(entity)
         logger.infoWith(
-                "Entity soft deleted successfully",
-                "entityId" to id,
-                "type" to entity.type.name
+            "Entity soft deleted successfully",
+            "entityId" to id,
+            "type" to entity.type.name
         )
     }
 
@@ -173,14 +173,14 @@ class EntityService(
     fun searchEntities(projectId: Long, searchRequest: EntitySearchRequest): Page<EntityDTO> {
         val user = getCurrentUser()
         logger.debugWith(
-                "Searching entities",
-                "projectId" to projectId,
-                "userId" to user.id,
-                "type" to (searchRequest.type?.name ?: "all"),
-                "tags" to (searchRequest.tags ?: emptyList()),
-                "search" to (searchRequest.search ?: "none"),
-                "page" to searchRequest.page,
-                "size" to searchRequest.size
+            "Searching entities",
+            "projectId" to projectId,
+            "userId" to user.id,
+            "type" to (searchRequest.type?.name ?: "all"),
+            "tags" to (searchRequest.tags ?: emptyList()),
+            "search" to (searchRequest.search ?: "none"),
+            "page" to searchRequest.page,
+            "size" to searchRequest.size
         )
 
         val startTime = System.currentTimeMillis()
@@ -189,18 +189,18 @@ class EntityService(
             val project = projectService.getVerifiedProject(projectId, user.id!!)
 
             val pageable =
-                    PageRequest.of(
-                            searchRequest.page,
-                            searchRequest.size,
-                            Sort.by(Sort.Direction.DESC, "createdAt")
-                    )
+                PageRequest.of(
+                    searchRequest.page,
+                    searchRequest.size,
+                    Sort.by(Sort.Direction.DESC, "createdAt")
+                )
 
             // TODO: Implement custom query with filters (type, tags, search)
             // For now, return all entities in project
             val entities =
-                    logger.measureTime("Fetch all entities") {
-                        entityRepository.findAllByProjectAndDeletedAtIsNull(project)
-                    }
+                logger.measureTime("Fetch all entities") {
+                    entityRepository.findAllByProjectAndDeletedAtIsNull(project)
+                }
 
             // Apply filters manually for now
             var filtered = entities.asSequence()
@@ -209,19 +209,19 @@ class EntityService(
 
             searchRequest.tags?.let { tags ->
                 filtered =
-                        filtered.filter { entity ->
-                            entity.tags?.any { tag -> tags.contains(tag) } == true
-                        }
+                    filtered.filter { entity ->
+                        entity.tags?.any { tag -> tags.contains(tag) } == true
+                    }
             }
 
             searchRequest.search?.let { search ->
                 val searchLower = search.lowercase()
                 filtered =
-                        filtered.filter { entity ->
-                            entity.name.lowercase().contains(searchLower) ||
-                                    entity.summary?.lowercase()?.contains(searchLower) == true ||
-                                    entity.description?.lowercase()?.contains(searchLower) == true
-                        }
+                    filtered.filter { entity ->
+                        entity.name.lowercase().contains(searchLower) ||
+                                entity.summary?.lowercase()?.contains(searchLower) == true ||
+                                entity.description?.lowercase()?.contains(searchLower) == true
+                    }
             }
 
             val result = filtered.toList()
@@ -230,24 +230,24 @@ class EntityService(
             val pageContent = if (start < result.size) result.subList(start, end) else emptyList()
 
             logger.infoWith(
-                    "Entity search completed",
-                    "projectId" to projectId,
-                    "totalResults" to result.size,
-                    "pageResults" to pageContent.size
+                "Entity search completed",
+                "projectId" to projectId,
+                "totalResults" to result.size,
+                "pageResults" to pageContent.size
             )
 
             val duration = System.currentTimeMillis() - startTime
             metricsService.recordEntitySearch(
-                    projectId = projectId,
-                    totalResults = result.size,
-                    pageResults = pageContent.size,
-                    durationMs = duration
+                projectId = projectId,
+                totalResults = result.size,
+                pageResults = pageContent.size,
+                durationMs = duration
             )
 
             org.springframework.data.domain.PageImpl(
-                    pageContent.map { EntityDTO.from(it) },
-                    pageable,
-                    result.size.toLong()
+                pageContent.map { EntityDTO.from(it) },
+                pageable,
+                result.size.toLong()
             )
         }
     }
@@ -276,46 +276,46 @@ class EntityService(
 
         // Upload new image
         val objectKey =
-                "entities/${entity.id}/${System.currentTimeMillis()}_${file.originalFilename}"
+            "entities/${entity.id}/${System.currentTimeMillis()}_${file.originalFilename}"
         val uploadStart = System.currentTimeMillis()
         var uploadSuccess = false
 
         val url =
-                try {
-                    storageService.uploadFile(
-                                    bucketName,
-                                    objectKey,
-                                    file.inputStream,
-                                    file.contentType ?: "application/octet-stream",
-                                    file.size
-                            )
-                            .also { uploadSuccess = true }
-                } finally {
-                    val uploadDuration = System.currentTimeMillis() - uploadStart
-                    metricsService.recordStorageUpload(
-                            bucket = bucketName,
-                            sizeBytes = file.size,
-                            durationMs = uploadDuration,
-                            success = uploadSuccess
-                    )
-                }
+            try {
+                storageService.uploadFile(
+                    bucketName,
+                    objectKey,
+                    file.inputStream,
+                    file.contentType ?: "application/octet-stream",
+                    file.size
+                )
+                    .also { uploadSuccess = true }
+            } finally {
+                val uploadDuration = System.currentTimeMillis() - uploadStart
+                metricsService.recordStorageUpload(
+                    bucket = bucketName,
+                    sizeBytes = file.size,
+                    durationMs = uploadDuration,
+                    success = uploadSuccess
+                )
+            }
 
         // Update entity
         entity.imageUrl = url
         entityRepository.save(entity)
 
         logger.infoWith(
-                "Image uploaded successfully",
-                "entityId" to id,
-                "size" to file.size,
-                "contentType" to (file.contentType ?: "unknown")
+            "Image uploaded successfully",
+            "entityId" to id,
+            "size" to file.size,
+            "contentType" to (file.contentType ?: "unknown")
         )
         return UploadResponse(
-                url = url,
-                objectKey = objectKey,
-                bucketName = bucketName,
-                contentType = file.contentType ?: "application/octet-stream",
-                size = file.size
+            url = url,
+            objectKey = objectKey,
+            bucketName = bucketName,
+            contentType = file.contentType ?: "application/octet-stream",
+            size = file.size
         )
     }
 
@@ -343,6 +343,6 @@ class EntityService(
                 throw ImageDeletionException(id, e)
             }
         }
-                ?: throw ImageNotFoundException(id)
+            ?: throw ImageNotFoundException(id)
     }
 }

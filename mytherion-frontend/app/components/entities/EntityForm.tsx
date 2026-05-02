@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Entity, EntityType, CreateEntityRequest, UpdateEntityRequest, EntityMetadata, EntityComponent } from '@/app/types/entity';
+import { Entity, EntityType, CreateEntityRequest, UpdateEntityRequest, EntityMetadata, EntityComponent, ComponentType } from '@/app/types/entity';
 import EntityTypeSelector from './EntityTypeSelector';
 import TagInput from './TagInput';
 import EntityMetadataEditor from './metadata/EntityMetadataEditor';
@@ -90,26 +90,26 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
     
     // Add default components based on type
     if (archetype === EntityType.CHARACTER) {
-      newComponents.push({ type: 'BIO', data: {} });
-      newComponents.push({ type: 'APPEARANCE', data: {} });
-      newComponents.push({ type: 'PSYCHOLOGY', data: {} });
-      newComponents.push({ type: 'SOCIAL', data: {} });
-      newComponents.push({ type: 'HISTORY', data: {} });
+      newComponents.push({ id: ComponentType.BIO, type: ComponentType.BIO, data: {} as any });
+      newComponents.push({ id: ComponentType.APPEARANCE, type: ComponentType.APPEARANCE, data: {} as any });
+      newComponents.push({ id: ComponentType.PSYCHOLOGY, type: ComponentType.PSYCHOLOGY, data: {} as any });
+      newComponents.push({ id: ComponentType.SOCIAL, type: ComponentType.SOCIAL, data: {} as any });
+      newComponents.push({ id: ComponentType.HISTORY, type: ComponentType.HISTORY, data: {} as any });
     } else if (archetype === EntityType.LOCATION) {
-      newComponents.push({ type: 'LOCATION', data: {} });
-      newComponents.push({ type: 'LOCATION_RELATIONS', data: {} });
+      newComponents.push({ id: ComponentType.LOCATION, type: ComponentType.LOCATION, data: {} as any });
+      newComponents.push({ id: ComponentType.LOCATION_RELATIONS, type: ComponentType.LOCATION_RELATIONS, data: {} as any });
     } else if (archetype === EntityType.ORGANIZATION) {
-      newComponents.push({ type: 'ORGANIZATION', data: {} });
-      newComponents.push({ type: 'ORG_RELATIONS', data: {} });
+      newComponents.push({ id: ComponentType.ORGANIZATION, type: ComponentType.ORGANIZATION, data: {} as any });
+      newComponents.push({ id: ComponentType.ORG_RELATIONS, type: ComponentType.ORG_RELATIONS, data: {} as any });
     } else if (archetype === EntityType.CULTURE) {
-      newComponents.push({ type: 'CULTURE', data: {} });
-      newComponents.push({ type: 'CULTURE_RELATIONS', data: {} });
+      newComponents.push({ id: ComponentType.CULTURE, type: ComponentType.CULTURE, data: {} as any });
+      newComponents.push({ id: ComponentType.CULTURE_RELATIONS, type: ComponentType.CULTURE_RELATIONS, data: {} as any });
     } else if (archetype === EntityType.SPECIES) {
-      newComponents.push({ type: 'SPECIES', data: {} });
-      newComponents.push({ type: 'SPECIES_RELATIONS', data: {} });
+      newComponents.push({ id: ComponentType.SPECIES, type: ComponentType.SPECIES, data: {} as any });
+      newComponents.push({ id: ComponentType.SPECIES_RELATIONS, type: ComponentType.SPECIES_RELATIONS, data: {} as any });
     } else if (archetype === EntityType.ITEM) {
-      newComponents.push({ type: 'ITEM', data: {} });
-      newComponents.push({ type: 'ITEM_RELATIONS', data: {} });
+      newComponents.push({ id: ComponentType.ITEM, type: ComponentType.ITEM, data: {} as any });
+      newComponents.push({ id: ComponentType.ITEM_RELATIONS, type: ComponentType.ITEM_RELATIONS, data: {} as any });
     }
     
     setFormData(prev => ({

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class CookieUtil(
-        @Value("\${app.security.jwt.access-token-minutes}") private val accessTokenMinutes: Long
+    @Value("\${app.security.jwt.access-token-minutes}") private val accessTokenMinutes: Long
 ) {
     companion object {
         const val JWT_COOKIE_NAME = "mytherion_token"
@@ -51,8 +51,8 @@ class CookieUtil(
     fun clearJwtCookie(response: HttpServletResponse) {
         // Clear cookie via header
         response.addHeader(
-                "Set-Cookie",
-                "${JWT_COOKIE_NAME}=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict"
+            "Set-Cookie",
+            "${JWT_COOKIE_NAME}=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict"
         )
     }
 }

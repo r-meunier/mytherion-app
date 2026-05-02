@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class EmailService(
-        private val mailSender: JavaMailSender,
-        @Value("\${app.frontend.url}") private val frontendUrl: String,
-        @Value("\${app.email.from}") private val fromEmail: String
+    private val mailSender: JavaMailSender,
+    @Value("\${app.frontend.url}") private val frontendUrl: String,
+    @Value("\${app.email.from}") private val fromEmail: String
 ) {
     private val logoBase64: String by lazy {
         try {
@@ -56,15 +56,15 @@ class EmailService(
 
         val template = loadTemplate("verification")
         val html =
-                processTemplate(
-                        template,
-                        mapOf(
-                                "username" to username,
-                                "verificationLink" to verificationLink,
-                                "logoBase64" to logoBase64,
-                                "currentYear" to Year.now().value.toString()
-                        )
+            processTemplate(
+                template,
+                mapOf(
+                    "username" to username,
+                    "verificationLink" to verificationLink,
+                    "logoBase64" to logoBase64,
+                    "currentYear" to Year.now().value.toString()
                 )
+            )
 
         val message: MimeMessage = mailSender.createMimeMessage()
         val helper = MimeMessageHelper(message, true, "UTF-8")

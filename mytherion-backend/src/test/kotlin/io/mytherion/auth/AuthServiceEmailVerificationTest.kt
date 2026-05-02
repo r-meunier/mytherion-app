@@ -22,19 +22,26 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class)
 class AuthServiceEmailVerificationTest {
 
-    @MockK private lateinit var userRepository: UserRepository
+    @MockK
+    private lateinit var userRepository: UserRepository
 
-    @MockK private lateinit var verificationTokenRepository: EmailVerificationTokenRepository
+    @MockK
+    private lateinit var verificationTokenRepository: EmailVerificationTokenRepository
 
-    @MockK private lateinit var emailService: EmailService
+    @MockK
+    private lateinit var emailService: EmailService
 
-    @MockK private lateinit var passwordEncoder: org.springframework.security.crypto.password.PasswordEncoder
+    @MockK
+    private lateinit var passwordEncoder: org.springframework.security.crypto.password.PasswordEncoder
 
-    @MockK private lateinit var jwtService: io.mytherion.auth.jwt.JwtService
+    @MockK
+    private lateinit var jwtService: io.mytherion.auth.jwt.JwtService
 
-    @MockK private lateinit var metricsService: io.mytherion.monitoring.MetricsService
+    @MockK
+    private lateinit var metricsService: io.mytherion.monitoring.MetricsService
 
-    @InjectMockKs private lateinit var authService: AuthService
+    @InjectMockKs
+    private lateinit var authService: AuthService
 
     private lateinit var testUser: User
     private lateinit var verifiedUser: User
@@ -42,24 +49,24 @@ class AuthServiceEmailVerificationTest {
     @BeforeEach
     fun setUp() {
         testUser =
-                User(
-                        id = 1L,
-                        email = "test@example.com",
-                        username = "testuser",
-                        passwordHash = "hashedPassword",
-                        role = UserRole.USER,
-                        emailVerified = false
-                )
+            User(
+                id = 1L,
+                email = "test@example.com",
+                username = "testuser",
+                passwordHash = "hashedPassword",
+                role = UserRole.USER,
+                emailVerified = false
+            )
 
         verifiedUser =
-                User(
-                        id = 2L,
-                        email = "verified@example.com",
-                        username = "verifieduser",
-                        passwordHash = "hashedPassword",
-                        role = UserRole.USER,
-                        emailVerified = true
-                )
+            User(
+                id = 2L,
+                email = "verified@example.com",
+                username = "verifieduser",
+                passwordHash = "hashedPassword",
+                role = UserRole.USER,
+                emailVerified = true
+            )
     }
 
     // ==================== sendVerificationEmail Tests ====================
@@ -125,13 +132,13 @@ class AuthServiceEmailVerificationTest {
         // Given
         val token = "valid-token-123"
         val verificationToken =
-                EmailVerificationToken(
-                        id = 1L,
-                        token = token,
-                        user = testUser,
-                        expiresAt = Instant.now().plus(1, ChronoUnit.HOURS),
-                        verifiedAt = null
-                )
+            EmailVerificationToken(
+                id = 1L,
+                token = token,
+                user = testUser,
+                expiresAt = Instant.now().plus(1, ChronoUnit.HOURS),
+                verifiedAt = null
+            )
 
         every { verificationTokenRepository.findByToken(token) } returns verificationToken
         every { userRepository.save(any()) } returnsArgument 0
@@ -169,13 +176,13 @@ class AuthServiceEmailVerificationTest {
         // Given
         val token = "expired-token"
         val expiredToken =
-                EmailVerificationToken(
-                        id = 1L,
-                        token = token,
-                        user = testUser,
-                        expiresAt = Instant.now().minus(1, ChronoUnit.HOURS),
-                        verifiedAt = null
-                )
+            EmailVerificationToken(
+                id = 1L,
+                token = token,
+                user = testUser,
+                expiresAt = Instant.now().minus(1, ChronoUnit.HOURS),
+                verifiedAt = null
+            )
 
         every { verificationTokenRepository.findByToken(token) } returns expiredToken
 
@@ -192,13 +199,13 @@ class AuthServiceEmailVerificationTest {
         // Given
         val token = "already-verified-token"
         val verifiedToken =
-                EmailVerificationToken(
-                        id = 1L,
-                        token = token,
-                        user = testUser,
-                        expiresAt = Instant.now().plus(1, ChronoUnit.HOURS),
-                        verifiedAt = Instant.now().minus(1, ChronoUnit.HOURS)
-                )
+            EmailVerificationToken(
+                id = 1L,
+                token = token,
+                user = testUser,
+                expiresAt = Instant.now().plus(1, ChronoUnit.HOURS),
+                verifiedAt = Instant.now().minus(1, ChronoUnit.HOURS)
+            )
 
         every { verificationTokenRepository.findByToken(token) } returns verifiedToken
 
@@ -239,9 +246,9 @@ class AuthServiceEmailVerificationTest {
 
         // When & Then
         val exception =
-                assertThrows<IllegalArgumentException> {
-                    authService.resendVerificationEmailByEmail(email)
-                }
+            assertThrows<IllegalArgumentException> {
+                authService.resendVerificationEmailByEmail(email)
+            }
 
         assertEquals("Email already verified", exception.message)
         verify { userRepository.findByEmailAndDeletedAtIsNull(email) }
@@ -256,9 +263,9 @@ class AuthServiceEmailVerificationTest {
 
         // When & Then
         val exception =
-                assertThrows<IllegalArgumentException> {
-                    authService.resendVerificationEmailByEmail(email)
-                }
+            assertThrows<IllegalArgumentException> {
+                authService.resendVerificationEmailByEmail(email)
+            }
 
         assertEquals("User not found", exception.message)
         verify { userRepository.findByEmailAndDeletedAtIsNull(email) }
@@ -309,9 +316,9 @@ class AuthServiceEmailVerificationTest {
 
         // When & Then
         val exception =
-                assertThrows<IllegalArgumentException> {
-                    authService.resendVerificationEmail(userId)
-                }
+            assertThrows<IllegalArgumentException> {
+                authService.resendVerificationEmail(userId)
+            }
 
         assertEquals("Email already verified", exception.message)
         verify(exactly = 0) { emailService.sendVerificationEmail(any(), any(), any()) }
@@ -325,9 +332,9 @@ class AuthServiceEmailVerificationTest {
 
         // When & Then
         val exception =
-                assertThrows<IllegalArgumentException> {
-                    authService.resendVerificationEmail(userId)
-                }
+            assertThrows<IllegalArgumentException> {
+                authService.resendVerificationEmail(userId)
+            }
 
         assertEquals("User not found", exception.message)
         verify(exactly = 0) { emailService.sendVerificationEmail(any(), any(), any()) }

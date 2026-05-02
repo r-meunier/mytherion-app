@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class CurrentUserProvider(
-        private val userRepository: UserRepository,
+    private val userRepository: UserRepository,
 ) {
 
     fun getCurrentUser(): User {
@@ -16,8 +16,8 @@ class CurrentUserProvider(
             throw IllegalStateException("No authenticated user found")
         }
         val userId =
-                authentication.principal as? Long
-                        ?: throw IllegalStateException("Principal is not a valid User ID")
+            authentication.principal as? Long
+                ?: throw IllegalStateException("Principal is not a valid User ID")
 
         return userRepository.findById(userId).orElseThrow {
             IllegalStateException("User with id=$userId not found")

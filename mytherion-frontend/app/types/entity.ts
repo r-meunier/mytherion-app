@@ -101,6 +101,13 @@ export interface CharacterRelationsData {
   culture?: EntityLink;
 }
 
+export interface OriginsData {
+  birthplace?: EntityLink;
+  residence?: EntityLink;
+  species?: EntityLink;
+  culture?: EntityLink;
+}
+
 export interface OrganizationData {
   population: Quantity;
   agenda?: string;
@@ -206,27 +213,50 @@ export interface PerspectiveData {
   views: OpinionLink[];
 }
 
+export enum ComponentType {
+  BIO = 'BIO',
+  APPEARANCE = 'APPEARANCE',
+  PSYCHOLOGY = 'PSYCHOLOGY',
+  SOCIAL = 'SOCIAL',
+  HISTORY = 'HISTORY',
+  CHARACTER_RELATIONS = 'CHARACTER_RELATIONS',
+  ORGANIZATION = 'ORGANIZATION',
+  ORG_RELATIONS = 'ORG_RELATIONS',
+  ORIGINS = 'ORIGINS',
+  CULTURE = 'CULTURE',
+  CULTURE_RELATIONS = 'CULTURE_RELATIONS',
+  SPECIES = 'SPECIES',
+  SPECIES_RELATIONS = 'SPECIES_RELATIONS',
+  LOCATION = 'LOCATION',
+  LOCATION_RELATIONS = 'LOCATION_RELATIONS',
+  ITEM = 'ITEM',
+  ITEM_RELATIONS = 'ITEM_RELATIONS',
+  PERSPECTIVES = 'PERSPECTIVES',
+  CUSTOM = 'CUSTOM'
+}
+
 // --- Component Union Type ---
 
 export type EntityComponent = 
-  | { type: 'BIO'; data: BioData }
-  | { type: 'APPEARANCE'; data: AppearanceData }
-  | { type: 'PSYCHOLOGY'; data: PsychologyData }
-  | { type: 'SOCIAL'; data: SocialData }
-  | { type: 'HISTORY'; data: HistoryData }
-  | { type: 'CHARACTER_RELATIONS'; data: CharacterRelationsData }
-  | { type: 'ORGANIZATION'; data: OrganizationData }
-  | { type: 'ORG_RELATIONS'; data: OrgRelationsData }
-  | { type: 'CULTURE'; data: CultureData }
-  | { type: 'CULTURE_RELATIONS'; data: CultureRelationsData }
-  | { type: 'SPECIES'; data: SpeciesData }
-  | { type: 'SPECIES_RELATIONS'; data: SpeciesRelationsData }
-  | { type: 'LOCATION'; data: LocationData }
-  | { type: 'LOCATION_RELATIONS'; data: LocationRelationsData }
-  | { type: 'ITEM'; data: ItemData }
-  | { type: 'ITEM_RELATIONS'; data: ItemRelationsData }
-  | { type: 'PERSPECTIVES'; data: PerspectiveData }
-  | { type: 'CUSTOM'; data: Record<string, any> };
+  | { id: string; type: ComponentType.BIO; data: BioData }
+  | { id: string; type: ComponentType.APPEARANCE; data: AppearanceData }
+  | { id: string; type: ComponentType.PSYCHOLOGY; data: PsychologyData }
+  | { id: string; type: ComponentType.SOCIAL; data: SocialData }
+  | { id: string; type: ComponentType.HISTORY; data: HistoryData }
+  | { id: string; type: ComponentType.CHARACTER_RELATIONS; data: CharacterRelationsData }
+  | { id: string; type: ComponentType.ORGANIZATION; data: OrganizationData }
+  | { id: string; type: ComponentType.ORG_RELATIONS; data: OrgRelationsData }
+  | { id: string; type: ComponentType.ORIGINS; data: OriginsData }
+  | { id: string; type: ComponentType.CULTURE; data: CultureData }
+  | { id: string; type: ComponentType.CULTURE_RELATIONS; data: CultureRelationsData }
+  | { id: string; type: ComponentType.SPECIES; data: SpeciesData }
+  | { id: string; type: ComponentType.SPECIES_RELATIONS; data: SpeciesRelationsData }
+  | { id: string; type: ComponentType.LOCATION; data: LocationData }
+  | { id: string; type: ComponentType.LOCATION_RELATIONS; data: LocationRelationsData }
+  | { id: string; type: ComponentType.ITEM; data: ItemData }
+  | { id: string; type: ComponentType.ITEM_RELATIONS; data: ItemRelationsData }
+  | { id: string; type: ComponentType.PERSPECTIVES; data: PerspectiveData }
+  | { id: string; type: ComponentType.CUSTOM; data: Record<string, any> };
 
 export interface EntityMetadata {
   components: EntityComponent[];

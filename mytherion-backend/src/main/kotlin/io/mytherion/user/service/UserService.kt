@@ -13,7 +13,7 @@ class UserService(private val userRepository: UserRepository) {
 
     @Transactional(readOnly = true)
     fun getAll(): List<UserResponse> =
-            userRepository.findAll().filter { !it.isDeleted() }.map(UserResponse::from)
+        userRepository.findAll().filter { !it.isDeleted() }.map(UserResponse::from)
 
     @Transactional(readOnly = true)
     fun getUserById(id: Long): UserResponse {
@@ -24,7 +24,7 @@ class UserService(private val userRepository: UserRepository) {
     @Transactional
     fun updateUser(userId: Long, currentUserId: Long, isAdmin: Boolean, request: UpdateUserRequest): UserResponse {
         val user = userRepository.findByIdAndDeletedAtIsNull(userId)
-                ?: throw UserNotFoundException(userId)
+            ?: throw UserNotFoundException(userId)
 
         // Authorization: users can only update their own profile unless they are an admin
         if (userId != currentUserId && !isAdmin) {
@@ -60,7 +60,7 @@ class UserService(private val userRepository: UserRepository) {
     @Transactional
     fun deleteUser(userId: Long, currentUserId: Long, isAdmin: Boolean) {
         val user = userRepository.findByIdAndDeletedAtIsNull(userId)
-                ?: throw UserNotFoundException(userId)
+            ?: throw UserNotFoundException(userId)
 
         // Authorization: users can only delete their own account unless they are an admin
         if (userId != currentUserId && !isAdmin) {

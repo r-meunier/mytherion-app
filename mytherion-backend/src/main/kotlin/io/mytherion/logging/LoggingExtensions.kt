@@ -47,9 +47,9 @@ fun Logger.warnWith(message: String, vararg context: Pair<String, Any?>) {
 }
 
 fun Logger.errorWith(
-        message: String,
-        throwable: Throwable? = null,
-        vararg context: Pair<String, Any?>
+    message: String,
+    throwable: Throwable? = null,
+    vararg context: Pair<String, Any?>
 ) {
     if (isErrorEnabled) {
         withContext(*context) {
@@ -102,9 +102,9 @@ private fun formatMessage(message: String, vararg context: Pair<String, Any?>): 
  * repository.findAll() }
  */
 inline fun <T> Logger.measureTime(
-        operation: String,
-        level: LogLevel = LogLevel.DEBUG,
-        block: () -> T
+    operation: String,
+    level: LogLevel = LogLevel.DEBUG,
+    block: () -> T
 ): T {
     val start = System.currentTimeMillis()
     return try {
@@ -133,9 +133,9 @@ enum class LogLevel {
 
 /** Log entry and exit of a function Usage: logger.traced("processUser") { processUser(userId) } */
 inline fun <T> Logger.traced(
-        functionName: String,
-        vararg context: Pair<String, Any?>,
-        block: () -> T
+    functionName: String,
+    vararg context: Pair<String, Any?>,
+    block: () -> T
 ): T {
     debugWith("Entering $functionName", *context)
     return try {

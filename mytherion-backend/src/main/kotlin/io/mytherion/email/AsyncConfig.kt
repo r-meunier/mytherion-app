@@ -25,16 +25,15 @@ class AsyncConfig : AsyncConfigurer {
     }
 
     override fun getAsyncUncaughtExceptionHandler(): AsyncUncaughtExceptionHandler {
-        return AsyncUncaughtExceptionHandler {
-                ex: Throwable,
-                method: Method,
-                params: Array<out Any?> ->
+        return AsyncUncaughtExceptionHandler { ex: Throwable,
+                                               method: Method,
+                                               params: Array<out Any?> ->
             log.error(
-                    "Async email dispatch failed in method '{}' with params {}: {}",
-                    method.name,
-                    params.contentToString(),
-                    ex.message,
-                    ex
+                "Async email dispatch failed in method '{}' with params {}: {}",
+                method.name,
+                params.contentToString(),
+                ex.message,
+                ex
             )
         }
     }

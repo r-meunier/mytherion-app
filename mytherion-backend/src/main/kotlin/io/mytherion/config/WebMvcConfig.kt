@@ -16,7 +16,7 @@ class WebMvcConfig(private val performanceInterceptor: PerformanceInterceptor) :
     override fun addInterceptors(registry: InterceptorRegistry) {
         // Register performance monitoring for all API endpoints
         registry.addInterceptor(performanceInterceptor)
-                .addPathPatterns("/api/**")
-                .order(1) // Execute first to capture total request time
+            .addPathPatterns("/api/**")
+            .order(1) // Execute first to capture total request time
     }
 }

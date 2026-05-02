@@ -1,53 +1,53 @@
 'use client';
 
 import { useState } from 'react';
-import { EntityType, EntityMetadata, EntityComponent } from '@/app/types/entity';
+import { EntityType, EntityMetadata, EntityComponent, ComponentType } from '@/app/types/entity';
 import ComponentDispatcher from './ComponentDispatcher';
 
 interface TabDefinition {
   id: string;
   label: string;
-  components: string[]; // List of component types to show in this tab
+  components: ComponentType[]; // List of component types to show in this tab
 }
 
 const TAB_CONFIG: Record<string, TabDefinition[]> = {
   [EntityType.CHARACTER]: [
-    { id: 'vitality', label: 'Vitality', components: ['BIO'] },
-    { id: 'appearance', label: 'Appearance', components: ['APPEARANCE'] },
-    { id: 'psychology', label: 'Psychology', components: ['PSYCHOLOGY'] },
-    { id: 'social', label: 'Social', components: ['SOCIAL'] },
-    { id: 'history', label: 'History', components: ['HISTORY'] },
-    { id: 'relations', label: 'Relations', components: ['CHARACTER_RELATIONS'] },
-    { id: 'perspectives', label: 'Perspectives', components: ['PERSPECTIVES'] },
+    { id: 'vitality', label: 'Vitality', components: [ComponentType.BIO] },
+    { id: 'appearance', label: 'Appearance', components: [ComponentType.APPEARANCE] },
+    { id: 'psychology', label: 'Psychology', components: [ComponentType.PSYCHOLOGY] },
+    { id: 'social', label: 'Social', components: [ComponentType.SOCIAL] },
+    { id: 'history', label: 'History', components: [ComponentType.HISTORY] },
+    { id: 'relations', label: 'Relations', components: [ComponentType.CHARACTER_RELATIONS] },
+    { id: 'perspectives', label: 'Perspectives', components: [ComponentType.PERSPECTIVES] },
   ],
   [EntityType.ORGANIZATION]: [
-    { id: 'structure', label: 'Structure', components: ['ORGANIZATION'] },
-    { id: 'network', label: 'Network', components: ['ORG_RELATIONS'] },
-    { id: 'perspectives', label: 'Perspectives', components: ['PERSPECTIVES'] },
+    { id: 'structure', label: 'Structure', components: [ComponentType.ORGANIZATION] },
+    { id: 'network', label: 'Network', components: [ComponentType.ORG_RELATIONS] },
+    { id: 'perspectives', label: 'Perspectives', components: [ComponentType.PERSPECTIVES] },
   ],
   [EntityType.CULTURE]: [
-    { id: 'lore', label: 'Lore', components: ['CULTURE'] },
-    { id: 'network', label: 'Network', components: ['CULTURE_RELATIONS'] },
-    { id: 'perspectives', label: 'Perspectives', components: ['PERSPECTIVES'] },
+    { id: 'lore', label: 'Lore', components: [ComponentType.CULTURE] },
+    { id: 'network', label: 'Network', components: [ComponentType.CULTURE_RELATIONS] },
+    { id: 'perspectives', label: 'Perspectives', components: [ComponentType.PERSPECTIVES] },
   ],
   [EntityType.SPECIES]: [
-    { id: 'biology', label: 'Biology', components: ['SPECIES'] },
-    { id: 'evolution', label: 'Evolution', components: ['SPECIES_RELATIONS'] },
+    { id: 'biology', label: 'Biology', components: [ComponentType.SPECIES] },
+    { id: 'evolution', label: 'Evolution', components: [ComponentType.SPECIES_RELATIONS] },
   ],
   [EntityType.LOCATION]: [
-    { id: 'details', label: 'Environment', components: ['LOCATION'] },
-    { id: 'occupants', label: 'Occupants', components: ['LOCATION_RELATIONS'] },
+    { id: 'details', label: 'Environment', components: [ComponentType.LOCATION] },
+    { id: 'occupants', label: 'Occupants', components: [ComponentType.LOCATION_RELATIONS] },
   ],
   [EntityType.ITEM]: [
-    { id: 'attributes', label: 'Attributes', components: ['ITEM'] },
-    { id: 'ownership', label: 'Ownership', components: ['ITEM_RELATIONS'] },
+    { id: 'attributes', label: 'Attributes', components: [ComponentType.ITEM] },
+    { id: 'ownership', label: 'Ownership', components: [ComponentType.ITEM_RELATIONS] },
   ],
 };
 
 interface EntityMetadataEditorProps {
   entityType: EntityType;
   metadata: EntityMetadata;
-  onUpdateComponent?: (type: string, data: Record<string, any>) => void;
+  onUpdateComponent?: (type: ComponentType, data: Record<string, any>) => void;
   disabled?: boolean;
   readOnly?: boolean;
 }
@@ -103,15 +103,15 @@ export default function EntityMetadataEditor({
         {activeTab === 'custom' ? (
           <div className="p-4 bg-gray-800/20 rounded-xl border border-gray-700/50">
              <ComponentDispatcher 
-                component={metadata.components.find(c => c.type === 'CUSTOM') || { type: 'CUSTOM', data: {} }}
-                onChange={(data) => onUpdateComponent?.('CUSTOM', data)}
+                component={metadata.components.find(c => c.type === ComponentType.CUSTOM) || { id: ComponentType.CUSTOM, type: ComponentType.CUSTOM, data: {} }}
+                onChange={(data) => onUpdateComponent?.(ComponentType.CUSTOM, data)}
                 disabled={readOnly || disabled}
              />
           </div>
         ) : (
           <div className="space-y-6">
             {currentTabDef.components.map((compType) => {
-              const component = metadata.components.find(c => c.type === compType) || { type: compType, data: {} };
+              const component = metadata.components.find(c => c.type === compType) || { id: compType, type: compType, data: {} };
               return (
                 <div key={compType} className="p-6 bg-gray-800/20 rounded-xl border border-gray-700/50">
                   <ComponentDispatcher 

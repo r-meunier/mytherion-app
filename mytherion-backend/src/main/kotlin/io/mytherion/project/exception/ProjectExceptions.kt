@@ -5,4 +5,4 @@ class ProjectNotFoundException(id: Long) : RuntimeException("Project with id $id
 
 /** Exception thrown when a user tries to access or modify a project they don't own */
 class ProjectAccessDeniedException(id: Long) :
-        RuntimeException("Access denied to project with id $id")
+    RuntimeException("Access denied to project with id $id")

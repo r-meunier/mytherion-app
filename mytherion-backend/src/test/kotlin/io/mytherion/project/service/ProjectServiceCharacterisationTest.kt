@@ -24,15 +24,20 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class)
 class ProjectServiceCharacterisationTest {
 
-    @MockK private lateinit var projectRepository: ProjectRepository
+    @MockK
+    private lateinit var projectRepository: ProjectRepository
 
-    @MockK private lateinit var currentUserProvider: CurrentUserProvider
+    @MockK
+    private lateinit var currentUserProvider: CurrentUserProvider
 
-    @MockK private lateinit var entityQueryService: io.mytherion.entity.service.EntityQueryService
+    @MockK
+    private lateinit var entityQueryService: io.mytherion.entity.service.EntityQueryService
 
-    @MockK private lateinit var metricsService: io.mytherion.monitoring.MetricsService
+    @MockK
+    private lateinit var metricsService: io.mytherion.monitoring.MetricsService
 
-    @InjectMockKs private lateinit var projectService: ProjectService
+    @InjectMockKs
+    private lateinit var projectService: ProjectService
 
     private lateinit var testUser: User
     private lateinit var otherUser: User
@@ -42,11 +47,11 @@ class ProjectServiceCharacterisationTest {
     fun setUp() {
         testUser = ProjectTestFixtures.createTestUser(id = 1L, username = "testuser")
         otherUser =
-                ProjectTestFixtures.createTestUser(
-                        id = 2L,
-                        username = "otheruser",
-                        email = "other@example.com"
-                )
+            ProjectTestFixtures.createTestUser(
+                id = 2L,
+                username = "otheruser",
+                email = "other@example.com"
+            )
         testProject = ProjectTestFixtures.createTestProject(id = 1L, owner = testUser)
 
         // Mock CurrentUserProvider to return testUser
@@ -70,12 +75,12 @@ class ProjectServiceCharacterisationTest {
 
         // When & Then
         val exception =
-                assertThrows<io.mytherion.project.exception.ProjectHasEntitiesException> {
-                    projectService.deleteProject(1L)
-                }
+            assertThrows<io.mytherion.project.exception.ProjectHasEntitiesException> {
+                projectService.deleteProject(1L)
+            }
         assertEquals(
-                "Cannot delete project with id 1: it contains 3 entities. Delete all entities first.",
-                exception.message
+            "Cannot delete project with id 1: it contains 3 entities. Delete all entities first.",
+            exception.message
         )
         verify(exactly = 0) { projectRepository.delete(any()) }
     }

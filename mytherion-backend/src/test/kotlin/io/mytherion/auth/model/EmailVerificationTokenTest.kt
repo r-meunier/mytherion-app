@@ -11,10 +11,10 @@ class EmailVerificationTokenTest {
 
     private fun createTestUser(): User {
         return User(
-                email = "test@example.com",
-                username = "testuser",
-                passwordHash = "hashedPassword",
-                role = UserRole.USER
+            email = "test@example.com",
+            username = "testuser",
+            passwordHash = "hashedPassword",
+            role = UserRole.USER
         )
     }
 
@@ -24,7 +24,7 @@ class EmailVerificationTokenTest {
         val user = createTestUser()
         val expiredTime = Instant.now().minus(1, ChronoUnit.HOURS)
         val token =
-                EmailVerificationToken(token = "test-token", user = user, expiresAt = expiredTime)
+            EmailVerificationToken(token = "test-token", user = user, expiresAt = expiredTime)
 
         // When
         val result = token.isExpired()
@@ -39,7 +39,7 @@ class EmailVerificationTokenTest {
         val user = createTestUser()
         val futureTime = Instant.now().plus(1, ChronoUnit.HOURS)
         val token =
-                EmailVerificationToken(token = "test-token", user = user, expiresAt = futureTime)
+            EmailVerificationToken(token = "test-token", user = user, expiresAt = futureTime)
 
         // When
         val result = token.isExpired()
@@ -68,12 +68,12 @@ class EmailVerificationTokenTest {
         // Given
         val user = createTestUser()
         val token =
-                EmailVerificationToken(
-                        token = "test-token",
-                        user = user,
-                        expiresAt = Instant.now().plus(1, ChronoUnit.HOURS),
-                        verifiedAt = Instant.now()
-                )
+            EmailVerificationToken(
+                token = "test-token",
+                user = user,
+                expiresAt = Instant.now().plus(1, ChronoUnit.HOURS),
+                verifiedAt = Instant.now()
+            )
 
         // When
         val result = token.isVerified()
@@ -87,12 +87,12 @@ class EmailVerificationTokenTest {
         // Given
         val user = createTestUser()
         val token =
-                EmailVerificationToken(
-                        token = "test-token",
-                        user = user,
-                        expiresAt = Instant.now().plus(1, ChronoUnit.HOURS),
-                        verifiedAt = null
-                )
+            EmailVerificationToken(
+                token = "test-token",
+                user = user,
+                expiresAt = Instant.now().plus(1, ChronoUnit.HOURS),
+                verifiedAt = null
+            )
 
         // When
         val result = token.isVerified()
@@ -109,11 +109,11 @@ class EmailVerificationTokenTest {
 
         // When
         val token =
-                EmailVerificationToken(
-                        token = "test-token",
-                        user = user,
-                        expiresAt = Instant.now().plus(1, ChronoUnit.HOURS)
-                )
+            EmailVerificationToken(
+                token = "test-token",
+                user = user,
+                expiresAt = Instant.now().plus(1, ChronoUnit.HOURS)
+            )
 
         val afterCreation = Instant.now()
 
@@ -127,11 +127,11 @@ class EmailVerificationTokenTest {
         // Given
         val user = createTestUser()
         val token =
-                EmailVerificationToken(
-                        token = "test-token",
-                        user = user,
-                        expiresAt = Instant.now().plus(1, ChronoUnit.HOURS)
-                )
+            EmailVerificationToken(
+                token = "test-token",
+                user = user,
+                expiresAt = Instant.now().plus(1, ChronoUnit.HOURS)
+            )
 
         assertFalse(token.isVerified(), "Token should not be verified initially")
 

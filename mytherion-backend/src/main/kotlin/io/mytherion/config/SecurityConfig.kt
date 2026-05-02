@@ -20,24 +20,24 @@ class SecurityConfig(private val jwtAuthFilter: JwtAuthFilter) {
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http
-                .cors { it.configurationSource(corsConfigurationSource()) }
-                .csrf { it.disable() }
-                .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-                .authorizeHttpRequests {
-                    it.requestMatchers("/api/health")
-                            .permitAll()
-                            .requestMatchers(
-                                    "/api/auth/register",
-                                    "/api/auth/login",
-                                    "/api/auth/logout",
-                                    "/api/auth/verify-email",
-                                    "/api/auth/resend-verification"
-                            )
-                            .permitAll()
-                            .anyRequest()
-                            .authenticated()
-                }
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .cors { it.configurationSource(corsConfigurationSource()) }
+            .csrf { it.disable() }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .authorizeHttpRequests {
+                it.requestMatchers("/api/health")
+                    .permitAll()
+                    .requestMatchers(
+                        "/api/auth/register",
+                        "/api/auth/login",
+                        "/api/auth/logout",
+                        "/api/auth/verify-email",
+                        "/api/auth/resend-verification"
+                    )
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated()
+            }
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
     }

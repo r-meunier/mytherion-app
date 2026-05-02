@@ -18,11 +18,11 @@ interface StorageService {
      * @return The URL or key of the uploaded object
      */
     fun uploadFile(
-            bucketName: String,
-            objectName: String,
-            inputStream: InputStream,
-            contentType: String,
-            size: Long
+        bucketName: String,
+        objectName: String,
+        inputStream: InputStream,
+        contentType: String,
+        size: Long
     ): String
 
     /**

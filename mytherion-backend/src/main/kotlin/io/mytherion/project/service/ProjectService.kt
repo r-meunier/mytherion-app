@@ -26,10 +26,10 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class ProjectService(
-        private val projectRepository: ProjectRepository,
-        private val currentUserProvider: CurrentUserProvider,
-        private val entityQueryService: EntityQueryService,
-        private val metricsService: MetricsService
+    private val projectRepository: ProjectRepository,
+    private val currentUserProvider: CurrentUserProvider,
+    private val entityQueryService: EntityQueryService,
+    private val metricsService: MetricsService
 ) {
     private val logger = logger()
 
@@ -39,10 +39,10 @@ class ProjectService(
     private fun verifyOwnership(project: Project, currentUser: User) {
         if (project.owner.id != currentUser.id) {
             logger.warnWith(
-                    "Access denied to project",
-                    "projectId" to project.id,
-                    "ownerId" to project.owner.id,
-                    "requestingUserId" to currentUser.id
+                "Access denied to project",
+                "projectId" to project.id,
+                "ownerId" to project.owner.id,
+                "requestingUserId" to currentUser.id
             )
             throw ProjectAccessDeniedException(project.id!!)
         }
@@ -54,8 +54,8 @@ class ProjectService(
      */
     fun getVerifiedProject(projectId: Long, userId: Long): Project {
         val project =
-                projectRepository.findByIdAndDeletedAtIsNull(projectId)
-                        ?: throw ProjectNotFoundException(projectId)
+            projectRepository.findByIdAndDeletedAtIsNull(projectId)
+                ?: throw ProjectNotFoundException(projectId)
         if (project.owner.id != userId) {
             throw ProjectAccessDeniedException(projectId)
         }
@@ -69,14 +69,14 @@ class ProjectService(
 
         return logger.measureTime("Fetch projects") {
             val pageable: Pageable =
-                    PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"))
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"))
             val result = projectRepository.findAllByOwner(user, pageable).map(ProjectResponse::from)
 
             logger.infoWith(
-                    "Projects listed",
-                    "userId" to user.id,
-                    "count" to result.content.size,
-                    "totalElements" to result.totalElements
+                "Projects listed",
+                "userId" to user.id,
+                "count" to result.content.size,
+                "totalElements" to result.totalElements
             )
             result
         }
@@ -88,10 +88,10 @@ class ProjectService(
         logger.debugWith("Fetching project", "projectId" to id, "userId" to user.id)
 
         val project =
-                projectRepository.findById(id).orElseThrow {
-                    logger.warnWith("Project not found", "projectId" to id)
-                    ProjectNotFoundException(id)
-                }
+            projectRepository.findById(id).orElseThrow {
+                logger.warnWith("Project not found", "projectId" to id)
+                ProjectNotFoundException(id)
+            }
         verifyOwnership(project, user)
 
         logger.infoWith("Project fetched", "projectId" to id, "name" to project.name)
@@ -109,19 +109,19 @@ class ProjectService(
         return try {
             logger.measureTime("Save project") {
                 val project =
-                        Project(
-                                owner = user,
-                                name = request.name,
-                                description = request.description,
-                                genre = request.genre
-                        )
+                    Project(
+                        owner = user,
+                        name = request.name,
+                        description = request.description,
+                        genre = request.genre
+                    )
                 val saved = projectRepository.save(project)
 
                 logger.infoWith(
-                        "Project created successfully",
-                        "projectId" to saved.id,
-                        "userId" to user.id,
-                        "name" to saved.name
+                    "Project created successfully",
+                    "projectId" to saved.id,
+                    "userId" to user.id,
+                    "name" to saved.name
                 )
                 success = true
                 ProjectResponse.from(saved)
@@ -136,15 +136,15 @@ class ProjectService(
     fun updateProject(id: Long, request: UpdateProjectRequest): ProjectResponse {
         val user = getCurrentUser()
         logger.infoWith(
-                "Updating project",
-                "projectId" to id,
-                "userId" to user.id,
-                "updates" to
-                        listOfNotNull(
-                                request.name?.let { "name" },
-                                request.description?.let { "description" },
-                                request.genre?.let { "genre" }
-                        )
+            "Updating project",
+            "projectId" to id,
+            "userId" to user.id,
+            "updates" to
+                    listOfNotNull(
+                        request.name?.let { "name" },
+                        request.description?.let { "description" },
+                        request.genre?.let { "genre" }
+                    )
         )
 
         val project = projectRepository.findById(id).orElseThrow { ProjectNotFoundException(id) }
@@ -177,10 +177,10 @@ class ProjectService(
             val entityCountByType = entityQueryService.countByProjectGrouped(project)
 
             logger.infoWith(
-                    "Project stats calculated",
-                    "projectId" to id,
-                    "entityCount" to entityCount,
-                    "types" to entityCountByType.keys
+                "Project stats calculated",
+                "projectId" to id,
+                "entityCount" to entityCount,
+                "types" to entityCountByType.keys
             )
 
             val duration = System.currentTimeMillis() - startTime
@@ -202,9 +202,9 @@ class ProjectService(
         val entityCount = entityQueryService.countByProject(project).toInt()
         if (entityCount > 0) {
             logger.warnWith(
-                    "Cannot delete project with entities",
-                    "projectId" to id,
-                    "entityCount" to entityCount
+                "Cannot delete project with entities",
+                "projectId" to id,
+                "entityCount" to entityCount
             )
             throw ProjectHasEntitiesException(id, entityCount)
         }

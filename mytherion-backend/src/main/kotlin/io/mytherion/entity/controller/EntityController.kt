@@ -24,32 +24,32 @@ class EntityController(private val entityService: EntityService) {
      */
     @GetMapping("/projects/{projectId}/entities")
     fun listEntities(
-            @PathVariable projectId: Long,
-            @RequestParam(required = false) type: io.mytherion.entity.model.EntityType?,
-            @RequestParam(required = false) tags: List<String>?,
-            @RequestParam(required = false) search: String?,
-            @RequestParam(defaultValue = "0") page: Int,
-            @RequestParam(defaultValue = "20") size: Int
+        @PathVariable projectId: Long,
+        @RequestParam(required = false) type: io.mytherion.entity.model.EntityType?,
+        @RequestParam(required = false) tags: List<String>?,
+        @RequestParam(required = false) search: String?,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "20") size: Int
     ): Page<EntityDTO> {
         logger.infoWith(
-                "List entities request",
-                "projectId" to projectId,
-                "type" to type,
-                "tags" to tags,
-                "search" to search,
-                "page" to page,
-                "size" to size
+            "List entities request",
+            "projectId" to projectId,
+            "type" to type,
+            "tags" to tags,
+            "search" to search,
+            "page" to page,
+            "size" to size
         )
 
         return try {
             val searchRequest =
-                    EntitySearchRequest(
-                            type = type,
-                            tags = tags,
-                            search = search,
-                            page = page,
-                            size = size
-                    )
+                EntitySearchRequest(
+                    type = type,
+                    tags = tags,
+                    search = search,
+                    page = page,
+                    size = size
+                )
             entityService.searchEntities(projectId, searchRequest)
         } catch (e: Exception) {
             logger.errorWith("Failed to list entities", e, "projectId" to projectId)
@@ -61,24 +61,24 @@ class EntityController(private val entityService: EntityService) {
     @PostMapping("/projects/{projectId}/entities")
     @ResponseStatus(HttpStatus.CREATED)
     fun createEntity(
-            @PathVariable projectId: Long,
-            @Valid @RequestBody request: CreateEntityRequest
+        @PathVariable projectId: Long,
+        @Valid @RequestBody request: CreateEntityRequest
     ): EntityDTO {
         logger.infoWith(
-                "Create entity request",
-                "projectId" to projectId,
-                "type" to request.type,
-                "name" to request.name
+            "Create entity request",
+            "projectId" to projectId,
+            "type" to request.type,
+            "name" to request.name
         )
 
         return try {
             entityService.createEntity(projectId, request)
         } catch (e: Exception) {
             logger.errorWith(
-                    "Failed to create entity",
-                    e,
-                    "projectId" to projectId,
-                    "name" to request.name
+                "Failed to create entity",
+                e,
+                "projectId" to projectId,
+                "name" to request.name
             )
             throw e
         }
@@ -100,8 +100,8 @@ class EntityController(private val entityService: EntityService) {
     /** Update entity PATCH /api/entities/{id} */
     @PatchMapping("/entities/{id}")
     fun updateEntity(
-            @PathVariable id: Long,
-            @Valid @RequestBody request: UpdateEntityRequest
+        @PathVariable id: Long,
+        @Valid @RequestBody request: UpdateEntityRequest
     ): EntityDTO {
         logger.infoWith("Update entity request", "entityId" to id)
 
@@ -130,15 +130,15 @@ class EntityController(private val entityService: EntityService) {
     /** Upload image for entity POST /api/entities/{id}/image */
     @PostMapping("/entities/{id}/image", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun uploadImage(
-            @PathVariable id: Long,
-            @RequestParam("file") file: MultipartFile
+        @PathVariable id: Long,
+        @RequestParam("file") file: MultipartFile
     ): UploadResponse {
         logger.infoWith(
-                "Upload image request",
-                "entityId" to id,
-                "fileName" to file.originalFilename,
-                "fileSize" to file.size,
-                "contentType" to file.contentType
+            "Upload image request",
+            "entityId" to id,
+            "fileName" to file.originalFilename,
+            "fileSize" to file.size,
+            "contentType" to file.contentType
         )
 
         // Validate file
@@ -150,10 +150,10 @@ class EntityController(private val entityService: EntityService) {
         val allowedTypes = listOf("image/jpeg", "image/png", "image/gif", "image/webp")
         if (file.contentType !in allowedTypes) {
             logger.errorWith(
-                    "Invalid file type",
-                    null,
-                    "entityId" to id,
-                    "contentType" to file.contentType
+                "Invalid file type",
+                null,
+                "entityId" to id,
+                "contentType" to file.contentType
             )
             throw IllegalArgumentException("Invalid file type. Allowed: JPEG, PNG, GIF, WebP")
         }
@@ -161,10 +161,10 @@ class EntityController(private val entityService: EntityService) {
         val maxSize = 5 * 1024 * 1024 // 5MB
         if (file.size > maxSize) {
             logger.errorWith(
-                    "File size exceeds limit",
-                    null,
-                    "entityId" to id,
-                    "fileSize" to file.size
+                "File size exceeds limit",
+                null,
+                "entityId" to id,
+                "fileSize" to file.size
             )
             throw IllegalArgumentException("File size exceeds 5MB limit")
         }

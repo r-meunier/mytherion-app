@@ -43,42 +43,42 @@ class EntityServiceCharacterizationTest {
         metricsService = mockk()
 
         entityService =
-                EntityService(
-                        entityRepository,
-                        projectService,
-                        currentUserProvider,
-                        storageService,
-                        metricsService,
-                        "test-bucket"
-                )
+            EntityService(
+                entityRepository,
+                projectService,
+                currentUserProvider,
+                storageService,
+                metricsService,
+                "test-bucket"
+            )
 
         // Setup test data
         testUser =
-                User(
-                        id = 1L,
-                        username = "testuser",
-                        email = "test@example.com",
-                        passwordHash = "hashedpassword",
-                        emailVerified = true
-                )
+            User(
+                id = 1L,
+                username = "testuser",
+                email = "test@example.com",
+                passwordHash = "hashedpassword",
+                emailVerified = true
+            )
 
         testProject =
-                Project(
-                        id = 1L,
-                        owner = testUser,
-                        name = "Test Project",
-                        description = "Test Description"
-                )
+            Project(
+                id = 1L,
+                owner = testUser,
+                name = "Test Project",
+                description = "Test Description"
+            )
 
         testEntity =
-                Entity(
-                        id = 1L,
-                        project = testProject,
-                        type = EntityType.CHARACTER,
-                        name = "Test Character",
-                        summary = "A test character",
-                        description = "Detailed description"
-                )
+            Entity(
+                id = 1L,
+                project = testProject,
+                type = EntityType.CHARACTER,
+                name = "Test Character",
+                summary = "A test character",
+                description = "Detailed description"
+            )
 
         // Mock current user provider to return test user
         every { currentUserProvider.getCurrentUser() } returns testUser
@@ -110,10 +110,10 @@ class EntityServiceCharacterizationTest {
 
         // When
         val result =
-                entityService.searchEntities(
-                        1L,
-                        io.mytherion.entity.dto.EntitySearchRequest(page = 0, size = 20)
-                )
+            entityService.searchEntities(
+                1L,
+                io.mytherion.entity.dto.EntitySearchRequest(page = 0, size = 20)
+            )
 
         // Then
         assertEquals(1, result.totalElements)
@@ -128,8 +128,8 @@ class EntityServiceCharacterizationTest {
         // When/Then
         assertThrows<ProjectNotFoundException> {
             entityService.searchEntities(
-                    999L,
-                    io.mytherion.entity.dto.EntitySearchRequest(page = 0, size = 20)
+                999L,
+                io.mytherion.entity.dto.EntitySearchRequest(page = 0, size = 20)
             )
         }
     }
@@ -142,8 +142,8 @@ class EntityServiceCharacterizationTest {
         // When/Then
         assertThrows<ProjectAccessDeniedException> {
             entityService.searchEntities(
-                    2L,
-                    io.mytherion.entity.dto.EntitySearchRequest(page = 0, size = 20)
+                2L,
+                io.mytherion.entity.dto.EntitySearchRequest(page = 0, size = 20)
             )
         }
     }
