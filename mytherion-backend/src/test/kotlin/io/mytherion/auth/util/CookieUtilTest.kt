@@ -139,11 +139,11 @@ class CookieUtilTest {
     }
 
     @Test
-    fun `clearJwtCookie should include SameSite=Strict in header`() {
+    fun `clearJwtCookie should include SameSite=Lax in header`() {
         // When
         cookieUtil.clearJwtCookie(response)
 
         // Then
-        verify(response, atLeastOnce()).addHeader(eq("Set-Cookie"), contains("SameSite=Strict"))
+        verify(response, atLeastOnce()).addHeader(eq("Set-Cookie"), contains("SameSite=Lax"))
     }
 }

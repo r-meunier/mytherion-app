@@ -17,8 +17,6 @@ export default function BioFields({ data, onChange, disabled = false }: BioField
     gender: data.gender || '',
     sex: data.sex || '',
     role: data.role || '',
-    height: data.height || {},
-    weight: data.weight || {},
     condition: data.condition || ''
   };
 

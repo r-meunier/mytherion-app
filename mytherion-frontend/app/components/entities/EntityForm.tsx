@@ -133,7 +133,7 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
         currentComponents[index] = { 
           ...currentComponents[index], 
           data: { ...(currentComponents[index].data || {}), ...data } 
-        };
+        } as any;
       } else {
         // Add new component if it doesn't exist
         currentComponents.push({ 

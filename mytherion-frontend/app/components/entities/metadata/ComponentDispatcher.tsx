@@ -46,7 +46,6 @@ export default function ComponentDispatcher({ component, onChange, disabled = fa
     case ComponentType.SPECIES_RELATIONS:
     case ComponentType.LOCATION:
     case ComponentType.LOCATION_RELATIONS:
-    case ComponentType.ITEM:
     case ComponentType.ITEM_RELATIONS:
     case ComponentType.PERSPECTIVES:
       return (
@@ -59,15 +58,16 @@ export default function ComponentDispatcher({ component, onChange, disabled = fa
       );
 
     case ComponentType.CUSTOM:
-      return <CustomFields data={component.data} onChange={onChange} disabled={disabled} />;
+      return <CustomFields data={component.data} onChange={onChange} disabled={disabled} /> as any;
     
     default:
+      const unknownComponent = component as any;
       return (
         <div className="p-4 bg-red-900/10 border border-dashed border-red-700/50 rounded-lg text-center">
           <p className="text-xs text-red-400 mb-2">
-            Unknown Component Type: <span className="font-mono">{component.type}</span>
+            Unknown Component Type: <span className="font-mono">{unknownComponent.type || 'Unknown'}</span>
           </p>
-          <CustomFields data={component.data} onChange={onChange} disabled={disabled} />
+          <CustomFields data={unknownComponent.data || {}} onChange={onChange} disabled={disabled} />
         </div>
       );
   }

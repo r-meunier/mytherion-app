@@ -2,18 +2,21 @@ package io.mytherion.auth
 
 import tools.jackson.databind.ObjectMapper
 import io.mytherion.auth.dto.AuthDTO
-import io.mytherion.user.model.User
+import io.mytherion.config.seed.TestUsers
+import io.mytherion.fixtures.TestFixtures
 import io.mytherion.user.model.UserRole
 import io.mytherion.user.repository.UserRepository
 import jakarta.servlet.http.Cookie
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -38,23 +41,20 @@ class AuthControllerIntegrationTest {
     @Autowired
     private lateinit var passwordEncoder: PasswordEncoder
 
-    @AfterEach
-    fun cleanup() {
-        userRepository.deleteAll()
+    @Autowired
+    private lateinit var jdbcTemplate: JdbcTemplate
+
+    private lateinit var fixtures: TestFixtures
+
+    @BeforeEach
+    fun setup() {
+        jdbcTemplate.execute("TRUNCATE TABLE users CASCADE")
+        fixtures = TestFixtures(userRepository, passwordEncoder)
     }
 
-    // Helper method to create a verified user for login tests
-    private fun createVerifiedUser(email: String, username: String, password: String): User {
-        val user = User(
-            email = email,
-            username = username,
-            passwordHash = requireNotNull(passwordEncoder.encode(password)) {
-                "Password encoder returned null"
-            },
-            role = UserRole.USER,
-            emailVerified = true
-        )
-        return userRepository.save(user)
+    @AfterEach
+    fun cleanup() {
+        jdbcTemplate.execute("TRUNCATE TABLE users CASCADE")
     }
 
     // ==================== Register Tests ====================
@@ -160,7 +160,7 @@ class AuthControllerIntegrationTest {
     @Test
     fun `POST login with valid credentials should return 200 and set cookie`() {
         // Given - Create a verified user
-        createVerifiedUser("test@example.com", "testuser", "password123")
+        fixtures.createVerifiedUser("test@example.com", "testuser", "password123")
 
         // When & Then - Login with correct credentials
         val loginRequest =
@@ -191,7 +191,7 @@ class AuthControllerIntegrationTest {
     @Test
     fun `POST login with wrong password should return 400`() {
         // Given - Create a verified user
-        createVerifiedUser("test@example.com", "testuser", "password123")
+        fixtures.createVerifiedUser("test@example.com", "testuser", "password123")
 
         // When & Then - Login with wrong password
         val loginRequest =
@@ -244,7 +244,7 @@ class AuthControllerIntegrationTest {
     @Test
     fun `GET me with valid cookie should return user info`() {
         // Given - Create verified user and login
-        createVerifiedUser("test@example.com", "testuser", "password123")
+        fixtures.createVerifiedUser("test@example.com", "testuser", "password123")
 
         val loginRequest = AuthDTO.LoginRequest(email = "test@example.com", password = "password123")
         val loginResult =
@@ -316,7 +316,7 @@ class AuthControllerIntegrationTest {
     @Test
     fun `Cookie should persist across multiple requests`() {
         // Given - Create verified user and login
-        createVerifiedUser("test@example.com", "testuser", "password123")
+        fixtures.createVerifiedUser("test@example.com", "testuser", "password123")
 
         val loginRequest = AuthDTO.LoginRequest(email = "test@example.com", password = "password123")
         val loginResult =
@@ -345,7 +345,7 @@ class AuthControllerIntegrationTest {
     @Test
     fun `After logout cookie should be invalid`() {
         // Given - Create verified user and login
-        createVerifiedUser("test@example.com", "testuser", "password123")
+        fixtures.createVerifiedUser("test@example.com", "testuser", "password123")
 
         val loginRequest = AuthDTO.LoginRequest(email = "test@example.com", password = "password123")
         val loginResult =

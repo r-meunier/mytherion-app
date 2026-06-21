@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { createEntity, clearCurrentEntity } from '@/app/store/entitySlice';
 import { fetchProject } from '@/app/store/projectSlice';
-import { CreateEntityRequest } from '@/app/types/entity';
+import { CreateEntityRequest, UpdateEntityRequest } from '@/app/types/entity';
 import EntityForm from '@/app/components/entities/EntityForm';
 import DualSidebar from '@/app/components/DualSidebar';
 import DashboardHeader from '@/app/components/DashboardHeader';
@@ -37,8 +37,8 @@ export default function NewEntityPage() {
     }
   }, [currentEntity, loading, error, projectId, router]);
 
-  const handleSubmit = async (data: CreateEntityRequest) => {
-    await dispatch(createEntity({ projectId, data }));
+  const handleSubmit = async (data: CreateEntityRequest | UpdateEntityRequest) => {
+    await dispatch(createEntity({ projectId, data: data as CreateEntityRequest }));
   };
 
   const handleCancel = () => {

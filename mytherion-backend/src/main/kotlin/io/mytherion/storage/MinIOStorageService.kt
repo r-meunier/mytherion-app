@@ -30,8 +30,6 @@ class MinIOStorageService(
         .build()
 
     init {
-        // Ensure default bucket exists on startup
-        ensureBucketExists(defaultBucket)
         logger.info("MinIO storage service initialized with endpoint: $endpoint")
     }
 
