@@ -167,6 +167,7 @@ describe('ProjectForm', () => {
       expect(mockOnSubmit).toHaveBeenCalledWith({
         name: 'New Project',
         description: 'New Description',
+        genre: '',
       });
     });
   });
@@ -193,11 +194,12 @@ describe('ProjectForm', () => {
       expect(mockOnSubmit).toHaveBeenCalledWith({
         name: 'Trimmed Name',
         description: 'Trimmed Desc',
+        genre: '',
       });
     });
   });
 
-  it('should submit with undefined description if empty', async () => {
+  it('should submit with empty description if empty', async () => {
     const user = userEvent.setup();
     render(
       <ProjectForm
@@ -215,7 +217,8 @@ describe('ProjectForm', () => {
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalledWith({
         name: 'Project Without Description',
-        description: undefined,
+        description: '',
+        genre: '',
       });
     });
   });
