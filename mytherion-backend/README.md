@@ -182,6 +182,38 @@ Expected response:
 
 ---
 
+## Test Users (Dev Environment)
+
+When running with `--spring.profiles.active=dev`, the app automatically seeds the following test users on first startup. These identities are consistent across all non-production environments.
+
+**All passwords: `password123`**
+
+| Username       | Email                      | Role    | Verified | Projects                         |
+|:-------------- |:-------------------------- |:------- |:-------- |:-------------------------------- |
+| `admin`        | `admin@mytherion.dev`      | `ADMIN` | ✓        | 0                                |
+| `testuser`     | `user@mytherion.dev`       | `USER`  | ✓        | 1 (The Shattered Realms)         |
+| `newuser`      | `unverified@mytherion.dev` | `USER`  | ✗        | 0                                |
+| `emptyuser`    | `empty@mytherion.dev`      | `USER`  | ✓        | 0                                |
+| `worldbuilder` | `builder@mytherion.dev`    | `USER`  | ✓        | 3 (Iron Empire, Echoes, Stellar) |
+
+### How it works
+
+- **Defined in:** [`TestUsers.kt`](src/main/kotlin/io/mytherion/config/seed/TestUsers.kt) — single source of truth for all constants
+- **Seeded by:** [`DevDataSeeder.kt`](src/main/kotlin/io/mytherion/config/seed/DevDataSeeder.kt) — `ApplicationRunner` gated on `@Profile("dev", "e2e")`
+- **Idempotent:** Skips seeding if any users already exist. Safe to restart.
+- **Tests use:** [`TestFixtures.kt`](src/test/kotlin/io/mytherion/fixtures/TestFixtures.kt) — reusable factory that references the same `TestUsers` constants
+
+### To re-seed from scratch
+
+```bash
+# Nuke the database and restart
+docker compose down -v
+docker compose up -d
+./gradlew bootRun --args='--spring.profiles.active=dev'
+```
+
+---
+
 ## Database Migrations (Flyway)
 
 Migrations are located in:
@@ -204,6 +236,7 @@ Flyway tracks applied migrations in the `flyway_schema_history` table.
 ```
 src/main/kotlin/io/mytherion
 ├── config/           # Security, CORS, WebMvc, Flyway config
+│   └── seed/         # DevDataSeeder, TestUsers (profile-gated seed data)
 ├── logging/          # Structured logging extensions
 ├── monitoring/       # Performance interceptor, metrics
 ├── health/           # Health check endpoint

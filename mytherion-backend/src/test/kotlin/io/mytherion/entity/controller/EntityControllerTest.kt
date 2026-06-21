@@ -2,6 +2,8 @@ package io.mytherion.entity.controller
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.just
+import io.mockk.runs
 import io.mytherion.auth.jwt.JwtAuthFilter
 import io.mytherion.auth.jwt.JwtService
 import io.mytherion.auth.util.CookieUtil
@@ -62,7 +64,12 @@ class EntityControllerTest {
     @org.junit.jupiter.api.BeforeEach
     fun setUpInterceptors() {
         every { projectAccessInterceptor.preHandle(any(), any(), any()) } returns true
+        every { projectAccessInterceptor.postHandle(any(), any(), any(), any()) } just runs
+        every { projectAccessInterceptor.afterCompletion(any(), any(), any(), any()) } just runs
+        
         every { performanceInterceptor.preHandle(any(), any(), any()) } returns true
+        every { performanceInterceptor.postHandle(any(), any(), any(), any()) } just runs
+        every { performanceInterceptor.afterCompletion(any(), any(), any(), any()) } just runs
     }
 
     @Test
@@ -162,7 +169,7 @@ class EntityControllerTest {
         every { entityService.getEntity(1L) } returns entityDTO
 
         // When/Then
-        mockMvc.perform(get("/api/entities/1"))
+        mockMvc.perform(get("/api/projects/1/entities/1"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.name").value("Test Character"))
@@ -195,7 +202,7 @@ class EntityControllerTest {
 
         // When/Then
         mockMvc.perform(
-            patch("/api/entities/1")
+            patch("/api/projects/1/entities/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -209,7 +216,7 @@ class EntityControllerTest {
         every { entityService.deleteEntity(1L) } returns Unit
 
         // When/Then
-        mockMvc.perform(delete("/api/entities/1")).andExpect(status().isNoContent)
+        mockMvc.perform(delete("/api/projects/1/entities/1")).andExpect(status().isNoContent)
     }
 
     @Test
@@ -235,7 +242,7 @@ class EntityControllerTest {
         every { entityService.uploadImage(any(), any()) } returns uploadResponse
 
         // When/Then
-        mockMvc.perform(multipart("/api/entities/1/image").file(file))
+        mockMvc.perform(multipart("/api/projects/1/entities/1/image").file(file))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.url").value("test-bucket/entities/1/test.jpg"))
     }
@@ -246,6 +253,6 @@ class EntityControllerTest {
         every { entityService.deleteImage(1L) } returns Unit
 
         // When/Then
-        mockMvc.perform(delete("/api/entities/1/image")).andExpect(status().isNoContent)
+        mockMvc.perform(delete("/api/projects/1/entities/1/image")).andExpect(status().isNoContent)
     }
 }

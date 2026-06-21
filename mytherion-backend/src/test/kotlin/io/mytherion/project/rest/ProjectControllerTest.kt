@@ -64,7 +64,12 @@ class ProjectControllerTest {
     @org.junit.jupiter.api.BeforeEach
     fun setUpInterceptors() {
         every { projectAccessInterceptor.preHandle(any(), any(), any()) } returns true
+        every { projectAccessInterceptor.postHandle(any(), any(), any(), any()) } just runs
+        every { projectAccessInterceptor.afterCompletion(any(), any(), any(), any()) } just runs
+        
         every { performanceInterceptor.preHandle(any(), any(), any()) } returns true
+        every { performanceInterceptor.postHandle(any(), any(), any(), any()) } just runs
+        every { performanceInterceptor.afterCompletion(any(), any(), any(), any()) } just runs
     }
 
     // ==================== List Projects Tests ====================
