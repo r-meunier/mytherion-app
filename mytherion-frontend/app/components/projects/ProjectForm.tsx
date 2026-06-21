@@ -42,7 +42,8 @@ export default function ProjectForm({ project, onSubmit, onCancel, loading }: Pr
 
     await onSubmit({
       name: name.trim(),
-      description: description.trim() || undefined,
+      description: description.trim(),
+      genre: '', // Genre isn't present in the UI yet, so default to empty string
     });
   };
 

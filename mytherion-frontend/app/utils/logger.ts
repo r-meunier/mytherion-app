@@ -37,7 +37,7 @@ class Logger {
     return `[${timestamp}] [${level}] ${message}${contextStr}`;
   }
 
-  private getConsoleMethod(level: LogLevel): 'log' | 'info' | 'warn' | 'error' {
+  private getConsoleMethod(level: LogLevel): 'debug' | 'log' | 'info' | 'warn' | 'error' {
     switch (level) {
       case LogLevel.DEBUG:
         return 'debug';

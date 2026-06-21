@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchEntity, updateEntity, clearCurrentEntity } from '@/app/store/entitySlice';
-import { UpdateEntityRequest } from '@/app/types/entity';
+import { UpdateEntityRequest, CreateEntityRequest } from '@/app/types/entity';
 import EntityForm from '@/app/components/entities/EntityForm';
 import Navbar from '@/app/components/Navbar';
 
@@ -33,8 +33,8 @@ export default function EditEntityPage() {
     };
   }, [dispatch, entityId, projectId, currentEntity, user, router]);
 
-  const handleSubmit = async (data: UpdateEntityRequest) => {
-    const result = await dispatch(updateEntity({ projectId, id: entityId, data }));
+  const handleSubmit = async (data: CreateEntityRequest | UpdateEntityRequest) => {
+    const result = await dispatch(updateEntity({ projectId, id: entityId, data: data as UpdateEntityRequest }));
     if (updateEntity.fulfilled.match(result)) {
       router.push(`/projects/${projectId}/entities/${entityId}`);
     }

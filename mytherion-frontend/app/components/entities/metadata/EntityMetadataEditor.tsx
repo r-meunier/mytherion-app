@@ -59,7 +59,7 @@ export default function EntityMetadataEditor({
   disabled = false,
   readOnly = false
 }: EntityMetadataEditorProps) {
-  const tabs = TAB_CONFIG[entityType] || [{ id: 'custom', label: 'Custom Fields', components: ['CUSTOM'] }];
+  const tabs = TAB_CONFIG[entityType] || [{ id: 'custom', label: 'Custom Fields', components: [ComponentType.CUSTOM] }];
   const [activeTab, setActiveTab] = useState(tabs[0].id);
 
   const currentTabDef = tabs.find(t => t.id === activeTab) || tabs[0];
@@ -83,7 +83,7 @@ export default function EntityMetadataEditor({
           </button>
         ))}
         {/* Always allow access to Custom Fields if not in main tabs */}
-        {!tabs.some(t => t.components.includes('CUSTOM')) && (
+        {!tabs.some(t => t.components.includes(ComponentType.CUSTOM)) && (
           <button
             type="button"
             onClick={() => setActiveTab('custom')}
@@ -103,7 +103,7 @@ export default function EntityMetadataEditor({
         {activeTab === 'custom' ? (
           <div className="p-4 bg-gray-800/20 rounded-xl border border-gray-700/50">
              <ComponentDispatcher 
-                component={metadata.components.find(c => c.type === ComponentType.CUSTOM) || { id: ComponentType.CUSTOM, type: ComponentType.CUSTOM, data: {} }}
+                component={metadata.components.find(c => c.type === ComponentType.CUSTOM) || ({ id: ComponentType.CUSTOM, type: ComponentType.CUSTOM, data: {} } as any)}
                 onChange={(data) => onUpdateComponent?.(ComponentType.CUSTOM, data)}
                 disabled={readOnly || disabled}
              />
@@ -111,7 +111,7 @@ export default function EntityMetadataEditor({
         ) : (
           <div className="space-y-6">
             {currentTabDef.components.map((compType) => {
-              const component = metadata.components.find(c => c.type === compType) || { id: compType, type: compType, data: {} };
+              const component = metadata.components.find(c => c.type === compType) || ({ id: compType as string, type: compType, data: {} } as any);
               return (
                 <div key={compType} className="p-6 bg-gray-800/20 rounded-xl border border-gray-700/50">
                   <ComponentDispatcher 
