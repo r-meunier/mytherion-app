@@ -32,8 +32,8 @@ const initialState: ProjectState = {
 // Async thunks
 export const fetchProjects = createAsyncThunk(
   'projects/fetchProjects',
-  async ({ page = 0, size = 20 }: { page?: number; size?: number } = {}) => {
-    const response = await projectService.getProjects(page, size);
+  async ({ page = 0, size = 20, search, genre }: { page?: number; size?: number; search?: string; genre?: string } = {}) => {
+    const response = await projectService.getProjects(page, size, search, genre);
     return response;
   }
 );

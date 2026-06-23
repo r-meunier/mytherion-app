@@ -1,10 +1,16 @@
 package io.mytherion.project.service
 
-import io.mockk.*
+import io.mockk.Runs
+import io.mockk.clearAllMocks
+import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
+import io.mockk.verify
 import io.mytherion.auth.CurrentUserProvider
+import io.mytherion.entity.service.EntityQueryService
+import io.mytherion.monitoring.MetricsService
 import io.mytherion.project.ProjectTestFixtures
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.UpdateProjectRequest
@@ -13,9 +19,10 @@ import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.user.model.User
-import java.util.*
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -23,6 +30,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import java.util.Optional
 
 @ExtendWith(MockKExtension::class)
 class ProjectServiceTest {
@@ -34,10 +43,10 @@ class ProjectServiceTest {
   private lateinit var currentUserProvider: CurrentUserProvider
 
   @MockK
-  private lateinit var entityQueryService: io.mytherion.entity.service.EntityQueryService
+  private lateinit var entityQueryService: EntityQueryService
 
   @MockK
-  private lateinit var metricsService: io.mytherion.monitoring.MetricsService
+  private lateinit var metricsService: MetricsService
 
   @InjectMockKs
   private lateinit var projectService: ProjectService
@@ -95,24 +104,44 @@ class ProjectServiceTest {
       PageRequest.of(
         page,
         size,
-        org.springframework.data.domain.Sort.by(
-          org.springframework.data.domain.Sort.Direction.DESC,
+        Sort.by(
+          Sort.Direction.DESC,
           "createdAt"
         )
       )
     val projectPage = PageImpl(projects, pageRequest, projects.size.toLong())
 
-    every { projectRepository.findAllByOwner(testUser, any<Pageable>()) } returns
+    every { projectRepository.findAllByOwnerAndDeletedAtIsNull(testUser, any<Pageable>()) } returns
         projectPage
 
     // When
-    val result = projectService.listProjectsForCurrentUser(page, size)
+    val result = projectService.listProjectsForCurrentUser(page, size, null, null)
 
     // Then
     assertEquals(2, result.content.size)
     assertEquals("Test Project", result.content[0].name)
     assertEquals("Project 2", result.content[1].name)
-    verify { projectRepository.findAllByOwner(testUser, any<Pageable>()) }
+    verify { projectRepository.findAllByOwnerAndDeletedAtIsNull(testUser, any<Pageable>()) }
+  }
+
+  @Test
+  fun `listProjectsForCurrentUser with search and genre should call searchProjects`() {
+    // Given
+    val page = 0
+    val size = 10
+    val projects = listOf(testProject)
+    val pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"))
+    val projectPage = PageImpl(projects, pageRequest, 1L)
+
+    every { projectRepository.searchProjects(testUser, "%test%", "Sci-Fi", any<Pageable>()) } returns projectPage
+
+    // When
+    val result = projectService.listProjectsForCurrentUser(page, size, "TeSt", "Sci-Fi")
+
+    // Then
+    assertEquals(1, result.content.size)
+    assertEquals("Test Project", result.content[0].name)
+    verify { projectRepository.searchProjects(testUser, "%test%", "Sci-Fi", any<Pageable>()) }
   }
 
   // ==================== Get Project by ID Tests ====================

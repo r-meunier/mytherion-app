@@ -56,12 +56,16 @@ const api = axios.create({
 });
 
 export const projectService = {
-  async getProjects(page = 0, size = 20): Promise<Page<Project>> {    
+  async getProjects(page = 0, size = 20, search?: string, genre?: string): Promise<Page<Project>> {    
     try {
-      const response = await api.get(`/projects?page=${page}&size=${size}`);
+      const params = new URLSearchParams({ page: page.toString(), size: size.toString() });
+      if (search) params.append('search', search);
+      if (genre && genre !== 'all' && genre !== 'none') params.append('genre', genre);
+      
+      const response = await api.get(`/projects?${params.toString()}`);
       return response.data;
     } catch (error) {
-      serviceLogger.error('Failed to fetch projects', error, { page, size });
+      serviceLogger.error('Failed to fetch projects', error, { page, size, search, genre });
       throw error;
     }
   },
