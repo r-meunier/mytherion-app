@@ -74,6 +74,22 @@ The project is configured for flexible testing across devices:
 
 ---
 
+## 🧪 Test Users (Development)
+
+When running the backend with the `dev` profile (which is the default in both Docker and manual setups), the database is automatically seeded with the following test accounts:
+
+**All passwords:** `password123`
+
+| Username       | Email                      | Role    | Verified | Projects                         |
+|:-------------- |:-------------------------- |:------- |:-------- |:-------------------------------- |
+| `admin`        | `admin@mytherion.dev`      | `ADMIN` | ✓        | 0                                |
+| `testuser`     | `user@mytherion.dev`       | `USER`  | ✓        | 1 (The Shattered Realms)         |
+| `newuser`      | `unverified@mytherion.dev` | `USER`  | ✗        | 0                                |
+| `emptyuser`    | `empty@mytherion.dev`      | `USER`  | ✓        | 0                                |
+| `worldbuilder` | `builder@mytherion.dev`    | `USER`  | ✓        | 3 (Iron Empire, Echoes, Stellar) |
+
+---
+
 ## 💡 The Vision
 
 Mytherion is built on three core pillars:
