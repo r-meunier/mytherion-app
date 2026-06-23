@@ -18,7 +18,7 @@ interface ProjectRepository : JpaRepository<Project, Long> {
         SELECT p FROM Project p 
         WHERE p.owner = :owner 
         AND p.deletedAt IS NULL
-        AND (:namePattern IS NULL OR LOWER(p.name) LIKE :namePattern)
+        AND (:namePattern IS NULL OR LOWER(p.name) LIKE :namePattern ESCAPE '\')
         AND (:genre IS NULL OR p.genre = :genre)
     """)
     fun searchProjects(

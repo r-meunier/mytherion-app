@@ -77,7 +77,12 @@ class ProjectService(
                     ProjectResponse.from(project, count)
                 }
             } else {
-                val namePattern = search?.takeIf { it.isNotBlank() }?.lowercase()?.let { "%$it%" }
+                val namePattern = search?.takeIf { it.isNotBlank() }
+                    ?.lowercase()
+                    ?.replace("\\", "\\\\")
+                    ?.replace("%", "\\%")
+                    ?.replace("_", "\\_")
+                    ?.let { "%$it%" }
                 val genreFilter = genre?.takeIf { it.isNotBlank() }
                 projectRepository.searchProjects(user, namePattern, genreFilter, pageable).map { project ->
                     val count = entityQueryService.countByProject(project)

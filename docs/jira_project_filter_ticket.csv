@@ -1,0 +1,2 @@
+Summary,Description,Issue Type,Priority
+"Implement Project filter and search functionality","Wire up the ProjectFilters component to the backend, allowing users to search projects by name and filter by genre/status. Includes adding the backend query logic in ProjectService.","Story","Medium"
