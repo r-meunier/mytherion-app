@@ -16,6 +16,8 @@ export default function Home() {
   const router = useRouter();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [activeFilter, setActiveFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [genreFilter, setGenreFilter] = useState("none");
 
   const { isAuthenticated, isInitialized } = useAppSelector((state) => state.auth);
 
@@ -24,18 +26,32 @@ export default function Home() {
     dispatch(checkAuth());
   }, [dispatch]);
 
-  // Fetch projects only after auth is initialized
+  // Initial load effect
   useEffect(() => {
     if (isInitialized) {
       if (isAuthenticated) {
         dispatch(fetchDashboardStats());
-        dispatch(fetchProjects({ page: 0, size: 8 }));
         dispatch(clearCurrentProject());
       } else {
         router.push("/login");
       }
     }
   }, [dispatch, isInitialized, isAuthenticated, router]);
+
+  // Project fetching effect (with debounce for search)
+  useEffect(() => {
+    if (isInitialized && isAuthenticated) {
+      const timeoutId = setTimeout(() => {
+        dispatch(fetchProjects({ 
+          page: 0, 
+          size: 8, 
+          search: searchQuery, 
+          genre: genreFilter === "none" ? undefined : genreFilter 
+        }));
+      }, 300);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [dispatch, isInitialized, isAuthenticated, searchQuery, genreFilter]);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#16111B]">
@@ -65,9 +81,9 @@ export default function Home() {
           {/* 2. Controls Section (Filters & Views) */}
           <div className="flex justify-end items-end gap-6 mb-12">
             <ProjectFilters 
-              onSearchChange={(q) => console.log("Search:", q)}
+              onSearchChange={(q) => setSearchQuery(q)}
               onSortChange={(s) => console.log("Sort:", s)}
-              onGroupChange={(g) => console.log("Group:", g)}
+              onGenreChange={(g) => setGenreFilter(g)}
               onViewChange={(v) => console.log("View:", v)}
             />
           </div>

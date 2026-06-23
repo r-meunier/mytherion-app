@@ -80,19 +80,19 @@ function GlassSelect({ label, value, options, onChange, minWidth = "140px" }: Gl
 interface ProjectFiltersProps {
   onSearchChange?: (query: string) => void;
   onSortChange?: (sort: string) => void;
-  onGroupChange?: (group: string) => void;
+  onGenreChange?: (genre: string) => void;
   onViewChange?: (view: "grid" | "list") => void;
 }
 
 export default function ProjectFilters({
   onSearchChange,
   onSortChange,
-  onGroupChange,
+  onGenreChange,
   onViewChange
 }: ProjectFiltersProps) {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("date");
-  const [groupBy, setGroupBy] = useState("none");
+  const [genre, setGenre] = useState("none");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
@@ -118,11 +118,17 @@ export default function ProjectFilters({
     { value: "date", label: "Date" }
   ];
 
-  const groupOptions = [
-    { value: "none", label: "None" },
-    { value: "series", label: "Series" },
-    { value: "date", label: "Date" },
-    { value: "shared", label: "Shared" }
+  const genreOptions = [
+    { value: "none", label: "All Genres" },
+    { value: "Fantasy", label: "Fantasy" },
+    { value: "Sci-Fi", label: "Sci-Fi" },
+    { value: "Cyberpunk", label: "Cyberpunk" },
+    { value: "Steampunk", label: "Steampunk" },
+    { value: "Historical", label: "Historical" },
+    { value: "Horror", label: "Horror" },
+    { value: "Mystery", label: "Mystery" },
+    { value: "Romance", label: "Romance" },
+    { value: "Other", label: "Other" }
   ];
 
   return (
@@ -194,14 +200,14 @@ export default function ProjectFilters({
         }}
       />
 
-      {/* Group By */}
+      {/* Genre */}
       <GlassSelect
-        label="Group By"
-        value={groupBy}
-        options={groupOptions}
+        label="Genre"
+        value={genre}
+        options={genreOptions}
         onChange={(val) => {
-          setGroupBy(val);
-          onGroupChange?.(val);
+          setGenre(val);
+          onGenreChange?.(val);
         }}
       />
 

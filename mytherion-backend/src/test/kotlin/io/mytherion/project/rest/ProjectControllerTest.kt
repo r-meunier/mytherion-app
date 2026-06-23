@@ -4,16 +4,21 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.just
 import io.mockk.runs
+import io.mytherion.auth.CurrentUserProvider
 import io.mytherion.auth.jwt.JwtAuthFilter
 import io.mytherion.auth.jwt.JwtService
 import io.mytherion.auth.util.CookieUtil
+import io.mytherion.monitoring.PerformanceInterceptor
 import io.mytherion.project.ProjectTestFixtures
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
 import io.mytherion.project.dto.UpdateProjectRequest
 import io.mytherion.project.exception.ProjectAccessDeniedException
 import io.mytherion.project.exception.ProjectNotFoundException
+import io.mytherion.project.repository.ProjectRepository
+import io.mytherion.project.rest.ProjectAccessInterceptor
 import io.mytherion.project.service.ProjectService
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
@@ -21,14 +26,20 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
+import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import tools.jackson.databind.ObjectMapper
 
 @WebMvcTest(controllers = [ProjectController::class])
 @AutoConfigureMockMvc(addFilters = false)
-@org.springframework.test.context.TestPropertySource(properties = ["app.security.allowed-origins=http://localhost:3000"])
+@TestPropertySource(properties = ["app.security.allowed-origins=http://localhost:3000"])
 class ProjectControllerTest {
 
     @Autowired
@@ -50,18 +61,18 @@ class ProjectControllerTest {
     private lateinit var jwtAuthFilter: JwtAuthFilter
 
     @MockkBean
-    private lateinit var projectAccessInterceptor: io.mytherion.project.rest.ProjectAccessInterceptor
+    private lateinit var projectAccessInterceptor: ProjectAccessInterceptor
 
     @MockkBean
-    private lateinit var performanceInterceptor: io.mytherion.monitoring.PerformanceInterceptor
+    private lateinit var performanceInterceptor: PerformanceInterceptor
 
     @MockkBean
-    private lateinit var projectRepository: io.mytherion.project.repository.ProjectRepository
+    private lateinit var projectRepository: ProjectRepository
 
     @MockkBean
-    private lateinit var currentUserProvider: io.mytherion.auth.CurrentUserProvider
+    private lateinit var currentUserProvider: CurrentUserProvider
 
-    @org.junit.jupiter.api.BeforeEach
+    @BeforeEach
     fun setUpInterceptors() {
         every { projectAccessInterceptor.preHandle(any(), any(), any()) } returns true
         every { projectAccessInterceptor.postHandle(any(), any(), any(), any()) } just runs
@@ -90,7 +101,7 @@ class ProjectControllerTest {
             )
         val page = PageImpl(projects, PageRequest.of(0, 10), projects.size.toLong())
 
-        every { projectService.listProjectsForCurrentUser(0, 10) } returns page
+        every { projectService.listProjectsForCurrentUser(0, 10, null, null) } returns page
 
         // When & Then
         mockMvc.perform(get("/api/projects").param("page", "0").param("size", "10"))
@@ -109,13 +120,34 @@ class ProjectControllerTest {
     fun `listProjects with default pagination should use default values`() {
         // Given
         val page = PageImpl(emptyList<ProjectResponse>(), PageRequest.of(0, 20), 0)
-        every { projectService.listProjectsForCurrentUser(0, 20) } returns page
+        every { projectService.listProjectsForCurrentUser(0, 20, null, null) } returns page
 
         // When & Then
         mockMvc.perform(get("/api/projects"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.content").isArray)
             .andExpect(jsonPath("$.content.length()").value(0))
+    }
+
+    @Test
+    fun `listProjects with search and genre should pass parameters to service`() {
+        // Given
+        val projects = listOf(ProjectTestFixtures.createTestProjectResponse(id = 1L, name = "Sci-Fi Project"))
+        val page = PageImpl(projects, PageRequest.of(0, 10), 1L)
+
+        every { projectService.listProjectsForCurrentUser(0, 10, "Sci-Fi", "Sci-Fi") } returns page
+
+        // When & Then
+        mockMvc.perform(
+            get("/api/projects")
+                .param("page", "0")
+                .param("size", "10")
+                .param("search", "Sci-Fi")
+                .param("genre", "Sci-Fi")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.content.length()").value(1))
+            .andExpect(jsonPath("$.content[0].name").value("Sci-Fi Project"))
     }
 
     // ==================== Get Project by ID Tests ====================

@@ -20,11 +20,13 @@ class ProjectController(private val projectService: ProjectService) {
     @GetMapping
     fun listProjects(
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "20") size: Int
+        @RequestParam(defaultValue = "20") size: Int,
+        @RequestParam(required = false) search: String?,
+        @RequestParam(required = false) genre: String?
     ): Page<ProjectResponse> {
-        logger.infoWith("List projects request", "page" to page, "size" to size)
+        logger.infoWith("List projects request", "page" to page, "size" to size, "search" to search, "genre" to genre)
         return try {
-            projectService.listProjectsForCurrentUser(page, size)
+            projectService.listProjectsForCurrentUser(page, size, search, genre)
         } catch (e: Exception) {
             logger.errorWith(
                 "Failed to list projects",

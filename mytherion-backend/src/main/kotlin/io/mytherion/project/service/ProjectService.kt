@@ -63,16 +63,26 @@ class ProjectService(
     }
 
     @Transactional(readOnly = true)
-    fun listProjectsForCurrentUser(page: Int = 0, size: Int = 20): Page<ProjectResponse> {
+    fun listProjectsForCurrentUser(page: Int = 0, size: Int = 20, search: String? = null, genre: String? = null): Page<ProjectResponse> {
         val user = getCurrentUser()
-        logger.debugWith("Listing projects", "userId" to user.id, "page" to page, "size" to size)
+        logger.debugWith("Listing projects", "userId" to user.id, "page" to page, "size" to size, "search" to search, "genre" to genre)
 
         return logger.measureTime("Fetch projects") {
             val pageable: Pageable =
                 PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"))
-            val result = projectRepository.findAllByOwner(user, pageable).map { project ->
-                val count = entityQueryService.countByProject(project)
-                ProjectResponse.from(project, count)
+            
+            val result = if (search.isNullOrBlank() && genre.isNullOrBlank()) {
+                projectRepository.findAllByOwnerAndDeletedAtIsNull(user, pageable).map { project ->
+                    val count = entityQueryService.countByProject(project)
+                    ProjectResponse.from(project, count)
+                }
+            } else {
+                val namePattern = search?.takeIf { it.isNotBlank() }?.lowercase()?.let { "%$it%" }
+                val genreFilter = genre?.takeIf { it.isNotBlank() }
+                projectRepository.searchProjects(user, namePattern, genreFilter, pageable).map { project ->
+                    val count = entityQueryService.countByProject(project)
+                    ProjectResponse.from(project, count)
+                }
             }
 
             logger.infoWith(
