@@ -5,7 +5,7 @@ import io.mytherion.category.dto.CreateCategoryRequest
 import io.mytherion.category.model.Category
 import io.mytherion.category.repository.CategoryRepository
 import io.mytherion.project.service.ProjectService
-import io.mytherion.user.model.User
+
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -15,14 +15,14 @@ class CategoryService(
     private val projectService: ProjectService
 ) {
     @Transactional(readOnly = true)
-    fun getProjectCategories(projectId: Long, user: User): List<CategoryDTO> {
-        val project = projectService.getVerifiedProject(projectId, requireNotNull(user.id) { "User ID is missing" })
+    fun getProjectCategories(projectId: Long, userId: Long): List<CategoryDTO> {
+        val project = projectService.getVerifiedProject(projectId, userId)
         return categoryRepository.findAllByProjectOrderByNameAsc(project).map { CategoryDTO.from(it) }
     }
 
     @Transactional
-    fun createCategory(projectId: Long, request: CreateCategoryRequest, user: User): CategoryDTO {
-        val project = projectService.getVerifiedProject(projectId, requireNotNull(user.id) { "User ID is missing" })
+    fun createCategory(projectId: Long, request: CreateCategoryRequest, userId: Long): CategoryDTO {
+        val project = projectService.getVerifiedProject(projectId, userId)
         
         val category = Category(
             project = project,

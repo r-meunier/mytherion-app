@@ -10,6 +10,7 @@ import ComponentDispatcher from './metadata/ComponentDispatcher';
 
 interface EntityFormProps {
   entity?: Entity;
+  projectId: number;
   isOpen?: boolean; // New prop to track visibility
   onSubmit: (data: CreateEntityRequest | UpdateEntityRequest) => void;
   onCancel: () => void;
@@ -17,7 +18,7 @@ interface EntityFormProps {
   error?: string | null;
 }
 
-export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading = false, error }: EntityFormProps) {
+export default function EntityForm({ entity, projectId, isOpen, onSubmit, onCancel, loading = false, error }: EntityFormProps) {
   const isEditMode = !!entity;
 
   // Sync internal state when entity prop changes
@@ -249,7 +250,7 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
                   Category
                 </label>
                 <CategorySelector
-                  projectId={entity?.projectId || 1} // Fallback to 1, should probably pass from props
+                  projectId={projectId}
                   value={formData.categoryId}
                   onChange={(categoryId) => setFormData(prev => ({ ...prev, categoryId }))}
                   disabled={loading}

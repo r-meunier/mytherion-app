@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server'
 // Paths that do not require authentication
 const publicPaths = ['/login', '/register', '/verify-email']
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   
   // Check for the HttpOnly JWT cookie set by the Spring Boot backend

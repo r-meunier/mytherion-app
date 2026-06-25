@@ -137,6 +137,7 @@ export default function EditEntityPage() {
         <div className="backdrop-blur-sm bg-gray-800/30 border border-gray-700 rounded-2xl p-8">
           <EntityForm
             entity={currentEntity}
+            projectId={projectId}
             onSubmit={handleSubmit}
             onCancel={handleCancel}
             loading={loading}

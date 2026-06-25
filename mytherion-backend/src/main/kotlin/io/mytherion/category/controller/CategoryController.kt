@@ -3,7 +3,7 @@ package io.mytherion.category.controller
 import io.mytherion.category.dto.CategoryDTO
 import io.mytherion.category.dto.CreateCategoryRequest
 import io.mytherion.category.service.CategoryService
-import io.mytherion.user.model.User
+
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -18,9 +18,9 @@ class CategoryController(
     @GetMapping
     fun getCategories(
         @PathVariable projectId: Long,
-        @AuthenticationPrincipal user: User
+        @AuthenticationPrincipal userId: Long
     ): List<CategoryDTO> {
-        return categoryService.getProjectCategories(projectId, user)
+        return categoryService.getProjectCategories(projectId, userId)
     }
 
     @PostMapping
@@ -28,8 +28,8 @@ class CategoryController(
     fun createCategory(
         @PathVariable projectId: Long,
         @Valid @RequestBody request: CreateCategoryRequest,
-        @AuthenticationPrincipal user: User
+        @AuthenticationPrincipal userId: Long
     ): CategoryDTO {
-        return categoryService.createCategory(projectId, request, user)
+        return categoryService.createCategory(projectId, request, userId)
     }
 }

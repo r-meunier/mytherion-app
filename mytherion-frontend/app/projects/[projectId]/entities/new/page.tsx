@@ -93,6 +93,7 @@ export default function NewEntityPage() {
           {/* Form */}
           <div className="glass rounded-2xl p-8 max-w-4xl">
             <EntityForm
+              projectId={projectId}
               onSubmit={handleSubmit}
               onCancel={handleCancel}
               loading={loading}
