@@ -60,14 +60,14 @@ class AuthService(
 
         val token =
             jwtService.generateAccessToken(
-                userId = saved.id!!,
+                userId = requireNotNull(saved.id) { "User ID is missing" },
                 email = saved.email,
                 role = saved.role.name
             )
 
         val userResponse =
             AuthDTO.UserResponse(
-                id = saved.id!!,
+                id = requireNotNull(saved.id) { "User ID is missing" },
                 email = saved.email,
                 username = saved.username,
                 role = saved.role.name,
@@ -123,14 +123,14 @@ class AuthService(
 
         val token =
             jwtService.generateAccessToken(
-                userId = user.id!!,
+                userId = requireNotNull(user.id) { "User ID is missing" },
                 email = user.email,
                 role = user.role.name
             )
 
         val userResponse =
             AuthDTO.UserResponse(
-                id = user.id!!,
+                id = requireNotNull(user.id) { "User ID is missing" },
                 email = user.email,
                 username = user.username,
                 role = user.role.name,
@@ -156,7 +156,7 @@ class AuthService(
         }
 
         return AuthDTO.UserResponse(
-            id = user.id!!,
+            id = requireNotNull(user.id) { "User ID is missing" },
             email = user.email,
             username = user.username,
             role = user.role.name,
@@ -211,7 +211,7 @@ class AuthService(
         verificationTokenRepository.save(verificationToken)
 
         return AuthDTO.UserResponse(
-            id = verificationToken.user.id!!,
+            id = requireNotNull(verificationToken.user.id) { "User ID is missing" },
             email = verificationToken.user.email,
             username = verificationToken.user.username,
             role = verificationToken.user.role.name,

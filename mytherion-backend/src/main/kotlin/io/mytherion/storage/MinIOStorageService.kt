@@ -1,7 +1,6 @@
 package io.mytherion.storage
 
 import io.minio.*
-import io.minio.http.Method
 import io.mytherion.monitoring.MetricsService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -18,7 +17,6 @@ class MinIOStorageService(
     @Value("\${minio.endpoint}") private val endpoint: String,
     @Value("\${minio.access-key}") private val accessKey: String,
     @Value("\${minio.secret-key}") private val secretKey: String,
-    @Value("\${minio.bucket-name:mytherion-uploads}") private val defaultBucket: String,
     private val metricsService: MetricsService
 ) : StorageService {
 
@@ -106,7 +104,7 @@ class MinIOStorageService(
         try {
             val url = minioClient.getPresignedObjectUrl(
                 GetPresignedObjectUrlArgs.builder()
-                    .method(Method.GET)
+                    .method(Http.Method.GET)
                     .bucket(bucketName)
                     .`object`(objectName)
                     .expiry(expirySeconds, TimeUnit.SECONDS)

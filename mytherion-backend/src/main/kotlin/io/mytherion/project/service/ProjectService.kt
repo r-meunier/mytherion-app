@@ -57,7 +57,7 @@ class ProjectService(
             projectRepository.findByIdAndDeletedAtIsNull(projectId)
                 ?: throw ProjectNotFoundException(projectId)
         if (project.owner.id != userId) {
-            throw ProjectAccessDeniedException(projectId)
+            throw ProjectAccessDeniedException(requireNotNull(project.id) { "Project ID is missing" })
         }
         return project
     }

@@ -13,7 +13,7 @@ data class UserResponse(
 ) {
     companion object {
         fun from(user: User) = UserResponse(
-            id = user.id!!,
+            id = requireNotNull(user.id) { "User ID is missing" },
             email = user.email,
             username = user.username,
             role = user.role.name,

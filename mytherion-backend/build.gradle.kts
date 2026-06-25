@@ -1,13 +1,14 @@
 plugins {
-    kotlin("jvm") version "2.2.21"
-    kotlin("plugin.spring") version "2.2.21"
-    id("org.springframework.boot") version "4.0.1"
+    val kotlinPluginVersion = "2.4.20-Beta1"
+    kotlin("jvm") version kotlinPluginVersion
+    kotlin("plugin.spring") version kotlinPluginVersion
+    kotlin("plugin.jpa") version kotlinPluginVersion
+    id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("plugin.jpa") version "2.2.21"
 }
 
 group = "io.mytherion"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.1"
 description = "mytherion"
 
 java {
@@ -37,7 +38,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-mail")
 
     // MinIO for object storage
-    implementation("io.minio:minio:8.6.0")
+    implementation("io.minio:minio:9.0.3")
 
     runtimeOnly("org.postgresql:postgresql")
 
@@ -48,9 +49,10 @@ dependencies {
     }
 
     // JWT
-    implementation("io.jsonwebtoken:jjwt-api:0.12.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
+    val jjwtVersion = "0.13.0"
+    implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
     testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
@@ -58,7 +60,9 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("com.ninja-squad:springmockk:5.0.1")
-    testImplementation("io.mockk:mockk:1.14.7")
+    testImplementation("io.mockk:mockk:1.14.11")
+    testImplementation("com.approvaltests:approvaltests:31.0.0")
+    testImplementation("com.google.code.gson:gson:2.14.0")
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

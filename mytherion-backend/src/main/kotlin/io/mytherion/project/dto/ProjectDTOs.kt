@@ -19,10 +19,10 @@ data class ProjectResponse(
     companion object {
         fun from(project: Project, entityCount: Long = 0) =
             ProjectResponse(
-                id = project.id!!,
+                id = requireNotNull(project.id) { "Project ID is missing" },
                 name = project.name,
                 description = project.description,
-                ownerId = project.owner.id!!,
+                ownerId = requireNotNull(project.owner.id) { "Owner ID is missing" },
                 ownerUsername = project.owner.username,
                 createdAt = project.createdAt,
                 updatedAt = project.updatedAt,
