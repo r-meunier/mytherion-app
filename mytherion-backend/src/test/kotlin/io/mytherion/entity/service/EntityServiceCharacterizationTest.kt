@@ -54,8 +54,6 @@ class EntityServiceCharacterizationTest {
             project = project,
             type = EntityType.CHARACTER,
             name = "Elara Starweaver",
-            category = "Mage",
-            summary = "A powerful mage of the high council.",
             tags = listOf("magic", "hero")
         )
 
@@ -63,8 +61,6 @@ class EntityServiceCharacterizationTest {
             project = project,
             type = EntityType.CHARACTER,
             name = "Garrick Stone",
-            category = "Warrior",
-            summary = "A seasoned veteran.",
             tags = listOf("melee", "hero")
         )
 
@@ -72,8 +68,6 @@ class EntityServiceCharacterizationTest {
             project = project,
             type = EntityType.LOCATION,
             name = "The Obsidian Tower",
-            category = "Fortress",
-            summary = "The seat of the high council.",
             tags = listOf("magic", "headquarters")
         )
     }

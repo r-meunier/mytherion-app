@@ -22,6 +22,7 @@ export const entityService = {
     projectId: number,
     filters?: {
       type?: EntityType;
+      categoryId?: number;
       tags?: string[];
       search?: string;
       page?: number;
@@ -30,6 +31,7 @@ export const entityService = {
   ): Promise<Page<Entity>> => {
     const params = new URLSearchParams();
     if (filters?.type) params.append('type', filters.type);
+    if (filters?.categoryId) params.append('categoryId', filters.categoryId.toString());
     if (filters?.tags?.length) params.append('tags', filters.tags.join(','));
     if (filters?.search) params.append('search', filters.search);
     params.append('page', String(filters?.page || 0));

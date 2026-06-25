@@ -5,6 +5,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import io.mytherion.auth.CurrentUserProvider
+import io.mytherion.category.repository.CategoryRepository
 import io.mytherion.entity.dto.CreateEntityRequest
 import io.mytherion.entity.dto.UpdateEntityRequest
 import io.mytherion.entity.exception.EntityNotFoundException
@@ -31,6 +32,7 @@ class EntityServiceTest {
     private lateinit var entityService: EntityService
     private lateinit var entityRepository: EntityRepository
     private lateinit var projectService: ProjectService
+    private lateinit var categoryRepository: CategoryRepository
     private lateinit var currentUserProvider: CurrentUserProvider
     private lateinit var storageService: StorageService
     private lateinit var metricsService: MetricsService
@@ -42,6 +44,7 @@ class EntityServiceTest {
     @BeforeEach
     fun setup() {
         entityRepository = mockk()
+        categoryRepository = mockk()
         projectService = mockk()
         currentUserProvider = mockk()
         storageService = mockk()
@@ -50,6 +53,7 @@ class EntityServiceTest {
         entityService =
             EntityService(
                 entityRepository,
+                categoryRepository,
                 projectService,
                 currentUserProvider,
                 storageService,
@@ -81,7 +85,6 @@ class EntityServiceTest {
                 project = testProject,
                 type = EntityType.CHARACTER,
                 name = "Test Character",
-                summary = "A test character",
                 description = "Detailed description"
             )
 
@@ -101,7 +104,6 @@ class EntityServiceTest {
             CreateEntityRequest(
                 type = EntityType.CHARACTER,
                 name = "New Character",
-                summary = "A new character",
                 description = "Detailed description",
                 tags = listOf("hero", "mage")
             )
@@ -167,7 +169,7 @@ class EntityServiceTest {
     @Test
     fun `updateEntity should update entity successfully`() {
         // Given
-        val request = UpdateEntityRequest(name = "Updated Name", summary = "Updated summary")
+        val request = UpdateEntityRequest(name = "Updated Name",)
 
         every { entityRepository.findById(1L) } returns Optional.of(testEntity)
         every { entityRepository.save(any()) } returns testEntity
@@ -219,7 +221,7 @@ class EntityServiceTest {
         val mockPage = org.springframework.data.domain.PageImpl(listOf(testEntity), pageable, 1)
         
         every { projectService.getVerifiedProject(1L, 1L) } returns testProject
-        every { entityRepository.searchEntities(any(), any(), any(), any(), any()) } returns mockPage
+        every { entityRepository.searchEntities(any(), any(), any(), any(), any(), any()) } returns mockPage
         every { metricsService.recordEntitySearch(any(), any(), any(), any()) } returns Unit
 
         // When
@@ -229,6 +231,6 @@ class EntityServiceTest {
         assertNotNull(result)
         assertEquals(1, result.totalElements)
         assertEquals(testEntity.id, result.content[0].id)
-        verify { entityRepository.searchEntities(any(), any(), any(), any(), any()) }
+        verify { entityRepository.searchEntities(any(), any(), any(), any(), any(), any()) }
     }
 }

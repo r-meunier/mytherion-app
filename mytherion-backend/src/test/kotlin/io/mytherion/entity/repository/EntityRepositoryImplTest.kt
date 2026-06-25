@@ -38,7 +38,6 @@ class EntityRepositoryImplTest {
         val e1 = Entity(
             project = project,
             name = "Gandalf",
-            summary = "A wizard",
             description = "Grey wizard",
             type = EntityType.CHARACTER,
             tags = arrayOf("magic", "istari")
@@ -47,7 +46,6 @@ class EntityRepositoryImplTest {
         val e2 = Entity(
             project = project,
             name = "Frodo",
-            summary = "Hobbit from the Shire",
             description = "Ring bearer",
             type = EntityType.CHARACTER,
             tags = arrayOf("hobbit", "hero")
@@ -56,7 +54,6 @@ class EntityRepositoryImplTest {
         val e3 = Entity(
             project = project,
             name = "The Shire",
-            summary = "Home of the hobbits",
             description = "A peaceful land",
             type = EntityType.LOCATION,
             tags = arrayOf("peaceful")
@@ -75,7 +72,7 @@ class EntityRepositoryImplTest {
     @Test
     fun `searchEntities should filter by type`() {
         val pageable = PageRequest.of(0, 10)
-        val result = entityRepository.searchEntities(projectId, EntityType.CHARACTER, null, null, pageable)
+        val result = entityRepository.searchEntities(projectId, EntityType.CHARACTER, null, null, null, pageable)
 
         assertEquals(2, result.totalElements)
         assertTrue(result.content.all { it.type == EntityType.CHARACTER })
@@ -84,7 +81,7 @@ class EntityRepositoryImplTest {
     @Test
     fun `searchEntities should filter by tags using overlap`() {
         val pageable = PageRequest.of(0, 10)
-        val result = entityRepository.searchEntities(projectId, null, listOf("hero", "magic"), null, pageable)
+        val result = entityRepository.searchEntities(projectId, null, null, listOf("hero", "magic"), null, pageable)
 
         // Frodo has 'hero', Gandalf has 'magic'
         assertEquals(2, result.totalElements)
@@ -95,7 +92,7 @@ class EntityRepositoryImplTest {
     @Test
     fun `searchEntities should filter by search term`() {
         val pageable = PageRequest.of(0, 10)
-        val result = entityRepository.searchEntities(projectId, null, null, "wizard", pageable)
+        val result = entityRepository.searchEntities(projectId, null, null, null, "wizard", pageable)
 
         assertEquals(1, result.totalElements)
         assertEquals("Gandalf", result.content[0].name)
@@ -104,7 +101,7 @@ class EntityRepositoryImplTest {
     @Test
     fun `searchEntities should combine filters`() {
         val pageable = PageRequest.of(0, 10)
-        val result = entityRepository.searchEntities(projectId, EntityType.CHARACTER, listOf("magic"), "wizard", pageable)
+        val result = entityRepository.searchEntities(projectId, EntityType.CHARACTER, null, listOf("magic"), "wizard", pageable)
 
         assertEquals(1, result.totalElements)
         assertEquals("Gandalf", result.content[0].name)

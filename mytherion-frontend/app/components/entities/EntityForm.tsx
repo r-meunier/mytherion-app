@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react';
 import { Entity, EntityType, CreateEntityRequest, UpdateEntityRequest, EntityMetadata, EntityComponent, ComponentType } from '@/app/types/entity';
 import EntityTypeSelector from './EntityTypeSelector';
+import CategorySelector from './CategorySelector';
 import TagInput from './TagInput';
 import EntityMetadataEditor from './metadata/EntityMetadataEditor';
 import ComponentDispatcher from './metadata/ComponentDispatcher';
 
 interface EntityFormProps {
   entity?: Entity;
+  projectId: number;
   isOpen?: boolean; // New prop to track visibility
   onSubmit: (data: CreateEntityRequest | UpdateEntityRequest) => void;
   onCancel: () => void;
@@ -16,7 +18,7 @@ interface EntityFormProps {
   error?: string | null;
 }
 
-export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading = false, error }: EntityFormProps) {
+export default function EntityForm({ entity, projectId, isOpen, onSubmit, onCancel, loading = false, error }: EntityFormProps) {
   const isEditMode = !!entity;
 
   // Sync internal state when entity prop changes
@@ -25,8 +27,7 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
       setFormData({
         type: entity.type,
         name: entity.name,
-        category: entity.category || '',
-        summary: entity.summary || '',
+        categoryId: entity.categoryId,
         description: entity.description || '',
         notes: entity.notes || '',
         tags: entity.tags || [],
@@ -61,8 +62,7 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
   const [formData, setFormData] = useState({
     type: entity?.type || EntityType.CHARACTER,
     name: entity?.name || '',
-    category: entity?.category || '',
-    summary: entity?.summary || '',
+    categoryId: entity?.categoryId,
     description: entity?.description || '',
     notes: entity?.notes || '',
     tags: entity?.tags || [],
@@ -162,10 +162,6 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
       newErrors.name = 'Name must be 255 characters or less';
     }
 
-    if (formData.summary && formData.summary.length > 1000) {
-      newErrors.summary = 'Summary must be 1000 characters or less';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -178,10 +174,9 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
     }
 
     if (isEditMode) {
-      const updateData: UpdateEntityRequest = {};
+      const updateData: UpdateEntityRequest = { version: entity.version };
       if (formData.name !== entity.name) updateData.name = formData.name;
-      if (formData.category !== entity.category) updateData.category = formData.category;
-      if (formData.summary !== entity.summary) updateData.summary = formData.summary;
+      if (formData.categoryId !== entity.categoryId) updateData.categoryId = formData.categoryId;
       if (formData.description !== entity.description) updateData.description = formData.description;
       if (formData.notes !== entity.notes) updateData.notes = formData.notes;
       if (JSON.stringify(formData.tags) !== JSON.stringify(entity.tags)) updateData.tags = formData.tags;
@@ -198,8 +193,7 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
       setFormData({
         type: entity?.type || EntityType.CHARACTER,
         name: '',
-        category: '',
-        summary: '',
+        categoryId: undefined,
         description: '',
         notes: '',
         tags: [],
@@ -252,40 +246,16 @@ export default function EntityForm({ entity, isOpen, onSubmit, onCancel, loading
 
               {/* Category */}
               <div className="md:col-span-1">
-                <label htmlFor="category" className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Category
                 </label>
-                <input
-                  type="text"
-                  id="category"
-                  value={formData.category}
-                  onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                  placeholder="e.g. Protagonist, Kingdom"
+                <CategorySelector
+                  projectId={projectId}
+                  value={formData.categoryId}
+                  onChange={(categoryId) => setFormData(prev => ({ ...prev, categoryId }))}
                   disabled={loading}
                 />
               </div>
-            </div>
-
-            {/* Summary */}
-            <div>
-              <label htmlFor="summary" className="block text-sm font-medium text-gray-300 mb-2">
-                Short Summary
-              </label>
-              <input
-                type="text"
-                id="summary"
-                value={formData.summary}
-                onChange={(e) => setFormData(prev => ({ ...prev, summary: e.target.value }))}
-                className={`w-full px-4 py-2 bg-gray-800/50 border ${
-                  errors.summary ? 'border-red-500' : 'border-gray-700'
-                } rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all`}
-                placeholder="Brief one-liner summary"
-                disabled={loading}
-              />
-              <p className="mt-1 text-xs text-gray-500 text-right">
-                {formData.summary.length}/1000
-              </p>
             </div>
 
             {/* Tags */}

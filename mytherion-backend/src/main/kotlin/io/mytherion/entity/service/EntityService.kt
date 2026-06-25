@@ -1,6 +1,7 @@
 package io.mytherion.entity.service
 
 import io.mytherion.auth.CurrentUserProvider
+import io.mytherion.category.repository.CategoryRepository
 import io.mytherion.entity.dto.*
 import io.mytherion.entity.exception.*
 import io.mytherion.entity.model.Entity
@@ -27,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile
 @Service
 class EntityService(
     private val entityRepository: EntityRepository,
+    private val categoryRepository: CategoryRepository,
     private val projectService: ProjectService,
     private val currentUserProvider: CurrentUserProvider,
     private val storageService: StorageService,
@@ -60,16 +62,22 @@ class EntityService(
         return logger.measureTime("Create entity") {
             val project = projectService.getVerifiedProject(projectId, requireNotNull(user.id) { "User ID is missing" })
 
+            val category = request.categoryId?.let { 
+                val cat = categoryRepository.findById(it).orElseThrow { IllegalArgumentException("Category not found") }
+                if (cat.project.id != projectId) throw IllegalArgumentException("Category does not belong to this project")
+                cat
+            }
+
             val entity =
                 Entity(
                     project = project,
                     type = request.type,
                     name = request.name,
-                    category = request.category,
-                    summary = request.summary,
+                    category = category,
                     description = request.description,
                     notes = request.notes,
                     tags = request.tags?.toTypedArray(),
+                    thumbnail = request.thumbnail,
                     metadata = request.metadata
                 )
 
@@ -114,8 +122,8 @@ class EntityService(
                     listOfNotNull(
                         request.type?.let { "type" },
                         request.name?.let { "name" },
-                        request.summary?.let { "summary" },
                         request.description?.let { "description" },
+                        request.notes?.let { "notes" },
                         request.tags?.let { "tags" },
                         request.metadata?.let { "metadata" }
                     )
@@ -129,14 +137,23 @@ class EntityService(
 
         verifyEntityAccess(entity, user)
 
+        // Optimistic locking check
+        if (request.version != null && entity.version != request.version) {
+            throw org.springframework.orm.ObjectOptimisticLockingFailureException(Entity::class.java, id)
+        }
+
         // Update only provided fields
         request.type?.let { entity.type = it }
         request.name?.let { entity.name = it }
-        request.category?.let { entity.category = it }
-        request.summary?.let { entity.summary = it }
+        request.categoryId?.let { catId -> 
+            val cat = categoryRepository.findById(catId).orElseThrow { IllegalArgumentException("Category not found") }
+            if (cat.project.id != entity.project.id) throw IllegalArgumentException("Category does not belong to this project")
+            entity.category = cat
+        }
         request.description?.let { entity.description = it }
         request.notes?.let { entity.notes = it }
         request.tags?.let { entity.tags = it.toTypedArray() }
+        request.thumbnail?.let { entity.thumbnail = it }
         request.metadata?.let { entity.metadata = it }
 
         val saved = entityRepository.save(entity)
@@ -199,6 +216,7 @@ class EntityService(
             val entitiesPage = entityRepository.searchEntities(
                 projectId = projectId,
                 type = searchRequest.type,
+                categoryId = searchRequest.categoryId,
                 tags = searchRequest.tags,
                 search = searchRequest.search,
                 pageable = pageable
@@ -236,12 +254,11 @@ class EntityService(
         verifyEntityAccess(entity, user)
 
         // Delete old image if exists
-        entity.imageUrl?.let { oldUrl ->
+        entity.thumbnail?.let { oldUrl ->
             try {
-                val objectKey = oldUrl.substringAfter("$bucketName/")
-                storageService.deleteFile(bucketName, objectKey)
+                storageService.deleteFile(bucketName, oldUrl.substringAfter("$bucketName/"))
             } catch (e: Exception) {
-                logger.warn("Failed to delete old image: ${entity.imageUrl}", e)
+                logger.warn("Failed to delete old image: ${entity.thumbnail}", e)
             }
         }
 
@@ -272,7 +289,7 @@ class EntityService(
             }
 
         // Update entity
-        entity.imageUrl = url
+        entity.thumbnail = url
         entityRepository.save(entity)
 
         logger.infoWith(
@@ -302,11 +319,11 @@ class EntityService(
 
         verifyEntityAccess(entity, user)
 
-        entity.imageUrl?.let { url ->
+        entity.thumbnail?.let { url ->
             try {
                 val objectKey = url.substringAfter("$bucketName/")
                 storageService.deleteFile(bucketName, objectKey)
-                entity.imageUrl = null
+                entity.thumbnail = null
                 entityRepository.save(entity)
                 logger.infoWith("Image deleted successfully", "entityId" to id)
             } catch (e: Exception) {

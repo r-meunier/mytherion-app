@@ -76,10 +76,10 @@ export default function EntityCard({ entity, onEdit, onDelete }: EntityCardProps
         {entity.name}
       </h3>
 
-      {/* Summary */}
-      {entity.summary && (
+      {/* Description */}
+      {entity.description && (
         <p className="text-slate-400 text-sm mb-4 line-clamp-2">
-          {entity.summary}
+          {entity.description}
         </p>
       )}
 

@@ -140,15 +140,10 @@ export default function EntityDetailPage() {
                         <span className={`px-3 py-1 rounded-lg text-micro-badge ${typeConfig.color} glass border border-white/10`}>
                           {typeConfig.label}
                         </span>
-                        {currentEntity.category && (
-                          <span className="px-3 py-1 rounded-lg text-micro-badge bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                            {currentEntity.category}
-                          </span>
-                        )}
                       </div>
                     </div>
-                    {currentEntity.summary && (
-                      <p className="text-slate-300 text-lg">{currentEntity.summary}</p>
+                    {currentEntity.description && (
+                      <p className="text-slate-300 text-lg">{currentEntity.description}</p>
                     )}
                   </div>
                 </div>

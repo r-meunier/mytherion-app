@@ -58,7 +58,7 @@ export default function RecentChronicles() {
                 <img
                   alt={entity.name}
                   className="w-full h-full object-cover grayscale-10 sepia-5"
-                  src={entity.imageUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuAX6Yev4jBDV6wwAa44dwhhVR-vRF8-35TNH-znLY0p_AjF8AhGQluQvhDSQhECusFq4zrD8kLy854JjxgPkAK0qIQw7CGv_Lx15kP9lqTAbuOCZSTvZMv_IppMPsw9sbS6YqTesiBKZpSukdKi0QGS0hyrEwpGBd-OYAxNwJkImosw8xieOmq2wH2L7k3jjKuNI6QY_xP3zHnSBC_XgXVoC17PFel6QoMJVgAoB3a3fOmu03_IEKiWfxxTNzCU5TewCuK4sGZtDhhg"}
+                  src={entity.thumbnail || "https://lh3.googleusercontent.com/aida-public/AB6AXuAX6Yev4jBDV6wwAa44dwhhVR-vRF8-35TNH-znLY0p_AjF8AhGQluQvhDSQhECusFq4zrD8kLy854JjxgPkAK0qIQw7CGv_Lx15kP9lqTAbuOCZSTvZMv_IppMPsw9sbS6YqTesiBKZpSukdKi0QGS0hyrEwpGBd-OYAxNwJkImosw8xieOmq2wH2L7k3jjKuNI6QY_xP3zHnSBC_XgXVoC17PFel6QoMJVgAoB3a3fOmu03_IEKiWfxxTNzCU5TewCuK4sGZtDhhg"}
                 />
               </div>
 

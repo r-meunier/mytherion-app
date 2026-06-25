@@ -267,13 +267,13 @@ export interface Entity {
   projectId: number;
   type: EntityType;
   name: string;
-  category?: string;
-  summary?: string;
+  categoryId?: number;
   description?: string;
   notes?: string;
   tags: string[];
-  imageUrl?: string;
-  metadata?: EntityMetadata;
+  thumbnail?: string;
+  metadata?: EntityMetadata | null;
+  version: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -281,8 +281,7 @@ export interface Entity {
 export interface CreateEntityRequest {
   type: EntityType;
   name: string;
-  category?: string;
-  summary?: string;
+  categoryId?: number;
   description?: string;
   notes?: string;
   tags?: string[];
@@ -292,16 +291,17 @@ export interface CreateEntityRequest {
 export interface UpdateEntityRequest {
   type?: EntityType;
   name?: string;
-  category?: string;
-  summary?: string;
+  categoryId?: number;
   description?: string;
   notes?: string;
   tags?: string[];
   metadata?: EntityMetadata;
+  version?: number;
 }
 
 export interface EntityFilters {
   type?: EntityType;
+  categoryId?: number;
   tags?: string[];
   search?: string;
 }

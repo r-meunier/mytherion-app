@@ -11,13 +11,13 @@ data class EntityDTO(
     val projectId: Long,
     val type: EntityType,
     val name: String,
-    val category: String?,
-    val summary: String?,
+    val categoryId: Long?,
     val description: String?,
     val notes: String?,
     val tags: List<String>?,
-    val imageUrl: String?,
+    val thumbnail: String?,
     val metadata: EntityMetadata?,
+    val version: Long,
     val createdAt: Instant,
     val updatedAt: Instant
 ) {
@@ -28,13 +28,13 @@ data class EntityDTO(
                 projectId = requireNotNull(entity.project.id) { "Project ID is missing" },
                 type = entity.type,
                 name = entity.name,
-                category = entity.category,
-                summary = entity.summary,
+                categoryId = entity.category?.id,
                 description = entity.description,
                 notes = entity.notes,
                 tags = entity.tags?.toList(),
-                imageUrl = entity.imageUrl,
+                thumbnail = entity.thumbnail,
                 metadata = entity.metadata,
+                version = entity.version,
                 createdAt = entity.createdAt,
                 updatedAt = entity.updatedAt
             )

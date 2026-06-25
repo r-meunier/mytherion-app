@@ -141,8 +141,6 @@ class TestFixtures(
     fun createCharacterEntity(
         project: Project,
         name: String = "Test Character",
-        category: String = "NPC",
-        summary: String = "A test character for integration testing.",
         tags: List<String> = listOf("test"),
         components: List<EntityComponent> = listOf(
             BioComponent(data = BioData(
@@ -160,8 +158,6 @@ class TestFixtures(
                 project = project,
                 type = EntityType.CHARACTER,
                 name = name,
-                category = category,
-                summary = summary,
                 tags = tags.toTypedArray(),
                 metadata = EntityMetadata(components.toMutableList())
             )
@@ -175,8 +171,6 @@ class TestFixtures(
     fun createLocationEntity(
         project: Project,
         name: String = "Test Location",
-        category: String = "City",
-        summary: String = "A test location for integration testing.",
         tags: List<String> = listOf("test")
     ): Entity {
         val repo = requireNotNull(entityRepository) {
@@ -187,8 +181,6 @@ class TestFixtures(
                 project = project,
                 type = EntityType.LOCATION,
                 name = name,
-                category = category,
-                summary = summary,
                 tags = tags.toTypedArray()
             )
         )
@@ -202,8 +194,6 @@ class TestFixtures(
         project: Project,
         type: EntityType,
         name: String,
-        category: String? = null,
-        summary: String? = null,
         description: String? = null,
         tags: List<String> = emptyList(),
         components: List<EntityComponent> = emptyList()
@@ -216,8 +206,6 @@ class TestFixtures(
                 project = project,
                 type = type,
                 name = name,
-                category = category,
-                summary = summary,
                 description = description,
                 tags = tags.toTypedArray(),
                 metadata = if (components.isNotEmpty()) EntityMetadata(components.toMutableList()) else null

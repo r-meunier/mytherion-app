@@ -1,10 +1,15 @@
 package io.mytherion.entity.model
 
+import io.mytherion.category.model.Category
 import io.mytherion.entity.model.components.EntityComponent
 import io.mytherion.project.model.Project
 import jakarta.persistence.*
 import java.time.Instant
+import org.hibernate.annotations.Filter
+import org.hibernate.annotations.FilterDef
 import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.annotations.ParamDef
+import org.hibernate.annotations.SQLRestriction
 import org.hibernate.type.SqlTypes
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
@@ -15,6 +20,9 @@ data class EntityMetadata(val components: MutableList<EntityComponent> = mutable
 
 @jakarta.persistence.Entity
 @Table(name = "entities")
+@SQLRestriction("deleted_at IS NULL")
+@FilterDef(name = "projectScope", parameters = [ParamDef(name = "projectId", type = Long::class)])
+@Filter(name = "projectScope", condition = "project_id = :projectId")
 class Entity(
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_id_seq")
@@ -29,9 +37,6 @@ class Entity(
   var name: String,
 
   @Column(columnDefinition = "text")
-  var summary: String? = null,
-
-  @Column(columnDefinition = "text")
   var description: String? = null,
 
   @Column(columnDefinition = "text")
@@ -42,15 +47,16 @@ class Entity(
   @Enumerated(EnumType.STRING)
   var type: EntityType,
 
-  @Column
-  var category: String? = null,
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "category_id")
+  var category: Category? = null,
 
   // PostgreSQL array for tags
   @Column(columnDefinition = "text[]")
   var tags: Array<String>? = null,
 
-  @Column(name = "image_url", columnDefinition = "text")
-  var imageUrl: String? = null,
+  @Column(name = "thumbnail", columnDefinition = "text")
+  var thumbnail: String? = null,
 
   // JSONB in DB for type-specific metadata (ECS-lite)
   @JdbcTypeCode(SqlTypes.JSON)
@@ -65,7 +71,11 @@ class Entity(
   var updatedAt: Instant = Instant.now(),
 
   @Column(name = "deleted_at")
-  var deletedAt: Instant? = null
+  var deletedAt: Instant? = null,
+  
+  @Version
+  @Column(nullable = false)
+  var version: Long = 0
 ) {
   @PreUpdate
   private fun touchUpdatedAt() {

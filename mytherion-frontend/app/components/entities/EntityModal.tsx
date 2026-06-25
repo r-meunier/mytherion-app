@@ -55,6 +55,7 @@ export default function EntityModal({ isOpen, onClose, projectId, entity }: Enti
       <EntityForm
         key={`${entity?.id || 'new'}-${formKey}`}
         entity={entity || undefined}
+        projectId={projectId}
         isOpen={isOpen}
         onSubmit={handleSubmit}
         onCancel={onClose}

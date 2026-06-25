@@ -10,7 +10,7 @@ interface CustomFieldsProps {
 
 export default function CustomFields({ data, onChange, disabled = false }: CustomFieldsProps) {
   // Convert map to array of entries for easier editing
-  const entries = Object.entries(data).map(([key, value]) => ({ key, value }));
+  const entries = Object.entries(data || {}).map(([key, value]) => ({ key, value }));
 
   const handleEntryChange = (index: number, field: 'key' | 'value', newValue: string) => {
     const newEntries = [...entries];
@@ -50,7 +50,7 @@ export default function CustomFields({ data, onChange, disabled = false }: Custo
           <div className="flex-1">
             <input
               type="text"
-              value={entry.key}
+              value={entry.key ?? ''}
               onChange={(e) => handleEntryChange(index, 'key', e.target.value)}
               disabled={disabled}
               placeholder="Field Name"
@@ -60,7 +60,7 @@ export default function CustomFields({ data, onChange, disabled = false }: Custo
           <div className="flex-[2]">
             <input
               type="text"
-              value={entry.value}
+              value={entry.value ?? ''}
               onChange={(e) => handleEntryChange(index, 'value', e.target.value)}
               disabled={disabled}
               placeholder="Value"

@@ -18,6 +18,7 @@ class EntityRepositoryImpl : EntityRepositoryCustom {
     override fun searchEntities(
         projectId: Long,
         type: EntityType?,
+        categoryId: Long?,
         tags: List<String>?,
         search: String?,
         pageable: Pageable
@@ -30,13 +31,18 @@ class EntityRepositoryImpl : EntityRepositoryCustom {
             parameters["type"] = it.name
         }
 
+        categoryId?.let {
+            whereClauses.add("e.category_id = :categoryId")
+            parameters["categoryId"] = it
+        }
+
         if (!tags.isNullOrEmpty()) {
             whereClauses.add("e.tags && cast(:tags as text[])")
             parameters["tags"] = tags.toTypedArray()
         }
 
         if (!search.isNullOrBlank()) {
-            whereClauses.add("(e.name ILIKE :search OR e.summary ILIKE :search OR e.description ILIKE :search)")
+            whereClauses.add("(e.name ILIKE :search OR e.description ILIKE :search OR e.notes ILIKE :search)")
             parameters["search"] = "%${search}%"
         }
 
