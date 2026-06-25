@@ -9,6 +9,7 @@ interface EntityRepositoryCustom {
     fun searchEntities(
         projectId: Long,
         type: EntityType?,
+        categoryId: Long?,
         tags: List<String>?,
         search: String?,
         pageable: Pageable

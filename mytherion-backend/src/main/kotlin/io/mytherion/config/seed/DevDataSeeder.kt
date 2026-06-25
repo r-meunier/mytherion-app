@@ -9,6 +9,8 @@ import io.mytherion.logging.infoWith
 import io.mytherion.logging.logger
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
+import io.mytherion.category.model.Category
+import io.mytherion.category.repository.CategoryRepository
 import io.mytherion.user.model.User
 import io.mytherion.user.model.UserRole
 import io.mytherion.user.repository.UserRepository
@@ -32,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional
 class DevDataSeeder(
     private val userRepository: UserRepository,
     private val projectRepository: ProjectRepository,
+    private val categoryRepository: CategoryRepository,
     private val entityRepository: EntityRepository,
     private val passwordEncoder: PasswordEncoder
 ) : ApplicationRunner {
@@ -142,7 +145,6 @@ class DevDataSeeder(
         type: EntityType,
         name: String,
         category: String? = null,
-        summary: String? = null,
         description: String? = null,
         tags: List<String> = emptyList(),
         components: List<EntityComponent> = emptyList()
@@ -152,8 +154,10 @@ class DevDataSeeder(
                 project = project,
                 type = type,
                 name = name,
-                category = category,
-                summary = summary,
+                category = category?.let { catName ->
+                    categoryRepository.findAllByProjectOrderByNameAsc(project).find { it.name == catName }
+                        ?: categoryRepository.save(Category(project = project, name = catName))
+                },
                 description = description,
                 tags = tags.toTypedArray(),
                 metadata = if (components.isNotEmpty()) EntityMetadata(components.toMutableList()) else null
@@ -174,7 +178,6 @@ class DevDataSeeder(
             type = EntityType.CHARACTER,
             name = "Vaelith Stormweaver",
             category = "Protagonist",
-            summary = "A disgraced arcane scholar seeking to mend the broken ley-lines before the last continent falls.",
             description = "Once the youngest Archon of the Luminari Order, Vaelith was exiled after a forbidden experiment shattered the Veil of Echoes. Now wandering the fractured realms, she searches for the Convergence Stones — artifacts rumoured to restore the world's shattered connections.",
             tags = listOf("protagonist", "mage", "exile", "ley-mage"),
             components = listOf(
@@ -214,7 +217,6 @@ class DevDataSeeder(
             type = EntityType.LOCATION,
             name = "The Luminari Citadel",
             category = "Landmark",
-            summary = "The ancient seat of the Luminari Order, now half-shattered and drifting at the edge of the Stormwall.",
             tags = listOf("landmark", "ruins", "luminari", "arcane"),
             components = listOf(
                 LocationComponent(data = LocationData(
@@ -232,7 +234,6 @@ class DevDataSeeder(
             type = EntityType.ORGANIZATION,
             name = "The Luminari Order",
             category = "Faction",
-            summary = "An ancient order of ley-scholars dedicated to understanding and maintaining the world's magical infrastructure.",
             tags = listOf("faction", "mages", "luminari", "order"),
             components = listOf(
                 OrganizationComponent(data = OrganizationData(
@@ -250,7 +251,6 @@ class DevDataSeeder(
             type = EntityType.ITEM,
             name = "Convergence Stone",
             category = "Artifact",
-            summary = "One of seven ancient stones rumoured to be able to re-knit the shattered ley-network.",
             tags = listOf("artifact", "quest-item", "ancient", "ley-stone"),
             components = listOf(
                 ItemComponent(data = ItemData(
@@ -273,7 +273,6 @@ class DevDataSeeder(
             type = EntityType.CHARACTER,
             name = "Commissioner Greaves",
             category = "Antagonist",
-            summary = "The ruthless head of the Imperial Compliance Bureau, who believes order is worth any price.",
             tags = listOf("antagonist", "authority", "steampunk"),
             components = listOf(
                 BioComponent(data = BioData(
@@ -298,7 +297,6 @@ class DevDataSeeder(
             type = EntityType.CHARACTER,
             name = "Renna Blackspanner",
             category = "Protagonist",
-            summary = "A rebel engineer building prohibited machines in the underground workshops of Geartown.",
             tags = listOf("protagonist", "engineer", "rebel"),
             components = listOf(
                 BioComponent(data = BioData(
@@ -319,7 +317,6 @@ class DevDataSeeder(
             type = EntityType.LOCATION,
             name = "Geartown",
             category = "District",
-            summary = "The smog-choked industrial heart of the Empire, where workers live and die by the clock.",
             tags = listOf("industrial", "urban", "steampunk"),
             components = listOf(
                 LocationComponent(data = LocationData(
@@ -341,7 +338,6 @@ class DevDataSeeder(
             type = EntityType.CHARACTER,
             name = "Kael Root-Speaker",
             category = "Protagonist",
-            summary = "A young shaman who can hear the 'voice' of ancient machines buried beneath the forest floor.",
             tags = listOf("protagonist", "shaman", "nature"),
             components = listOf(
                 BioComponent(data = BioData(
@@ -358,7 +354,6 @@ class DevDataSeeder(
             type = EntityType.LOCATION,
             name = "The Overgrown Spire",
             category = "Ruin",
-            summary = "A colossal pre-Collapse skyscraper now entirely consumed by an ancient banyan tree.",
             tags = listOf("ruin", "nature", "ancient-tech"),
             components = listOf(
                 LocationComponent(data = LocationData(
@@ -373,7 +368,6 @@ class DevDataSeeder(
             type = EntityType.ITEM,
             name = "The Singing Core",
             category = "Relic",
-            summary = "A pre-Collapse power cell that emits a melodic hum. The tribes believe it contains the voice of a sleeping god.",
             tags = listOf("relic", "ancient-tech", "power-source"),
             components = listOf(
                 ItemComponent(data = ItemData(
@@ -396,7 +390,6 @@ class DevDataSeeder(
             type = EntityType.CHARACTER,
             name = "Captain Dara Voss",
             category = "Protagonist",
-            summary = "Commander of Ark-7, a pragmatic leader trying to hold her fractured colony together as resources dwindle.",
             tags = listOf("protagonist", "captain", "leader"),
             components = listOf(
                 BioComponent(data = BioData(
@@ -421,7 +414,6 @@ class DevDataSeeder(
             type = EntityType.ORGANIZATION,
             name = "The Ark Council",
             category = "Government",
-            summary = "The ruling body of the remaining colony ships, increasingly divided over whether to settle or keep drifting.",
             tags = listOf("government", "council", "political"),
             components = listOf(
                 OrganizationComponent(data = OrganizationData(

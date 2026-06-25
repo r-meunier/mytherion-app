@@ -81,13 +81,13 @@ class EntityControllerTest {
                 projectId = 1L,
                 type = EntityType.CHARACTER,
                 name = "Test Character",
-                category = null,
-                summary = "Test summary",
+                categoryId = null,
                 description = "Test description",
                 notes = null,
                 tags = listOf("hero", "mage"),
-                imageUrl = null,
+                thumbnail = null,
                 metadata = null,
+            version = 0L,
                 createdAt = Instant.now(),
                 updatedAt = Instant.now()
             )
@@ -113,7 +113,6 @@ class EntityControllerTest {
             CreateEntityRequest(
                 type = EntityType.CHARACTER,
                 name = "New Character",
-                summary = "A new character"
             )
 
         val entityDTO =
@@ -122,13 +121,13 @@ class EntityControllerTest {
                 projectId = 1L,
                 type = EntityType.CHARACTER,
                 name = "New Character",
-                category = null,
-                summary = "A new character",
+                categoryId = null,
                 description = null,
                 notes = null,
                 tags = null,
-                imageUrl = null,
+                thumbnail = null,
                 metadata = null,
+            version = 0L,
                 createdAt = Instant.now(),
                 updatedAt = Instant.now()
             )
@@ -155,13 +154,13 @@ class EntityControllerTest {
                 projectId = 1L,
                 type = EntityType.CHARACTER,
                 name = "Test Character",
-                category = null,
-                summary = "Test summary",
+                categoryId = null,
                 description = "Test description",
                 notes = null,
                 tags = listOf("hero"),
-                imageUrl = null,
+                thumbnail = null,
                 metadata = null,
+            version = 0L,
                 createdAt = Instant.now(),
                 updatedAt = Instant.now()
             )
@@ -179,7 +178,7 @@ class EntityControllerTest {
     fun `updateEntity should return updated entity`() {
         // Given
         val request =
-            UpdateEntityRequest(name = "Updated Name", summary = "Updated summary")
+            UpdateEntityRequest(name = "Updated Name",)
 
         val entityDTO =
             EntityDTO(
@@ -187,13 +186,13 @@ class EntityControllerTest {
                 projectId = 1L,
                 type = EntityType.CHARACTER,
                 name = "Updated Name",
-                category = null,
-                summary = "Updated summary",
+                categoryId = null,
                 description = null,
                 notes = null,
                 tags = null,
-                imageUrl = null,
+                thumbnail = null,
                 metadata = null,
+            version = 0L,
                 createdAt = Instant.now(),
                 updatedAt = Instant.now()
             )
