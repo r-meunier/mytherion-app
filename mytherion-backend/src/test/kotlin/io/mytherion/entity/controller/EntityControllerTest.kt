@@ -14,6 +14,7 @@ import io.mytherion.entity.model.EntityType
 import io.mytherion.entity.service.EntityService
 import io.mytherion.storage.dto.UploadResponse
 import java.time.Instant
+import java.util.UUID
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
@@ -77,8 +78,8 @@ class EntityControllerTest {
         // Given
         val entityDTO =
             EntityDTO(
-                id = 1L,
-                projectId = 1L,
+                id = UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                projectId = UUID.fromString("00000000-0000-0000-0000-000000000001"),
                 type = EntityType.CHARACTER,
                 name = "Test Character",
                 categoryId = null,
@@ -102,7 +103,7 @@ class EntityControllerTest {
                 .param("size", "20")
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.content[0].id").value(1))
+            .andExpect(jsonPath("$.content[0].id").value("00000000-0000-0000-0000-000000000001"))
             .andExpect(jsonPath("$.content[0].name").value("Test Character"))
     }
 
@@ -117,8 +118,8 @@ class EntityControllerTest {
 
         val entityDTO =
             EntityDTO(
-                id = 1L,
-                projectId = 1L,
+                id = UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                projectId = UUID.fromString("00000000-0000-0000-0000-000000000001"),
                 type = EntityType.CHARACTER,
                 name = "New Character",
                 categoryId = null,
@@ -141,7 +142,7 @@ class EntityControllerTest {
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isCreated)
-            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.id").value("00000000-0000-0000-0000-000000000001"))
             .andExpect(jsonPath("$.name").value("New Character"))
     }
 
@@ -150,8 +151,8 @@ class EntityControllerTest {
         // Given
         val entityDTO =
             EntityDTO(
-                id = 1L,
-                projectId = 1L,
+                id = UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                projectId = UUID.fromString("00000000-0000-0000-0000-000000000001"),
                 type = EntityType.CHARACTER,
                 name = "Test Character",
                 categoryId = null,
@@ -165,12 +166,12 @@ class EntityControllerTest {
                 updatedAt = Instant.now()
             )
 
-        every { entityService.getEntity(1L) } returns entityDTO
+        every { entityService.getEntity(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns entityDTO
 
         // When/Then
         mockMvc.perform(get("/api/projects/1/entities/1"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.id").value("00000000-0000-0000-0000-000000000001"))
             .andExpect(jsonPath("$.name").value("Test Character"))
     }
 
@@ -182,8 +183,8 @@ class EntityControllerTest {
 
         val entityDTO =
             EntityDTO(
-                id = 1L,
-                projectId = 1L,
+                id = UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                projectId = UUID.fromString("00000000-0000-0000-0000-000000000001"),
                 type = EntityType.CHARACTER,
                 name = "Updated Name",
                 categoryId = null,
@@ -212,7 +213,7 @@ class EntityControllerTest {
     @Test
     fun `deleteEntity should return no content`() {
         // Given
-        every { entityService.deleteEntity(1L) } returns Unit
+        every { entityService.deleteEntity(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Unit
 
         // When/Then
         mockMvc.perform(delete("/api/projects/1/entities/1")).andExpect(status().isNoContent)
@@ -249,7 +250,7 @@ class EntityControllerTest {
     @Test
     fun `deleteImage should return no content`() {
         // Given
-        every { entityService.deleteImage(1L) } returns Unit
+        every { entityService.deleteImage(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Unit
 
         // When/Then
         mockMvc.perform(delete("/api/projects/1/entities/1/image")).andExpect(status().isNoContent)

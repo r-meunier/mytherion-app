@@ -7,6 +7,7 @@ import io.mytherion.project.model.Project
 import io.mytherion.user.model.User
 import io.mytherion.user.model.UserRole
 import java.time.Instant
+import java.util.UUID
 
 /**
  * Test fixtures for Project-related tests
@@ -14,23 +15,24 @@ import java.time.Instant
 object ProjectTestFixtures {
 
     fun createTestUser(
-        id: Long = 1L,
+        id: UUID = UUID.randomUUID(),
         username: String = "testuser",
         email: String = "test@example.com",
         passwordHash: String = "hashedpassword",
         role: UserRole = UserRole.USER,
         createdAt: Instant = Instant.now()
     ) = User(
-        id = id,
         username = username,
         email = email,
         passwordHash = passwordHash,
-        role = role,
-        createdAt = createdAt
-    )
+        role = role
+    ).apply {
+        this.id = id
+        this.createdAt = createdAt
+    }
 
     fun createTestProject(
-        id: Long? = 1L,
+        id: UUID? = UUID.randomUUID(),
         owner: User = createTestUser(),
         name: String = "Test Project",
         description: String? = "Test project description",
@@ -38,20 +40,21 @@ object ProjectTestFixtures {
         createdAt: Instant = Instant.now(),
         updatedAt: Instant = Instant.now()
     ) = Project(
-        id = id,
         owner = owner,
         name = name,
         description = description,
-        genre = genre,
-        createdAt = createdAt,
-        updatedAt = updatedAt
-    )
+        genre = genre
+    ).apply {
+        this.id = id
+        this.createdAt = createdAt
+        this.updatedAt = updatedAt
+    }
 
     fun createTestProjectResponse(
-        id: Long = 1L,
+        id: UUID = UUID.randomUUID(),
         name: String = "Test Project",
         description: String? = "Test project description",
-        ownerId: Long = 1L,
+        ownerId: UUID = UUID.randomUUID(),
         ownerUsername: String = "testuser",
         createdAt: Instant = Instant.now(),
         updatedAt: Instant = Instant.now(),

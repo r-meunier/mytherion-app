@@ -26,7 +26,7 @@ export const fetchDashboardStats = createAsyncThunk(
 
 export const fetchProjectDashboardStats = createAsyncThunk(
   'dashboard/fetchProjectStats',
-  async (projectId: number, { rejectWithValue }) => {
+  async (projectId: string, { rejectWithValue }) => {
     try {
       return await dashboardService.getProjectStats(projectId);
     } catch (error: any) {

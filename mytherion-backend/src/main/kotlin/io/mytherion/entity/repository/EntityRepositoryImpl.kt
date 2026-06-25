@@ -9,6 +9,8 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 
+import java.util.UUID
+
 @Repository
 class EntityRepositoryImpl : EntityRepositoryCustom {
 
@@ -16,9 +18,9 @@ class EntityRepositoryImpl : EntityRepositoryCustom {
     private lateinit var entityManager: EntityManager
 
     override fun searchEntities(
-        projectId: Long,
+        projectId: UUID,
         type: EntityType?,
-        categoryId: Long?,
+        categoryId: UUID?,
         tags: List<String>?,
         search: String?,
         pageable: Pageable

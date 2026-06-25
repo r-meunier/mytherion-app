@@ -17,7 +17,7 @@ import {
 interface DualSidebarProps {
   activeSection?: string;
   activeIcon?: string;
-  projectId?: number;
+  projectId?: string;
   navItems?: NavItem[];
   libraryItems?: NavItem[];
   managementItems?: NavItem[];

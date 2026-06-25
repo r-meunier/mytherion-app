@@ -15,6 +15,7 @@ import java.time.temporal.ChronoUnit
 import java.util.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
+import java.util.UUID
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -50,23 +51,25 @@ class AuthServiceEmailVerificationTest {
     fun setUp() {
         testUser =
             User(
-                id = 1L,
                 email = "test@example.com",
                 username = "testuser",
                 passwordHash = "hashedPassword",
                 role = UserRole.USER,
                 emailVerified = false
-            )
+            ).apply {
+                this.id = UUID.fromString("00000000-0000-0000-0000-000000000001")
+            }
 
         verifiedUser =
             User(
-                id = 2L,
                 email = "verified@example.com",
                 username = "verifieduser",
                 passwordHash = "hashedPassword",
                 role = UserRole.USER,
                 emailVerified = true
-            )
+            ).apply {
+                this.id = UUID.fromString("00000000-0000-0000-0000-000000000002")
+            }
     }
 
     // ==================== sendVerificationEmail Tests ====================
@@ -133,7 +136,7 @@ class AuthServiceEmailVerificationTest {
         val token = "valid-token-123"
         val verificationToken =
             EmailVerificationToken(
-                id = 1L,
+                id = UUID.fromString("00000000-0000-0000-0000-000000000001"),
                 token = token,
                 user = testUser,
                 expiresAt = Instant.now().plus(1, ChronoUnit.HOURS),
@@ -177,7 +180,7 @@ class AuthServiceEmailVerificationTest {
         val token = "expired-token"
         val expiredToken =
             EmailVerificationToken(
-                id = 1L,
+                id = UUID.fromString("00000000-0000-0000-0000-000000000001"),
                 token = token,
                 user = testUser,
                 expiresAt = Instant.now().minus(1, ChronoUnit.HOURS),
@@ -200,7 +203,7 @@ class AuthServiceEmailVerificationTest {
         val token = "already-verified-token"
         val verifiedToken =
             EmailVerificationToken(
-                id = 1L,
+                id = UUID.fromString("00000000-0000-0000-0000-000000000001"),
                 token = token,
                 user = testUser,
                 expiresAt = Instant.now().plus(1, ChronoUnit.HOURS),
@@ -294,7 +297,7 @@ class AuthServiceEmailVerificationTest {
     @Test
     fun `resendVerificationEmail by userId should send new email`() {
         // Given
-        val userId = 1L
+        val userId = UUID.fromString("00000000-0000-0000-0000-000000000001")
         every { userRepository.findById(userId) } returns Optional.of(testUser)
         every { verificationTokenRepository.deleteByUser(testUser) } just Runs
         every { verificationTokenRepository.save(any()) } returnsArgument 0
@@ -311,7 +314,7 @@ class AuthServiceEmailVerificationTest {
     @Test
     fun `resendVerificationEmail for verified user should throw exception`() {
         // Given
-        val userId = 2L
+        val userId = UUID.fromString("00000000-0000-0000-0000-000000000002")
         every { userRepository.findById(userId) } returns Optional.of(verifiedUser)
 
         // When & Then
@@ -327,7 +330,7 @@ class AuthServiceEmailVerificationTest {
     @Test
     fun `resendVerificationEmail for non-existent user should throw exception`() {
         // Given
-        val userId = 999L
+        val userId = UUID.fromString("00000000-0000-0000-0000-000000000999")
         every { userRepository.findById(userId) } returns Optional.empty()
 
         // When & Then

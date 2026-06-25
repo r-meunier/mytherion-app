@@ -43,7 +43,7 @@ export const fetchEntities = createAsyncThunk(
     page = 0, 
     size = 20 
   }: { 
-    projectId: number; 
+    projectId: string; 
     filters?: EntityFilters; 
     page?: number; 
     size?: number;
@@ -61,7 +61,7 @@ export const fetchEntities = createAsyncThunk(
 
 export const fetchEntity = createAsyncThunk(
   'entities/fetchEntity',
-  async ({ projectId, id }: { projectId: number; id: number }) => {
+  async ({ projectId, id }: { projectId: string; id: string }) => {
     const response = await entityService.getEntity(projectId, id);
     return response;
   }
@@ -69,7 +69,7 @@ export const fetchEntity = createAsyncThunk(
 
 export const createEntity = createAsyncThunk(
   'entities/createEntity',
-  async ({ projectId, data }: { projectId: number; data: CreateEntityRequest }) => {
+  async ({ projectId, data }: { projectId: string; data: CreateEntityRequest }) => {
     const response = await entityService.createEntity(projectId, data);
     return response;
   }
@@ -77,7 +77,7 @@ export const createEntity = createAsyncThunk(
 
 export const updateEntity = createAsyncThunk(
   'entities/updateEntity',
-  async ({ projectId, id, data }: { projectId: number; id: number; data: UpdateEntityRequest }) => {
+  async ({ projectId, id, data }: { projectId: string; id: string; data: UpdateEntityRequest }) => {
     const response = await entityService.updateEntity(projectId, id, data);
     return response;
   }
@@ -85,7 +85,7 @@ export const updateEntity = createAsyncThunk(
 
 export const deleteEntity = createAsyncThunk(
   'entities/deleteEntity',
-  async ({ projectId, id }: { projectId: number; id: number }) => {
+  async ({ projectId, id }: { projectId: string; id: string }) => {
     await entityService.deleteEntity(projectId, id);
     return id;
   }
@@ -192,7 +192,7 @@ const entitySlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteEntity.fulfilled, (state, action: PayloadAction<number>) => {
+      .addCase(deleteEntity.fulfilled, (state, action: PayloadAction<string>) => {
         state.loading = false;
         state.entities = state.entities.filter((e) => e.id !== action.payload);
         if (state.currentEntity?.id === action.payload) {

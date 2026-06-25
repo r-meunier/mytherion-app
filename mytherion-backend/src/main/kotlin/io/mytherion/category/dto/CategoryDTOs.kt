@@ -2,10 +2,11 @@ package io.mytherion.category.dto
 
 import io.mytherion.category.model.Category
 import jakarta.validation.constraints.NotBlank
+import java.util.UUID
 
 data class CategoryDTO(
-    val id: Long,
-    val projectId: Long,
+    val id: UUID,
+    val projectId: UUID,
     val name: String,
     val description: String?
 ) {
@@ -20,6 +21,12 @@ data class CategoryDTO(
 }
 
 data class CreateCategoryRequest(
+    @field:NotBlank(message = "Category name is required")
+    val name: String,
+    val description: String? = null
+)
+
+data class UpdateCategoryRequest(
     @field:NotBlank(message = "Category name is required")
     val name: String,
     val description: String? = null

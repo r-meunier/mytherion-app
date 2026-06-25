@@ -5,11 +5,13 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import java.time.Instant
 
+import java.util.UUID
+
 data class ProjectResponse(
-    val id: Long,
+    val id: UUID,
     val name: String,
     val description: String?,
-    val ownerId: Long,
+    val ownerId: UUID,
     val ownerUsername: String,
     val createdAt: Instant,
     val updatedAt: Instant,

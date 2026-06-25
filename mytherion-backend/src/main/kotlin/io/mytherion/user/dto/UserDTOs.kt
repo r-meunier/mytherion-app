@@ -3,8 +3,10 @@ package io.mytherion.user.dto
 import io.mytherion.user.model.User
 import java.time.Instant
 
+import java.util.UUID
+
 data class UserResponse(
-    val id: Long,
+    val id: UUID,
     val email: String,
     val username: String,
     val role: String,

@@ -20,7 +20,7 @@ const dashboardService = {
     return response.data;
   },
 
-  getProjectStats: async (projectId: number): Promise<DashboardStats> => {
+  getProjectStats: async (projectId: string): Promise<DashboardStats> => {
     const response = await axios.get<DashboardStats>(`${API_URL}/api/projects/${projectId}/dashboard/stats`, {
       withCredentials: true
     });

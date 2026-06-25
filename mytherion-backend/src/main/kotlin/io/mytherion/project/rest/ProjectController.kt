@@ -11,6 +11,7 @@ import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import java.util.UUID
 
 @RestController
 @RequestMapping("/api/projects")
@@ -39,7 +40,7 @@ class ProjectController(private val projectService: ProjectService) {
     }
 
     @GetMapping("/{id}")
-    fun getProjectById(@PathVariable id: Long): ProjectResponse {
+    fun getProjectById(@PathVariable id: UUID): ProjectResponse {
         logger.infoWith("Get project request", "projectId" to id)
         return try {
             projectService.getProjectById(id)
@@ -63,7 +64,7 @@ class ProjectController(private val projectService: ProjectService) {
 
     @PutMapping("/{id}")
     fun updateProject(
-        @PathVariable id: Long,
+        @PathVariable id: UUID,
         @RequestBody @Valid request: UpdateProjectRequest
     ): ProjectResponse {
         logger.infoWith("Update project request", "projectId" to id)
@@ -76,7 +77,7 @@ class ProjectController(private val projectService: ProjectService) {
     }
 
     @GetMapping("/{id}/stats")
-    fun getProjectStats(@PathVariable id: Long): io.mytherion.project.dto.ProjectStatsDTO {
+    fun getProjectStats(@PathVariable id: UUID): io.mytherion.project.dto.ProjectStatsDTO {
         logger.infoWith("Get project stats request", "projectId" to id)
         return try {
             projectService.getProjectStats(id)
@@ -88,7 +89,7 @@ class ProjectController(private val projectService: ProjectService) {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteProject(@PathVariable id: Long) {
+    fun deleteProject(@PathVariable id: UUID) {
         logger.infoWith("Delete project request", "projectId" to id)
         try {
             projectService.deleteProject(id)

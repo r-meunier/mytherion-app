@@ -16,8 +16,8 @@ import { EntityMetadata } from '@/app/types/entity';
 export default function EntityDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const entityId = parseInt(params.entityId as string);
-  const projectId = parseInt(params.projectId as string);
+  const entityId = (params.entityId as string);
+  const projectId = (params.projectId as string);
   
   const dispatch = useAppDispatch();
   const { currentEntity, loading, error } = useAppSelector((state) => state.entities);

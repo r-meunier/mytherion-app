@@ -5,9 +5,9 @@ import { Category } from '@/app/types/category';
 import { categoryService } from '@/app/services/categoryService';
 
 interface CategorySelectorProps {
-  projectId: number;
-  value?: number;
-  onChange: (categoryId?: number) => void;
+  projectId: string;
+  value?: string;
+  onChange: (categoryId?: string) => void;
   disabled?: boolean;
 }
 

@@ -19,10 +19,10 @@ export interface Page<T> {
 export const entityService = {
   // Get entities with filters
   getEntities: async (
-    projectId: number,
+    projectId: string,
     filters?: {
       type?: EntityType;
-      categoryId?: number;
+      categoryId?: string;
       tags?: string[];
       search?: string;
       page?: number;
@@ -56,7 +56,7 @@ export const entityService = {
   },
 
   // Get single entity
-  getEntity: async (projectId: number, id: number): Promise<Entity> => {
+  getEntity: async (projectId: string, id: string): Promise<Entity> => {
     serviceLogger.debug('Fetching entity', { projectId, entityId: id });
 
     try {
@@ -72,7 +72,7 @@ export const entityService = {
   },
 
   // Create entity
-  createEntity: async (projectId: number, data: CreateEntityRequest): Promise<Entity> => {
+  createEntity: async (projectId: string, data: CreateEntityRequest): Promise<Entity> => {
     serviceLogger.info('Creating entity', { projectId, type: data.type, name: data.name });
 
     try {
@@ -92,7 +92,7 @@ export const entityService = {
   },
 
   // Update entity
-  updateEntity: async (projectId: number, id: number, data: UpdateEntityRequest): Promise<Entity> => {
+  updateEntity: async (projectId: string, id: string, data: UpdateEntityRequest): Promise<Entity> => {
     serviceLogger.info('Updating entity', { projectId, entityId: id, updates: Object.keys(data) });
 
     try {
@@ -108,7 +108,7 @@ export const entityService = {
   },
 
   // Delete entity
-  deleteEntity: async (projectId: number, id: number): Promise<void> => {
+  deleteEntity: async (projectId: string, id: string): Promise<void> => {
     serviceLogger.info('Deleting entity', { projectId, entityId: id });
 
     try {

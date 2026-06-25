@@ -41,7 +41,7 @@ class AuthController(private val authService: AuthService, private val cookieUti
   }
 
   @GetMapping("/me")
-  fun getCurrentUser(@AuthenticationPrincipal userId: Long?): AuthDTO.UserResponse {
+  fun getCurrentUser(@AuthenticationPrincipal userId: java.util.UUID?): AuthDTO.UserResponse {
     if (userId == null) {
       throw IllegalStateException("User not authenticated")
     }

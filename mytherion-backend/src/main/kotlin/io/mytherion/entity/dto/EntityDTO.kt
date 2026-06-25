@@ -6,12 +6,14 @@ import io.mytherion.entity.model.EntityType
 import java.time.Instant
 
 /** Response DTO for Entity */
+import java.util.UUID
+
 data class EntityDTO(
-    val id: Long,
-    val projectId: Long,
+    val id: UUID,
+    val projectId: UUID,
     val type: EntityType,
     val name: String,
-    val categoryId: Long?,
+    val categoryId: UUID?,
     val description: String?,
     val notes: String?,
     val tags: List<String>?,

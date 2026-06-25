@@ -22,6 +22,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
+import java.util.UUID
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.Instant
@@ -64,29 +65,32 @@ class EntityServiceTest {
         // Setup test data
         testUser =
             User(
-                id = 1L,
                 username = "testuser",
                 email = "test@example.com",
                 passwordHash = "hashedpassword",
                 emailVerified = true
-            )
+            ).apply {
+                this.id = UUID.fromString("00000000-0000-0000-0000-000000000001")
+            }
 
         testProject =
             Project(
-                id = 1L,
                 owner = testUser,
                 name = "Test Project",
                 description = "Test Description"
-            )
+            ).apply {
+                this.id = UUID.fromString("00000000-0000-0000-0000-000000000001")
+            }
 
         testEntity =
             Entity(
-                id = 1L,
                 project = testProject,
                 type = EntityType.CHARACTER,
                 name = "Test Character",
                 description = "Detailed description"
-            )
+            ).apply {
+                this.id = UUID.fromString("00000000-0000-0000-0000-000000000001")
+            }
 
         // Mock current user provider to return test user
         every { currentUserProvider.getCurrentUser() } returns testUser
@@ -108,11 +112,11 @@ class EntityServiceTest {
                 tags = listOf("hero", "mage")
             )
 
-        every { projectService.getVerifiedProject(1L, 1L) } returns testProject
+        every { projectService.getVerifiedProject(UUID.fromString("00000000-0000-0000-0000-000000000001"), UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns testProject
         every { entityRepository.save(any()) } returns testEntity
 
         // When
-        val result = entityService.createEntity(1L, request)
+        val result = entityService.createEntity(UUID.fromString("00000000-0000-0000-0000-000000000001"), request)
 
         // Then
         assertNotNull(result)
@@ -125,21 +129,21 @@ class EntityServiceTest {
         // Given
         val request = CreateEntityRequest(type = EntityType.CHARACTER, name = "New Character")
 
-        every { projectService.getVerifiedProject(1L, 1L) } throws ProjectNotFoundException(1L)
+        every { projectService.getVerifiedProject(UUID.fromString("00000000-0000-0000-0000-000000000001"), UUID.fromString("00000000-0000-0000-0000-000000000001")) } throws ProjectNotFoundException(UUID.fromString("00000000-0000-0000-0000-000000000001"))
 
         // When/Then
         assertThrows<ProjectNotFoundException> {
-            entityService.createEntity(1L, request)
+            entityService.createEntity(UUID.fromString("00000000-0000-0000-0000-000000000001"), request)
         }
     }
 
     @Test
     fun `getEntity should return entity when authorized`() {
         // Given
-        every { entityRepository.findById(1L) } returns Optional.of(testEntity)
+        every { entityRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Optional.of(testEntity)
 
         // When
-        val result = entityService.getEntity(1L)
+        val result = entityService.getEntity(UUID.fromString("00000000-0000-0000-0000-000000000001"))
 
         // Then
         assertNotNull(result)
@@ -150,20 +154,20 @@ class EntityServiceTest {
     @Test
     fun `getEntity should throw exception when entity not found`() {
         // Given
-        every { entityRepository.findById(1L) } returns Optional.empty()
+        every { entityRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Optional.empty()
 
         // When/Then
-        assertThrows<EntityNotFoundException> { entityService.getEntity(1L) }
+        assertThrows<EntityNotFoundException> { entityService.getEntity(UUID.fromString("00000000-0000-0000-0000-000000000001")) }
     }
 
     @Test
     fun `getEntity should throw exception when entity is deleted`() {
         // Given
         testEntity.deletedAt = Instant.now()
-        every { entityRepository.findById(1L) } returns Optional.of(testEntity)
+        every { entityRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Optional.of(testEntity)
 
         // When/Then
-        assertThrows<EntityNotFoundException> { entityService.getEntity(1L) }
+        assertThrows<EntityNotFoundException> { entityService.getEntity(UUID.fromString("00000000-0000-0000-0000-000000000001")) }
     }
 
     @Test
@@ -171,11 +175,11 @@ class EntityServiceTest {
         // Given
         val request = UpdateEntityRequest(name = "Updated Name",)
 
-        every { entityRepository.findById(1L) } returns Optional.of(testEntity)
+        every { entityRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Optional.of(testEntity)
         every { entityRepository.save(any()) } returns testEntity
 
         // When
-        val result = entityService.updateEntity(1L, request)
+        val result = entityService.updateEntity(UUID.fromString("00000000-0000-0000-0000-000000000001"), request)
 
         // Then
         assertNotNull(result)
@@ -185,11 +189,11 @@ class EntityServiceTest {
     @Test
     fun `deleteEntity should soft delete entity`() {
         // Given
-        every { entityRepository.findById(1L) } returns Optional.of(testEntity)
+        every { entityRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Optional.of(testEntity)
         every { entityRepository.save(any()) } returns testEntity
 
         // When
-        entityService.deleteEntity(1L)
+        entityService.deleteEntity(UUID.fromString("00000000-0000-0000-0000-000000000001"))
 
         // Then
         verify { entityRepository.save(match { it.deletedAt != null }) }
@@ -199,10 +203,10 @@ class EntityServiceTest {
     fun `deleteEntity should throw exception when entity already deleted`() {
         // Given
         testEntity.deletedAt = Instant.now()
-        every { entityRepository.findById(1L) } returns Optional.of(testEntity)
+        every { entityRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Optional.of(testEntity)
 
         // When/Then
-        assertThrows<EntityNotFoundException> { entityService.deleteEntity(1L) }
+        assertThrows<EntityNotFoundException> { entityService.deleteEntity(UUID.fromString("00000000-0000-0000-0000-000000000001")) }
     }
 
     @Test
@@ -220,12 +224,12 @@ class EntityServiceTest {
         )
         val mockPage = org.springframework.data.domain.PageImpl(listOf(testEntity), pageable, 1)
         
-        every { projectService.getVerifiedProject(1L, 1L) } returns testProject
+        every { projectService.getVerifiedProject(UUID.fromString("00000000-0000-0000-0000-000000000001"), UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns testProject
         every { entityRepository.searchEntities(any(), any(), any(), any(), any(), any()) } returns mockPage
         every { metricsService.recordEntitySearch(any(), any(), any(), any()) } returns Unit
 
         // When
-        val result = entityService.searchEntities(1L, request)
+        val result = entityService.searchEntities(UUID.fromString("00000000-0000-0000-0000-000000000001"), request)
 
         // Then
         assertNotNull(result)

@@ -8,7 +8,7 @@ import EntityCard from './EntityCard';
 import SearchBar from './SearchBar';
 
 interface EntityListProps {
-  projectId: number;
+  projectId: string;
   onCreateClick?: () => void;
   onEditClick?: (entity: Entity) => void;
 }
@@ -17,7 +17,7 @@ export default function EntityList({ projectId, onCreateClick, onEditClick }: En
   const dispatch = useAppDispatch();
   const { entities, loading, error, filters, pagination } = useAppSelector((state) => state.entities);
   
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   
   const PAGE_SIZE = 20;
@@ -65,7 +65,7 @@ export default function EntityList({ projectId, onCreateClick, onEditClick }: En
     dispatch(setFilters({ type: undefined, tags: [], search: '' }));
   };
 
-  const handleDelete = async (entityId: number) => {
+  const handleDelete = async (entityId: string) => {
     await dispatch(deleteEntity({ projectId, id: entityId }));
     setShowDeleteConfirm(null);
     dispatch(fetchEntities({ projectId, filters, page: currentPage, size: PAGE_SIZE }));

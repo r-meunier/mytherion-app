@@ -9,7 +9,7 @@ export interface NavItem {
  * Get unified icon-level navigation (leftmost bar)
  * Includes 'Portal' (Worlds) and project-specific modules
  */
-export const getProjectIconItems = (projectId?: number): NavItem[] => [
+export const getProjectIconItems = (projectId?: string): NavItem[] => [
   { id: "overview", icon: "public", label: "Overview", href: projectId ? `/projects/${projectId}` : "/" },
   { id: "entities", icon: "menu_book", label: "Codex", href: projectId ? `/projects/${projectId}/entities` : "#" },
   { id: "timeline", icon: "history_edu", label: "Timeline", href: "#" },
@@ -27,7 +27,7 @@ export const getGlobalIconItems = (): NavItem[] => [
 /**
  * Get unified navigation items (middle bar)
  */
-export const getProjectNavItems = (projectId?: number): NavItem[] => [
+export const getProjectNavItems = (projectId?: string): NavItem[] => [
   { id: "overview", label: "Overview", href: projectId ? `/projects/${projectId}` : "/", icon: "public" },
   { id: "entities", label: "Codex", href: projectId ? `/projects/${projectId}/entities` : "#", icon: "menu_book" },
   { id: "timeline", label: "Timeline", href: "#", icon: "history_edu" },
@@ -51,7 +51,7 @@ export const getGlobalLibraryItems = (): NavItem[] => [
 /**
  * Get management items (Bottom section)
  */
-export const getManagementItems = (projectId?: number): NavItem[] => [
+export const getManagementItems = (projectId?: string): NavItem[] => [
   { id: "settings", label: "Settings", href: "#", icon: "settings" },
   { id: "support", label: "Support", href: "#", icon: "help" },
 ];

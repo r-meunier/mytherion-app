@@ -17,6 +17,7 @@ import java.util.Optional
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
+import java.util.UUID
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -45,14 +46,14 @@ class ProjectServiceCharacterisationTest {
 
     @BeforeEach
     fun setUp() {
-        testUser = ProjectTestFixtures.createTestUser(id = 1L, username = "testuser")
+        testUser = ProjectTestFixtures.createTestUser(id = UUID.fromString("00000000-0000-0000-0000-000000000001"), username = "testuser")
         otherUser =
             ProjectTestFixtures.createTestUser(
-                id = 2L,
+                id = UUID.fromString("00000000-0000-0000-0000-000000000002"),
                 username = "otheruser",
                 email = "other@example.com"
             )
-        testProject = ProjectTestFixtures.createTestProject(id = 1L, owner = testUser)
+        testProject = ProjectTestFixtures.createTestProject(id = UUID.fromString("00000000-0000-0000-0000-000000000001"), owner = testUser)
 
         // Mock CurrentUserProvider to return testUser
         every { currentUserProvider.getCurrentUser() } returns testUser
@@ -70,16 +71,16 @@ class ProjectServiceCharacterisationTest {
     @Test
     fun `deleteProject should throw ProjectHasEntitiesException when project has entities`() {
         // Given - this locks down the cross-module EntityRepository access guard
-        every { projectRepository.findById(1L) } returns Optional.of(testProject)
+        every { projectRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Optional.of(testProject)
         every { entityQueryService.countByProject(testProject) } returns 3L
 
         // When & Then
         val exception =
             assertThrows<io.mytherion.project.exception.ProjectHasEntitiesException> {
-                projectService.deleteProject(1L)
+                projectService.deleteProject(UUID.fromString("00000000-0000-0000-0000-000000000001"))
             }
         assertEquals(
-            "Cannot delete project with id 1: it contains 3 entities. Delete all entities first.",
+            "Cannot delete project with id 00000000-0000-0000-0000-000000000001: it contains 3 entities. Delete all entities first.",
             exception.message
         )
         verify(exactly = 0) { projectRepository.delete(any()) }

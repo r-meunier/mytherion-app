@@ -8,6 +8,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
+import java.util.UUID
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -25,7 +26,7 @@ class EntityRepositoryImplTest {
     @Autowired private lateinit var passwordEncoder: org.springframework.security.crypto.password.PasswordEncoder
     private lateinit var testFixtures: TestFixtures
 
-    private var projectId: Long = 0
+    private lateinit var projectId: UUID
 
     @BeforeEach
     fun setup() {

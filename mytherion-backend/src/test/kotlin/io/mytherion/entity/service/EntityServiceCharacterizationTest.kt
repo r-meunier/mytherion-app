@@ -12,6 +12,7 @@ import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.user.repository.UserRepository
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.BeforeEach
+import java.util.UUID
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -36,7 +37,7 @@ class EntityServiceCharacterizationTest {
     @MockkBean private lateinit var currentUserProvider: CurrentUserProvider
 
     private lateinit var testFixtures: TestFixtures
-    private var projectId: Long = 0
+    private lateinit var projectId: UUID
 
     @BeforeEach
     fun setup() {

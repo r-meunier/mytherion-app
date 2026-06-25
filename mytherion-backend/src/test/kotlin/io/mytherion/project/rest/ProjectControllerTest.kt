@@ -19,6 +19,7 @@ import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.project.rest.ProjectAccessInterceptor
 import io.mytherion.project.service.ProjectService
 import org.junit.jupiter.api.BeforeEach
+import java.util.UUID
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
@@ -91,11 +92,11 @@ class ProjectControllerTest {
         val projects =
             listOf(
                 ProjectTestFixtures.createTestProjectResponse(
-                    id = 1L,
+                    id = UUID.fromString("00000000-0000-0000-0000-000000000001"),
                     name = "Project 1"
                 ),
                 ProjectTestFixtures.createTestProjectResponse(
-                    id = 2L,
+                    id = UUID.fromString("00000000-0000-0000-0000-000000000002"),
                     name = "Project 2"
                 )
             )
@@ -107,13 +108,13 @@ class ProjectControllerTest {
         mockMvc.perform(get("/api/projects").param("page", "0").param("size", "10"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.content").isArray)
-            .andExpect(jsonPath("$.content.length()").value(2))
-            .andExpect(jsonPath("$.content[0].id").value(1))
+            .andExpect(jsonPath("$.content.length()").value("00000000-0000-0000-0000-000000000002"))
+            .andExpect(jsonPath("$.content[0].id").value("00000000-0000-0000-0000-000000000001"))
             .andExpect(jsonPath("$.content[0].name").value("Project 1"))
-            .andExpect(jsonPath("$.content[1].id").value(2))
+            .andExpect(jsonPath("$.content[1].id").value("00000000-0000-0000-0000-000000000002"))
             .andExpect(jsonPath("$.content[1].name").value("Project 2"))
             .andExpect(jsonPath("$.content[1].genre").doesNotExist())
-            .andExpect(jsonPath("$.totalElements").value(2))
+            .andExpect(jsonPath("$.totalElements").value("00000000-0000-0000-0000-000000000002"))
     }
 
     @Test
@@ -132,7 +133,7 @@ class ProjectControllerTest {
     @Test
     fun `listProjects with search and genre should pass parameters to service`() {
         // Given
-        val projects = listOf(ProjectTestFixtures.createTestProjectResponse(id = 1L, name = "Sci-Fi Project"))
+        val projects = listOf(ProjectTestFixtures.createTestProjectResponse(id = UUID.fromString("00000000-0000-0000-0000-000000000001"), name = "Sci-Fi Project"))
         val page = PageImpl(projects, PageRequest.of(0, 10), 1L)
 
         every { projectService.listProjectsForCurrentUser(0, 10, "Sci-Fi", "Sci-Fi") } returns page
@@ -146,7 +147,7 @@ class ProjectControllerTest {
                 .param("genre", "Sci-Fi")
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.content.length()").value(1))
+            .andExpect(jsonPath("$.content.length()").value("00000000-0000-0000-0000-000000000001"))
             .andExpect(jsonPath("$.content[0].name").value("Sci-Fi Project"))
     }
 
@@ -157,20 +158,20 @@ class ProjectControllerTest {
         // Given
         val projectResponse =
             ProjectTestFixtures.createTestProjectResponse(
-                id = 1L,
+                id = UUID.fromString("00000000-0000-0000-0000-000000000001"),
                 name = "Test Project",
                 description = "Test description"
             )
-        every { projectService.getProjectById(1L) } returns projectResponse
+        every { projectService.getProjectById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns projectResponse
 
         // When & Then
-        mockMvc.perform(get("/api/projects/1"))
+        mockMvc.perform(get("/api/projects/00000000-0000-0000-0000-000000000001"))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.id").value("00000000-0000-0000-0000-000000000001"))
             .andExpect(jsonPath("$.name").value("Test Project"))
             .andExpect(jsonPath("$.description").value("Test description"))
-            .andExpect(jsonPath("$.ownerId").value(1))
+            .andExpect(jsonPath("$.ownerId").value("00000000-0000-0000-0000-000000000001"))
             .andExpect(jsonPath("$.ownerUsername").value("testuser"))
             .andExpect(jsonPath("$.genre").doesNotExist())
     }
@@ -178,28 +179,28 @@ class ProjectControllerTest {
     @Test
     fun `getProjectById when not found should return 404`() {
         // Given
-        every { projectService.getProjectById(999L) } throws ProjectNotFoundException(999L)
+        every { projectService.getProjectById(UUID.fromString("00000000-0000-0000-0000-000000000999")) } throws ProjectNotFoundException(UUID.fromString("00000000-0000-0000-0000-000000000999"))
 
         // When & Then
-        mockMvc.perform(get("/api/projects/999"))
+        mockMvc.perform(get("/api/projects/00000000-0000-0000-0000-000000000999"))
             .andExpect(status().isNotFound)
             .andExpect(jsonPath("$.status").value(404))
             .andExpect(jsonPath("$.error").value("Not Found"))
-            .andExpect(jsonPath("$.message").value("Project with id 999 not found"))
+            .andExpect(jsonPath("$.message").value("Project with id 00000000-0000-0000-0000-000000000999 not found"))
     }
 
     @Test
     fun `getProjectById when access denied should return 403`() {
         // Given
-        every { projectService.getProjectById(2L) } throws ProjectAccessDeniedException(2L)
+        every { projectService.getProjectById(UUID.fromString("00000000-0000-0000-0000-000000000002")) } throws ProjectAccessDeniedException(UUID.fromString("00000000-0000-0000-0000-000000000002"))
 
         // When & Then
-        mockMvc.perform(get("/api/projects/2"))
+        mockMvc.perform(get("/api/projects/00000000-0000-0000-0000-000000000002"))
             .andExpect(status().isForbidden)
             .andExpect(jsonPath("$.status").value(403))
             .andExpect(jsonPath("$.error").value("Forbidden"))
             .andExpect(
-                jsonPath("$.message").value("Access denied to project with id 2")
+                jsonPath("$.message").value("Access denied to project with id 00000000-0000-0000-0000-000000000002")
             )
     }
 
@@ -212,7 +213,7 @@ class ProjectControllerTest {
             CreateProjectRequest(name = "New Project", description = "New description")
         val response =
             ProjectTestFixtures.createTestProjectResponse(
-                id = 3L,
+                id = UUID.fromString("00000000-0000-0000-0000-000000000003"),
                 name = "New Project",
                 description = "New description"
             )
@@ -225,7 +226,7 @@ class ProjectControllerTest {
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isCreated)
-            .andExpect(jsonPath("$.id").value(3))
+            .andExpect(jsonPath("$.id").value("00000000-0000-0000-0000-000000000003"))
             .andExpect(jsonPath("$.name").value("New Project"))
             .andExpect(jsonPath("$.description").value("New description"))
     }
@@ -292,7 +293,7 @@ class ProjectControllerTest {
             )
         val response =
             ProjectTestFixtures.createTestProjectResponse(
-                id = 1L,
+                id = UUID.fromString("00000000-0000-0000-0000-000000000001"),
                 name = "Updated Name",
                 description = "Updated description",
                 genre = "Sci-Fi"
@@ -301,12 +302,12 @@ class ProjectControllerTest {
 
         // When & Then
         mockMvc.perform(
-            put("/api/projects/1")
+            put("/api/projects/00000000-0000-0000-0000-000000000001")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.id").value("00000000-0000-0000-0000-000000000001"))
             .andExpect(jsonPath("$.name").value("Updated Name"))
             .andExpect(jsonPath("$.description").value("Updated description"))
             .andExpect(jsonPath("$.genre").value("Sci-Fi"))
@@ -317,12 +318,12 @@ class ProjectControllerTest {
         // Given
         val request = UpdateProjectRequest(name = "Only Name", description = null)
         val response =
-            ProjectTestFixtures.createTestProjectResponse(id = 1L, name = "Only Name")
+            ProjectTestFixtures.createTestProjectResponse(id = UUID.fromString("00000000-0000-0000-0000-000000000001"), name = "Only Name")
         every { projectService.updateProject(any(), any()) } returns response
 
         // When & Then
         mockMvc.perform(
-            put("/api/projects/1")
+            put("/api/projects/00000000-0000-0000-0000-000000000001")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -338,7 +339,7 @@ class ProjectControllerTest {
 
         // When & Then
         mockMvc.perform(
-            put("/api/projects/1")
+            put("/api/projects/00000000-0000-0000-0000-000000000001")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -350,11 +351,11 @@ class ProjectControllerTest {
         // Given
         val request = UpdateProjectRequest(name = "Updated Name")
         every { projectService.updateProject(any(), any()) } throws
-                ProjectNotFoundException(999L)
+                ProjectNotFoundException(UUID.fromString("00000000-0000-0000-0000-000000000999"))
 
         // When & Then
         mockMvc.perform(
-            put("/api/projects/999")
+            put("/api/projects/00000000-0000-0000-0000-000000000999")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -367,11 +368,11 @@ class ProjectControllerTest {
         // Given
         val request = UpdateProjectRequest(name = "Hacked Name")
         every { projectService.updateProject(any(), any()) } throws
-                ProjectAccessDeniedException(2L)
+                ProjectAccessDeniedException(UUID.fromString("00000000-0000-0000-0000-000000000002"))
 
         // When & Then
         mockMvc.perform(
-            put("/api/projects/2")
+            put("/api/projects/00000000-0000-0000-0000-000000000002")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -384,19 +385,19 @@ class ProjectControllerTest {
     @Test
     fun `deleteProject when valid should return 204`() {
         // Given
-        every { projectService.deleteProject(1L) } just runs
+        every { projectService.deleteProject(UUID.fromString("00000000-0000-0000-0000-000000000001")) } just runs
 
         // When & Then
-        mockMvc.perform(delete("/api/projects/1")).andExpect(status().isNoContent)
+        mockMvc.perform(delete("/api/projects/00000000-0000-0000-0000-000000000001")).andExpect(status().isNoContent)
     }
 
     @Test
     fun `deleteProject when not found should return 404`() {
         // Given
-        every { projectService.deleteProject(999L) } throws ProjectNotFoundException(999L)
+        every { projectService.deleteProject(UUID.fromString("00000000-0000-0000-0000-000000000999")) } throws ProjectNotFoundException(UUID.fromString("00000000-0000-0000-0000-000000000999"))
 
         // When & Then
-        mockMvc.perform(delete("/api/projects/999"))
+        mockMvc.perform(delete("/api/projects/00000000-0000-0000-0000-000000000999"))
             .andExpect(status().isNotFound)
             .andExpect(jsonPath("$.status").value(404))
     }
@@ -404,10 +405,10 @@ class ProjectControllerTest {
     @Test
     fun `deleteProject when access denied should return 403`() {
         // Given
-        every { projectService.deleteProject(2L) } throws ProjectAccessDeniedException(2L)
+        every { projectService.deleteProject(UUID.fromString("00000000-0000-0000-0000-000000000002")) } throws ProjectAccessDeniedException(UUID.fromString("00000000-0000-0000-0000-000000000002"))
 
         // When & Then
-        mockMvc.perform(delete("/api/projects/2"))
+        mockMvc.perform(delete("/api/projects/00000000-0000-0000-0000-000000000002"))
             .andExpect(status().isForbidden)
             .andExpect(jsonPath("$.status").value(403))
     }
