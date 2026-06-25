@@ -52,7 +52,7 @@ class EntityRepositoryImpl : EntityRepositoryCustom {
             "e.${property} ${it.direction.name}" 
         }.joinToString(", ")
         
-        val orderByString = if (orderClauses.isNotEmpty()) "ORDER BY $orderClauses" else "ORDER BY e.created_at DESC"
+        val orderByString = if (orderClauses.isNotEmpty()) "ORDER BY $orderClauses, e.id DESC" else "ORDER BY e.created_at DESC, e.id DESC"
 
         val querySql = "SELECT * FROM entities e $whereString $orderByString"
         val countSql = "SELECT COUNT(*) FROM entities e $whereString"

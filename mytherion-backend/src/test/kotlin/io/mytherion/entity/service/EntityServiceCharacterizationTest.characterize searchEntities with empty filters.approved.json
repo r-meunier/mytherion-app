@@ -1,0 +1,70 @@
+{
+  "content" : [ {
+    "id" : 999,
+    "projectId" : 999,
+    "type" : "LOCATION",
+    "name" : "The Obsidian Tower",
+    "category" : "Fortress",
+    "summary" : "The seat of the high council.",
+    "description" : null,
+    "notes" : null,
+    "tags" : [ "magic", "headquarters" ],
+    "imageUrl" : null,
+    "metadata" : null,
+    "createdAt" : "2026-01-01T00:00:00Z",
+    "updatedAt" : "2026-01-01T00:00:00Z"
+  }, {
+    "id" : 999,
+    "projectId" : 999,
+    "type" : "CHARACTER",
+    "name" : "Garrick Stone",
+    "category" : "Warrior",
+    "summary" : "A seasoned veteran.",
+    "description" : null,
+    "notes" : null,
+    "tags" : [ "melee", "hero" ],
+    "imageUrl" : null,
+    "metadata" : null,
+    "createdAt" : "2026-01-01T00:00:00Z",
+    "updatedAt" : "2026-01-01T00:00:00Z"
+  }, {
+    "id" : 999,
+    "projectId" : 999,
+    "type" : "CHARACTER",
+    "name" : "Elara Starweaver",
+    "category" : "Mage",
+    "summary" : "A powerful mage of the high council.",
+    "description" : null,
+    "notes" : null,
+    "tags" : [ "magic", "hero" ],
+    "imageUrl" : null,
+    "metadata" : null,
+    "createdAt" : "2026-01-01T00:00:00Z",
+    "updatedAt" : "2026-01-01T00:00:00Z"
+  } ],
+  "empty" : false,
+  "first" : true,
+  "last" : true,
+  "number" : 0,
+  "numberOfElements" : 3,
+  "pageable" : {
+    "offset" : 0,
+    "pageNumber" : 0,
+    "pageSize" : 10,
+    "paged" : true,
+    "sort" : {
+      "empty" : false,
+      "sorted" : true,
+      "unsorted" : false
+    },
+    "unpaged" : false
+  },
+  "size" : 10,
+  "sort" : {
+    "empty" : false,
+    "sorted" : true,
+    "unsorted" : false
+  },
+  "totalElements" : 3,
+  "totalPages" : 1
+}

@@ -19,13 +19,11 @@ import org.springframework.context.annotation.Import
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
-import org.junit.jupiter.api.Disabled
 
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
 @Import(ObjectMapper::class)
-@Disabled("Ignored until the ")
 class EntityServiceCharacterizationTest {
 
     @Autowired private lateinit var entityService: EntityService
