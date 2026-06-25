@@ -141,7 +141,6 @@ class TestFixtures(
     fun createCharacterEntity(
         project: Project,
         name: String = "Test Character",
-        summary: String = "A test character for integration testing.",
         tags: List<String> = listOf("test"),
         components: List<EntityComponent> = listOf(
             BioComponent(data = BioData(
@@ -172,7 +171,6 @@ class TestFixtures(
     fun createLocationEntity(
         project: Project,
         name: String = "Test Location",
-        summary: String = "A test location for integration testing.",
         tags: List<String> = listOf("test")
     ): Entity {
         val repo = requireNotNull(entityRepository) {
@@ -196,7 +194,6 @@ class TestFixtures(
         project: Project,
         type: EntityType,
         name: String,
-        summary: String? = null,
         description: String? = null,
         tags: List<String> = emptyList(),
         components: List<EntityComponent> = emptyList()
