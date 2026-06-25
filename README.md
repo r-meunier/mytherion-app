@@ -2,6 +2,8 @@
 
 Mytherion is a worldbuilding and writing platform designed for creators who value structural freedom, versioned data, and AI assistance that operates with the precision of modern coding tools.
 
+**Our Mission:** Writers and Worldbuilders should own their data. We believe that your creative life's work shouldn't be locked inside proprietary ecosystems. Mytherion is built from the ground up to give you absolute sovereignty over your worlds, characters, and narratives.
+
 This repository is a **monorepo** containing both the backend and frontend components of the Mytherion project.
 
 ---
