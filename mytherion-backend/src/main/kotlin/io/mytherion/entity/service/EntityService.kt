@@ -41,7 +41,7 @@ class EntityService(
     /** Verify that the current user owns the project that contains this entity */
     private fun verifyEntityAccess(entity: Entity, currentUser: User) {
         if (entity.project.owner.id != currentUser.id) {
-            throw EntityAccessDeniedException(entity.id!!)
+            throw EntityAccessDeniedException(requireNotNull(entity.id) { "Entity ID is missing" })
         }
     }
 
@@ -58,7 +58,7 @@ class EntityService(
         )
 
         return logger.measureTime("Create entity") {
-            val project = projectService.getVerifiedProject(projectId, user.id!!)
+            val project = projectService.getVerifiedProject(projectId, requireNotNull(user.id) { "User ID is missing" })
 
             val entity =
                 Entity(
@@ -186,7 +186,8 @@ class EntityService(
         val startTime = System.currentTimeMillis()
 
         return logger.measureTime("Search entities") {
-            val project = projectService.getVerifiedProject(projectId, user.id!!)
+            // Ensure user has access to the project
+            projectService.getVerifiedProject(projectId, requireNotNull(user.id) { "User ID is missing" })
 
             val pageable =
                 PageRequest.of(
@@ -195,60 +196,30 @@ class EntityService(
                     Sort.by(Sort.Direction.DESC, "createdAt")
                 )
 
-            // TODO: Implement custom query with filters (type, tags, search)
-            // For now, return all entities in project
-            val entities =
-                logger.measureTime("Fetch all entities") {
-                    entityRepository.findAllByProjectAndDeletedAtIsNull(project)
-                }
-
-            // Apply filters manually for now
-            var filtered = entities.asSequence()
-
-            searchRequest.type?.let { type -> filtered = filtered.filter { it.type == type } }
-
-            searchRequest.tags?.let { tags ->
-                filtered =
-                    filtered.filter { entity ->
-                        entity.tags?.any { tag -> tags.contains(tag) } == true
-                    }
-            }
-
-            searchRequest.search?.let { search ->
-                val searchLower = search.lowercase()
-                filtered =
-                    filtered.filter { entity ->
-                        entity.name.lowercase().contains(searchLower) ||
-                                entity.summary?.lowercase()?.contains(searchLower) == true ||
-                                entity.description?.lowercase()?.contains(searchLower) == true
-                    }
-            }
-
-            val result = filtered.toList()
-            val start = searchRequest.page * searchRequest.size
-            val end = minOf(start + searchRequest.size, result.size)
-            val pageContent = if (start < result.size) result.subList(start, end) else emptyList()
+            val entitiesPage = entityRepository.searchEntities(
+                projectId = projectId,
+                type = searchRequest.type,
+                tags = searchRequest.tags,
+                search = searchRequest.search,
+                pageable = pageable
+            )
 
             logger.infoWith(
                 "Entity search completed",
                 "projectId" to projectId,
-                "totalResults" to result.size,
-                "pageResults" to pageContent.size
+                "totalResults" to entitiesPage.totalElements,
+                "pageResults" to entitiesPage.content.size
             )
 
             val duration = System.currentTimeMillis() - startTime
             metricsService.recordEntitySearch(
                 projectId = projectId,
-                totalResults = result.size,
-                pageResults = pageContent.size,
+                totalResults = entitiesPage.totalElements.toInt(),
+                pageResults = entitiesPage.content.size,
                 durationMs = duration
             )
 
-            org.springframework.data.domain.PageImpl(
-                pageContent.map { EntityDTO.from(it) },
-                pageable,
-                result.size.toLong()
-            )
+            entitiesPage.map { EntityDTO.from(it) }
         }
     }
 

@@ -19,27 +19,53 @@ class Entity(
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_id_seq")
   val id: Long? = null,
+
+  // Project it belongs to
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "project_id", nullable = false)
   val project: Project,
-  @Column(nullable = false) @Enumerated(EnumType.STRING) var type: EntityType,
-  @Column(nullable = false) var name: String,
-  @Column var category: String? = null,
-  @Column(columnDefinition = "text") var summary: String? = null,
-  @Column(columnDefinition = "text") var description: String? = null,
-  @Column(columnDefinition = "text") var notes: String? = null,
+
+  @Column(nullable = false)
+  var name: String,
+
+  @Column(columnDefinition = "text")
+  var summary: String? = null,
+
+  @Column(columnDefinition = "text")
+  var description: String? = null,
+
+  @Column(columnDefinition = "text")
+  var notes: String? = null,
+
+  // Filterable, searchable data
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  var type: EntityType,
+
+  @Column
+  var category: String? = null,
 
   // PostgreSQL array for tags
-  @Column(columnDefinition = "text[]") var tags: Array<String>? = null,
-  @Column(name = "image_url", columnDefinition = "text") var imageUrl: String? = null,
+  @Column(columnDefinition = "text[]")
+  var tags: Array<String>? = null,
+
+  @Column(name = "image_url", columnDefinition = "text")
+  var imageUrl: String? = null,
 
   // JSONB in DB for type-specific metadata (ECS-lite)
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb")
   var metadata: EntityMetadata? = null,
-  @Column(name = "created_at", nullable = false) val createdAt: Instant = Instant.now(),
-  @Column(name = "updated_at", nullable = false) var updatedAt: Instant = Instant.now(),
-  @Column(name = "deleted_at") var deletedAt: Instant? = null
+
+  // Timestamps and metadata
+  @Column(name = "created_at", nullable = false)
+  val createdAt: Instant = Instant.now(),
+
+  @Column(name = "updated_at", nullable = false)
+  var updatedAt: Instant = Instant.now(),
+
+  @Column(name = "deleted_at")
+  var deletedAt: Instant? = null
 ) {
   @PreUpdate
   private fun touchUpdatedAt() {

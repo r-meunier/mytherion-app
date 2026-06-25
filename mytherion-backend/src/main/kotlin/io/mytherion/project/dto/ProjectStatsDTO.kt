@@ -20,7 +20,7 @@ data class ProjectStatsDTO(
             entityCountByType: Map<String, Int>
         ): ProjectStatsDTO {
             return ProjectStatsDTO(
-                id = project.id!!,
+                id = requireNotNull(project.id) { "Project ID is missing" },
                 name = project.name,
                 description = project.description,
                 entityCount = entityCount,

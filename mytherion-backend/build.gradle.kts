@@ -39,6 +39,9 @@ dependencies {
     // MinIO for object storage
     implementation("io.minio:minio:8.6.0")
 
+    // Force BouncyCastle upgrade to resolve Mend.io CVE-2026-0636
+    implementation("org.bouncycastle:bcprov-jdk18on:1.84")
+
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -59,6 +62,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("com.ninja-squad:springmockk:5.0.1")
     testImplementation("io.mockk:mockk:1.14.7")
+    testImplementation("com.approvaltests:approvaltests:24.0.0")
+    testImplementation("com.google.code.gson:gson:2.11.0")
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

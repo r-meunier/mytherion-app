@@ -1,6 +1,9 @@
 package io.mytherion.entity.service
 
-import io.mockk.*
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import io.mytherion.auth.CurrentUserProvider
 import io.mytherion.entity.dto.CreateEntityRequest
 import io.mytherion.entity.dto.UpdateEntityRequest
@@ -14,13 +17,14 @@ import io.mytherion.project.model.Project
 import io.mytherion.project.service.ProjectService
 import io.mytherion.storage.StorageService
 import io.mytherion.user.model.User
-import java.time.Instant
-import java.util.*
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.Instant
+import java.util.*
 
 class EntityServiceTest {
 
@@ -122,7 +126,7 @@ class EntityServiceTest {
         every { projectService.getVerifiedProject(1L, 1L) } throws ProjectNotFoundException(1L)
 
         // When/Then
-        assertThrows<io.mytherion.project.exception.ProjectNotFoundException> {
+        assertThrows<ProjectNotFoundException> {
             entityService.createEntity(1L, request)
         }
     }
@@ -197,5 +201,34 @@ class EntityServiceTest {
 
         // When/Then
         assertThrows<EntityNotFoundException> { entityService.deleteEntity(1L) }
+    }
+
+    @Test
+    fun `searchEntities should call custom repository method`() {
+        // Given
+        val request = io.mytherion.entity.dto.EntitySearchRequest(
+            page = 0,
+            size = 20,
+            type = EntityType.CHARACTER,
+            search = "test",
+            tags = listOf("hero")
+        )
+        val pageable = org.springframework.data.domain.PageRequest.of(
+            0, 20, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt")
+        )
+        val mockPage = org.springframework.data.domain.PageImpl(listOf(testEntity), pageable, 1)
+        
+        every { projectService.getVerifiedProject(1L, 1L) } returns testProject
+        every { entityRepository.searchEntities(any(), any(), any(), any(), any()) } returns mockPage
+        every { metricsService.recordEntitySearch(any(), any(), any(), any()) } returns Unit
+
+        // When
+        val result = entityService.searchEntities(1L, request)
+
+        // Then
+        assertNotNull(result)
+        assertEquals(1, result.totalElements)
+        assertEquals(testEntity.id, result.content[0].id)
+        verify { entityRepository.searchEntities(any(), any(), any(), any(), any()) }
     }
 }

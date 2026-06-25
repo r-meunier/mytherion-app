@@ -24,8 +24,8 @@ data class EntityDTO(
     companion object {
         fun from(entity: Entity): EntityDTO {
             return EntityDTO(
-                id = entity.id!!,
-                projectId = entity.project.id!!,
+                id = requireNotNull(entity.id) { "Entity ID is missing" },
+                projectId = requireNotNull(entity.project.id) { "Project ID is missing" },
                 type = entity.type,
                 name = entity.name,
                 category = entity.category,
