@@ -174,7 +174,7 @@ export default function EntityForm({ entity, projectId, isOpen, onSubmit, onCanc
     }
 
     if (isEditMode) {
-      const updateData: UpdateEntityRequest = {};
+      const updateData: UpdateEntityRequest = { version: entity.version };
       if (formData.name !== entity.name) updateData.name = formData.name;
       if (formData.categoryId !== entity.categoryId) updateData.categoryId = formData.categoryId;
       if (formData.description !== entity.description) updateData.description = formData.description;

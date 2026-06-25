@@ -296,6 +296,7 @@ export interface UpdateEntityRequest {
   notes?: string;
   tags?: string[];
   metadata?: EntityMetadata;
+  version?: number;
 }
 
 export interface EntityFilters {

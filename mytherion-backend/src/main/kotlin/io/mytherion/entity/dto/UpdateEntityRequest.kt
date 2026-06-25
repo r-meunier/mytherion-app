@@ -17,5 +17,6 @@ data class UpdateEntityRequest(
     val notes: String? = null,
     val tags: List<String>? = null,
     val thumbnail: String? = null,
-    val metadata: EntityMetadata? = null
+    val metadata: EntityMetadata? = null,
+    val version: Long? = null
 )

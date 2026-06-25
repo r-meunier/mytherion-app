@@ -63,7 +63,9 @@ class EntityService(
             val project = projectService.getVerifiedProject(projectId, requireNotNull(user.id) { "User ID is missing" })
 
             val category = request.categoryId?.let { 
-                categoryRepository.findById(it).orElseThrow { IllegalArgumentException("Category not found") } 
+                val cat = categoryRepository.findById(it).orElseThrow { IllegalArgumentException("Category not found") }
+                if (cat.project.id != projectId) throw IllegalArgumentException("Category does not belong to this project")
+                cat
             }
 
             val entity =
@@ -135,11 +137,18 @@ class EntityService(
 
         verifyEntityAccess(entity, user)
 
+        // Optimistic locking check
+        if (request.version != null && entity.version != request.version) {
+            throw org.springframework.orm.ObjectOptimisticLockingFailureException(Entity::class.java, id)
+        }
+
         // Update only provided fields
         request.type?.let { entity.type = it }
         request.name?.let { entity.name = it }
-        request.categoryId?.let { id -> 
-            entity.category = categoryRepository.findById(id).orElseThrow { IllegalArgumentException("Category not found") }
+        request.categoryId?.let { catId -> 
+            val cat = categoryRepository.findById(catId).orElseThrow { IllegalArgumentException("Category not found") }
+            if (cat.project.id != entity.project.id) throw IllegalArgumentException("Category does not belong to this project")
+            entity.category = cat
         }
         request.description?.let { entity.description = it }
         request.notes?.let { entity.notes = it }
