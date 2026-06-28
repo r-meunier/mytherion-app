@@ -23,8 +23,6 @@ data class EntityMetadata(val components: MutableList<EntityComponent> = mutable
 @jakarta.persistence.Entity
 @Table(name = "entities")
 @SQLRestriction("deleted_at IS NULL")
-@FilterDef(name = "projectScope", parameters = [ParamDef(name = "projectId", type = UUID::class)])
-@Filter(name = "projectScope", condition = "project_id = :projectId")
 class Entity(
   // Project it belongs to
   @ManyToOne(fetch = FetchType.LAZY)
