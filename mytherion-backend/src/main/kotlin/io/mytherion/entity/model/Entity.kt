@@ -4,15 +4,10 @@ import io.mytherion.category.model.Category
 import io.mytherion.entity.model.components.EntityComponent
 import io.mytherion.project.model.Project
 import jakarta.persistence.*
-import java.time.Instant
-import org.hibernate.annotations.Filter
-import org.hibernate.annotations.FilterDef
 import org.hibernate.annotations.JdbcTypeCode
-import org.hibernate.annotations.ParamDef
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.type.SqlTypes
 import io.mytherion.common.model.AbstractAuditableEntity
-import java.util.UUID
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
