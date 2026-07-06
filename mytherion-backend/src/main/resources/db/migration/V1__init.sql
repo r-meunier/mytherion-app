@@ -64,3 +64,19 @@ CREATE TABLE entities (
     CONSTRAINT fk_entity_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
     CONSTRAINT fk_entity_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
 );
+
+-- Indexes
+CREATE INDEX idx_users_deleted_at ON users(deleted_at);
+
+CREATE INDEX idx_verification_user ON email_verification_tokens(user_id);
+CREATE INDEX idx_verification_expires ON email_verification_tokens(expires_at);
+
+CREATE INDEX idx_projects_user_id ON projects(owner);
+CREATE INDEX idx_projects_deleted_at ON projects(deleted_at);
+
+CREATE UNIQUE INDEX idx_categories_project_name ON categories (project_id, LOWER(name));
+
+CREATE INDEX idx_entities_project_id ON entities(project_id);
+CREATE INDEX idx_entities_type ON entities(type);
+CREATE INDEX idx_entities_deleted_at ON entities(deleted_at);
+CREATE INDEX idx_entities_tags ON entities USING GIN(tags);
