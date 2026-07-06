@@ -98,7 +98,7 @@ class EntityControllerTest {
 
         // When/Then
         mockMvc.perform(
-            get("/api/projects/1/entities")
+            get("/api/projects/00000000-0000-0000-0000-000000000001/entities")
                 .param("page", "0")
                 .param("size", "20")
         )
@@ -137,7 +137,7 @@ class EntityControllerTest {
 
         // When/Then
         mockMvc.perform(
-            post("/api/projects/1/entities")
+            post("/api/projects/00000000-0000-0000-0000-000000000001/entities")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -169,7 +169,7 @@ class EntityControllerTest {
         every { entityService.getEntity(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns entityDTO
 
         // When/Then
-        mockMvc.perform(get("/api/projects/1/entities/1"))
+        mockMvc.perform(get("/api/projects/00000000-0000-0000-0000-000000000001/entities/00000000-0000-0000-0000-000000000001"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value("00000000-0000-0000-0000-000000000001"))
             .andExpect(jsonPath("$.name").value("Test Character"))
@@ -202,7 +202,7 @@ class EntityControllerTest {
 
         // When/Then
         mockMvc.perform(
-            patch("/api/projects/1/entities/1")
+            patch("/api/projects/00000000-0000-0000-0000-000000000001/entities/00000000-0000-0000-0000-000000000001")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -216,7 +216,7 @@ class EntityControllerTest {
         every { entityService.deleteEntity(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Unit
 
         // When/Then
-        mockMvc.perform(delete("/api/projects/1/entities/1")).andExpect(status().isNoContent)
+        mockMvc.perform(delete("/api/projects/00000000-0000-0000-0000-000000000001/entities/00000000-0000-0000-0000-000000000001")).andExpect(status().isNoContent)
     }
 
     @Test
@@ -242,7 +242,7 @@ class EntityControllerTest {
         every { entityService.uploadImage(any(), any()) } returns uploadResponse
 
         // When/Then
-        mockMvc.perform(multipart("/api/projects/1/entities/1/image").file(file))
+        mockMvc.perform(multipart("/api/projects/00000000-0000-0000-0000-000000000001/entities/00000000-0000-0000-0000-000000000001/image").file(file))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.url").value("test-bucket/entities/1/test.jpg"))
     }
@@ -253,6 +253,6 @@ class EntityControllerTest {
         every { entityService.deleteImage(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Unit
 
         // When/Then
-        mockMvc.perform(delete("/api/projects/1/entities/1/image")).andExpect(status().isNoContent)
+        mockMvc.perform(delete("/api/projects/00000000-0000-0000-0000-000000000001/entities/00000000-0000-0000-0000-000000000001/image")).andExpect(status().isNoContent)
     }
 }

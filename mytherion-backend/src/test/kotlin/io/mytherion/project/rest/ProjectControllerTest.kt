@@ -108,13 +108,13 @@ class ProjectControllerTest {
         mockMvc.perform(get("/api/projects").param("page", "0").param("size", "10"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.content").isArray)
-            .andExpect(jsonPath("$.content.length()").value("00000000-0000-0000-0000-000000000002"))
+            .andExpect(jsonPath("$.content.length()").value(2))
             .andExpect(jsonPath("$.content[0].id").value("00000000-0000-0000-0000-000000000001"))
             .andExpect(jsonPath("$.content[0].name").value("Project 1"))
             .andExpect(jsonPath("$.content[1].id").value("00000000-0000-0000-0000-000000000002"))
             .andExpect(jsonPath("$.content[1].name").value("Project 2"))
             .andExpect(jsonPath("$.content[1].genre").doesNotExist())
-            .andExpect(jsonPath("$.totalElements").value("00000000-0000-0000-0000-000000000002"))
+            .andExpect(jsonPath("$.totalElements").value(2))
     }
 
     @Test
@@ -147,7 +147,7 @@ class ProjectControllerTest {
                 .param("genre", "Sci-Fi")
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.content.length()").value("00000000-0000-0000-0000-000000000001"))
+            .andExpect(jsonPath("$.content.length()").value(1))
             .andExpect(jsonPath("$.content[0].name").value("Sci-Fi Project"))
     }
 
@@ -160,7 +160,8 @@ class ProjectControllerTest {
             ProjectTestFixtures.createTestProjectResponse(
                 id = UUID.fromString("00000000-0000-0000-0000-000000000001"),
                 name = "Test Project",
-                description = "Test description"
+                description = "Test description",
+                ownerId = UUID.fromString("00000000-0000-0000-0000-000000000001")
             )
         every { projectService.getProjectById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns projectResponse
 

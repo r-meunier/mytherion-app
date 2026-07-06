@@ -193,7 +193,7 @@ class ProjectServiceTest {
       assertThrows<ProjectAccessDeniedException> {
         projectService.getProjectById(otherProjectId)
       }
-    assertEquals("Access denied to project with id 00000000-0000-0000-0000-000000000002", exception.message)
+    assertEquals("Access denied to project with id $otherProjectId", exception.message)
     verify { projectRepository.findById(otherProjectId) }
   }
 
@@ -308,7 +308,7 @@ class ProjectServiceTest {
       assertThrows<ProjectAccessDeniedException> {
         projectService.updateProject(otherProjectId, request)
       }
-    assertEquals("Access denied to project with id 00000000-0000-0000-0000-000000000002", exception.message)
+    assertEquals("Access denied to project with id $otherProjectId", exception.message)
     verify(exactly = 0) { projectRepository.save(any()) }
   }
 
@@ -356,7 +356,7 @@ class ProjectServiceTest {
       assertThrows<ProjectAccessDeniedException> {
         projectService.deleteProject(otherProjectId)
       }
-    assertEquals("Access denied to project with id 00000000-0000-0000-0000-000000000002", exception.message)
+    assertEquals("Access denied to project with id $otherProjectId", exception.message)
     verify(exactly = 0) { projectRepository.delete(any()) }
   }
 
@@ -428,6 +428,6 @@ class ProjectServiceTest {
       assertThrows<ProjectAccessDeniedException> {
         projectService.getProjectStats(otherProjectId)
       }
-    assertEquals("Access denied to project with id 00000000-0000-0000-0000-000000000002", exception.message)
+    assertEquals("Access denied to project with id $otherProjectId", exception.message)
   }
 }

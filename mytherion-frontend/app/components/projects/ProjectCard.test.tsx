@@ -22,7 +22,7 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 
 describe('ProjectCard', () => {
   const mockProject: Project = {
-    id: 1,
+    id: "1",
     name: 'Test Project',
     description: 'Test Description',
     createdAt: '2024-01-15T10:00:00Z',
@@ -107,7 +107,7 @@ describe('ProjectCard', () => {
     expect(editButton).toBeInTheDocument();
     
     fireEvent.click(editButton!);
-    expect(mockOnEdit).toHaveBeenCalledWith(1);
+    expect(mockOnEdit).toHaveBeenCalledWith("1");
     expect(mockOnEdit).toHaveBeenCalledTimes(1);
   });
 
@@ -155,7 +155,7 @@ describe('ProjectCard', () => {
     expect(deleteButton).toBeInTheDocument();
     
     fireEvent.click(deleteButton!);
-    expect(mockOnDelete).toHaveBeenCalledWith(1);
+    expect(mockOnDelete).toHaveBeenCalledWith("1");
   });
 
   it('should call onDelete when confirm button is clicked in overlay', () => {
@@ -172,7 +172,7 @@ describe('ProjectCard', () => {
     const confirmButton = screen.getByText('Confirm Delete');
     fireEvent.click(confirmButton);
     
-    expect(mockOnDelete).toHaveBeenCalledWith(1);
+    expect(mockOnDelete).toHaveBeenCalledWith("1");
     expect(mockOnDelete).toHaveBeenCalledTimes(1);
   });
 

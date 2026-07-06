@@ -14,7 +14,7 @@ describe('ProjectForm', () => {
   const mockOnCancel = jest.fn();
 
   const mockProject: Project = {
-    id: 1,
+    id: "1",
     name: 'Existing Project',
     description: 'Existing Description',
     createdAt: '2024-01-01T00:00:00Z',
