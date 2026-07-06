@@ -34,6 +34,16 @@ export default function ProjectCard({
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
+  // Deterministic hash of a UUID string so the placeholder image and progress
+  // width stay stable per project without relying on a numeric id.
+  const hashId = (id: string): number => {
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = (Math.imul(31, hash) + id.charCodeAt(i)) | 0;
+    }
+    return Math.abs(hash);
+  };
+
   // Placeholder images based on project ID
   const getPlaceholderImage = (id: string) => {
     const images = [
@@ -42,13 +52,12 @@ export default function ProjectCard({
       "https://lh3.googleusercontent.com/aida-public/AB6AXuBH5ibpqCunIHb1VauBGb_FJlrq3B83OhHchAuPVLO-TkT5ANpGl8_GtcctUJpqIblxE7gLX6GGVhqmgruNEvY33gr2dWjwz-wfq3eys-yl0njlmalJ5AKoUGqlRf1Pd-GOlFynbRX5qWvq64BtjJor8ZFxk8ytrLMo7Cp6uDykEyQFe5tkzjcC2g45IL8caeP5eIRfRcEohtPDj1XAWxJMT_YEfhoXmioBIZdQiIlk_eIgS76QyV0suSRVIFTl4738131J4_0SnMzJ",
       "https://lh3.googleusercontent.com/aida-public/AB6AXuCwEG8oCeMUKDVgdy2IsWwf9ZYN2uyQoEowHkmn7FKO5QF4SWvDJIdPSq7keiHQxc4Vn2o1DUBsxKfAaeP-F9WNXgHZrqUgXNpYA5qF2YNDMTKbH7WV4XeruwoNnL9MMbG07w8oGH0FHW3tDvp1_WO86Of0ztpgefQQkrmFtemTcv9XgejHSzJg4FZa2b-mkEYr3BrQXs6iemewW6P1WwvlmNWoRvmEocJdQyxtNwTWo3X06GH-9I17wqOWwpyJmBbM7vGfxfQ90JjU"
     ];
-    const numId = parseInt(id.replace(/[^0-9]/g, '') || "0");
-    return images[numId % images.length];
+    return images[hashId(id) % images.length];
   };
 
   const isPinned = false; // Placeholder for pinned behavior
 
-  const numId = parseInt(project.id.replace(/[^0-9]/g, '') || "0");
+  const idHash = hashId(project.id);
 
   return (
     <div className="project-card-base glass-card overflow-hidden group cursor-pointer flex flex-col relative shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] border border-white/5 bg-[#16111B]/40 hover:translate-y-[-4px] transition-all duration-500">
@@ -131,7 +140,7 @@ export default function ProjectCard({
           {/* Progress Indication (Matching Design Shimmer) */}
           <div className="relative h-[2px] w-full bg-white/5 rounded-full overflow-hidden">
             <div 
-              style={{ width: `${(numId * 15 % 70) + 25}%` }}
+              style={{ width: `${(idHash * 15 % 70) + 25}%` }}
               className="absolute inset-y-0 left-0 bg-primary/40 shadow-[0_0_8px_rgba(168,85,247,0.4)]"
             />
           </div>

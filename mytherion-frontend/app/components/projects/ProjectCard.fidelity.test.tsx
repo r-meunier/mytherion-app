@@ -78,11 +78,13 @@ describe('ProjectCard High Fidelity', () => {
 
   it('renders the progress bar with dynamic width based on ID', () => {
     const { container } = render(<ProjectCard project={mockProject} onEdit={() => {}} onDelete={() => {}} />);
-    
-    // Use an attribute selector or escape the slash
-    const progressBar = container.querySelector('[class*="bg-primary/40"]');
+
+    const progressBar = container.querySelector('[class*="bg-primary/40"]') as HTMLElement;
     expect(progressBar).toBeInTheDocument();
-    // (1 * 15 % 70) + 25 = 15 + 25 = 40%
-    expect(progressBar).toHaveStyle('width: 40%');
+    // Width = (hashId(id) * 15 % 70) + 25 → a multiple of 5 in [25, 95).
+    const width = parseInt(progressBar.style.width, 10);
+    expect(width).toBeGreaterThanOrEqual(25);
+    expect(width).toBeLessThan(95);
+    expect(width % 5).toBe(0);
   });
 });
