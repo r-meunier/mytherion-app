@@ -6,7 +6,7 @@ import { API_URL } from './apiConfig';
 const serviceLogger = logger.child({ service: 'projectService' });
 
 export interface Project {
-  id: number;
+  id: string;
   name: string;
   description: string | null;
   createdAt: string;
@@ -16,7 +16,7 @@ export interface Project {
 }
 
 export interface ProjectStats {
-  id: number;
+  id: string;
   name: string;
   description: string | null;
   entityCount: number;
@@ -70,7 +70,7 @@ export const projectService = {
     }
   },
 
-  async getProject(id: number): Promise<Project> {    
+  async getProject(id: string): Promise<Project> {    
     try {
       const response = await api.get(`/projects/${id}`);
       return response.data;
@@ -97,7 +97,7 @@ export const projectService = {
     }
   },
 
-  async updateProject(id: number, data: UpdateProjectRequest): Promise<Project> {
+  async updateProject(id: string, data: UpdateProjectRequest): Promise<Project> {
     serviceLogger.info('Updating project', { projectId: id, updates: Object.keys(data) });
     
     try {
@@ -109,7 +109,7 @@ export const projectService = {
     }
   },
 
-  async deleteProject(id: number): Promise<void> {
+  async deleteProject(id: string): Promise<void> {
     serviceLogger.info('Deleting project', { projectId: id });
     
     try {
@@ -121,7 +121,7 @@ export const projectService = {
     }
   },
 
-  async getProjectStats(id: number): Promise<ProjectStats> {
+  async getProjectStats(id: string): Promise<ProjectStats> {
     serviceLogger.debug('Fetching project stats', { projectId: id });
     
     try {

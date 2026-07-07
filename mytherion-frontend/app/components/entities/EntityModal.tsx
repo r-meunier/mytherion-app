@@ -11,7 +11,7 @@ import BaseModal from '../ui/modals/BaseModal';
 interface EntityModalProps {
   isOpen: boolean;
   onClose: () => void;
-  projectId: number;
+  projectId: string;
   entity?: Entity | null;
 }
 

@@ -10,7 +10,7 @@ export enum EntityType {
 
 /** Unified structure for linking entities */
 export interface EntityLink {
-  targetId: number;
+  targetId: string;
   label?: string;
   metadata?: Record<string, any>;
 }
@@ -263,11 +263,11 @@ export interface EntityMetadata {
 }
 
 export interface Entity {
-  id: number;
-  projectId: number;
+  id: string;
+  projectId: string;
   type: EntityType;
   name: string;
-  categoryId?: number;
+  categoryId?: string;
   description?: string;
   notes?: string;
   tags: string[];
@@ -281,7 +281,7 @@ export interface Entity {
 export interface CreateEntityRequest {
   type: EntityType;
   name: string;
-  categoryId?: number;
+  categoryId?: string;
   description?: string;
   notes?: string;
   tags?: string[];
@@ -291,7 +291,7 @@ export interface CreateEntityRequest {
 export interface UpdateEntityRequest {
   type?: EntityType;
   name?: string;
-  categoryId?: number;
+  categoryId?: string;
   description?: string;
   notes?: string;
   tags?: string[];
@@ -301,7 +301,7 @@ export interface UpdateEntityRequest {
 
 export interface EntityFilters {
   type?: EntityType;
-  categoryId?: number;
+  categoryId?: string;
   tags?: string[];
   search?: string;
 }

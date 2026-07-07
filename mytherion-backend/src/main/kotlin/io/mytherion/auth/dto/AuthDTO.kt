@@ -3,6 +3,7 @@ package io.mytherion.auth.dto
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
+import java.util.UUID
 
 class AuthDTO {
     data class RegisterRequest(
@@ -23,7 +24,7 @@ class AuthDTO {
     )
 
     data class UserResponse(
-        val id: Long,
+        val id: UUID,
         val email: String,
         val username: String,
         val role: String,

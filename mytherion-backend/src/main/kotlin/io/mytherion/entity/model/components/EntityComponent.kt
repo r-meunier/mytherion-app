@@ -3,6 +3,7 @@ package io.mytherion.entity.model.components
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import java.util.UUID
 
 /**
  * Base interface for all entity components. Uses Jackson polymorphic type handling to deserialize
@@ -49,7 +50,7 @@ sealed interface EntityComponent {
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class EntityLink(
-    val targetId: Long,
+    val targetId: UUID,
     val label: String? = null,
     val metadata: Map<String, Any> = emptyMap()
 )

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*
 
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import java.util.UUID
 
 @RestController
 @RequestMapping("/api/user")
@@ -20,23 +21,23 @@ class UserController(private val userService: UserService) {
   fun getUsers(): List<UserResponse> = userService.getAll()
 
   @GetMapping("/{id}")
-  fun getUserById(@PathVariable id: Long): UserResponse = userService.getUserById(id)
+  fun getUserById(@PathVariable id: UUID): UserResponse = userService.getUserById(id)
 
   @PutMapping("/{id}")
   fun updateUser(
-    @PathVariable id: Long,
+    @PathVariable id: UUID,
     @RequestBody @Valid request: UpdateUserRequest,
     authentication: Authentication
   ): UserResponse {
-    val currentUserId = authentication.name.toLong()
+    val currentUserId = UUID.fromString(authentication.name)
     val isAdmin = authentication.authorities.any { it.authority == "ROLE_ADMIN" }
     return userService.updateUser(id, currentUserId, isAdmin, request)
   }
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  fun deleteUser(@PathVariable id: Long, authentication: Authentication) {
-    val currentUserId = authentication.name.toLong()
+  fun deleteUser(@PathVariable id: UUID, authentication: Authentication) {
+    val currentUserId = UUID.fromString(authentication.name)
     val isAdmin = authentication.authorities.any { it.authority == "ROLE_ADMIN" }
     userService.deleteUser(id, currentUserId, isAdmin)
   }

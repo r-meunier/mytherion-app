@@ -7,8 +7,9 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
+import java.util.UUID
 
-interface ProjectRepository : JpaRepository<Project, Long> {
+interface ProjectRepository : JpaRepository<Project, UUID> {
     fun findAllByOwner(owner: User): List<Project>
 
     @Query("SELECT p FROM Project p JOIN FETCH p.owner WHERE p.owner = :owner")
@@ -29,11 +30,11 @@ interface ProjectRepository : JpaRepository<Project, Long> {
     ): Page<Project>
 
     fun findAllByOwnerAndDeletedAtIsNull(owner: User, pageable: Pageable): Page<Project>
-    fun findByIdAndDeletedAtIsNull(id: Long): Project?
+    fun findByIdAndDeletedAtIsNull(id: UUID): Project?
 
     fun countByOwnerAndDeletedAtIsNull(owner: User): Long
     
-    fun existsByIdAndOwnerAndDeletedAtIsNull(id: Long, owner: User): Boolean
+    fun existsByIdAndOwnerAndDeletedAtIsNull(id: UUID, owner: User): Boolean
     
-    fun findByIdAndOwnerAndDeletedAtIsNull(id: Long, owner: User): Project?
+    fun findByIdAndOwnerAndDeletedAtIsNull(id: UUID, owner: User): Project?
 }

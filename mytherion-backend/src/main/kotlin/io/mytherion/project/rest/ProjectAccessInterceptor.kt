@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.HandlerInterceptor
 import org.springframework.web.servlet.HandlerMapping
+import java.util.UUID
 
 /**
  * Interceptor that ensures the authenticated user has access to the project
@@ -26,7 +27,7 @@ class ProjectAccessInterceptor(
         val projectIdStr = pathVariables?.get("projectId") as? String
         
         if (projectIdStr != null) {
-            val projectId = projectIdStr.toLongOrNull()
+            val projectId = runCatching { java.util.UUID.fromString(projectIdStr) }.getOrNull()
             if (projectId != null) {
                 val currentUser = currentUserProvider.getCurrentUser()
                 

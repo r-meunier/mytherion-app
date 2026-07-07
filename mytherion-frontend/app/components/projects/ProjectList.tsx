@@ -6,13 +6,13 @@ import { Project } from "@/app/services/projectService";
 
 interface ProjectListProps {
   onCreateClick: () => void;
-  onEditClick: (id: number) => void;
+  onEditClick: (id: string) => void;
 }
 
 export default function ProjectList({ onCreateClick, onEditClick }: ProjectListProps) {
   const { projects, loading, error, pagination } = useAppSelector((state) => state.projects);
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     // Implement delete logic if needed
   };
 

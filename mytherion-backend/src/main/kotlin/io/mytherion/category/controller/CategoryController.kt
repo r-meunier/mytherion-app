@@ -8,6 +8,7 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
+import java.util.UUID
 
 @RestController
 @RequestMapping("/api/projects/{projectId}/categories")
@@ -17,8 +18,8 @@ class CategoryController(
 
     @GetMapping
     fun getCategories(
-        @PathVariable projectId: Long,
-        @AuthenticationPrincipal userId: Long
+        @PathVariable projectId: UUID,
+        @AuthenticationPrincipal userId: UUID
     ): List<CategoryDTO> {
         return categoryService.getProjectCategories(projectId, userId)
     }
@@ -26,9 +27,9 @@ class CategoryController(
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createCategory(
-        @PathVariable projectId: Long,
+        @PathVariable projectId: UUID,
         @Valid @RequestBody request: CreateCategoryRequest,
-        @AuthenticationPrincipal userId: Long
+        @AuthenticationPrincipal userId: UUID
     ): CategoryDTO {
         return categoryService.createCategory(projectId, request, userId)
     }

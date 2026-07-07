@@ -40,7 +40,7 @@ export const fetchProjects = createAsyncThunk(
 
 export const fetchProject = createAsyncThunk(
   'projects/fetchProject',
-  async (id: number) => {
+  async (id: string) => {
     const response = await projectService.getProject(id);
     return response;
   }
@@ -56,7 +56,7 @@ export const createProject = createAsyncThunk(
 
 export const updateProject = createAsyncThunk(
   'projects/updateProject',
-  async ({ id, data }: { id: number; data: UpdateProjectRequest }) => {
+  async ({ id, data }: { id: string; data: UpdateProjectRequest }) => {
     const response = await projectService.updateProject(id, data);
     return response;
   }
@@ -64,7 +64,7 @@ export const updateProject = createAsyncThunk(
 
 export const deleteProject = createAsyncThunk(
   'projects/deleteProject',
-  async (id: number) => {
+  async (id: string) => {
     await projectService.deleteProject(id);
     return id;
   }
@@ -72,7 +72,7 @@ export const deleteProject = createAsyncThunk(
 
 export const fetchProjectStats = createAsyncThunk(
   'projects/fetchProjectStats',
-  async (id: number) => {
+  async (id: string) => {
     const response = await projectService.getProjectStats(id);
     return response;
   }
@@ -169,7 +169,7 @@ const projectSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteProject.fulfilled, (state, action: PayloadAction<number>) => {
+      .addCase(deleteProject.fulfilled, (state, action: PayloadAction<string>) => {
         state.loading = false;
         state.projects = state.projects.filter((p) => p.id !== action.payload);
         if (state.currentProject?.id === action.payload) {

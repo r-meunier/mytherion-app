@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.util.Date
+import java.util.UUID
 
 @Service
 class JwtService(
@@ -15,7 +16,7 @@ class JwtService(
 ) {
     private val key = Keys.hmacShaKeyFor(secret.toByteArray(StandardCharsets.UTF_8))
 
-    fun generateAccessToken(userId: Long, email: String, role: String): String {
+    fun generateAccessToken(userId: UUID, email: String, role: String): String {
         val now = Instant.now()
         val exp = now.plusSeconds(accessTokenMinutes * 60)
 

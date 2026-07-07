@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import java.util.UUID
 
 @RestController
 @RequestMapping("/api/projects/{projectId}/entities")
@@ -24,7 +25,7 @@ class EntityController(private val entityService: EntityService) {
      */
     @GetMapping
     fun listEntities(
-        @PathVariable projectId: Long,
+        @PathVariable projectId: UUID,
         @RequestParam(required = false) type: io.mytherion.entity.model.EntityType?,
         @RequestParam(required = false) tags: List<String>?,
         @RequestParam(required = false) search: String?,
@@ -61,7 +62,7 @@ class EntityController(private val entityService: EntityService) {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createEntity(
-        @PathVariable projectId: Long,
+        @PathVariable projectId: UUID,
         @Valid @RequestBody request: CreateEntityRequest
     ): EntityDTO {
         logger.infoWith(
@@ -87,8 +88,8 @@ class EntityController(private val entityService: EntityService) {
     /** Get entity by ID GET /api/projects/{projectId}/entities/{id} */
     @GetMapping("/{id}")
     fun getEntity(
-        @PathVariable projectId: Long,
-        @PathVariable id: Long
+        @PathVariable projectId: UUID,
+        @PathVariable id: UUID
     ): EntityDTO {
         logger.infoWith("Get entity request", "projectId" to projectId, "entityId" to id)
 
@@ -104,8 +105,8 @@ class EntityController(private val entityService: EntityService) {
     /** Update entity PATCH /api/projects/{projectId}/entities/{id} */
     @PatchMapping("/{id}")
     fun updateEntity(
-        @PathVariable projectId: Long,
-        @PathVariable id: Long,
+        @PathVariable projectId: UUID,
+        @PathVariable id: UUID,
         @Valid @RequestBody request: UpdateEntityRequest
     ): EntityDTO {
         logger.infoWith("Update entity request", "projectId" to projectId, "entityId" to id)
@@ -122,8 +123,8 @@ class EntityController(private val entityService: EntityService) {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteEntity(
-        @PathVariable projectId: Long,
-        @PathVariable id: Long
+        @PathVariable projectId: UUID,
+        @PathVariable id: UUID
     ) {
         logger.infoWith("Delete entity request", "projectId" to projectId, "entityId" to id)
 
@@ -138,8 +139,8 @@ class EntityController(private val entityService: EntityService) {
     /** Upload image for entity POST /api/projects/{projectId}/entities/{id}/image */
     @PostMapping("/{id}/image", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun uploadImage(
-        @PathVariable projectId: Long,
-        @PathVariable id: Long,
+        @PathVariable projectId: UUID,
+        @PathVariable id: UUID,
         @RequestParam("file") file: MultipartFile
     ): UploadResponse {
         logger.infoWith(
@@ -193,8 +194,8 @@ class EntityController(private val entityService: EntityService) {
     @DeleteMapping("/{id}/image")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteImage(
-        @PathVariable projectId: Long,
-        @PathVariable id: Long
+        @PathVariable projectId: UUID,
+        @PathVariable id: UUID
     ) {
         logger.infoWith("Delete image request", "projectId" to projectId, "entityId" to id)
 

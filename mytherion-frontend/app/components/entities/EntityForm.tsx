@@ -10,7 +10,7 @@ import ComponentDispatcher from './metadata/ComponentDispatcher';
 
 interface EntityFormProps {
   entity?: Entity;
-  projectId: number;
+  projectId: string;
   isOpen?: boolean; // New prop to track visibility
   onSubmit: (data: CreateEntityRequest | UpdateEntityRequest) => void;
   onCancel: () => void;

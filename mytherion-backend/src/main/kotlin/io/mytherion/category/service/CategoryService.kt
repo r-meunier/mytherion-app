@@ -8,6 +8,7 @@ import io.mytherion.project.service.ProjectService
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 @Service
 class CategoryService(
@@ -15,13 +16,13 @@ class CategoryService(
     private val projectService: ProjectService
 ) {
     @Transactional(readOnly = true)
-    fun getProjectCategories(projectId: Long, userId: Long): List<CategoryDTO> {
+    fun getProjectCategories(projectId: UUID, userId: UUID): List<CategoryDTO> {
         val project = projectService.getVerifiedProject(projectId, userId)
         return categoryRepository.findAllByProjectOrderByNameAsc(project).map { CategoryDTO.from(it) }
     }
 
     @Transactional
-    fun createCategory(projectId: Long, request: CreateCategoryRequest, userId: Long): CategoryDTO {
+    fun createCategory(projectId: UUID, request: CreateCategoryRequest, userId: UUID): CategoryDTO {
         val project = projectService.getVerifiedProject(projectId, userId)
         
         val category = Category(

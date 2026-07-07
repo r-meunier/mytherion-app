@@ -15,6 +15,7 @@ import io.mytherion.user.repository.UserRepository
 import java.util.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
+import java.util.UUID
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -50,13 +51,14 @@ class AuthServiceTest {
     fun setUp() {
         testUser =
             User(
-                id = 1L,
                 email = "test@example.com",
                 username = "testuser",
                 passwordHash = "hashedPassword",
                 role = UserRole.USER,
                 emailVerified = true
-            )
+            ).apply {
+                this.id = UUID.fromString("00000000-0000-0000-0000-000000000001")
+            }
 
         // Stub metricsService, verificationTokenRepository, and emailService calls
         every { metricsService.recordLogin(any(), any(), any()) } just runs
@@ -277,10 +279,10 @@ class AuthServiceTest {
     @Test
     fun `getUserById with valid id should return user response`() {
         // Given
-        every { userRepository.findById(1L) } returns Optional.of(testUser)
+        every { userRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Optional.of(testUser)
 
         // When
-        val result = authService.getUserById(1L)
+        val result = authService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"))
 
         // Then
         assertNotNull(result)
@@ -289,42 +291,41 @@ class AuthServiceTest {
         assertEquals(testUser.username, result.username)
         assertEquals(testUser.role.name, result.role)
 
-        verify { userRepository.findById(1L) }
+        verify { userRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) }
     }
 
     @Test
     fun `getUserById with non-existent id should throw exception`() {
         // Given
-        every { userRepository.findById(999L) } returns Optional.empty()
+        every { userRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000999")) } returns Optional.empty()
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> { authService.getUserById(999L) }
+            assertThrows<IllegalArgumentException> { authService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000999")) }
 
         assertEquals("User not found", exception.message)
-        verify { userRepository.findById(999L) }
+        verify { userRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000999")) }
     }
 
     @Test
     fun `getUserById with deleted user should throw exception`() {
         // Given
-        val deletedUser =
-            User(
-                id = 1L,
-                email = "test@example.com",
-                username = "testuser",
-                passwordHash = "hashedPassword",
-                role = UserRole.USER,
-                deletedAt = java.time.Instant.now()
-            )
+        val deletedUser = User(
+            email = "delete@example.com",
+            username = "deleteuser",
+            passwordHash = "hash"
+        ).apply {
+            this.id = UUID.fromString("00000000-0000-0000-0000-000000000001")
+            this.deletedAt = java.time.Instant.now()
+        }
 
-        every { userRepository.findById(1L) } returns Optional.of(deletedUser)
+        every { userRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Optional.of(deletedUser)
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> { authService.getUserById(1L) }
+            assertThrows<IllegalArgumentException> { authService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001")) }
 
         assertEquals("User not found", exception.message)
-        verify { userRepository.findById(1L) }
+        verify { userRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) }
     }
 }

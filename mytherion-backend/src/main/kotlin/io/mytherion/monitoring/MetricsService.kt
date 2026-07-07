@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Timer
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
+import java.util.UUID
 
 /**
  * Micrometer-based metrics service for recording domain-specific performance metrics.
@@ -41,7 +42,7 @@ class MetricsService(
      *  - entity.query.size (gauge - last observed size)
      *  - entity.query.duration (timer with size_bucket tag)
      */
-    fun recordEntityQuery(projectId: Long, entityCount: Int, durationMs: Long) {
+    fun recordEntityQuery(projectId: UUID, entityCount: Int, durationMs: Long) {
         // Total number of entity queries per project
         meterRegistry.counter(
             "entity.queries.total",
@@ -107,7 +108,7 @@ class MetricsService(
      *  - entity.search.duration (timer)
      */
     fun recordEntitySearch(
-        projectId: Long,
+        projectId: UUID,
         totalResults: Int,
         pageResults: Int,
         durationMs: Long

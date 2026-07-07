@@ -3,9 +3,11 @@ package io.mytherion.project.dto
 import io.mytherion.project.model.Project
 import java.time.Instant
 
+import java.util.UUID
+
 /** Response DTO for Project with statistics */
 data class ProjectStatsDTO(
-    val id: Long,
+    val id: UUID,
     val name: String,
     val description: String?,
     val entityCount: Int,

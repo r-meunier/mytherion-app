@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 @Service
 class ProjectService(
@@ -52,7 +53,7 @@ class ProjectService(
      * Fetch a project and verify that the given user owns it. Used by other services (e.g.
      * EntityService) to validate project access without directly querying ProjectRepository.
      */
-    fun getVerifiedProject(projectId: Long, userId: Long): Project {
+    fun getVerifiedProject(projectId: UUID, userId: UUID): Project {
         val project =
             projectRepository.findByIdAndDeletedAtIsNull(projectId)
                 ?: throw ProjectNotFoundException(projectId)
@@ -101,19 +102,19 @@ class ProjectService(
     }
 
     @Transactional(readOnly = true)
-    fun getProjectById(id: Long): ProjectResponse {
+    fun getProjectById(projectId: UUID): ProjectResponse {
         val user = getCurrentUser()
-        logger.debugWith("Fetching project", "projectId" to id, "userId" to user.id)
+        logger.debugWith("Fetching project", "projectId" to projectId, "userId" to user.id)
 
         val project =
-            projectRepository.findById(id).orElseThrow {
-                logger.warnWith("Project not found", "projectId" to id)
-                ProjectNotFoundException(id)
+            projectRepository.findById(projectId).orElseThrow {
+                logger.warnWith("Project not found", "projectId" to projectId)
+                ProjectNotFoundException(projectId)
             }
         verifyOwnership(project, user)
 
         val count = entityQueryService.countByProject(project)
-        logger.infoWith("Project fetched", "projectId" to id, "name" to project.name, "entityCount" to count)
+        logger.infoWith("Project fetched", "projectId" to projectId, "name" to project.name, "entityCount" to count)
         return ProjectResponse.from(project, count)
     }
 
@@ -152,11 +153,11 @@ class ProjectService(
     }
 
     @Transactional
-    fun updateProject(id: Long, request: UpdateProjectRequest): ProjectResponse {
+    fun updateProject(projectId: UUID, request: UpdateProjectRequest): ProjectResponse {
         val user = getCurrentUser()
         logger.infoWith(
             "Updating project",
-            "projectId" to id,
+            "projectId" to projectId,
             "userId" to user.id,
             "updates" to
                     listOfNotNull(
@@ -166,7 +167,7 @@ class ProjectService(
                     )
         )
 
-        val project = projectRepository.findById(id).orElseThrow { ProjectNotFoundException(id) }
+        val project = projectRepository.findById(projectId).orElseThrow { ProjectNotFoundException(projectId) }
         verifyOwnership(project, user)
 
         // Update only provided fields
@@ -176,17 +177,17 @@ class ProjectService(
 
         val saved = projectRepository.save(project)
         val count = entityQueryService.countByProject(saved)
-        logger.infoWith("Project updated successfully", "projectId" to id)
+        logger.infoWith("Project updated successfully", "projectId" to projectId)
 
         return ProjectResponse.from(saved, count)
     }
 
     @Transactional(readOnly = true)
-    fun getProjectStats(id: Long): io.mytherion.project.dto.ProjectStatsDTO {
+    fun getProjectStats(projectId: UUID): io.mytherion.project.dto.ProjectStatsDTO {
         val user = getCurrentUser()
-        logger.debugWith("Fetching project stats", "projectId" to id, "userId" to user.id)
+        logger.debugWith("Fetching project stats", "projectId" to projectId, "userId" to user.id)
 
-        val project = projectRepository.findById(id).orElseThrow { ProjectNotFoundException(id) }
+        val project = projectRepository.findById(projectId).orElseThrow { ProjectNotFoundException(projectId) }
         verifyOwnership(project, user)
 
         val startTime = System.currentTimeMillis()
@@ -198,38 +199,38 @@ class ProjectService(
 
             logger.infoWith(
                 "Project stats calculated",
-                "projectId" to id,
+                "projectId" to projectId,
                 "entityCount" to entityCount,
                 "types" to entityCountByType.keys
             )
 
             val duration = System.currentTimeMillis() - startTime
-            metricsService.recordEntityQuery(id, entityCount, duration)
+            metricsService.recordEntityQuery(projectId, entityCount, duration)
 
             io.mytherion.project.dto.ProjectStatsDTO.from(project, entityCount, entityCountByType)
         }
     }
 
     @Transactional
-    fun deleteProject(id: Long) {
+    fun deleteProject(projectId: UUID) {
         val user = getCurrentUser()
-        logger.infoWith("Deleting project", "projectId" to id, "userId" to user.id)
+        logger.infoWith("Deleting project", "projectId" to projectId, "userId" to user.id)
 
-        val project = projectRepository.findById(id).orElseThrow { ProjectNotFoundException(id) }
+        val project = projectRepository.findById(projectId).orElseThrow { ProjectNotFoundException(projectId) }
         verifyOwnership(project, user)
 
         // Check if project has entities before deleting
-        val entityCount = entityQueryService.countByProject(project).toInt()
-        if (entityCount > 0) {
+        val count = entityQueryService.countByProject(project)
+        if (count > 0) {
             logger.warnWith(
                 "Cannot delete project with entities",
-                "projectId" to id,
-                "entityCount" to entityCount
+                "projectId" to projectId,
+                "entityCount" to count
             )
-            throw ProjectHasEntitiesException(id, entityCount)
+            throw ProjectHasEntitiesException(projectId, count.toInt())
         }
 
         projectRepository.delete(project)
-        logger.infoWith("Project deleted successfully", "projectId" to id)
+        logger.infoWith("Project deleted successfully", "projectId" to projectId)
     }
 }

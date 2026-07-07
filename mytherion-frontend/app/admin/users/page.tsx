@@ -49,7 +49,7 @@ export default function UserManagementPage() {
     }
   };
 
-  const handleDeleteUser = async (userId: number) => {
+  const handleDeleteUser = async (userId: string) => {
     if (!window.confirm("Are you sure you want to banish this chronicler? This will soft-delete their account.")) {
       return;
     }

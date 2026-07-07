@@ -7,7 +7,7 @@ const serviceLogger = logger.child({ service: 'categoryService' });
 
 export const categoryService = {
   // Get all categories for a project
-  getCategories: async (projectId: number): Promise<Category[]> => {
+  getCategories: async (projectId: string): Promise<Category[]> => {
     serviceLogger.debug('Fetching categories', { projectId });
 
     try {
@@ -26,7 +26,7 @@ export const categoryService = {
   },
 
   // Create a new category
-  createCategory: async (projectId: number, data: CreateCategoryRequest): Promise<Category> => {
+  createCategory: async (projectId: string, data: CreateCategoryRequest): Promise<Category> => {
     serviceLogger.info('Creating category', { projectId, name: data.name });
 
     try {

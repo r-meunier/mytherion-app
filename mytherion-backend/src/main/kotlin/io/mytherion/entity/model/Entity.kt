@@ -4,13 +4,10 @@ import io.mytherion.category.model.Category
 import io.mytherion.entity.model.components.EntityComponent
 import io.mytherion.project.model.Project
 import jakarta.persistence.*
-import java.time.Instant
-import org.hibernate.annotations.Filter
-import org.hibernate.annotations.FilterDef
 import org.hibernate.annotations.JdbcTypeCode
-import org.hibernate.annotations.ParamDef
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.type.SqlTypes
+import io.mytherion.common.model.AbstractAuditableEntity
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
@@ -21,13 +18,7 @@ data class EntityMetadata(val components: MutableList<EntityComponent> = mutable
 @jakarta.persistence.Entity
 @Table(name = "entities")
 @SQLRestriction("deleted_at IS NULL")
-@FilterDef(name = "projectScope", parameters = [ParamDef(name = "projectId", type = Long::class)])
-@Filter(name = "projectScope", condition = "project_id = :projectId")
 class Entity(
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_id_seq")
-  val id: Long? = null,
-
   // Project it belongs to
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "project_id", nullable = false)
@@ -63,27 +54,10 @@ class Entity(
   @Column(columnDefinition = "jsonb")
   var metadata: EntityMetadata? = null,
 
-  // Timestamps and metadata
-  @Column(name = "created_at", nullable = false)
-  val createdAt: Instant = Instant.now(),
-
-  @Column(name = "updated_at", nullable = false)
-  var updatedAt: Instant = Instant.now(),
-
-  @Column(name = "deleted_at")
-  var deletedAt: Instant? = null,
-  
   @Version
   @Column(nullable = false)
   var version: Long = 0
-) {
-  @PreUpdate
-  private fun touchUpdatedAt() {
-    updatedAt = Instant.now()
-  }
-
-  fun isDeleted(): Boolean = deletedAt != null
-}
+) : AbstractAuditableEntity()
 
 enum class EntityType {
   CHARACTER,

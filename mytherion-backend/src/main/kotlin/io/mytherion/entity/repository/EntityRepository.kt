@@ -6,7 +6,9 @@ import io.mytherion.project.model.Project
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
-interface EntityRepository : JpaRepository<Entity, Long>, EntityRepositoryCustom {
+import java.util.UUID
+
+interface EntityRepository : JpaRepository<Entity, UUID>, EntityRepositoryCustom {
     // Performance-optimized count queries
     @Query("SELECT COUNT(e) FROM Entity e WHERE e.project = :project AND e.deletedAt IS NULL")
     fun countByProjectAndDeletedAtIsNull(project: Project): Long

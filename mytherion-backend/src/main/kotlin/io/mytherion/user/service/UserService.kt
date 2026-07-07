@@ -6,6 +6,7 @@ import io.mytherion.user.exception.UserNotFoundException
 import io.mytherion.user.repository.UserRepository
 import java.time.Instant
 import org.springframework.stereotype.Service
+import java.util.UUID
 import org.springframework.transaction.annotation.Transactional
 
 @Service
@@ -16,13 +17,13 @@ class UserService(private val userRepository: UserRepository) {
         userRepository.findAll().filter { !it.isDeleted() }.map(UserResponse::from)
 
     @Transactional(readOnly = true)
-    fun getUserById(id: Long): UserResponse {
+    fun getUserById(id: UUID): UserResponse {
         val user = userRepository.findByIdAndDeletedAtIsNull(id) ?: throw UserNotFoundException(id)
         return UserResponse.from(user)
     }
 
     @Transactional
-    fun updateUser(userId: Long, currentUserId: Long, isAdmin: Boolean, request: UpdateUserRequest): UserResponse {
+    fun updateUser(userId: UUID, currentUserId: UUID, isAdmin: Boolean, request: UpdateUserRequest): UserResponse {
         val user = userRepository.findByIdAndDeletedAtIsNull(userId)
             ?: throw UserNotFoundException(userId)
 
@@ -58,7 +59,7 @@ class UserService(private val userRepository: UserRepository) {
     }
 
     @Transactional
-    fun deleteUser(userId: Long, currentUserId: Long, isAdmin: Boolean) {
+    fun deleteUser(userId: UUID, currentUserId: UUID, isAdmin: Boolean) {
         val user = userRepository.findByIdAndDeletedAtIsNull(userId)
             ?: throw UserNotFoundException(userId)
 

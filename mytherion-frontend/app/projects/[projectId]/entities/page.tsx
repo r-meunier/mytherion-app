@@ -14,7 +14,7 @@ import { getProjectNavItems, getManagementItems } from '@/app/config/projectNavi
 
 export default function EntitiesPage() {
   const params = useParams();
-  const projectId = parseInt(params.projectId as string);
+  const projectId = (params.projectId as string);
   
   const dispatch = useAppDispatch();
   const { currentProject, loading, error } = useAppSelector((state) => state.projects);
@@ -22,7 +22,7 @@ export default function EntitiesPage() {
   const [editingEntity, setEditingEntity] = useState<Entity | null>(null);
 
   useEffect(() => {
-    if (isNaN(projectId)) return;
+    if (!projectId) return;
 
     if (!currentProject || currentProject.id !== projectId) {
       dispatch(fetchProject(projectId));

@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
+import java.util.UUID
 
 @Component
 class JwtAuthFilter(private val jwtService: JwtService, private val cookieUtil: CookieUtil) :
@@ -38,7 +39,7 @@ class JwtAuthFilter(private val jwtService: JwtService, private val cookieUtil: 
 
         try {
             val claims = jwtService.parseAndValidate(token)
-            val userId = claims.subject.toLong()
+            val userId = UUID.fromString(claims.subject)
             val role = claims["role"]?.toString() ?: "USER"
 
             val auth =

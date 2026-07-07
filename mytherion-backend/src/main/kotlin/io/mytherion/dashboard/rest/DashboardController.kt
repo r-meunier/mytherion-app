@@ -5,6 +5,7 @@ import io.mytherion.dashboard.service.DashboardService
 import io.mytherion.logging.logger
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import java.util.UUID
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -21,7 +22,7 @@ class DashboardController(
     }
 
     @GetMapping("/api/projects/{projectId}/dashboard/stats")
-    fun getProjectDashboardStats(@PathVariable projectId: Long): DashboardStatsDTO {
+    fun getProjectDashboardStats(@PathVariable projectId: UUID): DashboardStatsDTO {
         logger.info("Get project dashboard stats request for project: $projectId")
         return dashboardService.getProjectDashboardStats(projectId)
     }

@@ -4,6 +4,7 @@ import tools.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mytherion.auth.CurrentUserProvider
+import io.mytherion.entity.dto.EntityDTO
 import io.mytherion.entity.dto.EntitySearchRequest
 import io.mytherion.entity.model.EntityType
 import io.mytherion.entity.repository.EntityRepository
@@ -12,10 +13,13 @@ import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.user.repository.UserRepository
 import org.approvaltests.Approvals
 import org.junit.jupiter.api.BeforeEach
+import java.util.UUID
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
@@ -36,13 +40,17 @@ class EntityServiceCharacterizationTest {
     @MockkBean private lateinit var currentUserProvider: CurrentUserProvider
 
     private lateinit var testFixtures: TestFixtures
-    private var projectId: Long = 0
+    private lateinit var projectId: UUID
 
     @BeforeEach
     fun setup() {
         testFixtures = TestFixtures(userRepository, passwordEncoder, projectRepository, entityRepository)
         
-        val user = testFixtures.createVerifiedUser()
+        val uniqueSuffix = UUID.randomUUID().toString()
+        val user = testFixtures.createVerifiedUser(
+            username = "testuser-$uniqueSuffix",
+            email = "test-$uniqueSuffix@example.com"
+        )
         val project = testFixtures.createProjectForUser(user)
         projectId = requireNotNull(project.id)
 
@@ -77,7 +85,7 @@ class EntityServiceCharacterizationTest {
         val request = EntitySearchRequest(page = 0, size = 10)
         val result = entityService.searchEntities(projectId, request)
 
-        val scrubbedJson = scrubDynamicFields(result)
+        val scrubbedJson = scrubDynamicFields(stableOrder(result))
         Approvals.verify(scrubbedJson, org.approvaltests.core.Options().forFile().withExtension(".json"))
     }
 
@@ -91,15 +99,22 @@ class EntityServiceCharacterizationTest {
         )
         val result = entityService.searchEntities(projectId, request)
 
-        val scrubbedJson = scrubDynamicFields(result)
+        val scrubbedJson = scrubDynamicFields(stableOrder(result))
         Approvals.verify(scrubbedJson, org.approvaltests.core.Options().forFile().withExtension(".json"))
     }
 
+    // searchEntities orders by (createdAt DESC, id DESC). The fixture rows share a
+    // createdAt, so the tiebreaker is the random UUID id, which varies per run. Sort
+    // the page content by name here so the snapshot is deterministic — this only
+    // affects the test, not production ordering.
+    private fun stableOrder(page: Page<EntityDTO>): Page<EntityDTO> =
+        PageImpl(page.content.sortedBy { it.name }, page.pageable, page.totalElements)
+
     private fun scrubDynamicFields(obj: Any): String {
         val json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj)
-        return json.replace(Regex("\"id\" : \\d+"), "\"id\" : 999")
-            .replace(Regex("\"projectId\" : \\d+"), "\"projectId\" : 999")
-            .replace(Regex("\"ownerId\" : \\d+"), "\"ownerId\" : 999")
+        return json.replace(Regex("\"id\" : \"[a-f0-9\\-]+\""), "\"id\" : \"999\"")
+            .replace(Regex("\"projectId\" : \"[a-f0-9\\-]+\""), "\"projectId\" : \"999\"")
+            .replace(Regex("\"ownerId\" : \"[a-f0-9\\-]+\""), "\"ownerId\" : \"999\"")
             .replace(Regex("\"createdAt\" : \"[^\"]+\""), "\"createdAt\" : \"2026-01-01T00:00:00Z\"")
             .replace(Regex("\"updatedAt\" : \"[^\"]+\""), "\"updatedAt\" : \"2026-01-01T00:00:00Z\"")
     }

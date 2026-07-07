@@ -9,6 +9,7 @@ import io.mytherion.user.repository.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 @Service
 class AuthService(
@@ -145,7 +146,7 @@ class AuthService(
     }
 
     @Transactional(readOnly = true)
-    fun getUserById(userId: Long): AuthDTO.UserResponse {
+    fun getUserById(userId: UUID): AuthDTO.UserResponse {
         val user =
             userRepository.findById(userId).orElseThrow {
                 IllegalArgumentException("User not found")
@@ -220,7 +221,7 @@ class AuthService(
     }
 
     @Transactional
-    fun resendVerificationEmail(userId: Long) {
+    fun resendVerificationEmail(userId: UUID) {
         val user =
             userRepository.findById(userId).orElseThrow {
                 IllegalArgumentException("User not found")

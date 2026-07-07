@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
+import java.util.UUID
 
 @Service
 class EntityService(
@@ -49,7 +50,7 @@ class EntityService(
 
     /** Create a new entity */
     @Transactional
-    fun createEntity(projectId: Long, request: CreateEntityRequest): EntityDTO {
+    fun createEntity(projectId: UUID, request: CreateEntityRequest): EntityDTO {
         val user = getCurrentUser()
         logger.infoWith(
             "Creating entity",
@@ -95,7 +96,7 @@ class EntityService(
 
     /** Get entity by ID */
     @Transactional(readOnly = true)
-    fun getEntity(id: Long): EntityDTO {
+    fun getEntity(id: UUID): EntityDTO {
         val user = getCurrentUser()
         logger.debugWith("Fetching entity", "entityId" to id, "userId" to user.id)
 
@@ -112,7 +113,7 @@ class EntityService(
 
     /** Update entity */
     @Transactional
-    fun updateEntity(id: Long, request: UpdateEntityRequest): EntityDTO {
+    fun updateEntity(id: UUID, request: UpdateEntityRequest): EntityDTO {
         val user = getCurrentUser()
         logger.infoWith(
             "Updating entity",
@@ -163,7 +164,7 @@ class EntityService(
 
     /** Soft delete entity */
     @Transactional
-    fun deleteEntity(id: Long) {
+    fun deleteEntity(id: UUID) {
         val user = getCurrentUser()
         logger.infoWith("Deleting entity", "entityId" to id, "userId" to user.id)
 
@@ -187,7 +188,7 @@ class EntityService(
 
     /** Search/filter entities in a project */
     @Transactional(readOnly = true)
-    fun searchEntities(projectId: Long, searchRequest: EntitySearchRequest): Page<EntityDTO> {
+    fun searchEntities(projectId: UUID, searchRequest: EntitySearchRequest): Page<EntityDTO> {
         val user = getCurrentUser()
         logger.debugWith(
             "Searching entities",
@@ -243,7 +244,7 @@ class EntityService(
 
     /** Upload image for entity */
     @Transactional
-    fun uploadImage(id: Long, file: MultipartFile): UploadResponse {
+    fun uploadImage(id: UUID, file: MultipartFile): UploadResponse {
         val user = getCurrentUser()
         val entity = entityRepository.findById(id).orElseThrow { EntityNotFoundException(id) }
 
@@ -309,7 +310,7 @@ class EntityService(
 
     /** Delete image from entity */
     @Transactional
-    fun deleteImage(id: Long) {
+    fun deleteImage(id: UUID) {
         val user = getCurrentUser()
         val entity = entityRepository.findById(id).orElseThrow { EntityNotFoundException(id) }
 

@@ -28,7 +28,7 @@ class UserService {
   /**
    * Update user details (Admin or Owner)
    */
-  async updateUser(userId: number, data: UserUpdateData): Promise<User> {
+  async updateUser(userId: string, data: UserUpdateData): Promise<User> {
     const response = await fetch(`${API_URL}/api/user/${userId}`, {
       method: "PUT",
       headers: {
@@ -49,7 +49,7 @@ class UserService {
   /**
    * Delete user (Admin or Owner)
    */
-  async deleteUser(userId: number): Promise<void> {
+  async deleteUser(userId: string): Promise<void> {
     const response = await fetch(`${API_URL}/api/user/${userId}`, {
       method: "DELETE",
       credentials: "include",

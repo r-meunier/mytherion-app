@@ -14,7 +14,7 @@ import Link from 'next/link';
 export default function NewEntityPage() {
   const router = useRouter();
   const params = useParams();
-  const projectId = parseInt(params.projectId as string);
+  const projectId = (params.projectId as string);
   
   const dispatch = useAppDispatch();
   const { currentProject } = useAppSelector((state) => state.projects);

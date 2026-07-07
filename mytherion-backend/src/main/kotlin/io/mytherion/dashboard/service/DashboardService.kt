@@ -7,6 +7,7 @@ import io.mytherion.project.repository.ProjectRepository
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import org.springframework.stereotype.Service
+import java.util.UUID
 import org.springframework.transaction.annotation.Transactional
 
 @Service
@@ -44,7 +45,7 @@ class DashboardService(
     }
 
     @Transactional(readOnly = true)
-    fun getProjectDashboardStats(projectId: Long): DashboardStatsDTO {
+    fun getProjectDashboardStats(projectId: UUID): DashboardStatsDTO {
         val currentUser = currentUserProvider.getCurrentUser()
         
         // Verify project exists and belongs to user

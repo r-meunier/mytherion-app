@@ -3,21 +3,14 @@ package io.mytherion.auth.model
 import io.mytherion.user.model.User
 import jakarta.persistence.*
 import java.time.Instant
+import java.util.UUID
 
 @Entity
 @Table(name = "email_verification_tokens")
 class EmailVerificationToken(
     @Id
-    @GeneratedValue(
-        strategy = GenerationType.SEQUENCE,
-        generator = "email_verification_token_id_seq"
-    )
-    @SequenceGenerator(
-        name = "email_verification_token_id_seq",
-        sequenceName = "email_verification_tokens_id_seq",
-        allocationSize = 1
-    )
-    var id: Long? = null,
+    @GeneratedValue(strategy = GenerationType.UUID)
+    var id: UUID? = null,
     @Column(nullable = false, unique = true) var token: String,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

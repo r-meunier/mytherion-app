@@ -1,6 +1,7 @@
 package io.mytherion.email
 
 import org.junit.jupiter.api.Assertions.*
+import java.util.UUID
 import org.junit.jupiter.api.Test
 import org.springframework.scheduling.annotation.Async
 

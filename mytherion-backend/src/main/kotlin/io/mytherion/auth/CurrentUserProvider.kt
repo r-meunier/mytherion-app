@@ -4,6 +4,7 @@ import io.mytherion.user.model.User
 import io.mytherion.user.repository.UserRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
+import java.util.UUID
 
 @Service
 class CurrentUserProvider(
@@ -16,7 +17,7 @@ class CurrentUserProvider(
             throw IllegalStateException("No authenticated user found")
         }
         val userId =
-            authentication.principal as? Long
+            authentication.principal as? UUID
                 ?: throw IllegalStateException("Principal is not a valid User ID")
 
         return userRepository.findById(userId).orElseThrow {

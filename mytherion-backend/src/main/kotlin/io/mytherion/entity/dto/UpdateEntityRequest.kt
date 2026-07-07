@@ -4,6 +4,8 @@ import io.mytherion.entity.model.EntityMetadata
 import io.mytherion.entity.model.EntityType
 import jakarta.validation.constraints.Size
 
+import java.util.UUID
+
 /**
  * Request DTO for updating an existing entity All fields are optional - only provided fields will
  * be updated
@@ -12,7 +14,7 @@ data class UpdateEntityRequest(
     val type: EntityType? = null,
     @field:Size(min = 1, max = 255, message = "Name must be between 1 and 255 characters")
     val name: String? = null,
-    val categoryId: Long? = null,
+    val categoryId: UUID? = null,
     val description: String? = null,
     val notes: String? = null,
     val tags: List<String>? = null,

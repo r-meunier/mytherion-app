@@ -2,10 +2,12 @@ package io.mytherion.entity.dto
 
 import io.mytherion.entity.model.EntityType
 
+import java.util.UUID
+
 /** Request DTO for searching/filtering entities */
 data class EntitySearchRequest(
     val type: EntityType? = null,
-    val categoryId: Long? = null,
+    val categoryId: UUID? = null,
     val tags: List<String>? = null,
     val search: String? = null, // Search in name, description
     val page: Int = 0,

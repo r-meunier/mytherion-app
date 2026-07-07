@@ -18,7 +18,7 @@ export default function ProjectDashboard() {
   const dispatch = useAppDispatch();
   const { currentProject, loading: projectLoading, error: projectError } = useAppSelector((state) => state.projects);
   const { stats, loading: statsLoading, error: statsError } = useAppSelector((state) => state.dashboard);
-  const projectId = Number(params.projectId);
+  const projectId = (params.projectId as string);
 
   useEffect(() => {
     if (projectId) {
