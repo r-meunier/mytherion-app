@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { createEntity, updateEntity, clearError } from '@/app/store/entitySlice';
 import { Entity, CreateEntityRequest, UpdateEntityRequest } from '@/app/types/entity';
+import { mediaService } from '@/app/services/mediaService';
 import EntityForm from './EntityForm';
 
 import BaseModal from '../ui/modals/BaseModal';
@@ -27,17 +28,27 @@ export default function EntityModal({ isOpen, onClose, projectId, entity }: Enti
     }
   }, [isOpen, dispatch]);
 
-  const handleSubmit = async (data: CreateEntityRequest | UpdateEntityRequest) => {
+  const handleSubmit = async (data: CreateEntityRequest | UpdateEntityRequest, imageFile?: File | null) => {
     let result;
     if (entity) {
       result = await dispatch(updateEntity({ projectId, id: entity.id, data: data as UpdateEntityRequest }));
+      if (updateEntity.fulfilled.match(result)) {
+        if (imageFile) {
+          await mediaService.uploadEntityImage(projectId, entity.id, imageFile);
+        }
+        setFormKey(prev => prev + 1);
+        onClose();
+      }
     } else {
       result = await dispatch(createEntity({ projectId, data: data as CreateEntityRequest }));
-    }
-
-    if (createEntity.fulfilled.match(result) || updateEntity.fulfilled.match(result)) {
-      setFormKey(prev => prev + 1);
-      onClose();
+      if (createEntity.fulfilled.match(result)) {
+        const createdEntity = result.payload as Entity;
+        if (imageFile && createdEntity?.id) {
+          await mediaService.uploadEntityImage(projectId, createdEntity.id, imageFile);
+        }
+        setFormKey(prev => prev + 1);
+        onClose();
+      }
     }
   };
 
