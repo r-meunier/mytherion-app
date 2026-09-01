@@ -230,7 +230,8 @@ class ProjectService(
             throw ProjectHasEntitiesException(projectId, count.toInt())
         }
 
-        projectRepository.delete(project)
+        project.markDeleted()
+        projectRepository.save(project)
         logger.infoWith("Project deleted successfully", "projectId" to projectId)
     }
 }

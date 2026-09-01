@@ -319,7 +319,7 @@ class ProjectServiceTest {
     // Given
     every { projectRepository.findById(testProjectId) } returns Optional.of(testProject)
     every { entityQueryService.countByProject(testProject) } returns 0L
-    every { projectRepository.delete(testProject) } just Runs
+    every { projectRepository.save(testProject) } returns testProject
 
     // When
     projectService.deleteProject(testProjectId)
@@ -327,7 +327,8 @@ class ProjectServiceTest {
     // Then
     verify { projectRepository.findById(testProjectId) }
     verify { entityQueryService.countByProject(testProject) }
-    verify { projectRepository.delete(testProject) }
+    verify { projectRepository.save(testProject) }
+    assertTrue(testProject.isDeleted(), "Project should be marked as deleted")
   }
 
   @Test
@@ -341,7 +342,7 @@ class ProjectServiceTest {
         projectService.deleteProject(UUID.fromString("00000000-0000-0000-0000-000000000999"))
       }
     assertEquals("Project with id 00000000-0000-0000-0000-000000000999 not found", exception.message)
-    verify(exactly = 0) { projectRepository.delete(any()) }
+    verify(exactly = 0) { projectRepository.save(any()) }
   }
 
   @Test
@@ -357,7 +358,7 @@ class ProjectServiceTest {
         projectService.deleteProject(otherProjectId)
       }
     assertEquals("Access denied to project with id $otherProjectId", exception.message)
-    verify(exactly = 0) { projectRepository.delete(any()) }
+    verify(exactly = 0) { projectRepository.save(any()) }
   }
 
   // ==================== Get Project Stats Tests ====================
