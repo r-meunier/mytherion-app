@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service
 import java.util.UUID
 import org.springframework.transaction.annotation.Transactional
 
+import io.mytherion.project.exception.ProjectNotFoundException
+
 @Service
 class DashboardService(
     private val entityRepository: EntityRepository,
@@ -50,7 +52,7 @@ class DashboardService(
         
         // Verify project exists and belongs to user
         val project = projectRepository.findByIdAndOwnerAndDeletedAtIsNull(projectId, currentUser)
-            ?: throw NoSuchElementException("Project not found or access denied")
+            ?: throw ProjectNotFoundException(projectId)
 
         val totalEntities = entityRepository.countByProjectAndDeletedAtIsNull(project)
         
