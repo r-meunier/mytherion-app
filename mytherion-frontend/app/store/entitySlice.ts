@@ -143,6 +143,12 @@ const entitySlice = createSlice({
       .addCase(fetchEntity.fulfilled, (state, action: PayloadAction<Entity>) => {
         state.loading = false;
         state.currentEntity = action.payload;
+        const index = state.entities.findIndex((e) => e.id === action.payload.id);
+        if (index !== -1) {
+          state.entities[index] = action.payload;
+        } else {
+          state.entities.unshift(action.payload);
+        }
       })
       .addCase(fetchEntity.rejected, (state, action) => {
         state.loading = false;

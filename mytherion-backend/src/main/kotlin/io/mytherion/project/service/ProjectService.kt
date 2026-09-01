@@ -107,9 +107,9 @@ class ProjectService(
         logger.debugWith("Fetching project", "projectId" to projectId, "userId" to user.id)
 
         val project =
-            projectRepository.findById(projectId).orElseThrow {
+            projectRepository.findByIdWithOwner(projectId) ?: run {
                 logger.warnWith("Project not found", "projectId" to projectId)
-                ProjectNotFoundException(projectId)
+                throw ProjectNotFoundException(projectId)
             }
         verifyOwnership(project, user)
 

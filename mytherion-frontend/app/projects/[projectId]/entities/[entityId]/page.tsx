@@ -13,6 +13,8 @@ import EntityMetadataEditor from '@/app/components/entities/metadata/EntityMetad
 import ComponentDispatcher from '@/app/components/entities/metadata/ComponentDispatcher';
 import { EntityMetadata } from '@/app/types/entity';
 
+import { mediaService } from '@/app/services/mediaService';
+
 export default function EntityDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -128,6 +130,19 @@ export default function EntityDetailPage() {
           <div className="glass rounded-3xl p-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -mr-32 -mt-32"></div>
             <div className="relative z-10">
+              {/* Optional Hero Image Banner */}
+              {currentEntity.thumbnail && (
+                <div className="relative w-full h-64 md:h-80 mb-6 rounded-2xl overflow-hidden bg-black/40 border border-white/10 shadow-2xl">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={mediaService.getImageUrl(currentEntity.thumbnail) || ''}
+                    alt={currentEntity.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#16111B]/80 via-transparent to-transparent pointer-events-none" />
+                </div>
+              )}
+
               <div className="flex items-start justify-between mb-6">
                 <div className="flex items-center gap-4">
                   <span className="text-5xl">{typeConfig.icon}</span>

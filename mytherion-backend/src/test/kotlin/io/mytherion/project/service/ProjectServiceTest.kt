@@ -154,7 +154,7 @@ class ProjectServiceTest {
   @Test
   fun `getProjectById when project exists should return project`() {
     // Given
-    every { projectRepository.findById(testProjectId) } returns Optional.of(testProject)
+    every { projectRepository.findByIdWithOwner(testProjectId) } returns testProject
 
     // When
     val result = projectService.getProjectById(testProjectId)
@@ -164,13 +164,13 @@ class ProjectServiceTest {
     assertEquals(testProjectId, result.id)
     assertEquals("Test Project", result.name)
     assertEquals(testUser.id, result.ownerId)
-    verify { projectRepository.findById(testProjectId) }
+    verify { projectRepository.findByIdWithOwner(testProjectId) }
   }
 
   @Test
   fun `getProjectById when project not found should throw ProjectNotFoundException`() {
     // Given
-    every { projectRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000999")) } returns Optional.empty()
+    every { projectRepository.findByIdWithOwner(UUID.fromString("00000000-0000-0000-0000-000000000999")) } returns null
 
     // When & Then
     val exception =
@@ -178,7 +178,7 @@ class ProjectServiceTest {
         projectService.getProjectById(UUID.fromString("00000000-0000-0000-0000-000000000999"))
       }
     assertEquals("Project with id 00000000-0000-0000-0000-000000000999 not found", exception.message)
-    verify { projectRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000999")) }
+    verify { projectRepository.findByIdWithOwner(UUID.fromString("00000000-0000-0000-0000-000000000999")) }
   }
 
   @Test
@@ -186,7 +186,7 @@ class ProjectServiceTest {
     // Given
     val otherUsersProject =
       ProjectTestFixtures.createTestProject(id = otherProjectId, owner = otherUser)
-    every { projectRepository.findById(otherProjectId) } returns Optional.of(otherUsersProject)
+    every { projectRepository.findByIdWithOwner(otherProjectId) } returns otherUsersProject
 
     // When & Then
     val exception =
@@ -194,7 +194,7 @@ class ProjectServiceTest {
         projectService.getProjectById(otherProjectId)
       }
     assertEquals("Access denied to project with id $otherProjectId", exception.message)
-    verify { projectRepository.findById(otherProjectId) }
+    verify { projectRepository.findByIdWithOwner(otherProjectId) }
   }
 
   // ==================== Create Project Tests ====================

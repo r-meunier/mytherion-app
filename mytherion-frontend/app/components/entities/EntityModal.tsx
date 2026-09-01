@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { createEntity, updateEntity, clearError } from '@/app/store/entitySlice';
+import { createEntity, updateEntity, fetchEntity, clearError } from '@/app/store/entitySlice';
 import { Entity, CreateEntityRequest, UpdateEntityRequest } from '@/app/types/entity';
+import { mediaService } from '@/app/services/mediaService';
 import EntityForm from './EntityForm';
 
 import BaseModal from '../ui/modals/BaseModal';
@@ -19,25 +20,53 @@ export default function EntityModal({ isOpen, onClose, projectId, entity }: Enti
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((state) => state.entities);
   const [formKey, setFormKey] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Clear errors when modal opens
+  // Clear errors and reset submitting state when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
+      setIsSubmitting(false);
     }
   }, [isOpen, dispatch]);
 
-  const handleSubmit = async (data: CreateEntityRequest | UpdateEntityRequest) => {
-    let result;
-    if (entity) {
-      result = await dispatch(updateEntity({ projectId, id: entity.id, data: data as UpdateEntityRequest }));
-    } else {
-      result = await dispatch(createEntity({ projectId, data: data as CreateEntityRequest }));
-    }
+  const handleSubmit = async (data: CreateEntityRequest | UpdateEntityRequest, imageFile?: File | null) => {
+    if (isSubmitting) return; // Prevent duplicate submissions
+    setIsSubmitting(true);
 
-    if (createEntity.fulfilled.match(result) || updateEntity.fulfilled.match(result)) {
-      setFormKey(prev => prev + 1);
-      onClose();
+    try {
+      if (entity) {
+        const result = await dispatch(updateEntity({ projectId, id: entity.id, data: data as UpdateEntityRequest }));
+        if (updateEntity.fulfilled.match(result)) {
+          if (imageFile) {
+            try {
+              await mediaService.uploadEntityImage(projectId, entity.id, imageFile);
+              await dispatch(fetchEntity({ projectId, id: entity.id }));
+            } catch (err) {
+              console.error('Image upload failed', err);
+            }
+          }
+          setFormKey(prev => prev + 1);
+          onClose();
+        }
+      } else {
+        const result = await dispatch(createEntity({ projectId, data: data as CreateEntityRequest }));
+        if (createEntity.fulfilled.match(result)) {
+          const createdEntity = result.payload as Entity;
+          if (imageFile && createdEntity?.id) {
+            try {
+              await mediaService.uploadEntityImage(projectId, createdEntity.id, imageFile);
+              await dispatch(fetchEntity({ projectId, id: createdEntity.id }));
+            } catch (err) {
+              console.error('Image upload failed', err);
+            }
+          }
+          setFormKey(prev => prev + 1);
+          onClose();
+        }
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -59,7 +88,7 @@ export default function EntityModal({ isOpen, onClose, projectId, entity }: Enti
         isOpen={isOpen}
         onSubmit={handleSubmit}
         onCancel={onClose}
-        loading={loading}
+        loading={loading || isSubmitting}
         error={error}
       />
     </BaseModal>

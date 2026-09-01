@@ -29,6 +29,12 @@ interface ProjectRepository : JpaRepository<Project, UUID> {
         pageable: Pageable
     ): Page<Project>
 
+    @Query("SELECT p FROM Project p JOIN FETCH p.owner WHERE p.id = :id")
+    fun findByIdWithOwner(@Param("id") id: UUID): Project?
+
+    @Query("SELECT p FROM Project p JOIN FETCH p.owner WHERE p.id = :id AND p.owner = :owner AND p.deletedAt IS NULL")
+    fun findByIdAndOwnerAndDeletedAtIsNullWithOwner(@Param("id") id: UUID, @Param("owner") owner: User): Project?
+
     fun findAllByOwnerAndDeletedAtIsNull(owner: User, pageable: Pageable): Page<Project>
     fun findByIdAndDeletedAtIsNull(id: UUID): Project?
 

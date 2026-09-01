@@ -24,10 +24,13 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
     genre: 'High Fantasy', // Default value
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // Clear errors when modal opens
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
+      setIsSubmitting(false);
     }
   }, [isOpen, dispatch]);
 
@@ -50,17 +53,23 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     
-    let result;
-    if (isEditing && project) {
-      result = await dispatch(updateProject({ id: project.id, data: formData }));
-    } else {
-      result = await dispatch(createProject(formData));
-    }
-    
-    if (createProject.fulfilled.match(result) || updateProject.fulfilled.match(result)) {
-      setFormKey(prev => prev + 1);
-      onClose();
+    try {
+      let result;
+      if (isEditing && project) {
+        result = await dispatch(updateProject({ id: project.id, data: formData }));
+      } else {
+        result = await dispatch(createProject(formData));
+      }
+      
+      if (createProject.fulfilled.match(result) || updateProject.fulfilled.match(result)) {
+        setFormKey(prev => prev + 1);
+        onClose();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -162,20 +171,20 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
             type="button"
             onClick={onClose}
             className="flex-1 py-4 px-6 border border-white/10 text-slate-400 font-bold rounded-2xl hover:bg-white/5 transition-colors"
-            disabled={loading}
+            disabled={loading || isSubmitting}
           >
             Abandon Rite
           </button>
           <button
             type="submit"
             className="flex-2 btn-primary py-4 px-6 rounded-2xl flex items-center justify-center space-x-2 group hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={loading}
+            disabled={loading || isSubmitting}
           >
             <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">
               {isEditing ? 'save' : 'bolt'}
             </span>
             <span>
-              {loading 
+              {(loading || isSubmitting)
                 ? (isEditing ? 'Saving...' : 'Initiating...') 
                 : (isEditing ? 'Save Changes' : 'Initiate Creation')}
             </span>

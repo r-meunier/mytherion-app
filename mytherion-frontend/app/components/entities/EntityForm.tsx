@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Entity, EntityType, CreateEntityRequest, UpdateEntityRequest, EntityMetadata, EntityComponent, ComponentType } from '@/app/types/entity';
+import { mediaService } from '@/app/services/mediaService';
 import EntityTypeSelector from './EntityTypeSelector';
 import CategorySelector from './CategorySelector';
 import TagInput from './TagInput';
@@ -12,7 +13,7 @@ interface EntityFormProps {
   entity?: Entity;
   projectId: string;
   isOpen?: boolean; // New prop to track visibility
-  onSubmit: (data: CreateEntityRequest | UpdateEntityRequest) => void;
+  onSubmit: (data: CreateEntityRequest | UpdateEntityRequest, imageFile?: File | null) => void;
   onCancel: () => void;
   loading?: boolean;
   error?: string | null;
@@ -20,6 +21,8 @@ interface EntityFormProps {
 
 export default function EntityForm({ entity, projectId, isOpen, onSubmit, onCancel, loading = false, error }: EntityFormProps) {
   const isEditMode = !!entity;
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(mediaService.getImageUrl(entity?.thumbnail));
 
   // Sync internal state when entity prop changes
   useEffect(() => {
@@ -33,9 +36,9 @@ export default function EntityForm({ entity, projectId, isOpen, onSubmit, onCanc
         tags: entity.tags || [],
         metadata: normalizeMetadata(entity.metadata),
       });
+      setImageFile(null);
+      setImagePreview(mediaService.getImageUrl(entity.thumbnail));
     }
-    // Removed 'else' block that was resetting form data unnecessarily on re-renders,
-    // which caused the form to clear during typing in 'New Entity' mode.
   }, [entity]);
 
   // Clear internal errors when modal reopens
@@ -70,6 +73,45 @@ export default function EntityForm({ entity, projectId, isOpen, onSubmit, onCanc
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Clean up object URL when imagePreview unmounts or changes
+  useEffect(() => {
+    return () => {
+      if (imagePreview && imagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validation = mediaService.validateImageFile(file);
+    if (!validation.valid) {
+      setErrors(prev => ({ ...prev, image: validation.error || 'Invalid image file' }));
+      return;
+    }
+
+    setErrors(prev => {
+      const next = { ...prev };
+      delete next.image;
+      return next;
+    });
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setErrors(prev => {
+      const next = { ...prev };
+      delete next.image;
+      return next;
+    });
+  };
 
   // Helper to ensure an archetype has its required components
   useEffect(() => {
@@ -182,9 +224,9 @@ export default function EntityForm({ entity, projectId, isOpen, onSubmit, onCanc
       if (JSON.stringify(formData.tags) !== JSON.stringify(entity.tags)) updateData.tags = formData.tags;
       if (JSON.stringify(formData.metadata) !== JSON.stringify(entity.metadata)) updateData.metadata = formData.metadata;
       
-      onSubmit(updateData);
+      onSubmit(updateData, imageFile);
     } else {
-      onSubmit(formData as CreateEntityRequest);
+      onSubmit(formData as CreateEntityRequest, imageFile);
     }
   };
 
@@ -199,6 +241,8 @@ export default function EntityForm({ entity, projectId, isOpen, onSubmit, onCanc
         tags: [],
         metadata: { components: [] },
       });
+      setImageFile(null);
+      setImagePreview(null);
       setErrors({});
     }
   };
@@ -256,6 +300,58 @@ export default function EntityForm({ entity, projectId, isOpen, onSubmit, onCanc
                   disabled={loading}
                 />
               </div>
+            </div>
+
+            {/* Image Upload */}
+            <div>
+              <label htmlFor="entity-image-upload" className="block text-sm font-medium text-gray-300 mb-2">
+                Entity Image
+              </label>
+              
+              {imagePreview ? (
+                <div className="relative w-full h-44 rounded-xl overflow-hidden bg-black/40 border border-gray-700 group">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imagePreview}
+                    alt="Entity preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                    <label
+                      htmlFor="entity-image-upload"
+                      className="btn-glass-sm cursor-pointer"
+                      title="Change Image"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">cached</span>
+                      <span>Change</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="btn-glass-sm btn-glass-danger"
+                      title="Remove Image"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">delete</span>
+                      <span>Remove</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="entity-image-upload"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    onChange={handleImageChange}
+                    className="block w-full text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-600/20 file:text-purple-300 hover:file:bg-purple-600/30 file:cursor-pointer cursor-pointer border border-gray-700/60 rounded-xl bg-gray-800/30 p-2 focus:outline-none"
+                    disabled={loading}
+                  />
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    Allowed: JPEG, PNG, GIF, WebP (Max 5MB)
+                  </p>
+                </div>
+              )}
+              {errors.image && <p className="mt-1 text-sm text-red-400">{errors.image}</p>}
             </div>
 
             {/* Tags */}

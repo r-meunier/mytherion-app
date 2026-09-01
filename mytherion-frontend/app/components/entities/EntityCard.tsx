@@ -4,6 +4,7 @@ import { Entity } from '@/app/types/entity';
 import { entityTypeConfig } from './EntityTypeSelector';
 import { useRouter } from 'next/navigation';
 import { useIsMounted } from '@/app/hooks/useIsMounted';
+import { mediaService } from '@/app/services/mediaService';
 
 interface EntityCardProps {
   entity: Entity;
@@ -70,6 +71,19 @@ export default function EntityCard({ entity, onEdit, onDelete }: EntityCardProps
           )}
         </div>
       </div>
+
+      {/* Entity Image (if present, no fallback/placeholder per specifications) */}
+      {entity.thumbnail && (
+        <div className="relative w-full h-40 mb-3 rounded-xl overflow-hidden bg-black/40 border border-white/10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={mediaService.getImageUrl(entity.thumbnail) || ''}
+            alt={entity.name}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
+      )}
 
       {/* Entity Name */}
       <h3 className="text-xl font-display font-bold text-white mb-2 line-clamp-1">
