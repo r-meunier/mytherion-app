@@ -177,7 +177,7 @@ class EntityService(
         verifyEntityAccess(entity, user)
 
         // Soft delete
-        entity.deletedAt = Instant.now()
+        entity.markDeleted()
         entityRepository.save(entity)
         logger.infoWith(
             "Entity soft deleted successfully",

@@ -69,7 +69,7 @@ class UserService(private val userRepository: UserRepository) {
         }
 
         // Soft delete: mark as deleted instead of removing from database
-        user.deletedAt = Instant.now()
+        user.markDeleted()
         userRepository.save(user)
     }
 }

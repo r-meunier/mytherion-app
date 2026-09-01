@@ -4,10 +4,12 @@ import io.mytherion.user.model.User
 import jakarta.persistence.*
 import io.mytherion.common.model.AbstractAuditableEntity
 import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.annotations.SQLRestriction
 import org.hibernate.type.SqlTypes
 
-@jakarta.persistence.Entity
+@Entity
 @Table(name = "projects")
+@SQLRestriction("deleted_at IS NULL")
 class Project(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner", nullable = false)
