@@ -12,6 +12,7 @@ import ComponentDispatcher from './metadata/ComponentDispatcher';
 interface EntityFormProps {
   entity?: Entity;
   projectId: string;
+  defaultType?: EntityType;
   isOpen?: boolean; // New prop to track visibility
   onSubmit: (data: CreateEntityRequest | UpdateEntityRequest, imageFile?: File | null) => void;
   onCancel: () => void;
@@ -19,7 +20,7 @@ interface EntityFormProps {
   error?: string | null;
 }
 
-export default function EntityForm({ entity, projectId, isOpen, onSubmit, onCancel, loading = false, error }: EntityFormProps) {
+export default function EntityForm({ entity, projectId, defaultType, isOpen, onSubmit, onCancel, loading = false, error }: EntityFormProps) {
   const isEditMode = !!entity;
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(mediaService.getImageUrl(entity?.thumbnail));
@@ -63,7 +64,7 @@ export default function EntityForm({ entity, projectId, isOpen, onSubmit, onCanc
   };
 
   const [formData, setFormData] = useState({
-    type: entity?.type || EntityType.CHARACTER,
+    type: entity?.type || defaultType || EntityType.CHARACTER,
     name: entity?.name || '',
     categoryId: entity?.categoryId,
     description: entity?.description || '',
@@ -233,7 +234,7 @@ export default function EntityForm({ entity, projectId, isOpen, onSubmit, onCanc
   const handleClear = () => {
     if (window.confirm('Are you sure you want to clear all fields? This will lose all unsaved progress on this draft.')) {
       setFormData({
-        type: entity?.type || EntityType.CHARACTER,
+        type: entity?.type || defaultType || EntityType.CHARACTER,
         name: '',
         categoryId: undefined,
         description: '',

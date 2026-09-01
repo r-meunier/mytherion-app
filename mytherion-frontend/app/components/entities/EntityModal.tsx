@@ -14,9 +14,11 @@ interface EntityModalProps {
   onClose: () => void;
   projectId: string;
   entity?: Entity | null;
+  defaultType?: EntityType;
+  onSuccess?: () => void;
 }
 
-export default function EntityModal({ isOpen, onClose, projectId, entity }: EntityModalProps) {
+export default function EntityModal({ isOpen, onClose, projectId, entity, defaultType, onSuccess }: EntityModalProps) {
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((state) => state.entities);
   const [formKey, setFormKey] = useState(0);
@@ -47,6 +49,7 @@ export default function EntityModal({ isOpen, onClose, projectId, entity }: Enti
             }
           }
           setFormKey(prev => prev + 1);
+          onSuccess?.();
           onClose();
         }
       } else {
@@ -62,6 +65,7 @@ export default function EntityModal({ isOpen, onClose, projectId, entity }: Enti
             }
           }
           setFormKey(prev => prev + 1);
+          onSuccess?.();
           onClose();
         }
       }
@@ -85,6 +89,7 @@ export default function EntityModal({ isOpen, onClose, projectId, entity }: Enti
         key={`${entity?.id || 'new'}-${formKey}`}
         entity={entity || undefined}
         projectId={projectId}
+        defaultType={defaultType}
         isOpen={isOpen}
         onSubmit={handleSubmit}
         onCancel={onClose}
