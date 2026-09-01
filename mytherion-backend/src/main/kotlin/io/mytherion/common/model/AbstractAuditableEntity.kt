@@ -19,6 +19,13 @@ abstract class AbstractAuditableEntity {
     @Column(name = "deleted_at")
     var deletedAt: Instant? = null
 
+    @PrePersist
+    protected fun onPrePersist() {
+        val now = Instant.now()
+        createdAt = now
+        updatedAt = now
+    }
+
     @PreUpdate
     protected fun onPreUpdate() {
         updatedAt = Instant.now()
