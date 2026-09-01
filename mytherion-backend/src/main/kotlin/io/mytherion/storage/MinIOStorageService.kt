@@ -139,7 +139,27 @@ class MinIOStorageService(
                         .bucket(bucketName)
                         .build()
                 )
-                logger.info("Created bucket: $bucketName")
+                // Set public read policy for uploads bucket so browser <img> tags can fetch images directly
+                val publicReadPolicy = """
+                    {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Principal": {"AWS": ["*"]},
+                                "Action": ["s3:GetObject"],
+                                "Resource": ["arn:aws:s3:::$bucketName/*"]
+                            }
+                        ]
+                    }
+                """.trimIndent()
+                minioClient.setBucketPolicy(
+                    SetBucketPolicyArgs.builder()
+                        .bucket(bucketName)
+                        .config(publicReadPolicy)
+                        .build()
+                )
+                logger.info("Created bucket with public read policy: $bucketName")
             }
         } catch (e: Exception) {
             logger.error("Failed to ensure bucket exists: $bucketName", e)

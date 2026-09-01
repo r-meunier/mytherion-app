@@ -35,6 +35,7 @@ export default function EntityModal({ isOpen, onClose, projectId, entity }: Enti
       if (updateEntity.fulfilled.match(result)) {
         if (imageFile) {
           await mediaService.uploadEntityImage(projectId, entity.id, imageFile);
+          await dispatch(fetchEntity({ projectId, id: entity.id }));
         }
         setFormKey(prev => prev + 1);
         onClose();
@@ -45,6 +46,7 @@ export default function EntityModal({ isOpen, onClose, projectId, entity }: Enti
         const createdEntity = result.payload as Entity;
         if (imageFile && createdEntity?.id) {
           await mediaService.uploadEntityImage(projectId, createdEntity.id, imageFile);
+          await dispatch(fetchEntity({ projectId, id: createdEntity.id }));
         }
         setFormKey(prev => prev + 1);
         onClose();
