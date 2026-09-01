@@ -123,8 +123,8 @@ class AbstractAuditableEntityTest {
         val saved = entityRepository.saveAndFlush(entity)
         val entityId = saved.id!!
 
-        // Soft delete the entity directly in DB or via model
-        saved.deletedAt = Instant.now()
+        // Soft delete the entity directly in DB or via model helper
+        saved.markDeleted()
         entityRepository.saveAndFlush(saved)
 
         entityManager.clear()
@@ -132,6 +132,81 @@ class AbstractAuditableEntityTest {
         // findById should return empty due to @SQLRestriction("deleted_at IS NULL")
         val found = entityRepository.findById(entityId)
         assertTrue(found.isEmpty, "Soft deleted entity should not be retrieved by standard queries")
+    }
+
+    @Test
+    fun `should exclude soft deleted projects from repository queries via SQLRestriction`() {
+        val testProject = fixtures.createProjectForUser(user, name = "Soft Deleted Project")
+        val testProjectId = testProject.id!!
+
+        testProject.markDeleted()
+        projectRepository.saveAndFlush(testProject)
+
+        entityManager.clear()
+
+        val found = projectRepository.findById(testProjectId)
+        assertTrue(found.isEmpty, "Soft deleted project should not be retrieved by standard queries")
+    }
+
+
+    @Test
+    fun `should exclude soft deleted categories from repository queries via SQLRestriction`() {
+        val category = Category(project = project, name = "Archived Factions")
+        val savedCategory = categoryRepository.saveAndFlush(category)
+        val categoryId = savedCategory.id!!
+
+        savedCategory.markDeleted()
+        categoryRepository.saveAndFlush(savedCategory)
+
+        entityManager.clear()
+
+        val found = categoryRepository.findById(categoryId)
+        assertTrue(found.isEmpty, "Soft deleted category should not be retrieved by standard queries")
+    }
+
+    @Test
+    fun `should support restore to clear deletedAt`() {
+        val entity = Entity(
+            project = project,
+            name = "Gandalf The White",
+            type = EntityType.CHARACTER
+        )
+        entity.markDeleted()
+        assertTrue(entity.isDeleted())
+
+        entity.restore()
+        assertFalse(entity.isDeleted())
+        assertNull(entity.deletedAt)
+    }
+
+    @Test
+    fun `should correctly implement equals and hashCode based on entity ID`() {
+        val entity1 = Entity(project = project, name = "Item1", type = EntityType.ITEM)
+        val entity2 = Entity(project = project, name = "Item1", type = EntityType.ITEM)
+
+        // Transient entities with null IDs are not equal unless they are the same memory instance
+        assertNotEquals(entity1, entity2, "Two distinct transient entities should not be equal")
+        assertEquals(entity1, entity1, "Same instance should equal itself")
+
+        val saved1 = entityRepository.saveAndFlush(entity1)
+        val saved2 = entityRepository.saveAndFlush(entity2)
+
+        assertEquals(saved1, saved1)
+        assertNotEquals(saved1, saved2)
+        assertEquals(saved1.hashCode(), saved2.hashCode(), "Entities of same type have stable hashCode")
+    }
+
+    @Test
+    fun `should maintain entity in HashSet across save transitions without losing membership`() {
+        val entity = Entity(project = project, name = "Tracking Item", type = EntityType.ITEM)
+        val set = hashSetOf(entity)
+
+        assertTrue(set.contains(entity), "Set contains entity while transient")
+
+        // Persist entity (assigns UUID)
+        val saved = entityRepository.saveAndFlush(entity)
+
+        assertTrue(set.contains(saved), "Set still contains entity after persisting and UUID assignment")
     }
 
     @Test
