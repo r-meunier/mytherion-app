@@ -99,6 +99,18 @@ describe('DashboardHeader', () => {
     expect(screen.getByText(/Arbiter/i)).toBeInTheDocument();
   });
 
+  it('does not render a "Create Project" or "New Project" button', () => {
+    (useAppSelector as jest.Mock).mockReturnValue({
+      isInitialized: true,
+      isAuthenticated: true,
+      user: mockUser,
+    });
+
+    render(<DashboardHeader />);
+    expect(screen.queryByText(/New Project/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Create Project/i)).not.toBeInTheDocument();
+  });
+
   it('shows dropdown menu on hover and hides on mouse leave', () => {
     (useAppSelector as jest.Mock).mockReturnValue({
       isInitialized: true,

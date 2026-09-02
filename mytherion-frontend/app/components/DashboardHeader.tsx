@@ -6,11 +6,7 @@ import { logoutUser } from "../store/authSlice";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 
-interface DashboardHeaderProps {
-  onCreateProject?: () => void;
-}
-
-export default function DashboardHeader({ onCreateProject }: DashboardHeaderProps) {
+export default function DashboardHeader() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();
