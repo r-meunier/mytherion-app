@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Project } from "@/app/services/projectService";
 import Link from "next/link";
 import { useIsMounted } from "@/app/hooks/useIsMounted";
@@ -59,6 +59,18 @@ export default function ProjectCard({
 
   const idHash = hashId(project.id);
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [menuOpen]);
 
   return (
     <div className="glass-panel rounded-2xl overflow-hidden group cursor-pointer flex flex-col relative shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-primary/40">
@@ -84,32 +96,57 @@ export default function ProjectCard({
           </div>
         )}
 
-        {/* Standardized Context Quick Actions (Top-Right Glass Pill) */}
-        <div className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-black/60 backdrop-blur-md border border-white/10 rounded-full p-1 shadow-lg opacity-80 group-hover:opacity-100 transition-opacity">
+        {/* Standardized Vertical Hamburger Menu (Top-Right) */}
+        <div ref={menuRef} className="absolute top-3 right-3 z-20">
           <button 
             type="button"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              onEdit(project.id);
+              setMenuOpen(!menuOpen);
             }}
-            title="Edit project"
-            className="w-7 h-7 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-colors"
+            className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/70 transition-all shadow-md group-hover:border-white/20"
+            title="World options"
+            aria-label="World options"
           >
-            <span className="material-symbols-outlined text-[15px]">edit</span>
+            <span className="material-symbols-outlined text-[18px]">more_vert</span>
           </button>
-          <button 
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onDelete(project.id);
-            }}
-            title="Delete project"
-            className="w-7 h-7 rounded-full flex items-center justify-center text-white/70 hover:text-rose-400 hover:bg-rose-500/20 transition-colors"
+
+          {/* Dropdown Menu */}
+          <div 
+            className={`absolute right-0 top-10 w-36 bg-[#1f1a23]/95 backdrop-blur-2xl border border-white/10 rounded-xl shadow-[0_12px_32px_rgba(0,0,0,0.6)] p-1.5 transition-all duration-200 origin-top-right z-30 ${
+              menuOpen ? "opacity-100 scale-100 visible pointer-events-auto" : "opacity-0 scale-95 invisible pointer-events-none"
+            }`}
           >
-            <span className="material-symbols-outlined text-[15px]">delete</span>
-          </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setMenuOpen(false);
+                onEdit(project.id);
+              }}
+              title="Edit project"
+              className="w-full text-left px-3 py-2 text-xs font-semibold rounded-lg flex items-center gap-2.5 text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+            >
+              <span className="material-symbols-outlined text-[16px] text-primary">edit</span>
+              <span>Edit World</span>
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setMenuOpen(false);
+                onDelete(project.id);
+              }}
+              title="Delete project"
+              className="w-full text-left px-3 py-2 text-xs font-semibold rounded-lg flex items-center gap-2.5 text-rose-400 hover:bg-rose-500/15 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[16px]">delete</span>
+              <span>Delete</span>
+            </button>
+          </div>
         </div>
       </div>
 
