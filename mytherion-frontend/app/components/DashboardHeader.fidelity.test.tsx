@@ -33,10 +33,10 @@ describe('DashboardHeader High Fidelity', () => {
     });
   });
 
-  it('renders the Search archives input with correct placeholder', () => {
+  it('renders the Search input with correct placeholder', () => {
     render(<DashboardHeader />);
     
-    expect(screen.getByPlaceholderText('Search archives...')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search')).toBeInTheDocument();
     expect(screen.getByText('search')).toBeInTheDocument(); // Icon symbol
   });
 
