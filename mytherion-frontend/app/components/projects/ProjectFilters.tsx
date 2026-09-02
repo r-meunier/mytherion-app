@@ -81,7 +81,7 @@ export default function ProjectFilters({
               setSearch(e.target.value);
               onSearchChange?.(e.target.value);
             }}
-            placeholder="Find realms, entities, or lore..."
+            placeholder="Filter worlds..."
             className="w-full bg-transparent border-none pl-12 pr-4 py-2.5 text-sm text-white placeholder:text-white/40 focus:ring-0 focus:outline-none transition-all"
           />
         </div>

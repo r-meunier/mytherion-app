@@ -29,6 +29,7 @@ export default function DashboardHeader({ onCreateProject }: DashboardHeaderProp
   };
 
   const isProjectMode = pathname.startsWith("/projects/");
+  const isWorldsPage = pathname === "/";
   const navItems = [
     { label: isProjectMode ? "Back to Worlds" : "Library", href: "/", active: pathname === "/" },
     { label: "Grimoire", href: "#", active: false },
@@ -129,72 +130,74 @@ export default function DashboardHeader({ onCreateProject }: DashboardHeaderProp
         ) : (
           <div className="flex items-center gap-3">
             <div className="glass-command flex items-center px-2 py-1 gap-1">
-              {/* Leftmost Expanding Search Icon / Bar */}
-              <div 
-                ref={searchContainerRef}
-                className={`flex items-center rounded-full transition-all duration-300 ${
-                  isSearchOpen ? "bg-white/10 px-2 py-0.5" : "bg-transparent"
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!isSearchOpen) {
-                      setIsSearchOpen(true);
-                      setTimeout(() => searchInputRef.current?.focus(), 50);
-                      resetSearchTimer();
-                    } else if (!searchValue.trim()) {
-                      setIsSearchOpen(false);
-                    }
-                  }}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-white/50 hover:text-[#ddb7ff] hover:bg-white/5 transition-colors shrink-0"
-                  title="Search"
-                  aria-label="Search"
-                >
-                  <span className="material-symbols-outlined text-[20px]">search</span>
-                </button>
-
+              {/* Leftmost Expanding Search Icon / Bar (Hidden on Worlds entrypoint) */}
+              {!isWorldsPage && (
                 <div 
-                  className={`overflow-hidden transition-all duration-300 ease-out flex items-center ${
-                    isSearchOpen ? "w-44 sm:w-56 opacity-100 ml-1" : "w-0 opacity-0 pointer-events-none"
+                  ref={searchContainerRef}
+                  className={`flex items-center rounded-full transition-all duration-300 ${
+                    isSearchOpen ? "bg-white/10 px-2 py-0.5" : "bg-transparent"
                   }`}
                 >
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    value={searchValue}
-                    onChange={handleSearchChange}
-                    onFocus={() => {
-                      if (!searchValue.trim()) resetSearchTimer();
-                    }}
-                    placeholder="Search"
-                    className="flex-1 min-w-0 bg-transparent border-none text-xs text-white placeholder:text-white/40 focus:outline-none focus:ring-0 py-1"
-                  />
-                  {searchValue && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSearchValue("");
-                        searchInputRef.current?.focus();
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!isSearchOpen) {
+                        setIsSearchOpen(true);
+                        setTimeout(() => searchInputRef.current?.focus(), 50);
                         resetSearchTimer();
+                      } else if (!searchValue.trim()) {
+                        setIsSearchOpen(false);
+                      }
+                    }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white/50 hover:text-[#ddb7ff] hover:bg-white/5 transition-colors shrink-0"
+                    title="Search"
+                    aria-label="Search"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">search</span>
+                  </button>
+
+                  <div 
+                    className={`overflow-hidden transition-all duration-300 ease-out flex items-center ${
+                      isSearchOpen ? "w-44 sm:w-56 opacity-100 ml-1" : "w-0 opacity-0 pointer-events-none"
+                    }`}
+                  >
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchValue}
+                      onChange={handleSearchChange}
+                      onFocus={() => {
+                        if (!searchValue.trim()) resetSearchTimer();
                       }}
-                      className="w-5 h-5 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-colors shrink-0 mr-1"
-                      title="Clear search"
-                      aria-label="Clear search"
-                    >
-                      <svg
-                        className="w-3.5 h-3.5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2.5}
+                      placeholder="Search"
+                      className="flex-1 min-w-0 bg-transparent border-none text-xs text-white placeholder:text-white/40 focus:outline-none focus:ring-0 py-1"
+                    />
+                    {searchValue && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchValue("");
+                          searchInputRef.current?.focus();
+                          resetSearchTimer();
+                        }}
+                        className="w-5 h-5 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-colors shrink-0 mr-1"
+                        title="Clear search"
+                        aria-label="Clear search"
                       >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  )}
+                        <svg
+                          className="w-3.5 h-3.5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2.5}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {isAuthenticated && user && (
                 <>

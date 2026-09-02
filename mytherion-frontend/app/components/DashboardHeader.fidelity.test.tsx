@@ -33,7 +33,15 @@ describe('DashboardHeader High Fidelity', () => {
     });
   });
 
-  it('renders the Search input with correct placeholder', () => {
+  it('hides the top search on the Worlds page (pathname === "/")', () => {
+    (usePathname as jest.Mock).mockReturnValue('/');
+    render(<DashboardHeader />);
+    
+    expect(screen.queryByPlaceholderText('Search')).not.toBeInTheDocument();
+  });
+
+  it('renders the Search input with correct placeholder inside projects', () => {
+    (usePathname as jest.Mock).mockReturnValue('/projects/1');
     render(<DashboardHeader />);
     
     expect(screen.getByPlaceholderText('Search')).toBeInTheDocument();
