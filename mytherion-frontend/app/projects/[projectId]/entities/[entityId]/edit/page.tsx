@@ -58,7 +58,7 @@ export default function EditEntityPage() {
   return (
     <div className="min-h-screen bg-[#0b0710] flex flex-col">
       {/* Ambient Background with Floating Shards & Glows */}
-      <div className="ambient-bg">
+      <div className="ambient-bg fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="floating-shard w-32 h-32 top-20 left-10 opacity-20" />
         <div className="floating-shard w-48 h-48 bottom-40 right-20 opacity-10" style={{ animationDelay: "-5s", animationDuration: "25s" }} />
         <div className="floating-shard w-16 h-16 top-1/2 left-1/4 opacity-30" style={{ animationDelay: "-12s", animationDuration: "15s", borderRadius: "50%" }} />

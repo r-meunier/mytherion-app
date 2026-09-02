@@ -35,7 +35,7 @@ export const mediaService = {
    * Upload an image for a specific entity
    */
   uploadEntityImage: async (projectId: string, entityId: string, file: File): Promise<UploadResponse> => {
-    mediaLogger.info('Uploading entity image', { projectId, entityId, fileName: file.name, fileSize: file.size });
+    mediaLogger.debug('Uploading entity image', { projectId, entityId, fileName: file.name, fileSize: file.size });
 
     const formData = new FormData();
     formData.append('file', file);
@@ -47,7 +47,7 @@ export const mediaService = {
           'Content-Type': 'multipart/form-data',
         },
       });
-      mediaLogger.info('Entity image uploaded successfully', { projectId, entityId, url: response.data.url });
+      mediaLogger.debug('Entity image uploaded successfully', { projectId, entityId, url: response.data.url });
       return response.data;
     } catch (error) {
       mediaLogger.error('Failed to upload entity image', error, { projectId, entityId });
@@ -59,13 +59,13 @@ export const mediaService = {
    * Delete an image from a specific entity
    */
   deleteEntityImage: async (projectId: string, entityId: string): Promise<void> => {
-    mediaLogger.info('Deleting entity image', { projectId, entityId });
+    mediaLogger.debug('Deleting entity image', { projectId, entityId });
 
     try {
       await axios.delete(`${API_URL}/api/projects/${projectId}/entities/${entityId}/image`, {
         withCredentials: true,
       });
-      mediaLogger.info('Entity image deleted successfully', { projectId, entityId });
+      mediaLogger.debug('Entity image deleted successfully', { projectId, entityId });
     } catch (error) {
       mediaLogger.error('Failed to delete entity image', error, { projectId, entityId });
       throw error;

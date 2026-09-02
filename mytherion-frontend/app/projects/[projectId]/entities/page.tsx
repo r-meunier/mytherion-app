@@ -100,7 +100,7 @@ export default function EntitiesPage() {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
       {/* Ambient Background with Floating Shards & Glows */}
-      <div className="ambient-bg">
+      <div className="ambient-bg fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="floating-shard w-32 h-32 top-20 left-10 opacity-20" />
         <div className="floating-shard w-48 h-48 bottom-40 right-20 opacity-10" style={{ animationDelay: "-5s", animationDuration: "25s" }} />
         <div className="floating-shard w-16 h-16 top-1/2 left-1/4 opacity-30" style={{ animationDelay: "-12s", animationDuration: "15s", borderRadius: "50%" }} />
@@ -117,24 +117,15 @@ export default function EntitiesPage() {
         />
         
         <main className="flex-1 flex flex-col overflow-hidden relative">
-
-        <div className="flex-1 overflow-y-auto p-8 space-y-8 scroll-smooth relative z-10 custom-scrollbar">
-          <div>
-            <h1 className="font-display-lg text-2xl sm:text-3xl font-bold text-white text-glow tracking-tight">
-              Entity Codex
-            </h1>
-            <p className="text-xs sm:text-sm text-white/60 max-w-lg font-medium tracking-wide mt-1">
-              Browse, search, and manage all entities in {currentProject.name}
-            </p>
+          <div className="flex-1 overflow-y-auto px-6 sm:px-12 py-10 space-y-10 scroll-smooth relative z-10 custom-scrollbar">
+            <EntityList 
+              projectId={projectId} 
+              projectName={currentProject.name}
+              onCreateClick={handleCreateClick}
+              onEditClick={handleEditClick}
+            />
           </div>
-
-          <EntityList 
-            projectId={projectId} 
-            onCreateClick={handleCreateClick}
-            onEditClick={handleEditClick}
-          />
-        </div>
-      </main>
+        </main>
 
       <EntityModal
         isOpen={showModal}

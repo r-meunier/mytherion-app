@@ -5,20 +5,23 @@ import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchEntities, setFilters, deleteEntity } from '@/app/store/entitySlice';
 import { Entity, EntityType } from '@/app/types/entity';
 import EntityCard from './EntityCard';
-import SearchBar from './SearchBar';
+import EntityFilters from './EntityFilters';
+import PageHeader from '../ui/PageHeader';
 
 interface EntityListProps {
   projectId: string;
+  projectName?: string;
   onCreateClick?: () => void;
   onEditClick?: (entity: Entity) => void;
 }
 
-export default function EntityList({ projectId, onCreateClick, onEditClick }: EntityListProps) {
+export default function EntityList({ projectId, projectName, onCreateClick, onEditClick }: EntityListProps) {
   const dispatch = useAppDispatch();
   const { entities, loading, error, filters, pagination } = useAppSelector((state) => state.entities);
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
+  const [sortBy, setSortBy] = useState<'date' | 'name'>('date');
   
   const PAGE_SIZE = 20;
   const lastFetchedParams = useRef<string>('');
@@ -77,68 +80,31 @@ export default function EntityList({ projectId, onCreateClick, onEditClick }: En
 
   const hasActiveFilters = filters.type || filters.search || (filters.tags && filters.tags.length > 0);
 
-  return (
-    <div className="space-y-6">
-      {/* Header with Search */}
-      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-        <div className="flex-1 w-full md:max-w-md">
-          <SearchBar value={filters.search || ''} onChange={handleSearchChange} />
-        </div>
-        {onCreateClick && (
-          <button
-            onClick={onCreateClick}
-            className="btn-glass px-6 py-2.5 whitespace-nowrap"
-          >
-            <span className="material-symbols-outlined text-[20px]">add</span>
-            <span>Create New Entity</span>
-          </button>
-        )}
-      </div>
+  const sortedEntities = [...entities].sort((a, b) => {
+    if (sortBy === 'name') {
+      return a.name.localeCompare(b.name);
+    }
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
 
-      {/* Filters */}
-      <div className="glass rounded-xl p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-medium text-white">Filters</h3>
-          {hasActiveFilters && (
-            <button
-              onClick={handleClearFilters}
-              className="text-xs text-primary hover:text-primary/80 transition-colors"
-            >
-              Clear all
-            </button>
-          )}
-        </div>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-2">Entity Type</label>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => handleTypeFilter(undefined)}
-                className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
-                  !filters.type
-                    ? 'bg-primary/20 text-primary border border-primary/30'
-                    : 'glass text-slate-400 hover:bg-white/10'
-                }`}
-              >
-                All
-              </button>
-              {Object.values(EntityType).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => handleTypeFilter(type)}
-                  className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
-                    filters.type === type
-                      ? 'bg-primary/20 text-primary border border-primary/30'
-                      : 'glass text-slate-400 hover:bg-white/10'
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+  return (
+    <div className="space-y-10">
+      {/* Header & Glass Command Bar Section (Exact same alignment as Your Worlds) */}
+      <PageHeader
+        title="Entity Codex"
+        subtitle={`Browse, search, and manage all entities in ${projectName || "this world"}.`}
+      >
+        {/* Unified Glass Command Bar locked to the right */}
+        <EntityFilters
+          search={filters.search || ''}
+          onSearchChange={handleSearchChange}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          selectedType={filters.type}
+          onTypeChange={handleTypeFilter}
+          onCreateClick={onCreateClick}
+        />
+      </PageHeader>
 
       {/* Error Message */}
       {error && (
@@ -162,34 +128,43 @@ export default function EntityList({ projectId, onCreateClick, onEditClick }: En
       )}
 
       {/* Empty State */}
-      {!loading && entities.length === 0 && (
+      {!loading && sortedEntities.length === 0 && (
         <div className="text-center py-16">
-          <span className="material-symbols-outlined text-[64px] text-slate-500 mb-4 block">inbox</span>
-          <h3 className="text-xl font-display font-semibold text-white mb-2">
+          <span className="material-symbols-outlined text-[64px] text-white/20 mb-4 block">inbox</span>
+          <h3 className="text-xl font-display font-bold text-white mb-2">
             {hasActiveFilters ? 'No entities found' : 'No entities yet'}
           </h3>
-          <p className="text-slate-400 mb-6">
+          <p className="text-white/40 mb-6 text-sm">
             {hasActiveFilters
-              ? 'Try adjusting your filters or search terms'
+              ? 'Try adjusting your search or filter options'
               : 'Create your first entity to get started'}
           </p>
-          {!hasActiveFilters && onCreateClick && (
+          {hasActiveFilters ? (
             <button
-              onClick={onCreateClick}
-              className="btn-glass px-6 py-3"
+              onClick={handleClearFilters}
+              className="inline-flex px-5 py-2 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[20px]">add</span>
-              <span>Create New Entity</span>
+              Clear Filters
             </button>
+          ) : (
+            onCreateClick && (
+              <button
+                onClick={onCreateClick}
+                className="bg-[#ddb7ff] text-[#2c0051] px-5 py-2.5 rounded-full text-sm font-bold hover:bg-[#f0dbff] transition-all inline-flex items-center gap-1.5 shadow-[0_0_15px_rgba(221,183,255,0.4)] active:scale-95 cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[20px]">add</span>
+                <span>Create Entity</span>
+              </button>
+            )
           )}
         </div>
       )}
 
       {/* Entity Grid */}
-      {!loading && entities.length > 0 && (
+      {!loading && sortedEntities.length > 0 && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {entities.map((entity) => (
+            {sortedEntities.map((entity) => (
               <EntityCard
                 key={entity.id}
                 entity={entity}

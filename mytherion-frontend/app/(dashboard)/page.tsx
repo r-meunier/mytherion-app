@@ -10,6 +10,7 @@ import DashboardHeader from "../components/DashboardHeader";
 import ProjectList from "../components/projects/ProjectList";
 import ProjectFilters from "../components/projects/ProjectFilters";
 import ProjectModal from "../components/projects/ProjectModal";
+import PageHeader from "../components/ui/PageHeader";
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -18,6 +19,7 @@ export default function Home() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [genreFilter, setGenreFilter] = useState("none");
+  const [sortBy, setSortBy] = useState("date");
 
   const { isAuthenticated, isInitialized } = useAppSelector((state) => state.auth);
 
@@ -56,7 +58,7 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
       {/* Ambient Background with Floating Shards & Glows */}
-      <div className="ambient-bg">
+      <div className="ambient-bg fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="floating-shard w-32 h-32 top-20 left-10 opacity-20" />
         <div className="floating-shard w-48 h-48 bottom-40 right-20 opacity-10" style={{ animationDelay: "-5s", animationDuration: "25s" }} />
         <div className="floating-shard w-16 h-16 top-1/2 left-1/4 opacity-30" style={{ animationDelay: "-12s", animationDuration: "15s", borderRadius: "50%" }} />
@@ -70,24 +72,18 @@ export default function Home() {
         <div className="flex-1 overflow-y-auto px-6 sm:px-12 py-10 space-y-10 scroll-smooth custom-scrollbar">
           
           {/* Header & Glass Command Bar Section */}
-          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-            <div>
-              <h1 className="font-display-lg text-2xl sm:text-3xl font-bold text-white mb-1 text-glow tracking-tight">
-                Your Worlds
-              </h1>
-              <p className="text-xs sm:text-sm text-white/60 max-w-lg font-medium tracking-wide">
-                Pick up where you left off, or bring a new universe to life.
-              </p>
-            </div>
-            
-            {/* Unified Glass Command Bar */}
+          <PageHeader
+            title="Your Worlds"
+            subtitle="Pick up where you left off, or bring a new universe to life."
+            className="max-w-7xl mx-auto"
+          >
             <ProjectFilters 
               onSearchChange={(q) => setSearchQuery(q)}
-              onSortChange={(s) => console.log("Sort:", s)}
+              onSortChange={(s) => setSortBy(s)}
               onGenreChange={(g) => setGenreFilter(g)}
               onCreateClick={() => setShowCreateModal(true)}
             />
-          </div>
+          </PageHeader>
 
           {/* Bento Library Grid */}
           <section className="max-w-7xl mx-auto pb-16">

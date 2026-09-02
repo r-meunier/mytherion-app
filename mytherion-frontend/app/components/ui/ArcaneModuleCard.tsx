@@ -59,11 +59,11 @@ export default function ArcaneModuleCard({
     </>
   );
 
-  const baseStyles = `glass-panel p-6 rounded-2xl transition-all duration-300 flex flex-col min-h-[220px] relative overflow-hidden group shadow-[0_8px_32px_rgba(0,0,0,0.4)] ${
+  const baseStyles = `child-panel-interactive p-6 flex flex-col min-h-[200px] relative overflow-hidden group ${
     isPrimary 
-      ? "hover:border-primary/50" 
-      : "opacity-75 hover:opacity-100"
-  } ${disabled ? "cursor-not-allowed opacity-40 hover:border-white/5" : "cursor-pointer"}`;
+      ? "border-primary/20 hover:border-primary/50" 
+      : "opacity-70 hover:opacity-100"
+  } ${disabled ? "cursor-not-allowed opacity-40 hover:border-white/5 hover:translate-y-0" : "cursor-pointer"}`;
 
   if (disabled || !href) {
     return (

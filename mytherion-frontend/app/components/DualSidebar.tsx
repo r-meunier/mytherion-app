@@ -86,9 +86,6 @@ export default function DualSidebar({
     return items;
   }, [customManagementItems, isProjectMode, activeProjectId, isAdmin]);
 
-  const displayTitle = customTitle || (isProjectMode ? currentProject?.name : "Mytherion") || "Mytherion";
-  const displaySubTitle = customSubTitle || (isProjectMode ? "ACTIVE WORLD" : "Archivist Level 4");
-
   const currentActiveSection = activeIcon || activeSection;
 
   return (
@@ -138,24 +135,18 @@ export default function DualSidebar({
       </aside>
 
       {/* Inner Sidebar (256px / w-64) */}
-      <aside className="w-64 bg-[#130d1c]/90 backdrop-blur-2xl flex flex-col pt-8 font-sans border-r border-white/5">
+      <aside className="w-64 bg-[#130d1c]/90 backdrop-blur-2xl flex flex-col pt-5 font-sans border-r border-white/5">
         {/* Contextual Branding (Project Specific) */}
         {isProjectMode && (
-          <div className="px-6 mb-8 min-h-[56px] flex flex-col justify-center border-b border-white/5 pb-4">
+          <div className="px-5 mb-4 border-b border-white/5 pb-3 flex flex-col justify-center">
             {currentProject ? (
               <div className="animate-in fade-in duration-300">
                 <h2 className="text-xl font-bold tracking-tight text-white text-glow truncate leading-tight">
                   {currentProject.name}
                 </h2>
-                <p className="text-[9px] text-white/40 font-bold uppercase tracking-[0.25em] mt-1">
-                  Active World
-                </p>
               </div>
             ) : (
-              <div className="space-y-2">
-                <div className="h-6 w-32 bg-white/5 rounded animate-pulse" />
-                <div className="h-3 w-16 bg-white/5 rounded animate-pulse" />
-              </div>
+              <div className="h-6 w-32 bg-white/5 rounded animate-pulse" />
             )}
           </div>
         )}
@@ -164,7 +155,7 @@ export default function DualSidebar({
         <nav className="flex-1 px-4 space-y-8 overflow-y-auto custom-scrollbar">
           {/* Main Nav */}
           <div className="space-y-1">
-            <p className="px-3 text-[10px] font-bold text-white/30 uppercase tracking-[0.25em] mb-3">
+            <p className="px-3 text-[10px] font-bold text-white/30 uppercase tracking-[0.25em] mb-2">
               Navigation
             </p>
             {currentNavItems.map((item) => (
