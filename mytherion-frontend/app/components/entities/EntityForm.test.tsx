@@ -69,4 +69,26 @@ describe('EntityForm - Image Upload & Validation', () => {
     // Input should be back
     expect(screen.getByLabelText(/Entity Image/i, { selector: 'input' })).toBeInTheDocument();
   });
+
+  it('allows changing an existing preview image via the Change button', () => {
+    render(<EntityForm {...defaultProps} />);
+
+    const fileInput = screen.getByLabelText(/Entity Image/i, { selector: 'input' });
+    const file1 = new File(['first content'], 'first.png', { type: 'image/png' });
+    fireEvent.change(fileInput, { target: { files: [file1] } });
+
+    expect(screen.getByAltText('Entity preview')).toBeInTheDocument();
+
+    const changeBtn = screen.getByTitle('Change Image');
+    expect(changeBtn).toBeInTheDocument();
+
+    const clickSpy = jest.spyOn(fileInput, 'click');
+    fireEvent.click(changeBtn);
+    expect(clickSpy).toHaveBeenCalled();
+
+    // Selecting a second image updates the preview
+    const file2 = new File(['second content'], 'second.png', { type: 'image/png' });
+    fireEvent.change(fileInput, { target: { files: [file2] } });
+    expect(screen.getByAltText('Entity preview')).toBeInTheDocument();
+  });
 });

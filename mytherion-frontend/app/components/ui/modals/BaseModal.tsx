@@ -61,7 +61,7 @@ export default function BaseModal({
       
       {/* Modal Container */}
       <div 
-        className={`relative w-full ${maxWidth} glass rounded-3xl p-8 overflow-hidden overflow-y-auto max-h-[95vh] modal-border-glow border-t-2 border-primary/50 border-b-2 border-secondary/50 shadow-2xl transition-all duration-300 ${
+        className={`relative w-full ${maxWidth} glass rounded-3xl p-8 overflow-hidden flex flex-col max-h-[95vh] modal-border-glow border-t-2 border-primary/50 border-b-2 border-secondary/50 shadow-2xl transition-all duration-300 ${
           isOpen ? 'scale-100 translate-y-0 opacity-100' : 'scale-95 translate-y-4 opacity-0'
         } ${className}`}
       >
@@ -86,7 +86,7 @@ export default function BaseModal({
         </button>
 
         {/* Header */}
-        <div className={`mb-8 relative z-10 flex items-center justify-between ${onClear ? 'pr-32' : 'pr-14'}`}>
+        <div className={`mb-6 relative z-10 flex items-center justify-between shrink-0 ${onClear ? 'pr-32' : 'pr-14'}`}>
           <div className="flex items-center gap-4">
             {icon && (
               <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
@@ -122,7 +122,7 @@ export default function BaseModal({
         )}
 
         {/* Content */}
-        <div className="relative z-10">
+        <div className="relative z-10 flex-1 overflow-y-auto min-h-0 pr-1">
           {children}
         </div>
       </div>

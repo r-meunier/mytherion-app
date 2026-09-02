@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Entity, EntityType, CreateEntityRequest, UpdateEntityRequest, EntityMetadata, EntityComponent, ComponentType } from '@/app/types/entity';
 import { mediaService } from '@/app/services/mediaService';
 import EntityTypeSelector from './EntityTypeSelector';
@@ -22,6 +22,7 @@ interface EntityFormProps {
 
 export default function EntityForm({ entity, projectId, defaultType, isOpen, onSubmit, onCancel, loading = false, error }: EntityFormProps) {
   const isEditMode = !!entity;
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(mediaService.getImageUrl(entity?.thumbnail));
 
@@ -91,6 +92,9 @@ export default function EntityForm({ entity, projectId, defaultType, isOpen, onS
     const validation = mediaService.validateImageFile(file);
     if (!validation.valid) {
       setErrors(prev => ({ ...prev, image: validation.error || 'Invalid image file' }));
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       return;
     }
 
@@ -102,11 +106,17 @@ export default function EntityForm({ entity, projectId, defaultType, isOpen, onS
 
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleRemoveImage = () => {
     setImageFile(null);
     setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
     setErrors(prev => {
       const next = { ...prev };
       delete next.image;
@@ -244,6 +254,9 @@ export default function EntityForm({ entity, projectId, defaultType, isOpen, onS
       });
       setImageFile(null);
       setImagePreview(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       setErrors({});
     }
   };
@@ -309,6 +322,17 @@ export default function EntityForm({ entity, projectId, defaultType, isOpen, onS
                 Entity Image
               </label>
               
+              {/* Hidden file input permanently mounted in the DOM */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                id="entity-image-upload"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                onChange={handleImageChange}
+                className="hidden"
+                disabled={loading}
+              />
+
               {imagePreview ? (
                 <div className="relative w-full h-44 rounded-xl overflow-hidden bg-black/40 border border-gray-700 group">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -318,19 +342,22 @@ export default function EntityForm({ entity, projectId, defaultType, isOpen, onS
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                    <label
-                      htmlFor="entity-image-upload"
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
                       className="btn-glass-sm cursor-pointer"
                       title="Change Image"
+                      disabled={loading}
                     >
                       <span className="material-symbols-outlined text-[18px]">cached</span>
                       <span>Change</span>
-                    </label>
+                    </button>
                     <button
                       type="button"
                       onClick={handleRemoveImage}
-                      className="btn-glass-sm btn-glass-danger"
+                      className="btn-glass-sm btn-glass-danger cursor-pointer"
                       title="Remove Image"
+                      disabled={loading}
                     >
                       <span className="material-symbols-outlined text-[18px]">delete</span>
                       <span>Remove</span>
@@ -338,18 +365,29 @@ export default function EntityForm({ entity, projectId, defaultType, isOpen, onS
                   </div>
                 </div>
               ) : (
-                <div className="relative">
-                  <input
-                    type="file"
-                    id="entity-image-upload"
-                    accept="image/jpeg,image/png,image/gif,image/webp"
-                    onChange={handleImageChange}
-                    className="block w-full text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-600/20 file:text-purple-300 hover:file:bg-purple-600/30 file:cursor-pointer cursor-pointer border border-gray-700/60 rounded-xl bg-gray-800/30 p-2 focus:outline-none"
-                    disabled={loading}
-                  />
-                  <p className="mt-1.5 text-xs text-gray-400">
-                    Allowed: JPEG, PNG, GIF, WebP (Max 5MB)
-                  </p>
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      fileInputRef.current?.click();
+                    }
+                  }}
+                  className="w-full h-44 rounded-xl border-2 border-dashed border-gray-700/80 hover:border-primary/60 bg-gray-800/20 hover:bg-gray-800/40 transition-all flex flex-col items-center justify-center gap-2 cursor-pointer group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-outlined text-2xl">add_photo_alternate</span>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-semibold text-gray-300 group-hover:text-white transition-colors">
+                      Click to upload an image
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      JPEG, PNG, GIF, WebP (Max 5MB)
+                    </p>
+                  </div>
                 </div>
               )}
               {errors.image && <p className="mt-1 text-sm text-red-400">{errors.image}</p>}
