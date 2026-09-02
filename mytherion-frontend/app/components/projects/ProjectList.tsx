@@ -22,17 +22,16 @@ export default function ProjectList({ onCreateClick, onEditClick }: ProjectListP
 
   if (loading && projects.length === 0) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-[24px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {[...Array(8)].map((_, i) => (
           <div 
             key={i} 
-            className="glass-card rounded-2xl h-[420px] animate-pulse"
+            className="glass-panel rounded-2xl h-[380px] animate-pulse overflow-hidden"
           >
-            <div className="h-56 bg-white/5 w-full mb-4" />
-            <div className="px-6 py-2 space-y-4">
-              <div className="h-6 bg-white/5 rounded w-3/4" />
-              <div className="h-4 bg-white/5 rounded w-full" />
-              <div className="h-4 bg-white/5 rounded w-2/3" />
+            <div className="h-64 bg-white/5 w-full" />
+            <div className="p-4 space-y-3">
+              <div className="h-5 bg-white/10 rounded w-3/4" />
+              <div className="h-3 bg-white/5 rounded w-1/2" />
             </div>
           </div>
         ))}
@@ -49,27 +48,8 @@ export default function ProjectList({ onCreateClick, onEditClick }: ProjectListP
         </div>
       )}
 
-      {/* Grid with exact design gutter (24px) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[24px]">
-        
-        {/* Create New World Card (Exact Design Fidelity) */}
-        <button 
-          onClick={onCreateClick}
-          className="project-card-base glass-card flex flex-col items-center justify-center gap-4 !border-dashed !border-2 border-white/20 group hover:border-primary/50 transition-all duration-300"
-        >
-          {/* Circular Icon with arc glow */}
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-[0_0_30px_rgba(168,85,247,0.1)]">
-            <span className="material-symbols-outlined text-3xl text-primary font-bold">add</span>
-          </div>
-          
-          <div className="text-center px-4">
-            {/* Semantic Typography from Design */}
-            <h3 className="text-lg font-semibold text-white">Create New World</h3>
-            <p className="text-xs text-white/40 mt-1 font-medium">Begin a new chronicle</p>
-          </div>
-        </button>
-
-        {/* Existing Projects */}
+      {/* Grid with 2026 design gap (32px / gap-8) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {projects.map((project) => (
           <ProjectCard
             key={project.id}

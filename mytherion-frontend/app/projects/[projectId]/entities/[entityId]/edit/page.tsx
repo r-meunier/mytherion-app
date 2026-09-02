@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchEntity, updateEntity, clearCurrentEntity } from '@/app/store/entitySlice';
 import { UpdateEntityRequest, CreateEntityRequest } from '@/app/types/entity';
 import EntityForm from '@/app/components/entities/EntityForm';
-import Navbar from '@/app/components/Navbar';
+import DashboardHeader from '@/app/components/DashboardHeader';
 
 export default function EditEntityPage() {
   const router = useRouter();
@@ -46,71 +46,66 @@ export default function EditEntityPage() {
 
   if (loading || !currentEntity) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-gray-900 via-purple-900/20 to-gray-900">
-        <Navbar />
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-screen bg-[#0b0710] flex flex-col">
+        <DashboardHeader />
+        <div className="flex items-center justify-center flex-1">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-900 via-purple-900/20 to-gray-900">
-      {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-purple-500/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-blue-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
+    <div className="min-h-screen bg-[#0b0710] flex flex-col">
+      {/* Ambient Background with Floating Shards & Glows */}
+      <div className="ambient-bg fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="floating-shard w-32 h-32 top-20 left-10 opacity-20" />
+        <div className="floating-shard w-48 h-48 bottom-40 right-20 opacity-10" style={{ animationDelay: "-5s", animationDuration: "25s" }} />
+        <div className="floating-shard w-16 h-16 top-1/2 left-1/4 opacity-30" style={{ animationDelay: "-12s", animationDuration: "15s", borderRadius: "50%" }} />
       </div>
 
-      <Navbar />
+      <DashboardHeader />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
         {/* Breadcrumb */}
-        <nav className="flex mb-8" aria-label="Breadcrumb">
-          <ol className="inline-flex items-center space-x-1 md:space-x-3">
+        <nav className="flex mb-6" aria-label="Breadcrumb">
+          <ol className="inline-flex items-center space-x-1 md:space-x-2 text-xs font-semibold text-white/40">
             <li className="inline-flex items-center">
               <button
                 onClick={() => router.push('/projects')}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="hover:text-white transition-colors"
               >
-                Projects
+                Worlds
               </button>
             </li>
             <li>
               <div className="flex items-center">
-                <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
+                <span className="material-symbols-outlined text-[16px] text-white/20 mx-1">chevron_right</span>
                 <button
                   onClick={() => router.push(`/projects/${projectId}`)}
-                  className="ml-1 text-gray-400 hover:text-white transition-colors"
+                  className="hover:text-white transition-colors"
                 >
-                  Project
+                  World
                 </button>
               </div>
             </li>
             <li>
               <div className="flex items-center">
-                <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
+                <span className="material-symbols-outlined text-[16px] text-white/20 mx-1">chevron_right</span>
                 <button
                   onClick={() => router.push(`/projects/${projectId}/entities`)}
-                  className="ml-1 text-gray-400 hover:text-white transition-colors"
+                  className="hover:text-white transition-colors"
                 >
-                  Entities
+                  Codex
                 </button>
               </div>
             </li>
             <li>
               <div className="flex items-center">
-                <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
+                <span className="material-symbols-outlined text-[16px] text-white/20 mx-1">chevron_right</span>
                 <button
                   onClick={() => router.push(`/projects/${projectId}/entities/${entityId}`)}
-                  className="ml-1 text-gray-400 hover:text-white transition-colors"
+                  className="hover:text-white transition-colors truncate max-w-[140px]"
                 >
                   {currentEntity.name}
                 </button>
@@ -118,10 +113,8 @@ export default function EditEntityPage() {
             </li>
             <li>
               <div className="flex items-center">
-                <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
-                <span className="ml-1 text-white font-medium">Edit</span>
+                <span className="material-symbols-outlined text-[16px] text-white/20 mx-1">chevron_right</span>
+                <span className="text-primary font-bold">Edit</span>
               </div>
             </li>
           </ol>
@@ -129,12 +122,14 @@ export default function EditEntityPage() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Edit {currentEntity.name}</h1>
-          <p className="text-gray-400">Update entity information</p>
+          <h1 className="font-display-lg text-2xl sm:text-3xl font-bold text-white text-glow tracking-tight">
+            Edit {currentEntity.name}
+          </h1>
+          <p className="text-xs sm:text-sm text-white/60 mt-1 font-medium">Update entity information</p>
         </div>
 
         {/* Form */}
-        <div className="backdrop-blur-sm bg-gray-800/30 border border-gray-700 rounded-2xl p-8">
+        <div className="glass-panel rounded-2xl p-6 sm:p-8">
           <EntityForm
             entity={currentEntity}
             projectId={projectId}

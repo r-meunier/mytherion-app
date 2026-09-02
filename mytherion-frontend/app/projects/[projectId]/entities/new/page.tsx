@@ -46,52 +46,63 @@ export default function NewEntityPage() {
   };
 
 
-  if (!currentProject) {
+  if (loading || !currentProject) {
     return (
-      <div className="relative z-10 flex h-screen overflow-hidden">
-        <DualSidebar activeSection="entities" projectId={projectId} />
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <DashboardHeader />
-          <div className="flex-1 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          </div>
-        </main>
+      <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
+        <DashboardHeader />
+        <div className="flex flex-1 overflow-hidden relative z-10">
+          <DualSidebar activeSection="entities" projectId={projectId} />
+          <main className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+          </main>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="relative z-10 flex h-screen overflow-hidden">
-      <DualSidebar 
-        activeSection="entities"
-        projectId={projectId}
-      />
-      
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <DashboardHeader />
+    <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
+      {/* Ambient Background with Floating Shards & Glows */}
+      <div className="ambient-bg fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="floating-shard w-32 h-32 top-20 left-10 opacity-20" />
+        <div className="floating-shard w-48 h-48 bottom-40 right-20 opacity-10" style={{ animationDelay: "-5s", animationDuration: "25s" }} />
+        <div className="floating-shard w-16 h-16 top-1/2 left-1/4 opacity-30" style={{ animationDelay: "-12s", animationDuration: "15s", borderRadius: "50%" }} />
+      </div>
 
-        <div className="flex-1 overflow-y-auto p-8 space-y-8">
+      {/* Header (Global Parent) */}
+      <DashboardHeader />
+
+      <div className="flex flex-1 overflow-hidden relative z-10">
+        <DualSidebar 
+          activeSection="entities"
+          projectId={projectId}
+        />
+        
+        <main className="flex-1 flex flex-col overflow-hidden relative">
+          <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
           {/* Page Title & Back Link */}
           <div>
             <Link
               href={`/projects/${projectId}/entities`}
-              className="inline-flex items-center text-primary text-sm font-semibold hover:text-primary/80 transition-colors mb-4 group"
+              className="inline-flex items-center text-primary text-xs font-bold uppercase tracking-wider hover:text-white transition-colors mb-4 group"
             >
-              <span className="material-symbols-outlined text-sm mr-2 group-hover:-translate-x-1 transition-transform">
+              <span className="material-symbols-outlined text-base mr-1.5 group-hover:-translate-x-1 transition-transform">
                 arrow_back
               </span>
               Back to Entity Codex
             </Link>
-            <h2 className="text-5xl font-serif font-bold text-gold tracking-wide">
+            <h1 className="font-display-lg text-2xl sm:text-3xl font-bold text-white text-glow tracking-tight">
               Create Entity
-            </h2>
-            <p className="text-slate-400 mt-2">
+            </h1>
+            <p className="text-xs sm:text-sm text-white/60 mt-1 max-w-lg font-medium tracking-wide">
               Add a new character, location, organization, or other entity to {currentProject.name}
             </p>
           </div>
 
           {/* Form */}
-          <div className="glass rounded-2xl p-8 max-w-4xl">
+          <div className="glass-panel rounded-2xl p-6 sm:p-8 max-w-4xl">
             <EntityForm
               projectId={projectId}
               onSubmit={handleSubmit}
@@ -102,6 +113,7 @@ export default function NewEntityPage() {
           </div>
         </div>
       </main>
+      </div>
     </div>
   );
 }

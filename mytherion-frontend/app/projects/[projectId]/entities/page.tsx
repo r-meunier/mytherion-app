@@ -55,38 +55,42 @@ export default function EntitiesPage() {
 
   if (loading && !currentProject) {
     return (
-      <div className="relative z-10 flex h-screen overflow-hidden">
-        <DualSidebar activeSection="entities" projectId={projectId} />
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <DashboardHeader />
-          <div className="flex-1 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          </div>
-        </main>
+      <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
+        <DashboardHeader />
+        <div className="flex flex-1 overflow-hidden relative z-10">
+          <DualSidebar activeSection="entities" projectId={projectId} />
+          <main className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+          </main>
+        </div>
       </div>
     );
   }
 
   if (error && !currentProject) {
     return (
-      <div className="relative z-10 flex h-screen overflow-hidden">
-        <DualSidebar activeSection="entities" projectId={projectId} />
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <DashboardHeader />
-          <div className="flex-1 flex items-center justify-center">
-            <div className="glass rounded-xl p-6 border border-red-500/50 max-w-md text-center">
-              <span className="material-symbols-outlined text-red-400 text-4xl mb-4">error</span>
-              <h3 className="text-xl font-bold text-white mb-2">Failed to Load Project</h3>
-              <p className="text-red-400 mb-6">{error}</p>
-              <button 
-                onClick={() => window.location.reload()}
-                className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-all"
-              >
-                Retry
-              </button>
+      <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
+        <DashboardHeader />
+        <div className="flex flex-1 overflow-hidden relative z-10">
+          <DualSidebar activeSection="entities" projectId={projectId} />
+          <main className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex items-center justify-center">
+              <div className="glass-panel rounded-2xl p-8 border border-red-500/30 max-w-md text-center">
+                <span className="material-symbols-outlined text-red-400 text-4xl mb-4">error</span>
+                <h3 className="text-xl font-bold text-white mb-2">Failed to Load Project</h3>
+                <p className="text-red-400 text-sm mb-6">{error}</p>
+                <button 
+                  onClick={() => window.location.reload()}
+                  className="px-6 py-2 bg-primary text-[#2c0051] font-bold rounded-full hover:bg-primary/80 transition-all shadow-lg shadow-primary/20"
+                >
+                  Retry
+                </button>
+              </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     );
   }
@@ -94,11 +98,12 @@ export default function EntitiesPage() {
   if (!currentProject) return null;
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#16111B]">
-      {/* Background Ley Lines - Exact Design Atmosphere */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-[#0F0F23]">
-        <div className="absolute top-[-20%] left-[-10%] w-[80%] h-[100%] bg-[#a855f7]/15 rounded-full blur-[180px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[70%] bg-[#fbbf24]/5 rounded-full blur-[160px]" />
+    <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
+      {/* Ambient Background with Floating Shards & Glows */}
+      <div className="ambient-bg fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="floating-shard w-32 h-32 top-20 left-10 opacity-20" />
+        <div className="floating-shard w-48 h-48 bottom-40 right-20 opacity-10" style={{ animationDelay: "-5s", animationDuration: "25s" }} />
+        <div className="floating-shard w-16 h-16 top-1/2 left-1/4 opacity-30" style={{ animationDelay: "-12s", animationDuration: "15s", borderRadius: "50%" }} />
       </div>
 
       {/* Header (Now Global Parent) */}
@@ -112,24 +117,15 @@ export default function EntitiesPage() {
         />
         
         <main className="flex-1 flex flex-col overflow-hidden relative">
-
-        <div className="flex-1 overflow-y-auto p-[48px] space-y-[48px] scroll-smooth relative z-10 custom-scrollbar">
-          <div>
-            <h1 className="text-display-lg">
-              Entity Codex
-            </h1>
-            <p className="text-subtitle-muted mt-1 max-w-md">
-              Browse, search, and manage all entities in {currentProject.name}
-            </p>
+          <div className="flex-1 overflow-y-auto px-6 sm:px-12 py-10 space-y-10 scroll-smooth relative z-10 custom-scrollbar">
+            <EntityList 
+              projectId={projectId} 
+              projectName={currentProject.name}
+              onCreateClick={handleCreateClick}
+              onEditClick={handleEditClick}
+            />
           </div>
-
-          <EntityList 
-            projectId={projectId} 
-            onCreateClick={handleCreateClick}
-            onEditClick={handleEditClick}
-          />
-        </div>
-      </main>
+        </main>
 
       <EntityModal
         isOpen={showModal}

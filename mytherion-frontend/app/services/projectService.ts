@@ -81,11 +81,11 @@ export const projectService = {
   },
 
   async createProject(data: CreateProjectRequest): Promise<Project> {
-    serviceLogger.info('Creating project', { name: data.name });
+    serviceLogger.debug('Creating project', { name: data.name });
     
     try {
       const response = await api.post('/projects', data);
-      serviceLogger.info('Project created successfully', { 
+      serviceLogger.debug('Project created successfully', { 
         projectId: response.data.id,
         name: response.data.name ,
         userId: response.data.userId
@@ -98,7 +98,7 @@ export const projectService = {
   },
 
   async updateProject(id: string, data: UpdateProjectRequest): Promise<Project> {
-    serviceLogger.info('Updating project', { projectId: id, updates: Object.keys(data) });
+    serviceLogger.debug('Updating project', { projectId: id, updates: Object.keys(data) });
     
     try {
       const response = await api.put(`/projects/${id}`, data);
@@ -110,11 +110,11 @@ export const projectService = {
   },
 
   async deleteProject(id: string): Promise<void> {
-    serviceLogger.info('Deleting project', { projectId: id });
+    serviceLogger.debug('Deleting project', { projectId: id });
     
     try {
       await api.delete(`/projects/${id}`);
-      serviceLogger.info('Project deleted successfully', { projectId: id });
+      serviceLogger.debug('Project deleted successfully', { projectId: id });
     } catch (error) {
       serviceLogger.error('Failed to delete project', error, { projectId: id });
       throw error;
@@ -126,7 +126,7 @@ export const projectService = {
     
     try {
       const response = await api.get(`/projects/${id}/stats`);
-      serviceLogger.info('Project stats fetched successfully', { 
+      serviceLogger.debug('Project stats fetched successfully', { 
         projectId: id,
         entityCount: response.data.entityCount 
       });

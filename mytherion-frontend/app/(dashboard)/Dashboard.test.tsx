@@ -17,11 +17,7 @@ jest.mock('next/navigation', () => ({
 // Mock Child Components to simplify
 jest.mock('../components/DashboardHeader', () => ({
   __esModule: true,
-  default: ({ onCreateProject }: { onCreateProject: () => void }) => (
-    <div data-testid="mock-header">
-      <button onClick={onCreateProject}>New Project</button>
-    </div>
-  ),
+  default: () => <div data-testid="mock-header">Header</div>,
 }));
 
 jest.mock('../components/projects/ProjectList', () => ({
@@ -31,7 +27,11 @@ jest.mock('../components/projects/ProjectList', () => ({
 
 jest.mock('../components/projects/ProjectFilters', () => ({
   __esModule: true,
-  default: () => <div data-testid="mock-filters">Filters</div>,
+  default: ({ onCreateClick }: { onCreateClick?: () => void }) => (
+    <div data-testid="mock-filters">
+      <button onClick={onCreateClick}>Create World</button>
+    </div>
+  ),
 }));
 
 describe('Dashboard Page (Home)', () => {
@@ -53,7 +53,7 @@ describe('Dashboard Page (Home)', () => {
     render(<Home />);
     
     expect(screen.getByText('Your Worlds')).toBeInTheDocument();
-    expect(screen.getByText(/Access and manage your multi-verse projects/)).toBeInTheDocument();
+    expect(screen.getByText(/Pick up where you left off/)).toBeInTheDocument();
   });
 
   it('redirects to login if not authenticated', () => {
@@ -67,7 +67,7 @@ describe('Dashboard Page (Home)', () => {
     expect(mockRouter.push).toHaveBeenCalledWith('/login');
   });
 
-  it('shows the ProjectModal when New Project button is clicked', () => {
+  it('shows the ProjectModal when in-page Create World button is clicked', () => {
     (useAppSelector as jest.Mock).mockReturnValue({
       isAuthenticated: true,
       isInitialized: true,
@@ -75,9 +75,7 @@ describe('Dashboard Page (Home)', () => {
 
     render(<Home />);
     
-    // Check if modal is hidden initially (ProjectModal is a Portal or rendered conditionally)
-    // Here we can just check if the New Project button from the header works
-    const createButton = screen.getByText('New Project');
+    const createButton = screen.getByText('Create World');
     fireEvent.click(createButton);
     
     // ProjectModal title should now be in the document

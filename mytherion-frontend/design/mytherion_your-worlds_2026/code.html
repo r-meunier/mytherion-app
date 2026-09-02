@@ -1,0 +1,315 @@
+<!DOCTYPE html><html class="dark" data-lt-installed="true" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mytherion - Your Worlds</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Outfit:wght@400;500;700;800&amp;family=Great+Vibes&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#231e27",
+                        "tertiary-container": "#bd871a",
+                        "on-tertiary-fixed": "#281900",
+                        "primary-fixed-dim": "#ddb7ff",
+                        "on-primary-fixed": "#2c0051",
+                        "on-secondary": "#402d00",
+                        "on-tertiary": "#432c00",
+                        "on-primary": "#490080",
+                        "surface-bright": "#3d3741",
+                        "error": "#ffb4ab",
+                        "tertiary": "#fabc4e",
+                        "primary-fixed": "#f0dbff",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-container": "#400071",
+                        "secondary-fixed": "#ffdf9f",
+                        "on-background": "#eadfed",
+                        "surface-dim": "#16111b",
+                        "inverse-surface": "#eadfed",
+                        "surface-container-highest": "#39323d",
+                        "surface-variant": "#39323d",
+                        "primary-container": "#b76dff",
+                        "background": "#16111b",
+                        "secondary": "#ffc640",
+                        "primary": "#ddb7ff",
+                        "on-tertiary-container": "#3a2600",
+                        "error-container": "#93000a",
+                        "surface-container-low": "#1f1a23",
+                        "on-secondary-fixed-variant": "#5c4300",
+                        "outline-variant": "#4d4354",
+                        "on-tertiary-fixed-variant": "#604100",
+                        "secondary-fixed-dim": "#f9bd22",
+                        "tertiary-fixed-dim": "#fabc4e",
+                        "outline": "#988d9f",
+                        "secondary-container": "#e3aa00",
+                        "surface-tint": "#ddb7ff",
+                        "on-surface-variant": "#cfc2d6",
+                        "on-primary-fixed-variant": "#6900b3",
+                        "on-secondary-fixed": "#261a00",
+                        "tertiary-fixed": "#ffdead",
+                        "surface": "#16111b",
+                        "on-secondary-container": "#5a4100",
+                        "on-surface": "#eadfed",
+                        "on-error": "#690005",
+                        "surface-container-lowest": "#110c15",
+                        "inverse-primary": "#842bd2",
+                        "surface-container-high": "#2e2832",
+                        "inverse-on-surface": "#342e38"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-lg": "2rem",
+                        "gutter": "1.5rem",
+                        "container-padding": "2rem",
+                        "sidebar-collapsed": "5rem",
+                        "stack-sm": "0.75rem",
+                        "sidebar-expanded": "14rem",
+                        "stack-md": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "display-md": ["Outfit"],
+                        "script-quote": ["Great Vibes"],
+                        "body-sm": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "display-lg": ["Outfit"],
+                        "section-header": ["Outfit"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-md": ["30px", { "lineHeight": "1.2", "fontWeight": "700", "letterSpacing": "-0.01em" }],
+                        "script-quote": ["24px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "body-sm": ["13px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-caps": ["10px", { "lineHeight": "1", "letterSpacing": "0.15em", "fontWeight": "500" }],
+                        "display-lg": ["42px", { "lineHeight": "1.1", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+                        "section-header": ["20px", { "lineHeight": "1.4", "fontWeight": "700", "letterSpacing": "-0.01em" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0b0710;
+        }
+        
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(132, 43, 210, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(221, 183, 255, 0.05) 0%, transparent 50%);
+        }
+
+        .floating-shard {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20%;
+            pointer-events: none;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+            100% { transform: translateY(0) rotate(360deg); }
+        }
+
+        .glass-panel {
+            background: linear-gradient(145deg, rgba(35, 30, 39, 0.4), rgba(22, 17, 27, 0.2));
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(221, 183, 255, 0.3);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 12px 48px rgba(132, 43, 210, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .glass-command {
+            background: rgba(35, 30, 39, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 9999px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 24px rgba(221, 183, 255, 0.3);
+        }
+        
+        /* Bento Grid Specifics */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+            grid-auto-rows: minmax(180px, auto);
+        }
+
+        .bento-item-create { grid-column: span 12 / span 12; }
+        .bento-item-hero { grid-column: span 12 / span 12; grid-row: span 2 / span 2; }
+        .bento-item-standard { grid-column: span 12 / span 12; }
+
+        @media (min-width: 640px) {
+            .bento-item-create { grid-column: span 6 / span 6; }
+            .bento-item-standard { grid-column: span 6 / span 6; }
+        }
+
+        @media (min-width: 1024px) {
+            .bento-item-create { grid-column: span 3 / span 3; }
+            .bento-item-hero { grid-column: span 6 / span 6; grid-row: span 2 / span 2; }
+            .bento-item-standard { grid-column: span 3 / span 3; }
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: #ddb7ff;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            border-radius: 2px;
+            box-shadow: 0 0 8px rgba(221,183,255,0.6);
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md h-screen w-screen overflow-hidden flex relative">
+<!-- Ambient Background -->
+<div class="ambient-bg">
+<div class="floating-shard w-32 h-32 top-20 left-10 opacity-20"></div>
+<div class="floating-shard w-48 h-48 bottom-40 right-20 opacity-10" style="animation-delay: -5s; animation-duration: 25s;"></div>
+<div class="floating-shard w-16 h-16 top-1/2 left-1/4 opacity-30" style="animation-delay: -12s; animation-duration: 15s; border-radius: 50%;"></div>
+</div>
+<!-- TopAppBar -->
+<header class="hidden md:flex justify-between items-center w-full px-8 py-5 bg-surface-container/20 backdrop-blur-2xl border-b border-white/5 shadow-2xl docked full-width top-0 absolute z-50 h-20">
+<div class="flex items-center gap-6">
+<span class="font-display-lg text-3xl font-extrabold text-white tracking-tighter text-glow flex items-center gap-2">
+<span class="text-primary material-symbols-outlined text-3xl">auto_awesome</span>
+    Mytherion
+</span>
+<nav class="ml-12 hidden lg:flex gap-8">
+<a class="nav-link font-display-md text-lg font-medium text-on-surface hover:text-white transition-colors py-1" href="#">Library</a>
+<a class="nav-link font-display-md text-lg font-medium text-on-surface-variant hover:text-white transition-colors py-1" href="#">Grimoire</a>
+<a class="nav-link font-display-md text-lg font-medium text-on-surface-variant hover:text-white transition-colors py-1" href="#">Chronicles</a>
+<a class="nav-link font-display-md text-lg font-medium text-on-surface-variant hover:text-white transition-colors py-1" href="#">Atlas</a>
+</nav>
+</div>
+<div class="flex items-center gap-4 glass-command px-2 py-1"><button class="text-on-surface-variant hover:text-primary p-2 rounded-full transition-all"><span class="material-symbols-outlined text-[20px]">search</span></button>
+<button class="text-on-surface-variant hover:text-primary p-2 rounded-full transition-all"><span class="material-symbols-outlined text-[20px]">help_outline</span></button>
+
+<div class="w-[1px] h-6 bg-white/10 mx-1"></div>
+<button class="p-1 rounded-full border border-transparent hover:border-primary/50 transition-all">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="User Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5Fy3mFpGwqEg4cUj5ilZ1yV5CkHHv3br0PnQwj8rtmv6vKQngwATf_JtvlfZq0AZDMZtnR7oPv9STl2DNc_8iltY5vDWYUrzy6oAOAUh5Qgf8ChCvz2cWWtJzygIALZrzYWj8kgosQsrGY6J1jRPIrqvA719rS3bYkwK4Fil5StkbgRs6lXrdpHGQVOWu6Y_Ex8FaVUtJ-HUpgK9K2Xm0u6EEjjiYegCgWpj_J_D_w0uKt979a7k1ew">
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 pt-32 px-container-padding pb-12 overflow-y-auto relative z-10 w-full">
+<!-- Header & Command Bar Section -->
+<div class="max-w-7xl mx-auto mb-12 flex flex-col lg:flex-row justify-between items-center gap-8">
+<div class="text-center lg:text-left">
+<h1 class="font-display-lg text-display-lg font-extrabold text-white mb-3 text-glow">Your Worlds</h1>
+<p class="font-body-md text-base text-on-surface-variant max-w-xl font-medium tracking-wide">Manage your digital realms and weave your ancient chronicles. Select a world to continue your creative alchemy.</p>
+</div>
+<!-- Modern Command Bar -->
+<div class="glass-command flex items-center p-1.5 gap-2 w-full max-w-xl">
+<div class="relative flex-1 group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[20px]">search</span>
+<input class="w-full bg-transparent border-none pl-12 pr-4 py-2.5 font-body-md text-sm text-white placeholder:text-on-surface-variant/70 focus:ring-0 focus:outline-none transition-all" placeholder="Find realms, entities, or lore..." type="text">
+</div>
+<div class="w-[1px] h-8 bg-white/10"></div>
+<button class="flex items-center gap-2 px-4 py-2 font-label-caps text-xs text-on-surface hover:text-white transition-colors rounded-full hover:bg-white/5">
+<span class="material-symbols-outlined text-[18px]">sort</span> DATE
+        </button>
+<button class="bg-primary text-on-primary-fixed px-5 py-2.5 rounded-full font-label-caps text-xs font-bold hover:bg-primary-fixed transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(221,183,255,0.4)]">
+<span class="material-symbols-outlined text-[18px]">add</span> NEW
+        </button>
+</div>
+</div>
+<!-- Bento Projects Grid -->
+<div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Create New - Smaller Interactive Tile -->
+<div class="glass-panel rounded-2xl overflow-hidden flex flex-col group cursor-pointer relative border-dashed border-2 hover:border-solid">
+<div class="h-64 w-full bg-white/5 flex items-center justify-center relative">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant group-hover:text-primary transition-colors">add</span>
+<button class="absolute top-4 right-4 text-on-surface-variant hover:text-white">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-1">
+<h3 class="font-section-header text-[18px] text-white group-hover:text-primary transition-colors">Create New World</h3>
+<span class="font-body-sm text-[11px] text-on-surface-variant/50">Start a new journey</span>
+</div>
+</div>
+<!-- Hero World Card (Featured/Latest) -->
+<div class="glass-panel rounded-2xl overflow-hidden flex flex-col group cursor-pointer relative">
+<div class="h-64 w-full relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwkur23z1CdhEoTiBk3lWI8ino5oTpajpR8pSRQsVS-R8C6d93Ai8v2DJTdDGbytDsG7PBCX47iFTmta6Q3Ip4qcxrEqRSspcDnH8Cmuw4yO9X1bAFzQurIfdNRDuWT0mjh158bkRXSDb_3p5PiL1bX3ZChvHyFYqBBuLzrrF5Kzekmxw90bTafzvHdIHe837WQAGRY5jXXLdF73Dj8aN3Q9QYSIYa92Ty0DMBatqI5GCunUvAUFIaEQ">
+<button class="absolute top-4 right-4 text-white/70 hover:text-white drop-shadow-md">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-1">
+<h3 class="font-section-header text-[18px] text-white group-hover:text-primary transition-colors">Aethelgard Reborn</h3>
+<span class="font-body-sm text-[11px] text-on-surface-variant/50">Created 2 days ago</span>
+</div>
+</div>
+<!-- Standard World Card 1 -->
+<div class="glass-panel rounded-2xl overflow-hidden flex flex-col group cursor-pointer relative">
+<div class="h-64 w-full relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-dTDfXbjpp0hxGKT5yzQ49Rb2cU4C1OTQhMzCB2sJ9acsUvpY9fizMUXZlTEEDZ-2Bn7PIfDPEuxIcudZQ-RDQUXthPWY8g1GLE6YTsWURp8w5nsLZlvyYma-_WN1gSHaOamBHVP-nQ0k_hXPzJ9dgHmK2_0gpB8X3gnLe3g9N0RRDHu9Ux-RjvOOZsm2Q1wCFYKpPZQGejGdku431ZLlXkMlEBn4MAyGpmwXtcFS3nkAJweFYngZAQ">
+<button class="absolute top-4 right-4 text-white/70 hover:text-white drop-shadow-md">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-1">
+<h3 class="font-section-header text-[18px] text-white group-hover:text-primary transition-colors">Obsidian Depths</h3>
+<span class="font-body-sm text-[11px] text-on-surface-variant/50">Created Yesterday</span>
+</div>
+</div>
+<!-- Standard World Card 2 -->
+<div class="glass-panel rounded-2xl overflow-hidden flex flex-col group cursor-pointer relative">
+<div class="h-64 w-full relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJWsinC1JcAdLBzbRXd0h1aJ4o_x_paYo2p4P3-UmIRDRQ_8KHraZ6aT699eYHsmkAoWKQkekvw1u3aXUSfm3dwsM_D5xuSLNrTZPMKWwrY9ytJDIlgZXKKfVsvkr__leLrEvw1Xoi7rCOKMk2o4f1nISQEeGmpWGriwMR589WUMCvjd4Smpq3G-xYYYIUnLJnaeLLhT_fAJe_yw7V8v5c8718dejPtDm0B7rWLmut7xEPYIn2mLO2EA">
+<button class="absolute top-4 right-4 text-white/70 hover:text-white drop-shadow-md">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-1">
+<h3 class="font-section-header text-[18px] text-white group-hover:text-primary transition-colors">The Solari Archives</h3>
+<span class="font-body-sm text-[11px] text-on-surface-variant/50">Created 4 days ago</span>
+</div>
+</div>
+</div>
+</main>
+
+
+</body></html>

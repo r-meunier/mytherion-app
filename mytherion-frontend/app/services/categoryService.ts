@@ -14,7 +14,7 @@ export const categoryService = {
       const response = await axios.get(`${API_URL}/api/projects/${projectId}/categories`, {
         withCredentials: true,
       });
-      serviceLogger.info('Categories fetched successfully', { 
+      serviceLogger.debug('Categories fetched successfully', { 
         projectId, 
         count: response.data.length 
       });
@@ -27,13 +27,13 @@ export const categoryService = {
 
   // Create a new category
   createCategory: async (projectId: string, data: CreateCategoryRequest): Promise<Category> => {
-    serviceLogger.info('Creating category', { projectId, name: data.name });
+    serviceLogger.debug('Creating category', { projectId, name: data.name });
 
     try {
       const response = await axios.post(`${API_URL}/api/projects/${projectId}/categories`, data, {
         withCredentials: true,
       });
-      serviceLogger.info('Category created successfully', { 
+      serviceLogger.debug('Category created successfully', { 
         projectId, 
         categoryId: response.data.id,
         name: response.data.name 

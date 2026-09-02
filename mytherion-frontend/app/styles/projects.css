@@ -91,3 +91,88 @@
 .glow-purple:hover {
   box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
 }
+
+/* ==========================================================================
+   2026 Arcane Your Worlds Theme (MYT-73)
+   ========================================================================== */
+
+/* Ambient Background & Shards */
+.ambient-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: 
+    radial-gradient(circle at 15% 50%, rgba(132, 43, 210, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(221, 183, 255, 0.05) 0%, transparent 50%);
+}
+
+.floating-shard {
+  position: absolute;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 20%;
+  pointer-events: none;
+  animation: float 20s infinite linear;
+}
+
+@keyframes float {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+  100% { transform: translateY(0) rotate(360deg); }
+}
+
+/* Glass Panels & Commands */
+.glass-panel {
+  background: linear-gradient(145deg, rgba(35, 30, 39, 0.4), rgba(22, 17, 27, 0.2));
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel:hover {
+  border-color: rgba(221, 183, 255, 0.3);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 12px 48px rgba(132, 43, 210, 0.2);
+  transform: translateY(-4px);
+}
+
+.glass-command {
+  background: rgba(35, 30, 39, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+.text-glow {
+  text-shadow: 0 0 24px rgba(221, 183, 255, 0.3);
+}
+
+.nav-link {
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: #ddb7ff;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(221,183,255,0.6);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
