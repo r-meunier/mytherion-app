@@ -83,6 +83,7 @@ export default function EntityModal({ isOpen, onClose, projectId, entity, defaul
       icon={entity ? 'edit' : 'auto_awesome'}
       decorativeIcon={entity ? 'edit_note' : 'history_edu'}
       maxWidth="max-w-7xl"
+      className="h-[90vh] min-h-[600px]"
       onClear={() => setFormKey(prev => prev + 1)}
     >
       <EntityForm
