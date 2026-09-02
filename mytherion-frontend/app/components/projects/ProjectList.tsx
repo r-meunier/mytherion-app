@@ -50,31 +50,6 @@ export default function ProjectList({ onCreateClick, onEditClick }: ProjectListP
 
       {/* Grid with 2026 design gap (32px / gap-8) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-        
-        {/* Create New World Card (Exact 2026 Design Fidelity) */}
-        <button 
-          onClick={onCreateClick}
-          className="project-card-base glass-panel rounded-2xl overflow-hidden flex flex-col group cursor-pointer relative border-dashed border-2 border-white/20 hover:border-solid hover:border-[#ddb7ff]/50 text-left transition-all duration-300"
-        >
-          {/* Top Interactive Area */}
-          <div className="h-64 w-full bg-white/5 flex items-center justify-center relative">
-            <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-[0_0_30px_rgba(168,85,247,0.15)]">
-              <span className="material-symbols-outlined text-4xl text-primary font-bold">add</span>
-            </div>
-          </div>
-          
-          {/* Card Info Footer */}
-          <div className="p-4 flex flex-col gap-1">
-            <h3 className="font-section-header text-[18px] text-white group-hover:text-primary transition-colors">
-              Create New World
-            </h3>
-            <span className="text-[11px] text-white/50 font-medium">
-              Start a new journey
-            </span>
-          </div>
-        </button>
-
-        {/* Existing Projects */}
         {projects.map((project) => (
           <ProjectCard
             key={project.id}

@@ -61,22 +61,22 @@ export default function ProjectCard({
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="project-card-base glass-panel rounded-2xl overflow-hidden group cursor-pointer flex flex-col relative shadow-[0_8px_32px_0_rgba(0,0,0,0.5)]">
+    <div className="glass-panel rounded-2xl overflow-hidden group cursor-pointer flex flex-col relative shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-primary/40">
       {/* Click overlay */}
       <Link href={`/projects/${project.id}`} className="absolute inset-0 z-10" />
 
       {/* Hero Image Section */}
-      <div className="relative h-64 w-full overflow-hidden bg-black/40">
+      <div className="relative h-60 w-full overflow-hidden bg-black/40">
         <img 
           src={getPlaceholderImage(project.id)}
           alt={project.name}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#16111B] via-transparent to-transparent opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1b1522] via-transparent to-transparent opacity-90" />
         
         {/* Pinned Tag */}
         {isPinned && (
-          <div className="absolute top-4 left-4 z-20">
+          <div className="absolute top-3 left-3 z-20">
             <span className="bg-[#fbbf24]/10 backdrop-blur-xl px-3 py-1 rounded-lg text-[8px] font-black text-secondary border border-secondary/30 flex items-center gap-1.5 uppercase tracking-[0.2em]">
               <span className="material-symbols-outlined text-[14px]">stars</span>
               Pinned
@@ -84,103 +84,71 @@ export default function ProjectCard({
           </div>
         )}
 
-        {/* Quick Context Menu Button */}
-        <div className="absolute top-4 right-4 z-20">
+        {/* Standardized Context Quick Actions (Top-Right Glass Pill) */}
+        <div className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-black/60 backdrop-blur-md border border-white/10 rounded-full p-1 shadow-lg opacity-80 group-hover:opacity-100 transition-opacity">
           <button 
             type="button"
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
-              setMenuOpen(!menuOpen);
+              onEdit(project.id);
             }}
-            className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/70 hover:text-white drop-shadow-md transition-all hover:bg-black/60"
-            title="World options"
+            title="Edit project"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-colors"
           >
-            <span className="material-symbols-outlined text-[20px]">more_vert</span>
+            <span className="material-symbols-outlined text-[15px]">edit</span>
           </button>
-
-          {menuOpen && (
-            <div className="absolute right-0 top-10 w-36 bg-[#1f1a23] backdrop-blur-2xl border border-white/10 rounded-xl shadow-2xl p-1 animate-in fade-in zoom-in-95 duration-150 z-30">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setMenuOpen(false);
-                  onEdit(project.id);
-                }}
-                title="Edit project"
-                className="w-full text-left px-3 py-2 text-xs font-semibold rounded-lg flex items-center gap-2 text-white/80 hover:bg-white/5 hover:text-white transition-colors"
-              >
-                <span className="material-symbols-outlined text-[16px]">edit</span>
-                <span>Edit World</span>
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setMenuOpen(false);
-                  onDelete(project.id);
-                }}
-                title="Delete project"
-                className="w-full text-left px-3 py-2 text-xs font-semibold rounded-lg flex items-center gap-2 text-rose-400 hover:bg-rose-500/10 transition-colors"
-              >
-                <span className="material-symbols-outlined text-[16px]">delete</span>
-                <span>Delete</span>
-              </button>
-            </div>
-          )}
+          <button 
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onDelete(project.id);
+            }}
+            title="Delete project"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-white/70 hover:text-rose-400 hover:bg-rose-500/20 transition-colors"
+          >
+            <span className="material-symbols-outlined text-[15px]">delete</span>
+          </button>
         </div>
       </div>
 
-      {/* Project Details Section */}
-      <div className="p-4 flex-1 flex flex-col justify-between">
+      {/* Standardized Content Section */}
+      <div className="p-5 flex-1 flex flex-col justify-between gap-3">
         <div>
-          {/* Title and Secondary Actions */}
-          <div className="flex justify-between items-start mb-1">
-            <h3 className="font-section-header text-[18px] text-white group-hover:text-primary transition-colors duration-300 truncate pr-2">
-              {project.name}
-            </h3>
-            <div className="flex items-center gap-1 shrink-0">
-              <button 
-                onClick={(e) => { e.stopPropagation(); onEdit(project.id); }}
-                title="Edit project"
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-white/20 hover:text-white hover:bg-white/5 transition-all relative z-20"
-              >
-                <span className="material-symbols-outlined text-[16px]">edit</span>
-              </button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); onDelete(project.id); }}
-                title="Delete project"
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-white/20 hover:text-red-400 hover:bg-red-400/5 transition-all relative z-20"
-              >
-                <span className="material-symbols-outlined text-[16px]">delete</span>
-              </button>
-            </div>
-          </div>
+          {/* Title */}
+          <h3 className="font-section-header text-lg font-bold text-white group-hover:text-primary transition-colors duration-300 truncate">
+            {project.name}
+          </h3>
 
-          {/* Description */}
-          {project.description && (
-            <p className="text-white/40 text-xs leading-relaxed line-clamp-2 mb-3 font-medium">
+          {/* Description (Fixed minimum height ensuring flawless vertical alignment across all cards) */}
+          {project.description ? (
+            <p className="text-white/50 text-xs leading-relaxed line-clamp-2 mt-1.5 font-medium min-h-[2rem]">
               {project.description}
             </p>
+          ) : (
+            <div className="min-h-[2rem]" />
           )}
         </div>
 
-        {/* Metadata Footer */}
-        <div className="mt-2 space-y-3">
-          <div className="flex justify-between items-center text-[11px] text-white/50 font-medium">
-            <span>{formatDate(project.updatedAt || project.createdAt)}</span>
-            <span className="px-2 py-0.5 bg-primary/10 border border-primary/20 rounded-full text-[9px] font-bold text-primary uppercase tracking-wider">
+        {/* Standardized Metadata Footer */}
+        <div className="pt-3 border-t border-white/5 flex flex-col gap-2">
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-white/40 font-medium text-[11px]">
+              {formatDate(project.updatedAt || project.createdAt)}
+            </span>
+            <span className="px-2.5 py-0.5 bg-primary/10 border border-primary/20 rounded-full text-[9px] font-bold text-primary uppercase tracking-wider">
               {project.genre || "High Fantasy"}
             </span>
           </div>
 
-          <div className="flex items-center gap-4 text-[9px] font-bold text-white/30 uppercase tracking-[0.15em]">
-            <div className="flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px] opacity-40">database</span>
-              <span>{(project.entityCount || 0).toLocaleString()} Entities</span>
-            </div>
+          <div className="flex items-center text-[10px] font-bold text-white/40 uppercase tracking-[0.15em]">
+            <span className="material-symbols-outlined text-[14px] mr-1.5 text-primary/70">database</span>
+            <span>{(project.entityCount || 0).toLocaleString()} Entities</span>
           </div>
-          
-          {/* Progress Bar (Matching 2026 Design) */}
-          <div className="relative h-[2px] w-full bg-white/5 rounded-full overflow-hidden">
+
+          {/* Progress Bar */}
+          <div className="relative h-[2px] w-full bg-white/5 rounded-full overflow-hidden mt-1">
             <div 
               style={{ width: `${(idHash * 15 % 70) + 25}%` }}
               className="absolute inset-y-0 left-0 bg-primary/40 shadow-[0_0_8px_rgba(168,85,247,0.4)]"
