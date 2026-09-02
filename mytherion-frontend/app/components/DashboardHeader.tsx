@@ -22,57 +22,52 @@ export default function DashboardHeader({ onCreateProject }: DashboardHeaderProp
     router.push("/login");
   };
 
+  const isProjectMode = pathname.startsWith("/projects/");
   const navItems = [
-    { label: "Dashboard", href: "/", active: pathname === "/" },
-    { label: "Community", href: "#", active: false },
-    { label: "Assets", href: "#", active: false },
+    { label: isProjectMode ? "Back to Worlds" : "Library", href: "/", active: pathname === "/" },
+    { label: "Grimoire", href: "#", active: false },
+    { label: "Chronicles", href: "#", active: false },
+    { label: "Atlas", href: "#", active: false },
   ];
 
   return (
-    <header className="h-16 flex items-center justify-between px-8 border-b border-white/5 bg-[#16111B]/80 backdrop-blur-xl relative z-50">
+    <header className="h-20 flex items-center justify-between px-8 border-b border-white/5 bg-[#231e27]/20 backdrop-blur-2xl shadow-2xl relative z-50">
       {/* Left Side: Branding & Navigation Tabs */}
       <div className="flex items-center gap-8 h-full">
         {/* Branding */}
-        <Link href="/" className="group flex items-center gap-3 mr-4">
-          <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/30 transition-all duration-500 group-hover:scale-105 group-hover:rotate-3 shadow-lg shadow-primary/10">
+        <Link href="/" className="group flex items-center gap-3 mr-2">
+          <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/30 transition-all duration-500 group-hover:scale-105 shadow-lg shadow-primary/10">
             <span className="material-symbols-outlined text-primary text-[24px]">auto_awesome</span>
           </div>
-          <div className="hidden sm:flex flex-col">
-            <h2 className="text-xl font-bold tracking-tighter text-white drop-shadow-[0_0_8px_rgba(168,85,247,0.3)] leading-none">
+          <div className="flex flex-col">
+            <h2 className="text-2xl font-display font-extrabold tracking-tight text-white text-glow leading-none">
               Mytherion
             </h2>
-            <p className="text-[9px] text-white/30 font-bold uppercase tracking-[0.3em] mt-1">
+            <p className="text-[9px] text-white/30 font-bold uppercase tracking-[0.25em] mt-1">
               Archivist Level 4
             </p>
           </div>
         </Link>
 
-        <nav className="flex items-center gap-1 h-full">
-          {navItems.map((item) => {
-            // Transform Dashboard into "Back to Worlds" in project mode
-            const isDashboard = item.label === "Dashboard";
-            const isProjectMode = pathname.startsWith("/projects/");
-            const displayLabel = isDashboard && isProjectMode ? "Back to Worlds" : item.label;
-            
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={`text-sm font-medium h-full px-5 flex items-center transition-all duration-300 relative top-[1px] group/nav ${
-                  item.active 
-                    ? "text-[#D8B4FE] border-b-2 border-[#A855F7] bg-white/[0.04]" 
-                    : "text-white/70 hover:text-[#D8B4FE] hover:bg-white/[0.02]"
-                }`}
-              >
-                {isDashboard && isProjectMode && (
-                  <span className="material-symbols-outlined text-[18px] mr-2 transition-transform group-hover/nav:-translate-x-1">
-                    arrow_back
-                  </span>
-                )}
-                {displayLabel}
-              </Link>
-            );
-          })}
+        <nav className="hidden md:flex items-center gap-6 h-full ml-4">
+          {navItems.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className={`nav-link text-sm font-semibold h-full px-2 flex items-center transition-colors ${
+                item.active 
+                  ? "text-[#ddb7ff] active" 
+                  : "text-white/60 hover:text-white"
+              }`}
+            >
+              {isProjectMode && item.href === "/" && (
+                <span className="material-symbols-outlined text-[18px] mr-2 transition-transform group-hover/nav:-translate-x-1">
+                  arrow_back
+                </span>
+              )}
+              {item.label}
+            </Link>
+          ))}
         </nav>
       </div>
 
@@ -84,7 +79,7 @@ export default function DashboardHeader({ onCreateProject }: DashboardHeaderProp
             search
           </span>
           <input
-            className="pl-10 pr-4 py-1.5 bg-white/5 border-none focus:ring-1 focus:ring-primary/40 rounded-full text-sm w-64 text-white placeholder:text-white/30 transition-all"
+            className="pl-10 pr-4 py-1.5 bg-white/5 border border-white/5 focus:border-primary/40 focus:ring-1 focus:ring-primary/40 rounded-full text-sm w-60 text-white placeholder:text-white/30 transition-all focus:outline-none"
             placeholder="Search archives..."
             type="text"
           />
@@ -93,12 +88,17 @@ export default function DashboardHeader({ onCreateProject }: DashboardHeaderProp
         {!isInitialized ? (
           <div className="h-10 w-24 bg-white/5 rounded-lg animate-pulse"></div>
         ) : isAuthenticated && user ? (
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <div className="glass-command flex items-center px-2 py-1 gap-1">
               {/* Notifications */}
-              <button className="w-10 h-10 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-colors">
-                <span className="material-symbols-outlined text-[22px]">notifications</span>
+              <button 
+                className="w-8 h-8 rounded-full flex items-center justify-center text-white/50 hover:text-[#ddb7ff] hover:bg-white/5 transition-colors"
+                title="Notifications"
+              >
+                <span className="material-symbols-outlined text-[20px]">notifications</span>
               </button>
+
+              <div className="w-[1px] h-5 bg-white/10 mx-1" />
 
               {/* Profile Dropdown */}
               <div 
@@ -106,11 +106,14 @@ export default function DashboardHeader({ onCreateProject }: DashboardHeaderProp
                 onMouseEnter={() => setIsDropdownOpen(true)}
                 onMouseLeave={() => setIsDropdownOpen(false)}
               >
-                <button className="w-10 h-10 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/5 transition-colors">
-                  <span className="material-symbols-outlined text-[24px]">account_circle</span>
+                <button 
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors p-0.5 border border-transparent hover:border-primary/50"
+                  title="User Profile"
+                >
+                  <span className="material-symbols-outlined text-[22px]">account_circle</span>
                 </button>
 
-                <div className={`absolute right-0 top-full mt-2 w-56 bg-[#0f0f23] backdrop-blur-3xl border border-white/10 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden transition-all duration-300 origin-top-right z-50 ${
+                <div className={`absolute right-0 top-full mt-2 w-56 bg-[#1f1a23] backdrop-blur-3xl border border-white/10 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden transition-all duration-300 origin-top-right z-50 ${
                   isDropdownOpen ? 'opacity-100 scale-100 translate-y-0 visible' : 'opacity-0 scale-95 -translate-y-2 invisible'
                 }`}>
                   <div className="p-3 space-y-1">
@@ -139,20 +142,20 @@ export default function DashboardHeader({ onCreateProject }: DashboardHeaderProp
               </div>
             </div>
 
-            {/* New Project Action (Responsive) */}
+            {/* New Project Action (Optional Header trigger) */}
             {onCreateProject && (
               <button 
                 onClick={onCreateProject}
-                className="bg-primary/20 text-primary border border-primary/30 px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-primary/30 transition-all active:scale-[0.98] shadow-lg shadow-primary/10 flex items-center gap-2 whitespace-nowrap group"
+                className="bg-primary/20 text-primary border border-primary/30 px-3.5 py-1.5 rounded-full text-xs font-bold hover:bg-primary/30 transition-all active:scale-[0.98] shadow-lg shadow-primary/10 flex items-center gap-1.5 whitespace-nowrap group"
               >
-                <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform">add</span>
+                <span className="material-symbols-outlined text-[18px] group-hover:rotate-90 transition-transform">add</span>
                 <span className="hidden xl:inline">New Project</span>
               </button>
             )}
           </div>
         ) : (
           <Link href="/login">
-            <button className="bg-primary hover:bg-primary/80 text-white px-5 py-1.5 rounded-lg text-sm font-bold transition-all shadow-lg shadow-primary/20">
+            <button className="bg-primary hover:bg-primary/80 text-[#2c0051] px-5 py-2 rounded-full text-sm font-bold transition-all shadow-lg shadow-primary/20">
               Login
             </button>
           </Link>

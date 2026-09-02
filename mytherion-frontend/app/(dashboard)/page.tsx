@@ -54,42 +54,43 @@ export default function Home() {
   }, [dispatch, isInitialized, isAuthenticated, searchQuery, genreFilter]);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#16111B]">
-      {/* Background Ley Lines - Exact Design Atmosphere */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-[#0F0F23]">
-        <div className="absolute top-[-20%] left-[-10%] w-[80%] h-[100%] bg-[#a855f7]/15 rounded-full blur-[180px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[70%] bg-[#fbbf24]/5 rounded-full blur-[160px]" />
+    <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
+      {/* Ambient Background with Floating Shards & Glows */}
+      <div className="ambient-bg">
+        <div className="floating-shard w-32 h-32 top-20 left-10 opacity-20" />
+        <div className="floating-shard w-48 h-48 bottom-40 right-20 opacity-10" style={{ animationDelay: "-5s", animationDuration: "25s" }} />
+        <div className="floating-shard w-16 h-16 top-1/2 left-1/4 opacity-30" style={{ animationDelay: "-12s", animationDuration: "15s", borderRadius: "50%" }} />
       </div>
 
-      {/* Header (Now Global Parent) */}
+      {/* Header (Docked 2026 Bar) */}
       <DashboardHeader onCreateProject={() => setShowCreateModal(true)} />
 
-      {/* Main Content Area - Now Full Width Portal */}
-      <main className="flex-1 flex flex-col overflow-hidden relative">
-
-        {/* Dashboard Content - Matching Design p-stack-lg (48px) */}
-        <div className="flex-1 overflow-y-auto p-[48px] space-y-[48px] scroll-smooth relative z-10 custom-scrollbar">
+      {/* Main Content Area - 2026 Bento Portal */}
+      <main className="flex-1 flex flex-col overflow-hidden relative z-10">
+        <div className="flex-1 overflow-y-auto px-6 sm:px-12 py-10 space-y-10 scroll-smooth custom-scrollbar">
           
-          {/* 1. Header Section */}
-          <div className="mb-10">
-            <h1 className="text-display-lg text-white">Your Worlds</h1>
-            <p className="text-subtitle-muted mt-1 max-w-md">
-              Access and manage your multi-verse projects.
-            </p>
-          </div>
-          
-          {/* 2. Controls Section (Filters & Views) */}
-          <div className="flex justify-end items-end gap-6 mb-12">
+          {/* Header & Glass Command Bar Section */}
+          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+            <div>
+              <h1 className="font-display-lg text-4xl sm:text-5xl font-extrabold text-white mb-2 text-glow tracking-tight">
+                Your Worlds
+              </h1>
+              <p className="text-sm sm:text-base text-white/60 max-w-xl font-medium tracking-wide">
+                Access and manage your multi-verse projects. Select a world to continue your creative alchemy.
+              </p>
+            </div>
+            
+            {/* Unified Glass Command Bar */}
             <ProjectFilters 
               onSearchChange={(q) => setSearchQuery(q)}
               onSortChange={(s) => console.log("Sort:", s)}
               onGenreChange={(g) => setGenreFilter(g)}
-              onViewChange={(v) => console.log("View:", v)}
+              onCreateClick={() => setShowCreateModal(true)}
             />
           </div>
 
-          {/* Library Grid */}
-          <section>
+          {/* Bento Library Grid */}
+          <section className="max-w-7xl mx-auto pb-16">
             <ProjectList 
               onCreateClick={() => setShowCreateModal(true)}
               onEditClick={(id) => { /* Selection handles navigation */ }}

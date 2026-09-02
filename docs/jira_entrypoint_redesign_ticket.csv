@@ -1,0 +1,2 @@
+Summary,Description,Issue Type,Priority,Jira Key
+"Redesign App Entrypoint (""/"") as World Selection Hub using Your Worlds 2026 Design","Redesign the primary entrypoint (""/"") of Mytherion so users land directly on an immersive, high-fantasy 'Your Worlds' selection hub based on the approved design in mytherion-frontend/design/mytherion_your-worlds_2026. Includes ambient floating shards, glass command search & sort bar, bento/interactive world cards, docked top bar, and Redux wiring to ProjectModal and /projects/[projectId].","Story","High","MYT-73"

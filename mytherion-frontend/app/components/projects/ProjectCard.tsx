@@ -58,86 +58,128 @@ export default function ProjectCard({
   const isPinned = false; // Placeholder for pinned behavior
 
   const idHash = hashId(project.id);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="project-card-base glass-card overflow-hidden group cursor-pointer flex flex-col relative shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] border border-white/5 bg-[#16111B]/40 hover:translate-y-[-4px] transition-all duration-500">
+    <div className="project-card-base glass-panel rounded-2xl overflow-hidden group cursor-pointer flex flex-col relative shadow-[0_8px_32px_0_rgba(0,0,0,0.5)]">
       {/* Click overlay */}
       <Link href={`/projects/${project.id}`} className="absolute inset-0 z-10" />
 
       {/* Hero Image Section */}
-      <div className="relative h-48 w-full overflow-hidden">
+      <div className="relative h-64 w-full overflow-hidden bg-black/40">
         <img 
           src={getPlaceholderImage(project.id)}
           alt={project.name}
-          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#16111B] via-transparent to-transparent opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#16111B] via-transparent to-transparent opacity-80" />
         
         {/* Pinned Tag */}
         {isPinned && (
-          <div className="absolute top-4 right-4 z-20">
+          <div className="absolute top-4 left-4 z-20">
             <span className="bg-[#fbbf24]/10 backdrop-blur-xl px-3 py-1 rounded-lg text-[8px] font-black text-secondary border border-secondary/30 flex items-center gap-1.5 uppercase tracking-[0.2em]">
               <span className="material-symbols-outlined text-[14px]">stars</span>
               Pinned
             </span>
           </div>
         )}
+
+        {/* Quick Context Menu Button */}
+        <div className="absolute top-4 right-4 z-20">
+          <button 
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setMenuOpen(!menuOpen);
+            }}
+            className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/70 hover:text-white drop-shadow-md transition-all hover:bg-black/60"
+            title="World options"
+          >
+            <span className="material-symbols-outlined text-[20px]">more_vert</span>
+          </button>
+
+          {menuOpen && (
+            <div className="absolute right-0 top-10 w-36 bg-[#1f1a23] backdrop-blur-2xl border border-white/10 rounded-xl shadow-2xl p-1 animate-in fade-in zoom-in-95 duration-150 z-30">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMenuOpen(false);
+                  onEdit(project.id);
+                }}
+                title="Edit project"
+                className="w-full text-left px-3 py-2 text-xs font-semibold rounded-lg flex items-center gap-2 text-white/80 hover:bg-white/5 hover:text-white transition-colors"
+              >
+                <span className="material-symbols-outlined text-[16px]">edit</span>
+                <span>Edit World</span>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMenuOpen(false);
+                  onDelete(project.id);
+                }}
+                title="Delete project"
+                className="w-full text-left px-3 py-2 text-xs font-semibold rounded-lg flex items-center gap-2 text-rose-400 hover:bg-rose-500/10 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[16px]">delete</span>
+                <span>Delete</span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Project Details Section */}
-      <div className="p-7 flex-1 flex flex-col">
-        {/* Title and Menu */}
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-xl font-semibold tracking-tight text-white group-hover:text-primary transition-colors duration-300 truncate pr-4">
-            {project.name}
-          </h3>
-          <button className="text-white/20 hover:text-white transition-colors relative z-20">
-            <span className="material-symbols-outlined text-[20px]">more_vert</span>
-          </button>
-        </div>
-
-        {/* Description */}
-        <p className="text-white/40 text-sm leading-relaxed line-clamp-3 mb-6 font-medium">
-          {project.description || "An infinite realm awaiting your narrative touch. Shape its destinies and record its histories. Shape its destinies and record its histories."}
-        </p>
-
-        {/* Metadata Footer */}
-        <div className="mt-auto space-y-4">
-          <div className="flex justify-between items-center">
-            <span className="px-2.5 py-0.5 bg-primary/10 border border-primary/20 rounded-full text-[9px] font-black text-primary uppercase tracking-[0.2em]">
-              {project.genre || "Primary"}
-            </span>
-            
-            <div className="flex items-center gap-1">
+      <div className="p-4 flex-1 flex flex-col justify-between">
+        <div>
+          {/* Title and Secondary Actions */}
+          <div className="flex justify-between items-start mb-1">
+            <h3 className="font-section-header text-[18px] text-white group-hover:text-primary transition-colors duration-300 truncate pr-2">
+              {project.name}
+            </h3>
+            <div className="flex items-center gap-1 shrink-0">
               <button 
                 onClick={(e) => { e.stopPropagation(); onEdit(project.id); }}
                 title="Edit project"
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white/20 hover:text-white hover:bg-white/5 transition-all relative z-20"
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-white/20 hover:text-white hover:bg-white/5 transition-all relative z-20"
               >
-                <span className="material-symbols-outlined text-[18px]">edit</span>
+                <span className="material-symbols-outlined text-[16px]">edit</span>
               </button>
               <button 
                 onClick={(e) => { e.stopPropagation(); onDelete(project.id); }}
                 title="Delete project"
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white/20 hover:text-red-400 hover:bg-red-400/5 transition-all relative z-20"
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-white/20 hover:text-red-400 hover:bg-red-400/5 transition-all relative z-20"
               >
-                <span className="material-symbols-outlined text-[18px]">delete</span>
+                <span className="material-symbols-outlined text-[16px]">delete</span>
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-5">
-            <div className="flex items-center gap-1.5 text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">
-              <span className="material-symbols-outlined text-[16px] opacity-40">database</span>
+          {/* Description */}
+          {project.description && (
+            <p className="text-white/40 text-xs leading-relaxed line-clamp-2 mb-3 font-medium">
+              {project.description}
+            </p>
+          )}
+        </div>
+
+        {/* Metadata Footer */}
+        <div className="mt-2 space-y-3">
+          <div className="flex justify-between items-center text-[11px] text-white/50 font-medium">
+            <span>{formatDate(project.updatedAt || project.createdAt)}</span>
+            <span className="px-2 py-0.5 bg-primary/10 border border-primary/20 rounded-full text-[9px] font-bold text-primary uppercase tracking-wider">
+              {project.genre || "High Fantasy"}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4 text-[9px] font-bold text-white/30 uppercase tracking-[0.15em]">
+            <div className="flex items-center gap-1">
+              <span className="material-symbols-outlined text-[14px] opacity-40">database</span>
               <span>{(project.entityCount || 0).toLocaleString()} Entities</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">
-              <span className="material-symbols-outlined text-[16px] opacity-40">schedule</span>
-              <span>{formatDate(project.updatedAt)}</span>
             </div>
           </div>
           
-          {/* Progress Indication (Matching Design Shimmer) */}
+          {/* Progress Bar (Matching 2026 Design) */}
           <div className="relative h-[2px] w-full bg-white/5 rounded-full overflow-hidden">
             <div 
               style={{ width: `${(idHash * 15 % 70) + 25}%` }}
