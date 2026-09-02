@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchEntity, updateEntity, clearCurrentEntity } from '@/app/store/entitySlice';
 import { UpdateEntityRequest, CreateEntityRequest } from '@/app/types/entity';
 import EntityForm from '@/app/components/entities/EntityForm';
-import Navbar from '@/app/components/Navbar';
+import DashboardHeader from '@/app/components/DashboardHeader';
 
 export default function EditEntityPage() {
   const router = useRouter();
@@ -46,24 +46,24 @@ export default function EditEntityPage() {
 
   if (loading || !currentEntity) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-gray-900 via-purple-900/20 to-gray-900">
-        <Navbar />
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-screen bg-[#16111B] flex flex-col">
+        <DashboardHeader />
+        <div className="flex items-center justify-center flex-1">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-900 via-purple-900/20 to-gray-900">
+    <div className="min-h-screen bg-[#16111B] flex flex-col">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-purple-500/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-blue-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-[-20%] left-[-10%] w-[80%] h-[100%] bg-[#a855f7]/15 rounded-full blur-[180px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[70%] bg-[#fbbf24]/5 rounded-full blur-[160px]" />
       </div>
 
-      <Navbar />
+      <DashboardHeader />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Breadcrumb */}

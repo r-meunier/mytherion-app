@@ -71,30 +71,34 @@ export default function EntityDetailPage() {
 
   if (loading || !currentEntity || !currentProject) {
     return (
-      <div className="relative z-10 flex h-screen overflow-hidden">
-        <DualSidebar activeSection="entities" projectId={projectId} />
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <DashboardHeader />
-          <div className="flex-1 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          </div>
-        </main>
+      <div className="flex flex-col h-screen overflow-hidden bg-[#16111B]">
+        <DashboardHeader />
+        <div className="flex flex-1 overflow-hidden relative z-10">
+          <DualSidebar activeSection="entities" projectId={projectId} />
+          <main className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+          </main>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="relative z-10 flex h-screen overflow-hidden">
-        <DualSidebar activeSection="entities" projectId={projectId} />
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <DashboardHeader />
-          <div className="flex-1 flex items-center justify-center">
-            <div className="glass rounded-xl p-6 border border-red-500/50">
-              <p className="text-red-400 text-lg">{error}</p>
+      <div className="flex flex-col h-screen overflow-hidden bg-[#16111B]">
+        <DashboardHeader />
+        <div className="flex flex-1 overflow-hidden relative z-10">
+          <DualSidebar activeSection="entities" projectId={projectId} />
+          <main className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex items-center justify-center">
+              <div className="glass rounded-xl p-6 border border-red-500/50">
+                <p className="text-red-400 text-lg">{error}</p>
+              </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     );
   }
@@ -103,16 +107,24 @@ export default function EntityDetailPage() {
   const metadata = normalizeMetadata(currentEntity.metadata);
 
   return (
-    <div className="relative z-10 flex h-screen overflow-hidden">
-      <DualSidebar 
-        activeSection="entities"
-        projectId={projectId}
-      />
+    <div className="flex flex-col h-screen overflow-hidden bg-[#16111B]">
+      {/* Background Ley Lines - Exact Design Atmosphere */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-[#0F0F23]">
+        <div className="absolute top-[-20%] left-[-10%] w-[80%] h-[100%] bg-[#a855f7]/15 rounded-full blur-[180px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[70%] bg-[#fbbf24]/5 rounded-full blur-[160px]" />
+      </div>
 
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <DashboardHeader />
+      {/* Header (Global Parent) */}
+      <DashboardHeader />
 
-        <div className="flex-1 overflow-y-auto p-8 space-y-8">
+      <div className="flex flex-1 overflow-hidden relative z-10">
+        <DualSidebar 
+          activeSection="entities"
+          projectId={projectId}
+        />
+
+        <main className="flex-1 flex flex-col overflow-hidden relative">
+          <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
           {/* Back Link */}
           <div>
             <Link

@@ -55,38 +55,42 @@ export default function EntitiesPage() {
 
   if (loading && !currentProject) {
     return (
-      <div className="relative z-10 flex h-screen overflow-hidden">
-        <DualSidebar activeSection="entities" projectId={projectId} />
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <DashboardHeader />
-          <div className="flex-1 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          </div>
-        </main>
+      <div className="flex flex-col h-screen overflow-hidden bg-[#16111B]">
+        <DashboardHeader />
+        <div className="flex flex-1 overflow-hidden relative z-10">
+          <DualSidebar activeSection="entities" projectId={projectId} />
+          <main className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+          </main>
+        </div>
       </div>
     );
   }
 
   if (error && !currentProject) {
     return (
-      <div className="relative z-10 flex h-screen overflow-hidden">
-        <DualSidebar activeSection="entities" projectId={projectId} />
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <DashboardHeader />
-          <div className="flex-1 flex items-center justify-center">
-            <div className="glass rounded-xl p-6 border border-red-500/50 max-w-md text-center">
-              <span className="material-symbols-outlined text-red-400 text-4xl mb-4">error</span>
-              <h3 className="text-xl font-bold text-white mb-2">Failed to Load Project</h3>
-              <p className="text-red-400 mb-6">{error}</p>
-              <button 
-                onClick={() => window.location.reload()}
-                className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-all"
-              >
-                Retry
-              </button>
+      <div className="flex flex-col h-screen overflow-hidden bg-[#16111B]">
+        <DashboardHeader />
+        <div className="flex flex-1 overflow-hidden relative z-10">
+          <DualSidebar activeSection="entities" projectId={projectId} />
+          <main className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex items-center justify-center">
+              <div className="glass rounded-xl p-6 border border-red-500/50 max-w-md text-center">
+                <span className="material-symbols-outlined text-red-400 text-4xl mb-4">error</span>
+                <h3 className="text-xl font-bold text-white mb-2">Failed to Load Project</h3>
+                <p className="text-red-400 mb-6">{error}</p>
+                <button 
+                  onClick={() => window.location.reload()}
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-all"
+                >
+                  Retry
+                </button>
+              </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     );
   }
