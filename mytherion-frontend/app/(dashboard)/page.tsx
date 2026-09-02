@@ -63,20 +63,20 @@ export default function Home() {
       </div>
 
       {/* Header (Docked 2026 Bar) */}
-      <DashboardHeader onCreateProject={() => setShowCreateModal(true)} />
+      <DashboardHeader />
 
       {/* Main Content Area - 2026 Bento Portal */}
       <main className="flex-1 flex flex-col overflow-hidden relative z-10">
         <div className="flex-1 overflow-y-auto px-6 sm:px-12 py-10 space-y-10 scroll-smooth custom-scrollbar">
           
           {/* Header & Glass Command Bar Section */}
-          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div>
-              <h1 className="font-display-lg text-4xl sm:text-5xl font-extrabold text-white mb-2 text-glow tracking-tight">
+              <h1 className="font-display-lg text-2xl sm:text-3xl font-bold text-white mb-1 text-glow tracking-tight">
                 Your Worlds
               </h1>
-              <p className="text-sm sm:text-base text-white/60 max-w-xl font-medium tracking-wide">
-                Access and manage your multi-verse projects. Select a world to continue your creative alchemy.
+              <p className="text-xs sm:text-sm text-white/60 max-w-lg font-medium tracking-wide">
+                Pick up where you left off, or bring a new universe to life.
               </p>
             </div>
             

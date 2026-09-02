@@ -63,11 +63,12 @@ export default function ProjectDashboard() {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#16111B]">
-      {/* Background Ley Lines - Exact Design Atmosphere */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-[#0F0F23]">
-        <div className="absolute top-[-20%] left-[-10%] w-[80%] h-[100%] bg-[#a855f7]/15 rounded-full blur-[180px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[70%] bg-[#fbbf24]/5 rounded-full blur-[160px]" />
+    <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
+      {/* Ambient Background with Floating Shards & Glows */}
+      <div className="ambient-bg">
+        <div className="floating-shard w-32 h-32 top-20 left-10 opacity-20" />
+        <div className="floating-shard w-48 h-48 bottom-40 right-20 opacity-10" style={{ animationDelay: "-5s", animationDuration: "25s" }} />
+        <div className="floating-shard w-16 h-16 top-1/2 left-1/4 opacity-30" style={{ animationDelay: "-12s", animationDuration: "15s", borderRadius: "50%" }} />
       </div>
 
       {/* Header (Global Parent with Back to Worlds navigation) */}
@@ -85,44 +86,45 @@ export default function ProjectDashboard() {
         <main className="flex-1 flex flex-col overflow-hidden relative">
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-8 space-y-10 scroll-smooth relative z-10 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-8 space-y-8 scroll-smooth relative z-10 custom-scrollbar">
           
           {/* Page Title */}
           <div>
-            <h1 className="text-5xl font-serif font-bold text-[#D4AF37] tracking-wide">
+            <h1 className="font-display-lg text-3xl sm:text-4xl font-bold text-white text-glow tracking-tight">
               {currentProject.name}
             </h1>
             {currentProject.description && (
-              <p className="text-white/50 text-sm mt-2 max-w-2xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-white/60 mt-1.5 max-w-2xl font-medium leading-relaxed">
                 {currentProject.description}
               </p>
             )}
           </div>
 
           {/* Project Overview (Live Metrics with nullish coalescing) */}
-          <section className="bg-white/[0.03] backdrop-blur-[12px] border border-white/10 rounded-3xl p-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -mr-32 -mt-32"></div>
+          <section className="glass-panel rounded-2xl p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -mr-32 -mt-32 pointer-events-none" />
             <div className="relative z-10">
-              <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em] border-l-4 border-primary pl-3 mb-8">
-                Project Overview
+              <h3 className="text-xs font-bold text-white/60 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(221,183,255,0.8)]" />
+                <span>Project Overview</span>
               </h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="p-6 bg-white/5 rounded-2xl border border-white/10 hover:border-primary/30 transition-all">
-                  <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-1">Total Entities</p>
-                  <p className="text-4xl font-bold text-white">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="p-5 glass-panel rounded-xl border border-white/5 hover:border-primary/40 transition-all">
+                  <p className="text-white/40 text-[11px] font-bold uppercase tracking-wider mb-1">Total Entities</p>
+                  <p className="text-3xl font-bold text-white text-glow">
                     {stats?.totalEntities ?? 0}
                   </p>
                 </div>
-                <div className="p-6 bg-white/5 rounded-2xl border border-white/10 hover:border-primary/30 transition-all">
-                  <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-1">Characters</p>
-                  <p className="text-4xl font-bold text-white">
+                <div className="p-5 glass-panel rounded-xl border border-white/5 hover:border-primary/40 transition-all">
+                  <p className="text-white/40 text-[11px] font-bold uppercase tracking-wider mb-1">Characters</p>
+                  <p className="text-3xl font-bold text-white text-glow">
                     {stats?.entityCountByType?.['CHARACTER'] ?? 0}
                   </p>
                 </div>
-                <div className="p-6 bg-white/5 rounded-2xl border border-white/10 hover:border-primary/30 transition-all">
-                  <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-1">Locations</p>
-                  <p className="text-4xl font-bold text-white">
+                <div className="p-5 glass-panel rounded-xl border border-white/5 hover:border-primary/40 transition-all">
+                  <p className="text-white/40 text-[11px] font-bold uppercase tracking-wider mb-1">Locations</p>
+                  <p className="text-3xl font-bold text-white text-glow">
                     {stats?.entityCountByType?.['LOCATION'] ?? 0}
                   </p>
                 </div>
@@ -131,8 +133,8 @@ export default function ProjectDashboard() {
           </section>
 
           {/* World Modules Section */}
-          <section className="space-y-6">
-            <h3 className="text-sm font-bold text-white/50 uppercase tracking-[0.2em]">World Modules</h3>
+          <section className="space-y-4">
+            <h3 className="text-xs font-bold text-white/50 uppercase tracking-[0.2em]">World Modules</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <ArcaneModuleCard 
                 title="Codex Browser"
@@ -160,29 +162,29 @@ export default function ProjectDashboard() {
           </section>
 
           {/* Quick Create Section */}
-          <section className="pt-8 border-t border-white/5 space-y-6">
-            <h3 className="text-sm font-bold text-white/50 uppercase tracking-[0.2em]">Quick Create</h3>
+          <section className="pt-6 border-t border-white/5 space-y-4">
+            <h3 className="text-xs font-bold text-white/50 uppercase tracking-[0.2em]">Quick Create</h3>
             <div className="flex flex-wrap gap-4">
               <button 
                 onClick={() => handleQuickCreate(EntityType.CHARACTER)}
-                className="flex items-center space-x-3 px-6 py-4 bg-white/[0.03] backdrop-blur-[12px] border border-white/10 rounded-xl hover:border-primary/50 transition-all hover:bg-white/5 group cursor-pointer active:scale-[0.98]"
+                className="glass-panel rounded-xl px-5 py-3 hover:border-primary/40 hover:bg-white/5 transition-all text-sm font-semibold text-white/80 hover:text-white flex items-center gap-3 cursor-pointer active:scale-95"
               >
-                <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">person_add</span>
-                <span className="font-semibold text-white/80 group-hover:text-white">New Character</span>
+                <span className="material-symbols-outlined text-primary text-[20px]">person_add</span>
+                <span>New Character</span>
               </button>
               <button 
                 onClick={() => handleQuickCreate(EntityType.LOCATION)}
-                className="flex items-center space-x-3 px-6 py-4 bg-white/[0.03] backdrop-blur-[12px] border border-white/10 rounded-xl hover:border-primary/50 transition-all hover:bg-white/5 group cursor-pointer active:scale-[0.98]"
+                className="glass-panel rounded-xl px-5 py-3 hover:border-primary/40 hover:bg-white/5 transition-all text-sm font-semibold text-white/80 hover:text-white flex items-center gap-3 cursor-pointer active:scale-95"
               >
-                <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">add_location_alt</span>
-                <span className="font-semibold text-white/80 group-hover:text-white">New Location</span>
+                <span className="material-symbols-outlined text-primary text-[20px]">add_location_alt</span>
+                <span>New Location</span>
               </button>
               <button 
                 onClick={() => handleQuickCreate(EntityType.ITEM)}
-                className="flex items-center space-x-3 px-6 py-4 bg-white/[0.03] backdrop-blur-[12px] border border-white/10 rounded-xl hover:border-primary/50 transition-all hover:bg-white/5 group cursor-pointer active:scale-[0.98]"
+                className="glass-panel rounded-xl px-5 py-3 hover:border-primary/40 hover:bg-white/5 transition-all text-sm font-semibold text-white/80 hover:text-white flex items-center gap-3 cursor-pointer active:scale-95"
               >
-                <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">history_edu</span>
-                <span className="font-semibold text-white/80 group-hover:text-white">New Lore Entry</span>
+                <span className="material-symbols-outlined text-primary text-[20px]">history_edu</span>
+                <span>New Lore Entry</span>
               </button>
             </div>
           </section>

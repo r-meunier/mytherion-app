@@ -255,17 +255,6 @@ export default function DashboardHeader({ onCreateProject }: DashboardHeaderProp
               )}
             </div>
 
-            {/* New Project Action (Optional Header trigger) */}
-            {onCreateProject && isAuthenticated && user && (
-              <button 
-                onClick={onCreateProject}
-                className="bg-primary/20 text-primary border border-primary/30 px-3.5 py-1.5 rounded-full text-xs font-bold hover:bg-primary/30 transition-all active:scale-[0.98] shadow-lg shadow-primary/10 flex items-center gap-1.5 whitespace-nowrap group"
-              >
-                <span className="material-symbols-outlined text-[18px] group-hover:rotate-90 transition-transform">add</span>
-                <span className="hidden xl:inline">New Project</span>
-              </button>
-            )}
-
             {!isAuthenticated && (
               <Link href="/login">
                 <button className="bg-primary hover:bg-primary/80 text-[#2c0051] px-5 py-2 rounded-full text-sm font-bold transition-all shadow-lg shadow-primary/20">

@@ -94,17 +94,17 @@ export default function DualSidebar({
   return (
     <div className="flex h-full shrink-0 relative z-40 border-r border-white/5">
       {/* Left Sidebar Rail (80px) */}
-      <aside className="w-20 bg-[#0F0F23] flex flex-col items-center py-6 gap-8">
+      <aside className="w-20 bg-[#0d0914] flex flex-col items-center py-6 gap-8 border-r border-white/5">
         {/* Navigation Rail */}
-        <nav className="flex flex-col gap-6">
+        <nav className="flex flex-col gap-5">
           {iconNavItems.map((item) => (
             <Link
               key={item.id}
               href={item.href}
               className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group ${
                 currentActiveSection === item.id
-                  ? "bg-primary/10 text-primary border-l-4 border-primary"
-                  : "text-primary hover:bg-white/5 transition-colors hover:text-white"
+                  ? "bg-primary/15 text-primary border border-primary/25 shadow-[0_0_15px_rgba(221,183,255,0.2)]"
+                  : "text-white/60 hover:bg-white/5 transition-colors hover:text-white"
               }`}
               title={item.label}
             >
@@ -118,111 +118,106 @@ export default function DualSidebar({
           ))}
         </nav>
 
-        {/* Bottom Rail Section (Settings, Support, User) */}
-        <div className="mt-auto flex flex-col gap-6 items-center w-full px-4 mb-2">
+        {/* Bottom Rail Section (Settings, Support) */}
+        <div className="mt-auto flex flex-col gap-4 items-center w-full px-4 mb-2">
           {finalManagementItems.map((item) => (
             <Link
               key={item.id}
               href={item.href}
-              className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-300 ${
-                currentActiveSection === item.id ? "text-primary bg-primary/10" : "text-white/70 hover:text-white hover:bg-white/5"
+              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                currentActiveSection === item.id 
+                  ? "text-primary bg-primary/15 border border-primary/20 shadow-[0_0_12px_rgba(221,183,255,0.2)]" 
+                  : "text-white/60 hover:text-white hover:bg-white/5"
               }`}
               title={item.label}
             >
               <span className="material-symbols-outlined text-2xl">{item.icon}</span>
             </Link>
           ))}
-          <div className="w-10 h-10 rounded-full border border-white/10 overflow-hidden cursor-pointer hover:border-primary/50 transition-colors mt-2 ring-2 ring-white/5">
-            <img 
-              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop" 
-              alt="User" 
-              className="w-full h-full object-cover"
-            />
-          </div>
         </div>
       </aside>
 
       {/* Inner Sidebar (256px / w-64) */}
-      <aside className="w-64 bg-[#16111B]/80 backdrop-blur-2xl flex flex-col pt-8 font-display">
+      <aside className="w-64 bg-[#130d1c]/90 backdrop-blur-2xl flex flex-col pt-8 font-sans border-r border-white/5">
         {/* Contextual Branding (Project Specific) */}
         {isProjectMode && (
-          <div className="px-8 mb-10 min-h-[64px] flex flex-col justify-center">
+          <div className="px-6 mb-8 min-h-[56px] flex flex-col justify-center border-b border-white/5 pb-4">
             {currentProject ? (
-              <div className="animate-in fade-in duration-500">
-                <h2 className="text-2xl font-bold tracking-tighter text-white drop-shadow-[0_0_8px_rgba(168,85,247,0.3)] truncate leading-tight">
+              <div className="animate-in fade-in duration-300">
+                <h2 className="text-xl font-bold tracking-tight text-white text-glow truncate leading-tight">
                   {currentProject.name}
                 </h2>
-                <p className="text-[10px] text-white/30 font-bold uppercase tracking-[0.3em] mt-1">
-                  ACTIVE WORLD
+                <p className="text-[9px] text-white/40 font-bold uppercase tracking-[0.25em] mt-1">
+                  Active World
                 </p>
               </div>
             ) : (
               <div className="space-y-2">
-                <div className="h-7 w-32 bg-white/5 rounded animate-pulse"></div>
-                <div className="h-3 w-20 bg-white/5 rounded animate-pulse"></div>
+                <div className="h-6 w-32 bg-white/5 rounded animate-pulse" />
+                <div className="h-3 w-16 bg-white/5 rounded animate-pulse" />
               </div>
             )}
           </div>
         )}
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 space-y-10 overflow-y-auto custom-scrollbar">
+        <nav className="flex-1 px-4 space-y-8 overflow-y-auto custom-scrollbar">
           {/* Main Nav */}
           <div className="space-y-1">
-            <p className="px-4 text-[10px] font-black text-white/40 uppercase tracking-[0.4em] mb-4">
+            <p className="px-3 text-[10px] font-bold text-white/30 uppercase tracking-[0.25em] mb-3">
               Navigation
             </p>
             {currentNavItems.map((item) => (
               <Link
                 key={item.id}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 group ${
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 group ${
                   currentActiveSection === item.id
-                    ? "sidebar-item-active"
-                    : "text-white/70 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <span className="material-symbols-outlined text-[20px] transition-all duration-300 group-hover:scale-110">
-                  {item.icon}
-                </span>
-                <span className="text-sm font-semibold tracking-tight truncate">{item.label}</span>
-              </Link>
-            ))}
-          </div>
-
-          {/* Library Nav */}
-          <div className="space-y-1">
-            <p className="px-4 text-[10px] font-black text-white/40 uppercase tracking-[0.4em] mb-4">
-              Library
-            </p>
-            {currentLibraryItems.map((item) => (
-              <Link
-                key={item.id}
-                href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 group ${
-                  currentActiveSection === item.id
-                    ? "sidebar-item-active"
+                    ? "bg-primary/15 text-primary font-bold border border-primary/20 shadow-[0_0_12px_rgba(221,183,255,0.15)]"
                     : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
               >
                 <span className="material-symbols-outlined text-[20px] transition-all duration-300 group-hover:scale-110">
                   {item.icon}
                 </span>
-                <span className="text-sm font-semibold tracking-tight truncate">{item.label}</span>
+                <span className="text-sm font-medium tracking-tight truncate">{item.label}</span>
               </Link>
             ))}
           </div>
 
-        <div className="px-4 mb-8">
+          {/* Library Nav */}
+          <div className="space-y-1">
+            <p className="px-3 text-[10px] font-bold text-white/30 uppercase tracking-[0.25em] mb-3">
+              Library
+            </p>
+            {currentLibraryItems.map((item) => (
+              <Link
+                key={item.id}
+                href={item.href}
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 group ${
+                  currentActiveSection === item.id
+                    ? "bg-primary/15 text-primary font-bold border border-primary/20 shadow-[0_0_12px_rgba(221,183,255,0.15)]"
+                    : "text-white/60 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <span className="material-symbols-outlined text-[20px] transition-all duration-300 group-hover:scale-110">
+                  {item.icon}
+                </span>
+                <span className="text-sm font-medium tracking-tight truncate">{item.label}</span>
+              </Link>
+            ))}
+          </div>
+
+        <div className="px-2 mb-8 pt-2">
           {/* Contextual Actions */}
           <div className="flex flex-col gap-3">
             {isProjectMode && onCreateEntity && (
               <button
                 onClick={onCreateEntity}
-                className="btn-glass w-full py-3"
+                className="bg-[#ddb7ff] text-[#2c0051] hover:bg-[#f0dbff] w-full py-2.5 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(221,183,255,0.4)] active:scale-95 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[20px]">add</span>
-                Create New Entity
+                <span className="material-symbols-outlined text-[18px]">add</span>
+                <span>Create New Entity</span>
               </button>
             )}
           </div>

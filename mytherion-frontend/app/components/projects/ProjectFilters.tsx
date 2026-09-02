@@ -82,7 +82,7 @@ export default function ProjectFilters({
               onSearchChange?.(e.target.value);
             }}
             placeholder="Filter worlds..."
-            className="w-full bg-transparent border-none pl-12 pr-4 py-2.5 text-sm text-white placeholder:text-white/40 focus:ring-0 focus:outline-none transition-all"
+            className="w-full bg-transparent border-none pl-12 pr-4 py-2.5 text-sm font-medium text-white placeholder:text-white/40 focus:ring-0 focus:outline-none transition-all"
           />
         </div>
 
@@ -94,19 +94,19 @@ export default function ProjectFilters({
           <button
             type="button"
             onClick={() => setIsSortOpen(!isSortOpen)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold uppercase tracking-wider text-white/70 hover:text-white transition-colors rounded-full hover:bg-white/5"
+            className="flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-white/70 hover:text-white transition-colors rounded-full hover:bg-white/5 whitespace-nowrap"
             title="Sort order"
           >
-            <span className="material-symbols-outlined text-[18px]">sort</span>
-            <span>{sortBy.toUpperCase()}</span>
+            <span className="material-symbols-outlined text-[20px]">sort</span>
+            <span>{sortBy === "date" ? "Date" : "Name"}</span>
           </button>
 
           {isSortOpen && (
             <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-36 bg-[#1f1a23] backdrop-blur-2xl border border-white/10 rounded-xl shadow-2xl p-1 animate-in fade-in zoom-in-95 duration-150">
               <button
                 onClick={() => handleSortSelect("date")}
-                className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg flex items-center justify-between ${
-                  sortBy === "date" ? "bg-primary/20 text-primary" : "text-white/70 hover:bg-white/5 hover:text-white"
+                className={`w-full text-left px-3 py-2 text-sm font-medium rounded-lg flex items-center justify-between ${
+                  sortBy === "date" ? "bg-primary/20 text-primary font-bold" : "text-white/70 hover:bg-white/5 hover:text-white"
                 }`}
               >
                 <span>Date</span>
@@ -114,8 +114,8 @@ export default function ProjectFilters({
               </button>
               <button
                 onClick={() => handleSortSelect("name")}
-                className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg flex items-center justify-between ${
-                  sortBy === "name" ? "bg-primary/20 text-primary" : "text-white/70 hover:bg-white/5 hover:text-white"
+                className={`w-full text-left px-3 py-2 text-sm font-medium rounded-lg flex items-center justify-between ${
+                  sortBy === "name" ? "bg-primary/20 text-primary font-bold" : "text-white/70 hover:bg-white/5 hover:text-white"
                 }`}
               >
                 <span>Name</span>
@@ -137,7 +137,7 @@ export default function ProjectFilters({
             }`}
             title="Filter by Genre"
           >
-            <span className="material-symbols-outlined text-[18px]">tune</span>
+            <span className="material-symbols-outlined text-[20px]">tune</span>
           </button>
 
           {isFilterOpen && (
@@ -147,7 +147,7 @@ export default function ProjectFilters({
                 <button
                   key={opt.value}
                   onClick={() => handleGenreSelect(opt.value)}
-                  className={`w-full text-left px-3 py-1.5 text-xs font-medium rounded-lg flex items-center justify-between ${
+                  className={`w-full text-left px-3 py-1.5 text-sm font-medium rounded-lg flex items-center justify-between ${
                     genre === opt.value ? "bg-primary/20 text-primary font-bold" : "text-white/70 hover:bg-white/5 hover:text-white"
                   }`}
                 >
@@ -159,15 +159,15 @@ export default function ProjectFilters({
           )}
         </div>
 
-        {/* + NEW Button */}
+        {/* Create World Button */}
         {onCreateClick && (
           <button
             type="button"
             onClick={onCreateClick}
-            className="bg-[#ddb7ff] text-[#2c0051] px-5 py-2.5 rounded-full text-xs font-bold hover:bg-[#f0dbff] transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(221,183,255,0.4)] active:scale-95 whitespace-nowrap ml-1 cursor-pointer"
+            className="bg-[#ddb7ff] text-[#2c0051] px-5 py-2.5 rounded-full text-sm font-bold hover:bg-[#f0dbff] transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(221,183,255,0.4)] active:scale-95 whitespace-nowrap ml-1 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px]">add</span>
-            <span>NEW</span>
+            <span className="material-symbols-outlined text-[20px]">add</span>
+            <span>Create World</span>
           </button>
         )}
       </div>

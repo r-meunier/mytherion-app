@@ -183,14 +183,6 @@ export default function ProjectCard({
             <span className="material-symbols-outlined text-[14px] mr-1.5 text-primary/70">database</span>
             <span>{(project.entityCount || 0).toLocaleString()} Entities</span>
           </div>
-
-          {/* Progress Bar */}
-          <div className="relative h-[2px] w-full bg-white/5 rounded-full overflow-hidden mt-1">
-            <div 
-              style={{ width: `${(idHash * 15 % 70) + 25}%` }}
-              className="absolute inset-y-0 left-0 bg-primary/40 shadow-[0_0_8px_rgba(168,85,247,0.4)]"
-            />
-          </div>
         </div>
       </div>
       
