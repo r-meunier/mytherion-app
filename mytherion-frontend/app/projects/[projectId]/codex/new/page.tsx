@@ -6,10 +6,11 @@ import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { createEntity, clearCurrentEntity } from '@/app/store/entitySlice';
 import { fetchProject } from '@/app/store/projectSlice';
 import { CreateEntityRequest, UpdateEntityRequest } from '@/app/types/entity';
-import EntityForm from '@/app/components/entities/EntityForm';
+import EntityForm from '@/app/components/codex/EntityForm';
 import DualSidebar from '@/app/components/DualSidebar';
-import DashboardHeader from '@/app/components/DashboardHeader';
+import AppHeader from '@/app/components/AppHeader';
 import Link from 'next/link';
+import routes from '@/app/config/routes';
 
 export default function NewEntityPage() {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function NewEntityPage() {
   // Redirect to entity detail page after successful creation
   useEffect(() => {
     if (currentEntity && !loading && !error) {
-      router.push(`/projects/${projectId}/entities/${currentEntity.id}`);
+      router.push(routes.project(projectId).codex.detail(currentEntity.id));
     }
   }, [currentEntity, loading, error, projectId, router]);
 
@@ -42,16 +43,15 @@ export default function NewEntityPage() {
   };
 
   const handleCancel = () => {
-    router.push(`/projects/${projectId}/entities`);
+    router.push(routes.project(projectId).codex.index());
   };
-
 
   if (loading || !currentProject) {
     return (
       <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
-        <DashboardHeader />
+        <AppHeader />
         <div className="flex flex-1 overflow-hidden relative z-10">
-          <DualSidebar activeSection="entities" projectId={projectId} />
+          <DualSidebar activeSection="codex" projectId={projectId} />
           <main className="flex-1 flex flex-col overflow-hidden">
             <div className="flex-1 flex items-center justify-center">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -72,47 +72,47 @@ export default function NewEntityPage() {
       </div>
 
       {/* Header (Global Parent) */}
-      <DashboardHeader />
+      <AppHeader />
 
       <div className="flex flex-1 overflow-hidden relative z-10">
         <DualSidebar 
-          activeSection="entities"
+          activeSection="codex"
           projectId={projectId}
         />
         
         <main className="flex-1 flex flex-col overflow-hidden relative">
           <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
-          {/* Page Title & Back Link */}
-          <div>
-            <Link
-              href={`/projects/${projectId}/entities`}
-              className="inline-flex items-center text-primary text-xs font-bold uppercase tracking-wider hover:text-white transition-colors mb-4 group"
-            >
-              <span className="material-symbols-outlined text-base mr-1.5 group-hover:-translate-x-1 transition-transform">
-                arrow_back
-              </span>
-              Back to Entity Codex
-            </Link>
-            <h1 className="font-display-lg text-2xl sm:text-3xl font-bold text-white text-glow tracking-tight">
-              Create Entity
-            </h1>
-            <p className="text-xs sm:text-sm text-white/60 mt-1 max-w-lg font-medium tracking-wide">
-              Add a new character, location, organization, or other entity to {currentProject.name}
-            </p>
-          </div>
+            {/* Page Title & Back Link */}
+            <div>
+              <Link
+                href={routes.project(projectId).codex.index()}
+                className="inline-flex items-center text-primary text-xs font-bold uppercase tracking-wider hover:text-white transition-colors mb-4 group"
+              >
+                <span className="material-symbols-outlined text-base mr-1.5 group-hover:-translate-x-1 transition-transform">
+                  arrow_back
+                </span>
+                Back to Entity Codex
+              </Link>
+              <h1 className="font-display-lg text-2xl sm:text-3xl font-bold text-white text-glow tracking-tight">
+                Create Entity
+              </h1>
+              <p className="text-xs sm:text-sm text-white/60 mt-1 max-w-lg font-medium tracking-wide">
+                Add a new character, location, organization, or other entity to {currentProject.name}
+              </p>
+            </div>
 
-          {/* Form */}
-          <div className="glass-panel rounded-2xl p-6 sm:p-8 max-w-4xl">
-            <EntityForm
-              projectId={projectId}
-              onSubmit={handleSubmit}
-              onCancel={handleCancel}
-              loading={loading}
-              error={error}
-            />
+            {/* Form */}
+            <div className="glass-panel rounded-2xl p-6 sm:p-8 max-w-4xl">
+              <EntityForm
+                projectId={projectId}
+                onSubmit={handleSubmit}
+                onCancel={handleCancel}
+                loading={loading}
+                error={error}
+              />
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
       </div>
     </div>
   );

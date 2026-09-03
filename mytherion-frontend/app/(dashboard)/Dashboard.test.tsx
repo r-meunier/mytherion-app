@@ -15,7 +15,7 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock Child Components to simplify
-jest.mock('../components/DashboardHeader', () => ({
+jest.mock('../components/AppHeader', () => ({
   __esModule: true,
   default: () => <div data-testid="mock-header">Header</div>,
 }));

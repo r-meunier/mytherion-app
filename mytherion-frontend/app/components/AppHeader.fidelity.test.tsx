@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import DashboardHeader from './DashboardHeader';
+import AppHeader from './AppHeader';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { useRouter, usePathname } from 'next/navigation';
 
@@ -16,7 +16,7 @@ jest.mock('next/navigation', () => ({
   usePathname: jest.fn(),
 }));
 
-describe('DashboardHeader High Fidelity', () => {
+describe('AppHeader High Fidelity', () => {
   const mockUser = {
     id: 1,
     username: 'Alistair Thorne',
@@ -35,43 +35,51 @@ describe('DashboardHeader High Fidelity', () => {
 
   it('hides the top search on the Worlds page (pathname === "/")', () => {
     (usePathname as jest.Mock).mockReturnValue('/');
-    render(<DashboardHeader />);
+    render(<AppHeader />);
     
     expect(screen.queryByPlaceholderText('Search')).not.toBeInTheDocument();
   });
 
   it('renders the Search input with correct placeholder inside projects', () => {
     (usePathname as jest.Mock).mockReturnValue('/projects/1');
-    render(<DashboardHeader />);
+    render(<AppHeader />);
     
     expect(screen.getByPlaceholderText('Search')).toBeInTheDocument();
     expect(screen.getByText('search')).toBeInTheDocument(); // Icon symbol
   });
 
   it('renders the notifications button', () => {
-    render(<DashboardHeader />);
+    render(<AppHeader />);
     
     expect(screen.getByText('notifications')).toBeInTheDocument();
   });
 
-  it('transforms "Dashboard" link to "Back to Worlds" when in project mode', () => {
+  it('renders "Projects" navigation link when on the home page', () => {
+    (usePathname as jest.Mock).mockReturnValue('/');
+    
+    render(<AppHeader />);
+    
+    expect(screen.getByText('Projects')).toBeInTheDocument();
+  });
+
+  it('transforms link to "Back to Projects" when in project mode', () => {
     (usePathname as jest.Mock).mockReturnValue('/projects/1');
     
-    render(<DashboardHeader />);
+    render(<AppHeader />);
     
-    expect(screen.getByText('Back to Worlds')).toBeInTheDocument();
+    expect(screen.getByText('Back to Projects')).toBeInTheDocument();
     expect(screen.getByText('arrow_back')).toBeInTheDocument(); // Back icon
   });
 
   it('renders the Arbiter status in the profile dropdown (hidden by default)', () => {
-    render(<DashboardHeader />);
+    render(<AppHeader />);
     
     // The text should be in the document (hidden by CSS/Opacity)
     expect(screen.getByText('Arbiter Level 4')).toBeInTheDocument();
   });
 
   it('renders "Archivist Level 4" sub-branding in the header', () => {
-    render(<DashboardHeader />);
+    render(<AppHeader />);
     
     expect(screen.getByText('Archivist Level 4')).toBeInTheDocument();
   });

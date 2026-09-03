@@ -1,8 +1,12 @@
+import routes from "./routes";
+
 export interface NavItem {
   id: string;
   label: string;
   href: string;
   icon: string;
+  badge?: string;
+  disabled?: boolean;
 }
 
 /**
@@ -10,36 +14,43 @@ export interface NavItem {
  * Includes 'Portal' (Worlds) and project-specific modules
  */
 export const getProjectIconItems = (projectId?: string): NavItem[] => [
-  { id: "overview", icon: "public", label: "Overview", href: projectId ? `/projects/${projectId}` : "/" },
-  { id: "entities", icon: "menu_book", label: "Codex", href: projectId ? `/projects/${projectId}/entities` : "#" },
-  { id: "timeline", icon: "history_edu", label: "Timeline", href: "#" },
-  { id: "atlas", icon: "map", label: "Atlas", href: "#" },
+  { id: "overview", icon: "public", label: "Overview", href: projectId ? routes.project(projectId).root : routes.home() },
+  { id: "codex", icon: "menu_book", label: "Codex", href: projectId ? routes.project(projectId).codex.index() : "#" },
+  { id: "planner", icon: "schema", label: "Planner", href: projectId ? routes.project(projectId).planner : "#", badge: "Phase 2", disabled: true },
+  { id: "manuscript", icon: "edit_note", label: "Manuscript", href: projectId ? routes.project(projectId).manuscript : "#", badge: "Phase 2", disabled: true },
+  { id: "timeline", icon: "history_edu", label: "Timeline", href: projectId ? routes.project(projectId).timeline : "#", badge: "Soon", disabled: true },
+  { id: "atlas", icon: "map", label: "Atlas", href: "#", disabled: true },
 ];
 
 /**
  * Legacy support for global icons
  */
 export const getGlobalIconItems = (): NavItem[] => [
-  { id: "projects", icon: "public", label: "Worlds", href: "/" },
-  ...getProjectIconItems().slice(1)
+  { id: "projects", icon: "public", label: "Worlds", href: routes.home() },
+  { id: "codex", icon: "menu_book", label: "Codex", href: "#", disabled: true },
+  { id: "planner", icon: "schema", label: "Planner", href: "#", badge: "Phase 2", disabled: true },
+  { id: "manuscript", icon: "edit_note", label: "Manuscript", href: "#", badge: "Phase 2", disabled: true },
 ];
 
 /**
  * Get unified navigation items (middle bar)
  */
 export const getProjectNavItems = (projectId?: string): NavItem[] => [
-  { id: "overview", label: "Overview", href: projectId ? `/projects/${projectId}` : "/", icon: "public" },
-  { id: "entities", label: "Codex", href: projectId ? `/projects/${projectId}/entities` : "#", icon: "menu_book" },
-  { id: "timeline", label: "Timeline", href: "#", icon: "history_edu" },
-  { id: "characters", label: "Characters", href: "#", icon: "group" },
-  { id: "atlas", label: "Atlas", href: "#", icon: "map" },
-  { id: "notes", label: "Project Notes", href: "#", icon: "note_alt" },
+  { id: "overview", label: "Overview", href: projectId ? routes.project(projectId).root : routes.home(), icon: "public" },
+  { id: "codex", label: "Codex", href: projectId ? routes.project(projectId).codex.index() : "#", icon: "menu_book" },
+  { id: "planner", label: "Story Planner", href: projectId ? routes.project(projectId).planner : "#", icon: "schema", badge: "Phase 2", disabled: true },
+  { id: "manuscript", label: "Manuscript", href: projectId ? routes.project(projectId).manuscript : "#", icon: "edit_note", badge: "Phase 2", disabled: true },
+  { id: "timeline", label: "Timeline", href: projectId ? routes.project(projectId).timeline : "#", icon: "history_edu", badge: "Soon", disabled: true },
+  { id: "atlas", label: "Atlas", href: "#", icon: "map", disabled: true },
+  { id: "notes", label: "Project Notes", href: "#", icon: "note_alt", disabled: true },
 ];
 
 /**
  * Legacy support for global nav
  */
-export const getGlobalNavItems = (): NavItem[] => getProjectNavItems();
+export const getGlobalNavItems = (): NavItem[] => [
+  { id: "projects", label: "Your Worlds", href: routes.home(), icon: "public" },
+];
 
 /**
  * Get global library items
@@ -52,7 +63,7 @@ export const getGlobalLibraryItems = (): NavItem[] => [
  * Get management items (Bottom section)
  */
 export const getManagementItems = (projectId?: string): NavItem[] => [
-  { id: "settings", label: "Settings", href: "#", icon: "settings" },
+  { id: "settings", label: "Settings", href: projectId ? routes.project(projectId).settings : "#", icon: "settings" },
   { id: "support", label: "Support", href: "#", icon: "help" },
 ];
 

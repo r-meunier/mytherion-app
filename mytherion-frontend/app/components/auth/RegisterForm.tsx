@@ -3,8 +3,9 @@
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { registerUser, clearError, resendVerification } from "../store/authSlice";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import { registerUser, clearError, resendVerification } from "@/app/store/authSlice";
+import routes from "@/app/config/routes";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -171,7 +172,7 @@ export default function RegisterForm() {
             </div>
 
             <Link
-              href="/login"
+              href={routes.login()}
               className="inline-block w-full px-6 py-3 bg-primary hover:bg-primary/80 text-white font-semibold rounded-lg shadow-lg shadow-primary/20 transition-all"
             >
               Go to Login
@@ -327,7 +328,7 @@ export default function RegisterForm() {
       {/* Login Link Moved OUTSIDE form to match design spacing */}
       <div className="mt-10 text-center">
            <Link
-              href="/login"
+              href={routes.login()}
               className="text-slate-400 hover:text-white text-sm transition-colors border-b border-transparent hover:border-primary pb-0.5"
           >
               Already a Chronicler? <span className="text-primary font-semibold">Login</span>

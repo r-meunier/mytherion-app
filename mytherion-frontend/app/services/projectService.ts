@@ -1,54 +1,18 @@
 import axios from 'axios';
 import logger from '../utils/logger';
 import { API_URL } from './apiConfig';
+import apiRoutes from '../config/apiRoutes';
 
 // Create a child logger for this service
 const serviceLogger = logger.child({ service: 'projectService' });
 
-export interface Project {
-  id: string;
-  name: string;
-  description: string | null;
-  createdAt: string;
-  updatedAt: string;
-  genre?: string;
-  entityCount?: number;
-}
+import { Project, ProjectStats, CreateProjectRequest, UpdateProjectRequest } from '../types/project';
+import { Page } from '../types/common';
 
-export interface ProjectStats {
-  id: string;
-  name: string;
-  description: string | null;
-  entityCount: number;
-  entityCountByType: Record<string, number>;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateProjectRequest {
-  name: string;
-  description: string;
-  genre: string;
-}
-
-export interface UpdateProjectRequest {
-  name?: string;
-  description?: string;
-  genre?: string;
-}
-
-export interface Page<T> {
-  content: T[];
-  pageable: {
-    pageNumber: number;
-    pageSize: number;
-  };
-  totalElements: number;
-  totalPages: number;
-}
+export type { Project, ProjectStats, CreateProjectRequest, UpdateProjectRequest, Page };
 
 const api = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: API_URL,
   withCredentials: true, // Important for JWT cookies
   headers: {
     'Content-Type': 'application/json',
@@ -62,7 +26,7 @@ export const projectService = {
       if (search) params.append('search', search);
       if (genre && genre !== 'all' && genre !== 'none') params.append('genre', genre);
       
-      const response = await api.get(`/projects?${params.toString()}`);
+      const response = await api.get(`${apiRoutes.projects.list}?${params.toString()}`);
       return response.data;
     } catch (error) {
       serviceLogger.error('Failed to fetch projects', error, { page, size, search, genre });
@@ -72,7 +36,7 @@ export const projectService = {
 
   async getProject(id: string): Promise<Project> {    
     try {
-      const response = await api.get(`/projects/${id}`);
+      const response = await api.get(apiRoutes.projects.detail(id));
       return response.data;
     } catch (error) {
       serviceLogger.error('Failed to fetch project', error, { projectId: id });
@@ -84,7 +48,7 @@ export const projectService = {
     serviceLogger.debug('Creating project', { name: data.name });
     
     try {
-      const response = await api.post('/projects', data);
+      const response = await api.post(apiRoutes.projects.create, data);
       serviceLogger.debug('Project created successfully', { 
         projectId: response.data.id,
         name: response.data.name ,
@@ -101,7 +65,7 @@ export const projectService = {
     serviceLogger.debug('Updating project', { projectId: id, updates: Object.keys(data) });
     
     try {
-      const response = await api.put(`/projects/${id}`, data);
+      const response = await api.put(apiRoutes.projects.detail(id), data);
       return response.data;
     } catch (error) {
       serviceLogger.error('Failed to update project', error, { projectId: id, data });
@@ -113,7 +77,7 @@ export const projectService = {
     serviceLogger.debug('Deleting project', { projectId: id });
     
     try {
-      await api.delete(`/projects/${id}`);
+      await api.delete(apiRoutes.projects.detail(id));
       serviceLogger.debug('Project deleted successfully', { projectId: id });
     } catch (error) {
       serviceLogger.error('Failed to delete project', error, { projectId: id });
@@ -125,7 +89,7 @@ export const projectService = {
     serviceLogger.debug('Fetching project stats', { projectId: id });
     
     try {
-      const response = await api.get(`/projects/${id}/stats`);
+      const response = await api.get(apiRoutes.projects.stats(id));
       serviceLogger.debug('Project stats fetched successfully', { 
         projectId: id,
         entityCount: response.data.entityCount 

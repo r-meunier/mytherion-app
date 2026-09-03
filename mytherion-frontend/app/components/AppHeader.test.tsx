@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import DashboardHeader from './DashboardHeader';
+import AppHeader from './AppHeader';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { useRouter } from 'next/navigation';
 import { logoutUser } from '../store/authSlice';
@@ -29,7 +29,7 @@ jest.mock('../store/authSlice', () => ({
   logoutUser: jest.fn(() => ({ type: 'auth/logout' })),
 }));
 
-describe('DashboardHeader', () => {
+describe('AppHeader', () => {
   const mockDispatch = jest.fn();
   const mockPush = jest.fn();
   
@@ -60,7 +60,7 @@ describe('DashboardHeader', () => {
       user: null,
     });
 
-    render(<DashboardHeader />);
+    render(<AppHeader />);
     expect(screen.getByRole('banner').querySelector('.animate-pulse')).toBeInTheDocument();
   });
 
@@ -71,7 +71,7 @@ describe('DashboardHeader', () => {
       user: null,
     });
 
-    render(<DashboardHeader />);
+    render(<AppHeader />);
     expect(screen.getByText('Login')).toBeInTheDocument();
   });
 
@@ -82,7 +82,7 @@ describe('DashboardHeader', () => {
       user: mockUser,
     });
 
-    render(<DashboardHeader />);
+    render(<AppHeader />);
     expect(screen.getByText(mockUser.username)).toBeInTheDocument();
     expect(screen.getByText(/Verified User/i)).toBeInTheDocument();
     expect(screen.queryByText('Arbiter')).not.toBeInTheDocument();
@@ -95,7 +95,7 @@ describe('DashboardHeader', () => {
       user: mockAdminUser,
     });
 
-    render(<DashboardHeader />);
+    render(<AppHeader />);
     expect(screen.getByText(/Arbiter/i)).toBeInTheDocument();
   });
 
@@ -106,7 +106,7 @@ describe('DashboardHeader', () => {
       user: mockUser,
     });
 
-    render(<DashboardHeader />);
+    render(<AppHeader />);
     expect(screen.queryByText(/New Project/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Create Project/i)).not.toBeInTheDocument();
   });
@@ -118,7 +118,7 @@ describe('DashboardHeader', () => {
       user: mockAdminUser,
     });
 
-    render(<DashboardHeader />);
+    render(<AppHeader />);
     
     const profileSection = screen.getByText(mockAdminUser.username).closest('.relative');
     if (!profileSection) throw new Error('Profile section not found');
@@ -145,7 +145,7 @@ describe('DashboardHeader', () => {
 
     mockDispatch.mockResolvedValue({ type: 'auth/logout/fulfilled' });
 
-    render(<DashboardHeader />);
+    render(<AppHeader />);
     
     const logoutButton = screen.getByText('Log out');
     fireEvent.click(logoutButton);

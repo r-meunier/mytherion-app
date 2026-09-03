@@ -13,6 +13,7 @@ import {
   getManagementItems,
   NavItem 
 } from "../config/projectNavigation";
+import routes from "../config/routes";
 
 interface DualSidebarProps {
   activeSection?: string;
@@ -78,7 +79,7 @@ export default function DualSidebar({
       : getGlobalManagementItems();
     
     if (isAdmin && !isProjectMode) {
-      const adminItem = { id: 'admin', label: 'Admin Portal', href: '/admin/users', icon: 'admin_panel_settings' };
+      const adminItem = { id: 'admin', label: 'Admin Portal', href: routes.admin.users(), icon: 'admin_panel_settings' };
       if (!items.some(i => i.id === 'admin')) {
         return [items[0], adminItem, ...items.slice(1)];
       }
@@ -88,49 +89,75 @@ export default function DualSidebar({
 
   const currentActiveSection = activeIcon || activeSection;
 
+  const isItemActive = (itemId: string) => {
+    if (currentActiveSection === itemId) return true;
+    if (itemId === "codex" && currentActiveSection === "entities") return true;
+    if (itemId === "entities" && currentActiveSection === "codex") return true;
+    return false;
+  };
+
   return (
     <div className="flex h-full shrink-0 relative z-40 border-r border-white/5">
       {/* Left Sidebar Rail (80px) */}
       <aside className="w-20 bg-[#0d0914] flex flex-col items-center py-6 gap-8 border-r border-white/5">
         {/* Navigation Rail */}
         <nav className="flex flex-col gap-5">
-          {iconNavItems.map((item) => (
-            <Link
-              key={item.id}
-              href={item.href}
-              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group ${
-                currentActiveSection === item.id
-                  ? "bg-primary/15 text-primary border border-primary/25 shadow-[0_0_15px_rgba(221,183,255,0.2)]"
-                  : "text-white/60 hover:bg-white/5 transition-colors hover:text-white"
-              }`}
-              title={item.label}
-            >
-              <span 
-                className="material-symbols-outlined text-2xl"
-                style={{fontVariationSettings: currentActiveSection === item.id ? "'FILL' 1, 'wght' 700" : "'FILL' 0, 'wght' 400"}}
+          {iconNavItems.map((item) => {
+            const active = isItemActive(item.id);
+            if (item.disabled) {
+              return (
+                <div
+                  key={item.id}
+                  className="w-12 h-12 rounded-xl flex items-center justify-center text-white/30 cursor-not-allowed transition-all duration-300 relative group"
+                  title={`${item.label} (${item.badge || 'Coming Soon'})`}
+                >
+                  <span className="material-symbols-outlined text-2xl opacity-40">
+                    {item.icon}
+                  </span>
+                </div>
+              );
+            }
+            return (
+              <Link
+                key={item.id}
+                href={item.href}
+                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group ${
+                  active
+                    ? "bg-primary/15 text-primary border border-primary/25 shadow-[0_0_15px_rgba(221,183,255,0.2)]"
+                    : "text-white/60 hover:bg-white/5 transition-colors hover:text-white"
+                }`}
+                title={item.label}
               >
-                {item.icon}
-              </span>
-            </Link>
-          ))}
+                <span 
+                  className="material-symbols-outlined text-2xl"
+                  style={{fontVariationSettings: active ? "'FILL' 1, 'wght' 700" : "'FILL' 0, 'wght' 400"}}
+                >
+                  {item.icon}
+                </span>
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Bottom Rail Section (Settings, Support) */}
         <div className="mt-auto flex flex-col gap-4 items-center w-full px-4 mb-2">
-          {finalManagementItems.map((item) => (
-            <Link
-              key={item.id}
-              href={item.href}
-              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                currentActiveSection === item.id 
-                  ? "text-primary bg-primary/15 border border-primary/20 shadow-[0_0_12px_rgba(221,183,255,0.2)]" 
-                  : "text-white/60 hover:text-white hover:bg-white/5"
-              }`}
-              title={item.label}
-            >
-              <span className="material-symbols-outlined text-2xl">{item.icon}</span>
-            </Link>
-          ))}
+          {finalManagementItems.map((item) => {
+            const active = isItemActive(item.id);
+            return (
+              <Link
+                key={item.id}
+                href={item.href}
+                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                  active 
+                    ? "text-primary bg-primary/15 border border-primary/20 shadow-[0_0_12px_rgba(221,183,255,0.2)]" 
+                    : "text-white/60 hover:text-white hover:bg-white/5"
+                }`}
+                title={item.label}
+              >
+                <span className="material-symbols-outlined text-2xl">{item.icon}</span>
+              </Link>
+            );
+          })}
         </div>
       </aside>
 
@@ -158,22 +185,53 @@ export default function DualSidebar({
             <p className="px-3 text-[10px] font-bold text-white/30 uppercase tracking-[0.25em] mb-2">
               Navigation
             </p>
-            {currentNavItems.map((item) => (
-              <Link
-                key={item.id}
-                href={item.href}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 group ${
-                  currentActiveSection === item.id
-                    ? "bg-primary/15 text-primary font-bold border border-primary/20 shadow-[0_0_12px_rgba(221,183,255,0.15)]"
-                    : "text-white/60 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <span className="material-symbols-outlined text-[20px] transition-all duration-300 group-hover:scale-110">
-                  {item.icon}
-                </span>
-                <span className="text-sm font-medium tracking-tight truncate">{item.label}</span>
-              </Link>
-            ))}
+            {currentNavItems.map((item) => {
+              const active = isItemActive(item.id);
+              if (item.disabled) {
+                return (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-white/30 cursor-not-allowed transition-all select-none"
+                    title={`${item.label} (${item.badge || 'Coming Soon'})`}
+                  >
+                    <div className="flex items-center gap-3 truncate">
+                      <span className="material-symbols-outlined text-[20px] opacity-40">
+                        {item.icon}
+                      </span>
+                      <span className="text-sm font-medium tracking-tight truncate">{item.label}</span>
+                    </div>
+                    {item.badge && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/5 text-white/40 border border-white/10 shrink-0">
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
+                );
+              }
+              return (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 group ${
+                    active
+                      ? "bg-primary/15 text-primary font-bold border border-primary/20 shadow-[0_0_12px_rgba(221,183,255,0.15)]"
+                      : "text-white/60 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 truncate">
+                    <span className="material-symbols-outlined text-[20px] transition-all duration-300 group-hover:scale-110">
+                      {item.icon}
+                    </span>
+                    <span className="text-sm font-medium tracking-tight truncate">{item.label}</span>
+                  </div>
+                  {item.badge && (
+                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 shrink-0">
+                      {item.badge}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Library Nav */}
@@ -186,7 +244,7 @@ export default function DualSidebar({
                 key={item.id}
                 href={item.href}
                 className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 group ${
-                  currentActiveSection === item.id
+                  isItemActive(item.id)
                     ? "bg-primary/15 text-primary font-bold border border-primary/20 shadow-[0_0_12px_rgba(221,183,255,0.15)]"
                     : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
@@ -222,7 +280,7 @@ export default function DualSidebar({
               key={item.id}
               href={item.href}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 group ${
-                currentActiveSection === item.id 
+                isItemActive(item.id) 
                   ? "sidebar-item-active" 
                   : "text-white/70 hover:text-white"
               }`}

@@ -9,10 +9,11 @@ import { EntityType } from '@/app/types/entity';
 import Link from 'next/link';
 import ArcaneModuleCard from '@/app/components/ui/ArcaneModuleCard';
 import DualSidebar from '@/app/components/DualSidebar';
-import DashboardHeader from '@/app/components/DashboardHeader';
-import EntityModal from '@/app/components/entities/EntityModal';
-import EntityFilters from '@/app/components/entities/EntityFilters';
+import AppHeader from '@/app/components/AppHeader';
+import EntityModal from '@/app/components/codex/EntityModal';
+import EntityFilters from '@/app/components/codex/EntityFilters';
 import PageHeader from '@/app/components/ui/PageHeader';
+import routes from '@/app/config/routes';
 
 export default function ProjectDashboard() {
   const params = useParams();
@@ -35,16 +36,16 @@ export default function ProjectDashboard() {
 
   const handleSearchSubmit = (query: string) => {
     if (query.trim()) {
-      router.push(`/projects/${projectId}/entities?search=${encodeURIComponent(query.trim())}`);
+      router.push(routes.project(projectId).codex.index({ search: query }));
     }
   };
 
   const handleTypeChange = (type?: EntityType) => {
     setSelectedType(type);
     if (type) {
-      router.push(`/projects/${projectId}/entities?type=${type}`);
+      router.push(routes.project(projectId).codex.index({ type }));
     } else {
-      router.push(`/projects/${projectId}/entities`);
+      router.push(routes.project(projectId).codex.index());
     }
   };
 
@@ -62,7 +63,7 @@ export default function ProjectDashboard() {
   if ((projectLoading || statsLoading) && !currentProject) {
     return (
       <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
-        <DashboardHeader />
+        <AppHeader />
         <div className="flex flex-1 overflow-hidden relative z-10">
           <DualSidebar activeSection="overview" projectId={projectId} />
           <main className="flex-1 flex flex-col overflow-hidden">
@@ -78,12 +79,12 @@ export default function ProjectDashboard() {
   if (projectError || statsError || !currentProject) {
     return (
       <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
-        <DashboardHeader />
+        <AppHeader />
         <div className="flex flex-1 items-center justify-center">
           <div className="text-center glass-panel rounded-2xl p-8 max-w-md">
             <p className="text-red-400 mb-4">{projectError || statsError || 'Project not found'}</p>
             <Link
-              href="/"
+              href={routes.home()}
               className="inline-flex px-6 py-2 bg-primary text-[#2c0051] font-bold rounded-full hover:bg-primary/80 transition-all text-sm"
             >
               Back to Projects
@@ -104,7 +105,7 @@ export default function ProjectDashboard() {
       </div>
 
       {/* Header (Global Parent with Back to Worlds navigation) */}
-      <DashboardHeader />
+      <AppHeader />
 
       <div className="flex flex-1 overflow-hidden relative z-10">
         {/* Dual Sidebar with Project Context */}
@@ -192,26 +193,33 @@ export default function ProjectDashboard() {
               </h3>
               <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Core Tools</span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <ArcaneModuleCard 
                 title="Codex Browser"
                 description={`Explore all entities, lore entries, and myths of ${currentProject.name}.`}
                 icon="menu_book"
-                href={`/projects/${projectId}/entities`}
+                href={routes.project(projectId).codex.index()}
                 badge="PRIMARY"
                 isPrimary={true}
+              />
+              <ArcaneModuleCard 
+                title="Story Planner"
+                description="Structure acts, narrative beats, and character arcs for your novel."
+                icon="schema"
+                badge="Phase 2"
+                disabled={true}
+              />
+              <ArcaneModuleCard 
+                title="Manuscript Studio"
+                description="Distraction-free chapter and scene drafting with real-time codex context."
+                icon="edit_note"
+                badge="Phase 2"
+                disabled={true}
               />
               <ArcaneModuleCard 
                 title="Timeline"
                 description="Visualize the chronological history and major eras of your world."
                 icon="auto_graph"
-                badge="Coming Soon"
-                disabled={true}
-              />
-              <ArcaneModuleCard 
-                title="Relationship Map"
-                description="Map out the intricate connections between characters and factions."
-                icon="hub"
                 badge="Coming Soon"
                 disabled={true}
               />

@@ -6,22 +6,29 @@ import { checkAuth } from "../store/authSlice";
 import { fetchDashboardStats } from "../store/dashboardSlice";
 import { fetchProjects, clearCurrentProject } from "../store/projectSlice";
 import { useRouter } from "next/navigation";
-import DashboardHeader from "../components/DashboardHeader";
+import AppHeader from "../components/AppHeader";
 import ProjectList from "../components/projects/ProjectList";
 import ProjectFilters from "../components/projects/ProjectFilters";
 import ProjectModal from "../components/projects/ProjectModal";
 import PageHeader from "../components/ui/PageHeader";
+import routes from "../config/routes";
 
 export default function Home() {
-  const dispatch = useAppDispatch();
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { user, isAuthenticated, isInitialized } = useAppSelector((state) => state.auth);
+  const { stats, loading: statsLoading } = useAppSelector((state) => state.dashboard);
+  const { projects, loading: projectsLoading } = useAppSelector((state) => state.projects);
+
+  const [search, setSearch] = useState("");
+  const [genre, setGenre] = useState("all");
+  const [page, setPage] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [genreFilter, setGenreFilter] = useState("none");
   const [sortBy, setSortBy] = useState("date");
-
-  const { isAuthenticated, isInitialized } = useAppSelector((state) => state.auth);
 
   // Check authentication on mount
   useEffect(() => {
@@ -35,7 +42,7 @@ export default function Home() {
         dispatch(fetchDashboardStats());
         dispatch(clearCurrentProject());
       } else {
-        router.push("/login");
+        router.push(routes.login());
       }
     }
   }, [dispatch, isInitialized, isAuthenticated, router]);
@@ -65,7 +72,7 @@ export default function Home() {
       </div>
 
       {/* Header (Docked 2026 Bar) */}
-      <DashboardHeader />
+      <AppHeader />
 
       {/* Main Content Area - 2026 Bento Portal */}
       <main className="flex-1 flex flex-col overflow-hidden relative z-10">

@@ -1,13 +1,14 @@
 import { User, RegisterRequest, LoginRequest } from "../types/auth";
 import { parseErrorMessage } from "../utils/errorMessages";
 import { API_URL } from "./apiConfig";
+import apiRoutes from "../config/apiRoutes";
 
 class AuthService {
   /**
    * Register a new user
    */
   async register(data: RegisterRequest): Promise<User> {
-    const response = await fetch(`${API_URL}/api/auth/register`, {
+    const response = await fetch(`${API_URL}${apiRoutes.auth.register}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -28,7 +29,7 @@ class AuthService {
    * Login user
    */
   async login(data: LoginRequest): Promise<User> {
-    const response = await fetch(`${API_URL}/api/auth/login`, {
+    const response = await fetch(`${API_URL}${apiRoutes.auth.login}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -49,7 +50,7 @@ class AuthService {
    * Logout user
    */
   async logout(): Promise<void> {
-    const response = await fetch(`${API_URL}/api/auth/logout`, {
+    const response = await fetch(`${API_URL}${apiRoutes.auth.logout}`, {
       method: "POST",
       credentials: "include", // Important: send cookies
     });
@@ -63,7 +64,7 @@ class AuthService {
    * Get current user info (for session validation)
    */
   async getCurrentUser(): Promise<User> {
-    const response = await fetch(`${API_URL}/api/auth/me`, {
+    const response = await fetch(`${API_URL}${apiRoutes.auth.me}`, {
       method: "GET",
       credentials: "include", // Important: send cookies
       cache: "no-store", // Ensure we always get the latest data from the server
@@ -80,7 +81,7 @@ class AuthService {
    * Verify email with token
    */
   async verifyEmail(token: string): Promise<User> {
-    const response = await fetch(`${API_URL}/api/auth/verify-email?token=${token}`, {
+    const response = await fetch(`${API_URL}${apiRoutes.auth.verifyEmail}?token=${token}`, {
       method: "POST",
       credentials: "include",
     });
@@ -97,7 +98,7 @@ class AuthService {
    * Resend verification email
    */
   async resendVerification(email: string): Promise<void> {
-    const response = await fetch(`${API_URL}/api/auth/resend-verification?email=${encodeURIComponent(email)}`, {
+    const response = await fetch(`${API_URL}${apiRoutes.auth.resendVerification}?email=${encodeURIComponent(email)}`, {
       method: "POST",
       credentials: "include",
     });

@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { projectService, Project, ProjectStats, CreateProjectRequest, UpdateProjectRequest, Page } from '../services/projectService';
+import { projectService } from '../services/projectService';
+import { Project, ProjectStats, CreateProjectRequest, UpdateProjectRequest } from '../types/project';
+import { Page } from '../types/common';
 
 interface ProjectState {
   projects: Project[];
@@ -67,14 +69,6 @@ export const deleteProject = createAsyncThunk(
   async (id: string) => {
     await projectService.deleteProject(id);
     return id;
-  }
-);
-
-export const fetchProjectStats = createAsyncThunk(
-  'projects/fetchProjectStats',
-  async (id: string) => {
-    const response = await projectService.getProjectStats(id);
-    return response;
   }
 );
 
@@ -180,21 +174,6 @@ const projectSlice = createSlice({
       .addCase(deleteProject.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to delete project';
-      });
-
-    // Fetch project stats
-    builder
-      .addCase(fetchProjectStats.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchProjectStats.fulfilled, (state, action: PayloadAction<ProjectStats>) => {
-        state.loading = false;
-        state.stats = action.payload;
-      })
-      .addCase(fetchProjectStats.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Failed to fetch project stats';
       });
   },
 });

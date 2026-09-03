@@ -3,8 +3,9 @@
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { loginUser, clearError } from "../store/authSlice";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import { loginUser, clearError } from "@/app/store/authSlice";
+import routes from "@/app/config/routes";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -57,7 +58,7 @@ export default function LoginForm() {
     const result = await dispatch(loginUser(formData));
     
     if (loginUser.fulfilled.match(result)) {
-      router.push("/");
+      router.push(routes.home());
     }
   };
 
@@ -150,12 +151,12 @@ export default function LoginForm() {
 
       {/* Register Link Moved OUTSIDE form to match design spacing */}
       <div className="mt-6 text-center space-y-4">
-          <Link href="/forgot-phrase" className="block text-slate-500 hover:text-slate-300 text-xs transition-colors">
+          <Link href={routes.forgotPhrase()} className="block text-slate-500 hover:text-slate-300 text-xs transition-colors">
               Forgot Secret Phrase?
           </Link>
           <div className="pt-4 border-t border-white/5">
               <Link
-                  href="/register"
+                  href={routes.register()}
                   className="text-slate-400 hover:text-white text-sm transition-colors border-b border-transparent hover:border-primary pb-0.5"
               >
                   New Chronicler? <span className="text-primary font-semibold">Register</span>

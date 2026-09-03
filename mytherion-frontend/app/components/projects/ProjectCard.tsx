@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Project } from "@/app/services/projectService";
 import Link from "next/link";
 import { useIsMounted } from "@/app/hooks/useIsMounted";
+import routes from "@/app/config/routes";
 
 interface ProjectCardProps {
   project: Project;
@@ -75,7 +76,7 @@ export default function ProjectCard({
   return (
     <div className="glass-panel rounded-2xl overflow-hidden group cursor-pointer flex flex-col relative shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-primary/40">
       {/* Click overlay */}
-      <Link href={`/projects/${project.id}`} className="absolute inset-0 z-10" />
+      <Link href={routes.project(project.id).root} className="absolute inset-0 z-10" />
 
       {/* Hero Image Section */}
       <div className="relative h-60 w-full overflow-hidden bg-black/40">

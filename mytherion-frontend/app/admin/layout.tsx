@@ -4,6 +4,7 @@ import { useAppSelector } from "../store/hooks";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
+import routes from "../config/routes";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
   faChartLine, 
@@ -23,7 +24,7 @@ export default function AdminLayout({
   useEffect(() => {
     if (isInitialized) {
       if (!isAuthenticated || user?.role !== "ADMIN") {
-        router.push("/");
+        router.push(routes.home());
       }
     }
   }, [isInitialized, isAuthenticated, user, router]);
@@ -59,14 +60,14 @@ export default function AdminLayout({
 
           <nav className="space-y-2">
             <Link
-              href="/admin"
+              href={routes.admin.root()}
               className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all group"
             >
               <FontAwesomeIcon icon={faChartLine} className="group-hover:text-primary" />
               <span className="font-medium">Overview</span>
             </Link>
             <Link
-              href="/admin/users"
+              href={routes.admin.users()}
               className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all group"
             >
               <FontAwesomeIcon icon={faUsers} className="group-hover:text-primary" />
@@ -77,7 +78,7 @@ export default function AdminLayout({
 
         <div className="mt-auto p-6 border-t border-white/5">
           <Link
-            href="/"
+            href={routes.home()}
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:text-slate-300 transition-all"
           >
             <FontAwesomeIcon icon={faArrowLeft} />

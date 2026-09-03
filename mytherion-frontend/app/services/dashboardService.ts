@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Entity } from '../types/entity';
 import { API_URL } from './apiConfig';
+import apiRoutes from '../config/apiRoutes';
 
 export interface DashboardStats {
   totalEntities: number;
@@ -14,14 +15,14 @@ export interface DashboardStats {
 
 const dashboardService = {
   getStats: async (): Promise<DashboardStats> => {
-    const response = await axios.get<DashboardStats>(`${API_URL}/api/dashboard/stats`, {
+    const response = await axios.get<DashboardStats>(`${API_URL}${apiRoutes.dashboard.stats}`, {
       withCredentials: true
     });
     return response.data;
   },
 
   getProjectStats: async (projectId: string): Promise<DashboardStats> => {
-    const response = await axios.get<DashboardStats>(`${API_URL}/api/projects/${projectId}/dashboard/stats`, {
+    const response = await axios.get<DashboardStats>(`${API_URL}${apiRoutes.dashboard.projectStats(projectId)}`, {
       withCredentials: true
     });
     return response.data;
