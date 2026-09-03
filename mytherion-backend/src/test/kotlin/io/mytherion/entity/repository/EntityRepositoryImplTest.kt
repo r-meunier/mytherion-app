@@ -31,7 +31,11 @@ class EntityRepositoryImplTest {
     @BeforeEach
     fun setup() {
         testFixtures = TestFixtures(userRepository, passwordEncoder, projectRepository, entityRepository)
-        val user = testFixtures.createVerifiedUser()
+        val uniqueSuffix = UUID.randomUUID().toString()
+        val user = testFixtures.createVerifiedUser(
+            username = "testuser-$uniqueSuffix",
+            email = "test-$uniqueSuffix@example.com"
+        )
         val project = testFixtures.createProjectForUser(user)
         projectId = project.id!!
 

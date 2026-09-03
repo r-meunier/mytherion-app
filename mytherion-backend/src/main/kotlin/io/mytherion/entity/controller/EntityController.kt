@@ -94,8 +94,7 @@ class EntityController(private val entityService: EntityService) {
         logger.infoWith("Get entity request", "projectId" to projectId, "entityId" to id)
 
         return try {
-            // In the future, verify that entity belongs to projectId
-            entityService.getEntity(id)
+            entityService.getEntity(projectId, id)
         } catch (e: Exception) {
             logger.errorWith("Failed to get entity", e, "projectId" to projectId, "entityId" to id)
             throw e
@@ -112,7 +111,7 @@ class EntityController(private val entityService: EntityService) {
         logger.infoWith("Update entity request", "projectId" to projectId, "entityId" to id)
 
         return try {
-            entityService.updateEntity(id, request)
+            entityService.updateEntity(projectId, id, request)
         } catch (e: Exception) {
             logger.errorWith("Failed to update entity", e, "projectId" to projectId, "entityId" to id)
             throw e
@@ -129,7 +128,7 @@ class EntityController(private val entityService: EntityService) {
         logger.infoWith("Delete entity request", "projectId" to projectId, "entityId" to id)
 
         try {
-            entityService.deleteEntity(id)
+            entityService.deleteEntity(projectId, id)
         } catch (e: Exception) {
             logger.errorWith("Failed to delete entity", e, "projectId" to projectId, "entityId" to id)
             throw e
@@ -183,7 +182,7 @@ class EntityController(private val entityService: EntityService) {
         }
 
         return try {
-            entityService.uploadImage(id, file)
+            entityService.uploadImage(projectId, id, file)
         } catch (e: Exception) {
             logger.errorWith("Failed to upload image", e, "projectId" to projectId, "entityId" to id)
             throw e
@@ -200,7 +199,7 @@ class EntityController(private val entityService: EntityService) {
         logger.infoWith("Delete image request", "projectId" to projectId, "entityId" to id)
 
         try {
-            entityService.deleteImage(id)
+            entityService.deleteImage(projectId, id)
         } catch (e: Exception) {
             logger.errorWith("Failed to delete image", e, "projectId" to projectId, "entityId" to id)
             throw e

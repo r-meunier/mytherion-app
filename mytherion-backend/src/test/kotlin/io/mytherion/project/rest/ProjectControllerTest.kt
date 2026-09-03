@@ -17,7 +17,6 @@ import io.mytherion.project.dto.UpdateProjectRequest
 import io.mytherion.project.exception.ProjectAccessDeniedException
 import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.repository.ProjectRepository
-import io.mytherion.project.rest.ProjectAccessInterceptor
 import io.mytherion.project.service.ProjectService
 import org.junit.jupiter.api.BeforeEach
 import java.util.UUID

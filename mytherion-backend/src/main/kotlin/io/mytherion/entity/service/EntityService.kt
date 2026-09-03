@@ -15,7 +15,6 @@ import io.mytherion.project.service.ProjectService
 import io.mytherion.storage.StorageService
 import io.mytherion.storage.dto.UploadResponse
 import io.mytherion.user.model.User
-import java.time.Instant
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
@@ -46,6 +45,35 @@ class EntityService(
         if (entity.project.owner.id != currentUser.id) {
             throw EntityAccessDeniedException(requireNotNull(entity.id) { "Entity ID is missing" })
         }
+    }
+
+    /** Fetch and verify that the entity exists, belongs to the given projectId, and the user has access. */
+    private fun getVerifiedEntity(projectId: UUID, id: UUID, user: User): Entity {
+        // 1. Verify user access to the project
+        projectService.getVerifiedProject(projectId, requireNotNull(user.id) { "User ID is missing" })
+
+        // 2. Fetch entity and verify existence and not deleted
+        val entity = entityRepository.findById(id).orElseThrow { EntityNotFoundException(id) }
+        if (entity.isDeleted()) {
+            throw EntityNotFoundException(id)
+        }
+
+        // 3. Verify entity belongs to the specified projectId
+        if (entity.project.id != projectId) {
+            logger.warn(
+                "Entity project mismatch: entityId={}, entityProjectId={}, requestedProjectId={}, userId={}",
+                id,
+                entity.project.id,
+                projectId,
+                user.id
+            )
+            throw EntityNotFoundException(id)
+        }
+
+        // 4. Verify user owns the project containing this entity (defense-in-depth)
+        verifyEntityAccess(entity, user)
+
+        return entity
     }
 
     /** Create a new entity */
@@ -96,27 +124,22 @@ class EntityService(
 
     /** Get entity by ID */
     @Transactional(readOnly = true)
-    fun getEntity(id: UUID): EntityDTO {
+    fun getEntity(projectId: UUID, id: UUID): EntityDTO {
         val user = getCurrentUser()
-        logger.debugWith("Fetching entity", "entityId" to id, "userId" to user.id)
+        logger.debugWith("Fetching entity", "projectId" to projectId, "entityId" to id, "userId" to user.id)
 
-        val entity = entityRepository.findById(id).orElseThrow { EntityNotFoundException(id) }
-
-        if (entity.isDeleted()) {
-            throw EntityNotFoundException(id)
-        }
-
-        verifyEntityAccess(entity, user)
+        val entity = getVerifiedEntity(projectId, id, user)
         logger.debugWith("Entity fetched", "entityId" to id, "type" to entity.type.name)
         return EntityDTO.from(entity)
     }
 
     /** Update entity */
     @Transactional
-    fun updateEntity(id: UUID, request: UpdateEntityRequest): EntityDTO {
+    fun updateEntity(projectId: UUID, id: UUID, request: UpdateEntityRequest): EntityDTO {
         val user = getCurrentUser()
         logger.infoWith(
             "Updating entity",
+            "projectId" to projectId,
             "entityId" to id,
             "userId" to user.id,
             "updates" to
@@ -130,13 +153,7 @@ class EntityService(
                     )
         )
 
-        val entity = entityRepository.findById(id).orElseThrow { EntityNotFoundException(id) }
-
-        if (entity.isDeleted()) {
-            throw EntityNotFoundException(id)
-        }
-
-        verifyEntityAccess(entity, user)
+        val entity = getVerifiedEntity(projectId, id, user)
 
         // Optimistic locking check
         if (request.version != null && entity.version != request.version) {
@@ -148,7 +165,7 @@ class EntityService(
         request.name?.let { entity.name = it }
         request.categoryId?.let { catId -> 
             val cat = categoryRepository.findById(catId).orElseThrow { IllegalArgumentException("Category not found") }
-            if (cat.project.id != entity.project.id) throw IllegalArgumentException("Category does not belong to this project")
+            if (cat.project.id != projectId) throw IllegalArgumentException("Category does not belong to this project")
             entity.category = cat
         }
         request.description?.let { entity.description = it }
@@ -158,29 +175,24 @@ class EntityService(
         request.metadata?.let { entity.metadata = it }
 
         val saved = entityRepository.save(entity)
-        logger.infoWith("Entity updated successfully", "entityId" to id)
+        logger.infoWith("Entity updated successfully", "projectId" to projectId, "entityId" to id)
         return EntityDTO.from(saved)
     }
 
     /** Soft delete entity */
     @Transactional
-    fun deleteEntity(id: UUID) {
+    fun deleteEntity(projectId: UUID, id: UUID) {
         val user = getCurrentUser()
-        logger.infoWith("Deleting entity", "entityId" to id, "userId" to user.id)
+        logger.infoWith("Deleting entity", "projectId" to projectId, "entityId" to id, "userId" to user.id)
 
-        val entity = entityRepository.findById(id).orElseThrow { EntityNotFoundException(id) }
-
-        if (entity.isDeleted()) {
-            throw EntityNotFoundException(id)
-        }
-
-        verifyEntityAccess(entity, user)
+        val entity = getVerifiedEntity(projectId, id, user)
 
         // Soft delete
         entity.markDeleted()
         entityRepository.save(entity)
         logger.infoWith(
             "Entity soft deleted successfully",
+            "projectId" to projectId,
             "entityId" to id,
             "type" to entity.type.name
         )
@@ -244,15 +256,9 @@ class EntityService(
 
     /** Upload image for entity */
     @Transactional
-    fun uploadImage(id: UUID, file: MultipartFile): UploadResponse {
+    fun uploadImage(projectId: UUID, id: UUID, file: MultipartFile): UploadResponse {
         val user = getCurrentUser()
-        val entity = entityRepository.findById(id).orElseThrow { EntityNotFoundException(id) }
-
-        if (entity.isDeleted()) {
-            throw EntityNotFoundException(id)
-        }
-
-        verifyEntityAccess(entity, user)
+        val entity = getVerifiedEntity(projectId, id, user)
 
         // Delete old image if exists
         entity.thumbnail?.let { oldUrl ->
@@ -295,6 +301,7 @@ class EntityService(
 
         logger.infoWith(
             "Image uploaded successfully",
+            "projectId" to projectId,
             "entityId" to id,
             "size" to file.size,
             "contentType" to (file.contentType ?: "unknown")
@@ -310,15 +317,9 @@ class EntityService(
 
     /** Delete image from entity */
     @Transactional
-    fun deleteImage(id: UUID) {
+    fun deleteImage(projectId: UUID, id: UUID) {
         val user = getCurrentUser()
-        val entity = entityRepository.findById(id).orElseThrow { EntityNotFoundException(id) }
-
-        if (entity.isDeleted()) {
-            throw EntityNotFoundException(id)
-        }
-
-        verifyEntityAccess(entity, user)
+        val entity = getVerifiedEntity(projectId, id, user)
 
         entity.thumbnail?.let { url ->
             try {
@@ -326,9 +327,9 @@ class EntityService(
                 storageService.deleteFile(bucketName, objectKey)
                 entity.thumbnail = null
                 entityRepository.save(entity)
-                logger.infoWith("Image deleted successfully", "entityId" to id)
+                logger.infoWith("Image deleted successfully", "projectId" to projectId, "entityId" to id)
             } catch (e: Exception) {
-                logger.errorWith("Failed to delete image", e, "entityId" to id)
+                logger.errorWith("Failed to delete image", e, "projectId" to projectId, "entityId" to id)
                 throw ImageDeletionException(id, e)
             }
         }
