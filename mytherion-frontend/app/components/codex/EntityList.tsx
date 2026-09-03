@@ -150,6 +150,7 @@ export default function EntityList({ projectId, projectName, onCreateClick, onEd
         <EntityFilters
           search={searchInput}
           onSearchChange={handleSearchChange}
+          onSubmit={(query) => dispatch(setFilters({ ...filters, search: query }))}
           sortBy={sortBy}
           onSortChange={setSortBy}
           selectedType={filters.type}

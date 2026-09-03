@@ -178,4 +178,71 @@ describe('EntityList Component', () => {
     const grid = container.querySelector('.opacity-60');
     expect(grid).toBeInTheDocument();
   });
+
+  it('dispatches setFilters with categoryId when a category is selected from the dropdown', async () => {
+    await renderEntityList();
+
+    // Open category filter popover
+    const categoryButton = screen.getByTitle('Filter by Category');
+    expect(categoryButton).toBeInTheDocument();
+    fireEvent.click(categoryButton);
+
+    // Click on category "Characters & People"
+    const categoryOption = screen.getByText('Characters & People');
+    fireEvent.click(categoryOption);
+
+    // Verify Redux dispatch
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'entities/setFilters',
+        payload: expect.objectContaining({
+          categoryId: 'cat-1',
+        }),
+      })
+    );
+  });
+
+  it('dispatches setFilters with undefined categoryId when "All Categories" is selected', async () => {
+    (useAppSelector as jest.Mock).mockReturnValue({
+      entities: mockEntities,
+      loading: false,
+      error: null,
+      filters: { categoryId: 'cat-1', tags: [], search: '' },
+      pagination: { page: 0, size: 20, totalPages: 1, totalElements: 2 },
+    });
+
+    await renderEntityList();
+
+    const categoryButton = screen.getByTitle('Filter by Category');
+    fireEvent.click(categoryButton);
+
+    const allCategoriesOption = screen.getByText('All Categories');
+    fireEvent.click(allCategoriesOption);
+
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'entities/setFilters',
+        payload: expect.objectContaining({
+          categoryId: undefined,
+        }),
+      })
+    );
+  });
+
+  it('immediately flushes search on Enter without waiting for debounce', async () => {
+    await renderEntityList();
+
+    const searchInput = screen.getByPlaceholderText('Filter entities...');
+    fireEvent.change(searchInput, { target: { value: 'InstantSearch' } });
+    fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
+
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'entities/setFilters',
+        payload: expect.objectContaining({
+          search: 'InstantSearch',
+        }),
+      })
+    );
+  });
 });
