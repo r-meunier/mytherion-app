@@ -5,6 +5,7 @@ import { Project } from "@/app/services/projectService";
 import Link from "next/link";
 import { useIsMounted } from "@/app/hooks/useIsMounted";
 import routes from "@/app/config/routes";
+import { formatRelativeTime } from "@/app/utils/dateUtils";
 
 interface ProjectCardProps {
   project: Project;
@@ -170,26 +171,8 @@ export default function ProjectCard({
   const isMounted = useIsMounted();
 
   const formatDate = (dateString?: string | null) => {
-    if (!isMounted || !dateString) return "";
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "Unknown date";
-
-    const now = new Date();
-    const diffTime = Math.max(0, now.getTime() - date.getTime());
-    const diffMinutes = Math.floor(diffTime / (1000 * 60));
-    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffMinutes < 1) return "Just now";
-    if (diffMinutes < 60) return `${diffMinutes}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays}d ago`;
-
-    if (date.getFullYear() !== now.getFullYear()) {
-      return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-    }
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    if (!isMounted) return "";
+    return formatRelativeTime(dateString);
   };
 
   const isPinned = false; // Placeholder for pinned behavior
