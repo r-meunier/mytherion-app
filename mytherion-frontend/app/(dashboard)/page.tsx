@@ -16,11 +16,11 @@ import routes from "../config/routes";
 export default function Home() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { user, isAuthenticated, isInitialized } = useAppSelector((state) => state.auth || {});
-  const { stats, loading: statsLoading } = useAppSelector((state) => state.dashboard || {});
-  const { projects = [], loading: projectsLoading } = useAppSelector((state) => state.projects || {}) || {};
+  const { isAuthenticated, isInitialized } = useAppSelector((state) => state.auth || {});
+  const { projects = [], pagination } = useAppSelector((state) => state.projects || {}) || {};
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [genreFilter, setGenreFilter] = useState("none");
   const [sortBy, setSortBy] = useState("date");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -47,20 +47,32 @@ export default function Home() {
     }
   }, [dispatch, isInitialized, isAuthenticated, router]);
 
-  // Project fetching effect (with debounce for search and reactive to filters/pagination)
+  // Debounce free-form text search input only
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  // Compute effective safe page (self-healing if totalPages shrunk after project deletion)
+  const effectivePage = (pagination && pagination.totalPages > 0 && currentPage >= pagination.totalPages)
+    ? Math.max(0, pagination.totalPages - 1)
+    : currentPage;
+
+  // Project fetching effect (reactive to debounced search, immediate filters, sorting, and pagination)
   useEffect(() => {
     if (isInitialized && isAuthenticated) {
-      const timeoutId = setTimeout(() => {
-        dispatch(fetchProjects({ 
-          page: currentPage, 
-          size: 8, 
-          search: searchQuery, 
-          genre: genreFilter === "none" ? undefined : genreFilter 
-        }));
-      }, 300);
-      return () => clearTimeout(timeoutId);
+      dispatch(fetchProjects({ 
+        page: effectivePage, 
+        size: 8, 
+        search: debouncedSearch || undefined, 
+        genre: genreFilter === "none" ? undefined : genreFilter,
+        sortBy: sortBy === "name" ? "name" : "createdAt",
+        sortDir: sortBy === "name" ? "asc" : "desc"
+      }));
     }
-  }, [dispatch, isInitialized, isAuthenticated, searchQuery, genreFilter, currentPage]);
+  }, [dispatch, isInitialized, isAuthenticated, debouncedSearch, genreFilter, effectivePage, sortBy]);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
@@ -89,14 +101,20 @@ export default function Home() {
                 setSearchQuery(q);
                 setCurrentPage(0);
               }}
-              onSortChange={(s) => setSortBy(s)}
+              onSortChange={(s) => {
+                setSortBy(s);
+                setCurrentPage(0);
+              }}
               onGenreChange={(g) => {
                 setGenreFilter(g);
                 setCurrentPage(0);
               }}
               viewMode={viewMode}
               onViewChange={(v) => setViewMode(v)}
-              onCreateClick={() => setShowCreateModal(true)}
+              onCreateClick={() => {
+                setEditingProjectId(null);
+                setShowCreateModal(true);
+              }}
             />
           </PageHeader>
 

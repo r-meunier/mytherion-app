@@ -23,17 +23,21 @@ class ProjectController(private val projectService: ProjectService) {
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(required = false) search: String?,
-        @RequestParam(required = false) genre: String?
+        @RequestParam(required = false) genre: String?,
+        @RequestParam(defaultValue = "createdAt") sortBy: String,
+        @RequestParam(defaultValue = "desc") sortDir: String
     ): Page<ProjectResponse> {
-        logger.infoWith("List projects request", "page" to page, "size" to size, "search" to search, "genre" to genre)
+        logger.infoWith("List projects request", "page" to page, "size" to size, "search" to search, "genre" to genre, "sortBy" to sortBy, "sortDir" to sortDir)
         return try {
-            projectService.listProjectsForCurrentUser(page, size, search, genre)
+            projectService.listProjectsForCurrentUser(page, size, search, genre, sortBy, sortDir)
         } catch (e: Exception) {
             logger.errorWith(
                 "Failed to list projects",
                 e,
                 "page" to page,
-                "size" to size
+                "size" to size,
+                "sortBy" to sortBy,
+                "sortDir" to sortDir
             )
             throw e
         }

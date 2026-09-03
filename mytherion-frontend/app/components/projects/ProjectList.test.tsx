@@ -5,11 +5,13 @@ import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { deleteProject, fetchProjects } from '@/app/store/projectSlice';
 import { Project } from '@/app/services/projectService';
 
-// Mock Next.js Link
+// Mock Next.js Link with displayName
 jest.mock('next/link', () => {
-  return ({ children, href }: { children: React.ReactNode; href: string }) => {
-    return <a href={href}>{children}</a>;
-  };
+  const MockLink = ({ children, href, 'aria-label': ariaLabel }: { children: React.ReactNode; href: string; 'aria-label'?: string }) => (
+    <a href={href} aria-label={ariaLabel}>{children}</a>
+  );
+  MockLink.displayName = 'MockLink';
+  return MockLink;
 });
 
 // Mock useIsMounted
@@ -26,7 +28,7 @@ jest.mock('@/app/store/hooks', () => ({
 // Mock projectSlice thunks
 jest.mock('@/app/store/projectSlice', () => ({
   deleteProject: jest.fn((id: string) => ({ type: 'projects/deleteProject', payload: id })),
-  fetchProjects: jest.fn((params: any) => ({ type: 'projects/fetchProjects', payload: params })),
+  fetchProjects: jest.fn((params: { page: number; size: number }) => ({ type: 'projects/fetchProjects', payload: params })),
 }));
 
 describe('ProjectList', () => {
@@ -146,6 +148,42 @@ describe('ProjectList', () => {
     expect(mockOnCreateClick).toHaveBeenCalledTimes(1);
   });
 
+  it('renders error banner when error is present in Redux state', () => {
+    (useAppSelector as jest.Mock).mockReturnValue({
+      projects: [],
+      loading: false,
+      error: 'Failed to load arcane records',
+      pagination: { page: 0, size: 8, totalPages: 0, totalElements: 0 },
+    });
+
+    render(
+      <ProjectList
+        onCreateClick={mockOnCreateClick}
+        onEditClick={mockOnEditClick}
+      />
+    );
+
+    expect(screen.getByText('Failed to load arcane records')).toBeInTheDocument();
+  });
+
+  it('handles state where projects is undefined without crashing', () => {
+    (useAppSelector as jest.Mock).mockReturnValue({
+      projects: undefined,
+      loading: false,
+      error: null,
+      pagination: null,
+    });
+
+    render(
+      <ProjectList
+        onCreateClick={mockOnCreateClick}
+        onEditClick={mockOnEditClick}
+      />
+    );
+
+    expect(screen.getByText('No worlds found')).toBeInTheDocument();
+  });
+
   it('opens delete confirmation overlay and confirms deletion', () => {
     render(
       <ProjectList
@@ -198,7 +236,7 @@ describe('ProjectList', () => {
     expect(deleteProject).not.toHaveBeenCalled();
   });
 
-  it('handles pagination next and previous clicks', () => {
+  it('handles pagination next and previous clicks with onPageChange callback', () => {
     render(
       <ProjectList
         onCreateClick={mockOnCreateClick}
@@ -213,5 +251,19 @@ describe('ProjectList', () => {
     fireEvent.click(nextBtn);
 
     expect(mockOnPageChange).toHaveBeenCalledWith(1);
+  });
+
+  it('dispatches fetchProjects directly on page change when onPageChange is not provided', () => {
+    render(
+      <ProjectList
+        onCreateClick={mockOnCreateClick}
+        onEditClick={mockOnEditClick}
+      />
+    );
+
+    const nextBtn = screen.getByRole('button', { name: /next/i });
+    fireEvent.click(nextBtn);
+
+    expect(mockDispatch).toHaveBeenCalledWith(fetchProjects({ page: 1, size: 8 }));
   });
 });

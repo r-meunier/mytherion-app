@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { deleteProject, fetchProjects } from "@/app/store/projectSlice";
 import ProjectCard from "./ProjectCard";
-import { Project } from "@/app/services/projectService";
 
 interface ProjectListProps {
   onCreateClick: () => void;
@@ -22,7 +21,7 @@ export default function ProjectList({
   onPageChange
 }: ProjectListProps) {
   const dispatch = useAppDispatch();
-  const { projects, loading, error, pagination } = useAppSelector((state) => state.projects);
+  const { projects = [], loading, error, pagination } = useAppSelector((state) => state.projects || {});
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleDelete = (id: string) => {
@@ -37,7 +36,7 @@ export default function ProjectList({
   const handlePageChange = (newPage: number) => {
     if (onPageChange) {
       onPageChange(newPage);
-    } else {
+    } else if (pagination) {
       dispatch(fetchProjects({ page: newPage, size: pagination.size }));
     }
   };
@@ -114,7 +113,7 @@ export default function ProjectList({
       )}
 
       {/* Pagination */}
-      {pagination.totalPages > 1 && (
+      {pagination && pagination.totalPages > 1 && (
         <div className="flex justify-center items-center gap-4 mt-8">
           <button
             onClick={() => handlePageChange(pagination.page - 1)}

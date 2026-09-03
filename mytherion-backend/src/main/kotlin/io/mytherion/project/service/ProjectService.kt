@@ -64,13 +64,27 @@ class ProjectService(
     }
 
     @Transactional(readOnly = true)
-    fun listProjectsForCurrentUser(page: Int = 0, size: Int = 20, search: String? = null, genre: String? = null): Page<ProjectResponse> {
+    fun listProjectsForCurrentUser(
+        page: Int = 0,
+        size: Int = 20,
+        search: String? = null,
+        genre: String? = null,
+        sortBy: String = "createdAt",
+        sortDir: String = "desc"
+    ): Page<ProjectResponse> {
         val user = getCurrentUser()
-        logger.debugWith("Listing projects", "userId" to user.id, "page" to page, "size" to size, "search" to search, "genre" to genre)
+        logger.debugWith("Listing projects", "userId" to user.id, "page" to page, "size" to size, "search" to search, "genre" to genre, "sortBy" to sortBy, "sortDir" to sortDir)
 
         return logger.measureTime("Fetch projects") {
+            val direction = if (sortDir.equals("asc", ignoreCase = true)) Sort.Direction.ASC else Sort.Direction.DESC
+            val sortProperty = when (sortBy.lowercase()) {
+                "name" -> "name"
+                "date", "updatedat" -> "updatedAt"
+                "createdat" -> "createdAt"
+                else -> "createdAt"
+            }
             val pageable: Pageable =
-                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"))
+                PageRequest.of(page, size, Sort.by(direction, sortProperty))
             
             val result = if (search.isNullOrBlank() && genre.isNullOrBlank()) {
                 projectRepository.findAllByOwnerAndDeletedAtIsNull(user, pageable).map { project ->

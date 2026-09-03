@@ -151,6 +151,25 @@ class ProjectControllerTest {
             .andExpect(jsonPath("$.content[0].name").value("Sci-Fi Project"))
     }
 
+    @Test
+    fun `listProjects with sort parameters should pass them to service`() {
+        // Given
+        val page = PageImpl(emptyList<ProjectResponse>(), PageRequest.of(0, 10), 0)
+        every { projectService.listProjectsForCurrentUser(0, 10, null, null, "name", "asc") } returns page
+
+        // When & Then
+        mockMvc.perform(
+            get("/api/projects")
+                .param("page", "0")
+                .param("size", "10")
+                .param("sortBy", "name")
+                .param("sortDir", "asc")
+        )
+            .andExpect(status().isOk)
+
+        verify { projectService.listProjectsForCurrentUser(0, 10, null, null, "name", "asc") }
+    }
+
     // ==================== Get Project by ID Tests ====================
 
     @Test

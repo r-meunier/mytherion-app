@@ -91,4 +91,32 @@ describe("CommandBar Component", () => {
 
     expect(defaultProps.primaryAction.onClick).toHaveBeenCalledTimes(1);
   });
+
+  it("renders view mode toggles and calls onViewChange when clicked", () => {
+    const onViewChange = jest.fn();
+    render(<CommandBar {...defaultProps} viewMode="grid" onViewChange={onViewChange} />);
+
+    const gridBtn = screen.getByLabelText("Grid view");
+    const listBtn = screen.getByLabelText("List view");
+
+    expect(gridBtn).toBeInTheDocument();
+    expect(listBtn).toBeInTheDocument();
+
+    fireEvent.click(listBtn);
+    expect(onViewChange).toHaveBeenCalledWith("list");
+
+    fireEvent.click(gridBtn);
+    expect(onViewChange).toHaveBeenCalledWith("grid");
+  });
+
+  it("applies active styles based on current viewMode", () => {
+    const { rerender } = render(<CommandBar {...defaultProps} viewMode="grid" onViewChange={jest.fn()} />);
+
+    const gridBtn = screen.getByLabelText("Grid view");
+    expect(gridBtn.className).toContain("bg-primary");
+
+    rerender(<CommandBar {...defaultProps} viewMode="list" onViewChange={jest.fn()} />);
+    const listBtn = screen.getByLabelText("List view");
+    expect(listBtn.className).toContain("bg-primary");
+  });
 });

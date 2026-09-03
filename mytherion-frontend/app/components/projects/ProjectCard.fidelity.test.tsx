@@ -3,11 +3,13 @@ import '@testing-library/jest-dom';
 import ProjectCard from './ProjectCard';
 import { Project } from '@/app/services/projectService';
 
-// Mock Next.js Link component
+// Mock Next.js Link component with displayName for ESLint compliance
 jest.mock('next/link', () => {
-  return ({ children, href }: { children: React.ReactNode; href: string }) => {
-    return <a href={href}>{children}</a>;
+  const MockLink = ({ children, href, 'aria-label': ariaLabel }: { children: React.ReactNode; href: string; 'aria-label'?: string }) => {
+    return <a href={href} aria-label={ariaLabel}>{children}</a>;
   };
+  MockLink.displayName = 'MockLink';
+  return MockLink;
 });
 
 // Mock useIsMounted to return true immediately
@@ -39,21 +41,11 @@ describe('ProjectCard High Fidelity', () => {
     render(<ProjectCard project={mockProject} onEdit={() => {}} onDelete={() => {}} />);
 
     // Verify Entity Count with localized formatting
-    // Note: RTL text matcher might see "1,250 Entities" as separate nodes if formatted with space
     expect(screen.getByText(/1,250/)).toBeInTheDocument();
     expect(screen.getByText(/Entities/)).toBeInTheDocument();
     
     // Verify Genre Badge
     expect(screen.getByText('High Fantasy')).toBeInTheDocument();
-  });
-
-  // Pinning is not implemented yet — ProjectCard hardcodes `isPinned = false`
-  // as a placeholder. Re-enable this once pin behavior exists.
-  it.skip('renders the Pinned tag for project ID 1', () => {
-    render(<ProjectCard project={mockProject} onEdit={() => {}} onDelete={() => {}} />);
-
-    expect(screen.getByText('Pinned')).toBeInTheDocument();
-    expect(screen.getByText('stars')).toBeInTheDocument(); // Icon symbol
   });
 
   it('renders recent updates with "h ago" format', () => {
@@ -108,11 +100,31 @@ describe('ProjectCard High Fidelity', () => {
     expect(screen.getByText('3d ago')).toBeInTheDocument();
   });
 
-  it('renders correctly in list variant layout', () => {
+  it('renders date with year for updates from a previous year', () => {
+    // Current year is 2024. Set updatedAt to May 10, 2022
+    const pastYearDate = '2022-05-10T10:00:00Z';
+    const project = { ...mockProject, updatedAt: pastYearDate };
+
+    render(<ProjectCard project={project} onEdit={() => {}} onDelete={() => {}} />);
+
+    expect(screen.getByText('May 10, 2022')).toBeInTheDocument();
+  });
+
+  it('handles invalid date strings gracefully without rendering NaN or crashing', () => {
+    const project = { ...mockProject, updatedAt: 'not-a-valid-date', createdAt: 'invalid' };
+
+    render(<ProjectCard project={project} onEdit={() => {}} onDelete={() => {}} />);
+
+    expect(screen.getByText('Unknown date')).toBeInTheDocument();
+    expect(screen.queryByText('Invalid Date')).not.toBeInTheDocument();
+  });
+
+  it('renders correctly in list variant layout with accessible link label', () => {
     render(<ProjectCard project={mockProject} variant="list" onEdit={() => {}} onDelete={() => {}} />);
     
     expect(screen.getByText('Aetheria')).toBeInTheDocument();
     expect(screen.getByText('High Fantasy')).toBeInTheDocument();
     expect(screen.getByText(/1,250/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /open project aetheria/i })).toBeInTheDocument();
   });
 });

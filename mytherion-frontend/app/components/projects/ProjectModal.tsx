@@ -133,6 +133,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
                 <option className="bg-slate-900" value="Grimdark">Grimdark</option>
                 <option className="bg-slate-900" value="Steampunk">Steampunk</option>
                 <option className="bg-slate-900" value="Cyberpunk">Cyberpunk</option>
+                <option className="bg-slate-900" value="Other">Other</option>
               </select>
               <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
                 expand_more
