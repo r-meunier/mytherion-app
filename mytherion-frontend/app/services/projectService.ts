@@ -20,16 +20,18 @@ const api = axios.create({
 });
 
 export const projectService = {
-  async getProjects(page = 0, size = 20, search?: string, genre?: string): Promise<Page<Project>> {    
+  async getProjects(page = 0, size = 20, search?: string, genre?: string, sortBy?: string, sortDir?: string): Promise<Page<Project>> {    
     try {
       const params = new URLSearchParams({ page: page.toString(), size: size.toString() });
       if (search) params.append('search', search);
       if (genre && genre !== 'all' && genre !== 'none') params.append('genre', genre);
+      if (sortBy) params.append('sortBy', sortBy);
+      if (sortDir) params.append('sortDir', sortDir);
       
       const response = await api.get(`${apiRoutes.projects.list}?${params.toString()}`);
       return response.data;
     } catch (error) {
-      serviceLogger.error('Failed to fetch projects', error, { page, size, search, genre });
+      serviceLogger.error('Failed to fetch projects', error, { page, size, search, genre, sortBy, sortDir });
       throw error;
     }
   },

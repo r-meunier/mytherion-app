@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useIsMounted } from '@/app/hooks/useIsMounted';
 import { mediaService } from '@/app/services/mediaService';
 import routes from '@/app/config/routes';
+import { formatRelativeTime } from '@/app/utils/dateUtils';
 
 interface EntityCardProps {
   entity: Entity;
@@ -121,7 +122,7 @@ export default function EntityCard({ entity, onEdit, onDelete }: EntityCardProps
 
       {/* Footer */}
       <div className="text-[11px] font-medium text-white/40 mt-3 pt-3 border-t border-white/5">
-        Created {isMounted ? new Date(entity.createdAt).toLocaleDateString() : '...'}
+        Created {isMounted ? formatRelativeTime(entity.createdAt) : '...'}
       </div>
     </div>
   );

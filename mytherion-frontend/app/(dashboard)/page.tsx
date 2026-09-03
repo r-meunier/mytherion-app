@@ -16,19 +16,19 @@ import routes from "../config/routes";
 export default function Home() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { user, isAuthenticated, isInitialized } = useAppSelector((state) => state.auth);
-  const { stats, loading: statsLoading } = useAppSelector((state) => state.dashboard);
-  const { projects, loading: projectsLoading } = useAppSelector((state) => state.projects);
+  const { isAuthenticated, isInitialized } = useAppSelector((state) => state.auth || {});
+  const { projects = [], pagination } = useAppSelector((state) => state.projects || {}) || {};
 
-  const [search, setSearch] = useState("");
-  const [genre, setGenre] = useState("all");
-  const [page, setPage] = useState(0);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [genreFilter, setGenreFilter] = useState("none");
   const [sortBy, setSortBy] = useState("date");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [currentPage, setCurrentPage] = useState(0);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
+
+  const editingProject = (projects || []).find((p) => p.id === editingProjectId) || null;
 
   // Check authentication on mount
   useEffect(() => {
@@ -47,20 +47,32 @@ export default function Home() {
     }
   }, [dispatch, isInitialized, isAuthenticated, router]);
 
-  // Project fetching effect (with debounce for search)
+  // Debounce free-form text search input only
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  // Compute effective safe page (self-healing if totalPages shrunk after project deletion)
+  const effectivePage = (pagination && pagination.totalPages > 0 && currentPage >= pagination.totalPages)
+    ? Math.max(0, pagination.totalPages - 1)
+    : currentPage;
+
+  // Project fetching effect (reactive to debounced search, immediate filters, sorting, and pagination)
   useEffect(() => {
     if (isInitialized && isAuthenticated) {
-      const timeoutId = setTimeout(() => {
-        dispatch(fetchProjects({ 
-          page: 0, 
-          size: 8, 
-          search: searchQuery, 
-          genre: genreFilter === "none" ? undefined : genreFilter 
-        }));
-      }, 300);
-      return () => clearTimeout(timeoutId);
+      dispatch(fetchProjects({ 
+        page: effectivePage, 
+        size: 8, 
+        search: debouncedSearch || undefined, 
+        genre: genreFilter === "none" ? undefined : genreFilter,
+        sortBy: sortBy === "name" ? "name" : "createdAt",
+        sortDir: sortBy === "name" ? "asc" : "desc"
+      }));
     }
-  }, [dispatch, isInitialized, isAuthenticated, searchQuery, genreFilter]);
+  }, [dispatch, isInitialized, isAuthenticated, debouncedSearch, genreFilter, effectivePage, sortBy]);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
@@ -85,27 +97,48 @@ export default function Home() {
             className="max-w-7xl mx-auto"
           >
             <ProjectFilters 
-              onSearchChange={(q) => setSearchQuery(q)}
-              onSortChange={(s) => setSortBy(s)}
-              onGenreChange={(g) => setGenreFilter(g)}
-              onCreateClick={() => setShowCreateModal(true)}
+              onSearchChange={(q) => {
+                setSearchQuery(q);
+                setCurrentPage(0);
+              }}
+              onSortChange={(s) => {
+                setSortBy(s);
+                setCurrentPage(0);
+              }}
+              onGenreChange={(g) => {
+                setGenreFilter(g);
+                setCurrentPage(0);
+              }}
+              viewMode={viewMode}
+              onViewChange={(v) => setViewMode(v)}
+              onCreateClick={() => {
+                setEditingProjectId(null);
+                setShowCreateModal(true);
+              }}
             />
           </PageHeader>
 
-          {/* Bento Library Grid */}
+          {/* Bento Library Grid / List */}
           <section className="max-w-7xl mx-auto pb-16">
             <ProjectList 
               onCreateClick={() => setShowCreateModal(true)}
-              onEditClick={(id) => { /* Selection handles navigation */ }}
+              onEditClick={(id) => setEditingProjectId(id)}
+              viewMode={viewMode}
+              sortBy={sortBy}
+              onPageChange={(p) => setCurrentPage(p)}
             />
           </section>
         </div>
       </main>
 
-      {/* Creation Modal */}
+      {/* Project Modal (Create & Edit) */}
       <ProjectModal 
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
+        isOpen={showCreateModal || !!editingProject}
+        project={editingProject || undefined}
+        onClose={() => {
+          setShowCreateModal(false);
+          setEditingProjectId(null);
+        }}
       />
     </div>
   );

@@ -28,6 +28,9 @@ export interface CommandBarProps {
   filterLabel?: string;
   onFilterChange?: (filter: string) => void;
 
+  viewMode?: "grid" | "list";
+  onViewChange?: (view: "grid" | "list") => void;
+
   primaryAction?: CommandBarPrimaryAction;
   className?: string;
 }
@@ -44,6 +47,8 @@ export default function CommandBar({
   filterOptions,
   filterLabel = "Filter",
   onFilterChange,
+  viewMode = "grid",
+  onViewChange,
   primaryAction,
   className = "",
 }: CommandBarProps) {
@@ -192,6 +197,38 @@ export default function CommandBar({
                 })}
               </div>
             )}
+          </div>
+        )}
+
+        {/* View Mode Toggle */}
+        {onViewChange && (
+          <div className="flex items-center bg-white/5 rounded-full p-0.5 border border-white/10 shrink-0">
+            <button
+              type="button"
+              onClick={() => onViewChange("grid")}
+              className={`p-1.5 rounded-full transition-all flex items-center justify-center cursor-pointer ${
+                viewMode === "grid"
+                  ? "bg-primary text-[#2c0051] shadow-sm font-bold"
+                  : "text-white/40 hover:text-white hover:bg-white/5"
+              }`}
+              title="Grid view"
+              aria-label="Grid view"
+            >
+              <span className="material-symbols-outlined text-[18px]">grid_view</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onViewChange("list")}
+              className={`p-1.5 rounded-full transition-all flex items-center justify-center cursor-pointer ${
+                viewMode === "list"
+                  ? "bg-primary text-[#2c0051] shadow-sm font-bold"
+                  : "text-white/40 hover:text-white hover:bg-white/5"
+              }`}
+              title="List view"
+              aria-label="List view"
+            >
+              <span className="material-symbols-outlined text-[18px]">view_list</span>
+            </button>
           </div>
         )}
 

@@ -34,8 +34,8 @@ const initialState: ProjectState = {
 // Async thunks
 export const fetchProjects = createAsyncThunk(
   'projects/fetchProjects',
-  async ({ page = 0, size = 20, search, genre }: { page?: number; size?: number; search?: string; genre?: string } = {}) => {
-    const response = await projectService.getProjects(page, size, search, genre);
+  async ({ page = 0, size = 20, search, genre, sortBy, sortDir }: { page?: number; size?: number; search?: string; genre?: string; sortBy?: string; sortDir?: string } = {}) => {
+    const response = await projectService.getProjects(page, size, search, genre, sortBy, sortDir);
     return response;
   }
 );
@@ -166,6 +166,8 @@ const projectSlice = createSlice({
       .addCase(deleteProject.fulfilled, (state, action: PayloadAction<string>) => {
         state.loading = false;
         state.projects = state.projects.filter((p) => p.id !== action.payload);
+        state.pagination.totalElements = Math.max(0, state.pagination.totalElements - 1);
+        state.pagination.totalPages = Math.ceil(state.pagination.totalElements / (state.pagination.size || 1));
         if (state.currentProject?.id === action.payload) {
           state.currentProject = null;
           state.stats = null;

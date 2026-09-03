@@ -7,6 +7,7 @@ interface ProjectFiltersProps {
   onSearchChange?: (query: string) => void;
   onSortChange?: (sort: string) => void;
   onGenreChange?: (genre: string) => void;
+  viewMode?: "grid" | "list";
   onViewChange?: (view: "grid" | "list") => void;
   onCreateClick?: () => void;
 }
@@ -30,6 +31,8 @@ export default function ProjectFilters({
   onSearchChange,
   onSortChange,
   onGenreChange,
+  viewMode = "grid",
+  onViewChange,
   onCreateClick,
 }: ProjectFiltersProps) {
   const [search, setSearch] = useState("");
@@ -57,6 +60,8 @@ export default function ProjectFilters({
         setGenre(g);
         onGenreChange?.(g);
       }}
+      viewMode={viewMode}
+      onViewChange={onViewChange}
       primaryAction={
         onCreateClick
           ? {
