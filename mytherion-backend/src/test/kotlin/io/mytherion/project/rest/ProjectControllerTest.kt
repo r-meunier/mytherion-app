@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.just
 import io.mockk.runs
+import io.mockk.verify
 import io.mytherion.auth.CurrentUserProvider
 import io.mytherion.auth.jwt.JwtAuthFilter
 import io.mytherion.auth.jwt.JwtService
