@@ -1,9 +1,13 @@
 package io.mytherion.project.exception
 
-/** Exception thrown when attempting to delete a project that still has entries */
+import io.mytherion.common.exception.ApiException
 import java.util.UUID
+import org.springframework.http.HttpStatus
 
+/** Exception thrown when attempting to delete a project that still has entries */
 class ProjectHasEntitiesException(projectId: UUID, entityCount: Int) :
-    RuntimeException(
+    ApiException(
+        HttpStatus.CONFLICT,
+        "Conflict",
         "Cannot delete project with id $projectId: it contains $entityCount entities. Delete all entities first."
     )
