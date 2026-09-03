@@ -13,7 +13,7 @@ export type { Page };
 
 export interface EntityFilters {
   type?: EntityType;
-  categoryId?: number;
+  categoryId?: string;
   tags?: string[];
   search?: string;
   page?: number;

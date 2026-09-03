@@ -27,6 +27,7 @@ class EntityController(private val entityService: EntityService) {
     fun listEntities(
         @PathVariable projectId: UUID,
         @RequestParam(required = false) type: io.mytherion.entity.model.EntityType?,
+        @RequestParam(required = false) categoryId: UUID?,
         @RequestParam(required = false) tags: List<String>?,
         @RequestParam(required = false) search: String?,
         @RequestParam(defaultValue = "0") page: Int,
@@ -36,6 +37,7 @@ class EntityController(private val entityService: EntityService) {
             "List entities request",
             "projectId" to projectId,
             "type" to type,
+            "categoryId" to categoryId,
             "tags" to tags,
             "search" to search,
             "page" to page,
@@ -46,6 +48,7 @@ class EntityController(private val entityService: EntityService) {
             val searchRequest =
                 EntitySearchRequest(
                     type = type,
+                    categoryId = categoryId,
                     tags = tags,
                     search = search,
                     page = page,

@@ -10,6 +10,9 @@ export interface EntityFiltersProps {
   onSortChange: (sort: "date" | "name") => void;
   selectedType?: EntityType;
   onTypeChange: (type?: EntityType) => void;
+  categories?: { id: string; name: string }[];
+  selectedCategoryId?: string;
+  onCategoryChange?: (categoryId?: string) => void;
   onCreateClick?: () => void;
   placeholder?: string;
   onSubmit?: (query: string) => void;
@@ -35,10 +38,21 @@ export default function EntityFilters({
   onSortChange,
   selectedType,
   onTypeChange,
+  categories,
+  selectedCategoryId,
+  onCategoryChange,
   onCreateClick,
   placeholder = "Filter entities...",
   onSubmit,
 }: EntityFiltersProps) {
+  const categoryOptions: CommandBarOption[] = [
+    { value: "all", label: "All Categories" },
+    ...(categories || []).map((c) => ({
+      value: c.id,
+      label: c.name,
+    })),
+  ];
+
   return (
     <CommandBar
       search={search}
@@ -53,6 +67,12 @@ export default function EntityFilters({
       filterLabel="Type"
       onFilterChange={(val) => {
         onTypeChange(val === "all" ? undefined : (val as EntityType));
+      }}
+      secondarySelectedFilter={selectedCategoryId || "all"}
+      secondaryFilterOptions={categories && categories.length > 0 ? categoryOptions : undefined}
+      secondaryFilterLabel="Category"
+      onSecondaryFilterChange={(val) => {
+        onCategoryChange?.(val === "all" ? undefined : val);
       }}
       primaryAction={
         onCreateClick

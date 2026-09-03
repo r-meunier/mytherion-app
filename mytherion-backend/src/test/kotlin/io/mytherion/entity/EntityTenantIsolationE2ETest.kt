@@ -34,6 +34,9 @@ class EntityTenantIsolationE2ETest {
     private lateinit var entityRepository: EntityRepository
 
     @Autowired
+    private lateinit var categoryRepository: io.mytherion.category.repository.CategoryRepository
+
+    @Autowired
     private lateinit var projectRepository: ProjectRepository
 
     @Autowired
@@ -52,11 +55,14 @@ class EntityTenantIsolationE2ETest {
     private lateinit var project2User1: Project
     private lateinit var projectUser2: Project
 
+    private lateinit var category1: io.mytherion.category.model.Category
     private lateinit var entityInProject1: Entity
+    private lateinit var entity2InProject1: Entity
 
     @BeforeEach
     fun setUp() {
         entityRepository.deleteAll()
+        categoryRepository.deleteAll()
         projectRepository.deleteAll()
         userRepository.deleteAll()
 
@@ -108,11 +114,30 @@ class EntityTenantIsolationE2ETest {
             )
         )
 
+        // Create Category in Project 1
+        category1 = categoryRepository.save(
+            io.mytherion.category.model.Category(
+                project = project1User1,
+                name = "Protagonists",
+                description = "Primary heroes"
+            )
+        )
+
         // Create Entity belonging to Project 1 (User 1)
         entityInProject1 = entityRepository.save(
             Entity(
                 name = "E2E Test Character",
                 description = "Entity in Project 1",
+                type = EntityType.CHARACTER,
+                project = project1User1,
+                category = category1
+            )
+        )
+
+        entity2InProject1 = entityRepository.save(
+            Entity(
+                name = "E2E Test Uncategorized",
+                description = "Second entity in Project 1",
                 type = EntityType.CHARACTER,
                 project = project1User1
             )
@@ -122,6 +147,7 @@ class EntityTenantIsolationE2ETest {
     @AfterEach
     fun tearDown() {
         entityRepository.deleteAll()
+        categoryRepository.deleteAll()
         projectRepository.deleteAll()
         userRepository.deleteAll()
     }
@@ -221,5 +247,32 @@ class EntityTenantIsolationE2ETest {
         // Verify entity is untouched
         val entityFromDb = entityRepository.findById(entityInProject1.id!!).orElseThrow()
         assertFalse(entityFromDb.isDeleted())
+    }
+
+    @Test
+    fun `user can filter entities by categoryId via HTTP endpoint`() {
+        val response = restClient.get()
+            .uri("/api/projects/${project1User1.id}/entities?categoryId=${category1.id}")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer $user1Token")
+            .retrieve()
+            .body(object : ParameterizedTypeReference<Map<String, Any>>() {})!!
+
+        val content = response["content"] as List<Map<String, Any>>
+        assertEquals(1, content.size)
+        assertEquals(entityInProject1.id.toString(), content[0]["id"])
+        assertEquals(category1.id.toString(), content[0]["categoryId"])
+    }
+
+    @Test
+    fun `querying entities with a foreign or non-existent categoryId returns empty page`() {
+        val foreignCategoryId = java.util.UUID.randomUUID()
+        val response = restClient.get()
+            .uri("/api/projects/${project1User1.id}/entities?categoryId=$foreignCategoryId")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer $user1Token")
+            .retrieve()
+            .body(object : ParameterizedTypeReference<Map<String, Any>>() {})!!
+
+        val content = response["content"] as List<Map<String, Any>>
+        assertEquals(0, content.size)
     }
 }
