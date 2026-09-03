@@ -1,5 +1,6 @@
 package io.mytherion.auth.rest
 
+import io.mytherion.support.IntegrationTest
 import tools.jackson.databind.ObjectMapper
 import io.mytherion.auth.dto.AuthDTO
 import io.mytherion.fixtures.TestFixtures
@@ -22,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
+@IntegrationTest
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

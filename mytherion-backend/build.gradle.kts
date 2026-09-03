@@ -84,6 +84,25 @@ allOpen {
     annotation("jakarta.persistence.Embeddable")
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+// Tests are split by whether they need a live database, so the everyday loop stays fast.
+// Classes marked @IntegrationTest (io.mytherion.support) carry the "integration" JUnit tag.
+//
+//   ./gradlew test             -> fast tests only (unit + @WebMvcTest slices)
+//   ./gradlew integrationTest  -> Spring context + database tests
+//   ./gradlew check            -> both; this is what CI runs
+tasks.test {
+    useJUnitPlatform { excludeTags("integration") }
+}
+
+val integrationTest = tasks.register<Test>("integrationTest") {
+    description = "Runs tests that boot a Spring context and require a database."
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform { includeTags("integration") }
+    shouldRunAfter(tasks.test)
+}
+
+tasks.check {
+    dependsOn(integrationTest)
 }

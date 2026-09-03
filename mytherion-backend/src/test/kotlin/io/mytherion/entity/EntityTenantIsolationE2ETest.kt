@@ -1,5 +1,6 @@
 package io.mytherion.entity
 
+import io.mytherion.support.IntegrationTest
 import io.mytherion.auth.jwt.JwtService
 import io.mytherion.entity.model.Entity
 import io.mytherion.entity.model.EntityType
@@ -22,6 +23,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.client.RestClient
 
+@IntegrationTest
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class EntityTenantIsolationE2ETest {
 

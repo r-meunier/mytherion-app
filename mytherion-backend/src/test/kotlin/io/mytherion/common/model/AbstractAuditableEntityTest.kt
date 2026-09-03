@@ -1,5 +1,6 @@
 package io.mytherion.common.model
 
+import io.mytherion.support.IntegrationTest
 import io.mytherion.category.model.Category
 import io.mytherion.category.repository.CategoryRepository
 import io.mytherion.entity.model.Entity
@@ -21,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 
+@IntegrationTest
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional

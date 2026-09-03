@@ -1,5 +1,6 @@
 package io.mytherion.project
 
+import io.mytherion.support.IntegrationTest
 import io.mytherion.auth.jwt.JwtService
 import io.mytherion.fixtures.ProjectTestFixtures
 import io.mytherion.project.repository.ProjectRepository
@@ -17,6 +18,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.RestClient
 
+@IntegrationTest
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ProjectSearchE2ETest {
 
