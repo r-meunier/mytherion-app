@@ -12,6 +12,7 @@ interface ProjectCardProps {
   onDelete: (id: string) => void;
   onCancelDelete?: () => void;
   isDeleteConfirm?: boolean;
+  variant?: "grid" | "list";
 }
 
 export default function ProjectCard({ 
@@ -19,7 +20,8 @@ export default function ProjectCard({
   onEdit, 
   onDelete,
   onCancelDelete,
-  isDeleteConfirm = false
+  isDeleteConfirm = false,
+  variant = "grid",
 }: ProjectCardProps) {
   const isMounted = useIsMounted();
 
@@ -27,11 +29,16 @@ export default function ProjectCard({
     if (!isMounted) return "";
     const date = new Date(dateString);
     const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
+    const diffTime = Math.max(0, now.getTime() - date.getTime());
+    const diffMinutes = Math.floor(diffTime / (1000 * 60));
+    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     
+    if (diffMinutes < 1) return "Just now";
+    if (diffMinutes < 60) return `${diffMinutes}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffHours < 48) return "Yesterday";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays}d ago`;
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
@@ -73,19 +80,158 @@ export default function ProjectCard({
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [menuOpen]);
 
+  if (variant === "list") {
+    return (
+      <div className="glass-panel rounded-2xl overflow-hidden group cursor-pointer flex flex-col sm:flex-row relative shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-primary/40">
+        {/* Click overlay */}
+        <Link href={routes.project(project.id).root} className="absolute inset-0 z-10" />
+
+        {/* Thumbnail */}
+        <div className="relative h-44 sm:h-auto sm:w-64 shrink-0 overflow-hidden bg-black/40 rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl will-change-transform transform-gpu">
+          <img 
+            src={getPlaceholderImage(project.id)}
+            alt={project.name}
+            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-[#1b1522] via-transparent to-transparent opacity-90 pointer-events-none" />
+          
+          {isPinned && (
+            <div className="absolute top-3 left-3 z-20">
+              <span className="bg-[#fbbf24]/10 backdrop-blur-xl px-3 py-1 rounded-lg text-[8px] font-black text-secondary border border-secondary/30 flex items-center gap-1.5 uppercase tracking-[0.2em]">
+                <span className="material-symbols-outlined text-[14px]">stars</span>
+                Pinned
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Content Section */}
+        <div className="p-5 flex-1 flex flex-col justify-between gap-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1.5 flex-1">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h3 className="font-section-header text-lg font-bold text-white group-hover:text-primary transition-colors duration-300">
+                  {project.name}
+                </h3>
+                <span className="px-2.5 py-0.5 bg-primary/10 border border-primary/20 rounded-full text-[9px] font-bold text-primary uppercase tracking-wider">
+                  {project.genre || "High Fantasy"}
+                </span>
+              </div>
+              {project.description && (
+                <p className="text-white/50 text-xs leading-relaxed line-clamp-2 font-medium">
+                  {project.description}
+                </p>
+              )}
+            </div>
+
+            {/* Menu */}
+            <div ref={menuRef} className="relative z-20 shrink-0">
+              <button 
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setMenuOpen(!menuOpen);
+                }}
+                className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/70 transition-all shadow-md group-hover:border-white/20 cursor-pointer"
+                title="World options"
+                aria-label="World options"
+              >
+                <span className="material-symbols-outlined text-[18px]">more_vert</span>
+              </button>
+
+              <div 
+                className={`absolute right-0 top-10 w-36 bg-[#1f1a23]/95 backdrop-blur-2xl border border-white/10 rounded-xl shadow-[0_12px_32px_rgba(0,0,0,0.6)] p-1.5 transition-all duration-200 origin-top-right z-30 ${
+                  menuOpen ? "opacity-100 scale-100 visible pointer-events-auto" : "opacity-0 scale-95 invisible pointer-events-none"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setMenuOpen(false);
+                    onEdit(project.id);
+                  }}
+                  title="Edit project"
+                  className="w-full text-left px-3 py-2 text-xs font-semibold rounded-lg flex items-center gap-2.5 text-white/80 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[16px] text-primary">edit</span>
+                  <span>Edit World</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setMenuOpen(false);
+                    onDelete(project.id);
+                  }}
+                  title="Delete project"
+                  className="w-full text-left px-3 py-2 text-xs font-semibold rounded-lg flex items-center gap-2.5 text-rose-400 hover:bg-rose-500/15 transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[16px]">delete</span>
+                  <span>Delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Metadata Footer */}
+          <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
+            <div className="flex items-center text-[10px] font-bold text-white/40 uppercase tracking-[0.15em]">
+              <span className="material-symbols-outlined text-[14px] mr-1.5 text-primary/70">database</span>
+              <span>{(project.entityCount || 0).toLocaleString()} Entities</span>
+            </div>
+            <span className="text-white/40 font-medium text-[11px]">
+              {formatDate(project.updatedAt || project.createdAt)}
+            </span>
+          </div>
+        </div>
+
+        {/* Delete Confirmation Overlay */}
+        {isDeleteConfirm && (
+          <div className="absolute inset-0 z-30 bg-[#1A1625]/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-300">
+            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-4 border border-red-500/20">
+              <span className="material-symbols-outlined text-red-400 text-[32px]">warning</span>
+            </div>
+            <h4 className="text-white font-bold text-lg mb-2">Delete this project?</h4>
+            <p className="text-white/40 text-xs mb-6">This action cannot be undone.</p>
+            <div className="flex gap-3 w-full max-w-xs">
+              <button 
+                onClick={(e) => { e.stopPropagation(); onCancelDelete?.(); }}
+                className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white/60 text-xs font-bold hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={(e) => { e.stopPropagation(); onDelete(project.id); }}
+                className="flex-1 px-4 py-2 bg-red-500/20 border border-red-500/30 rounded-xl text-red-400 text-xs font-bold hover:bg-red-500/30 transition-colors cursor-pointer"
+              >
+                Confirm Delete
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="glass-panel rounded-2xl overflow-hidden group cursor-pointer flex flex-col relative shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-primary/40">
       {/* Click overlay */}
       <Link href={routes.project(project.id).root} className="absolute inset-0 z-10" />
 
       {/* Hero Image Section */}
-      <div className="relative h-60 w-full overflow-hidden bg-black/40">
+      <div className="relative h-60 w-full overflow-hidden bg-black/40 rounded-t-2xl will-change-transform transform-gpu">
         <img 
           src={getPlaceholderImage(project.id)}
           alt={project.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1b1522] via-transparent to-transparent opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1b1522] via-transparent to-transparent opacity-90 pointer-events-none" />
         
         {/* Pinned Tag */}
         {isPinned && (

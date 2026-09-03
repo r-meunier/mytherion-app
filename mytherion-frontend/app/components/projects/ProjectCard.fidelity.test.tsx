@@ -75,4 +75,44 @@ describe('ProjectCard High Fidelity', () => {
     
     expect(screen.getByText('Yesterday')).toBeInTheDocument();
   });
+
+  it('renders "Just now" for brand-new updates under 1 minute', () => {
+    // Current time is 12:00:00. Set updatedAt to 11:59:45 (15 seconds ago)
+    const justNow = new Date('2024-01-20T11:59:45Z').toISOString();
+    const project = { ...mockProject, updatedAt: justNow };
+    
+    render(<ProjectCard project={project} onEdit={() => {}} onDelete={() => {}} />);
+    
+    expect(screen.getByText('Just now')).toBeInTheDocument();
+    expect(screen.queryByText('1h ago')).not.toBeInTheDocument();
+  });
+
+  it('renders "5m ago" for updates 5 minutes ago', () => {
+    // Current time is 12:00. Set updatedAt to 11:55 (5 minutes ago)
+    const fiveMinutesAgo = new Date('2024-01-20T11:55:00Z').toISOString();
+    const project = { ...mockProject, updatedAt: fiveMinutesAgo };
+    
+    render(<ProjectCard project={project} onEdit={() => {}} onDelete={() => {}} />);
+    
+    expect(screen.getByText('5m ago')).toBeInTheDocument();
+    expect(screen.queryByText('1h ago')).not.toBeInTheDocument();
+  });
+
+  it('renders "3d ago" for updates 3 days ago', () => {
+    // Current time is Jan 20 12:00. Set updatedAt to Jan 17 12:00 (3 days ago)
+    const threeDaysAgo = new Date('2024-01-17T12:00:00Z').toISOString();
+    const project = { ...mockProject, updatedAt: threeDaysAgo };
+    
+    render(<ProjectCard project={project} onEdit={() => {}} onDelete={() => {}} />);
+    
+    expect(screen.getByText('3d ago')).toBeInTheDocument();
+  });
+
+  it('renders correctly in list variant layout', () => {
+    render(<ProjectCard project={mockProject} variant="list" onEdit={() => {}} onDelete={() => {}} />);
+    
+    expect(screen.getByText('Aetheria')).toBeInTheDocument();
+    expect(screen.getByText('High Fantasy')).toBeInTheDocument();
+    expect(screen.getByText(/1,250/)).toBeInTheDocument();
+  });
 });
