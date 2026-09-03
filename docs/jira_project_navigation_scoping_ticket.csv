@@ -1,0 +1,2 @@
+Summary,Description,Issue Type,Priority,Jira Key
+"Migrate Entity Routes to Scoped /projects/[id]/codex and Align Navigation Hierarchy for Novelist Studio","Migrate /projects/[projectId]/entities to /projects/[projectId]/codex to align with the core Codex worldbuilding model. Update DualSidebar, projectNavigation, DashboardHeader, and Entity components with backward-compatible redirects. Ensure route architecture cleanly reserves forward-compatible slots for /projects/[id]/planner and /projects/[id]/manuscript without future breaking changes.","Story","High","MYT-74"

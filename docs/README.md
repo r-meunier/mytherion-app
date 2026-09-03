@@ -6,6 +6,7 @@ This directory contains all architectural plans, implementation strategies, and 
 
 | File | Description | Status |
 | :--- | :--- | :--- |
+| [product-vision-and-roadmap.md](./product-vision-and-roadmap.md) | Product vision, architectural direction, desktop portability & all-in-one novelist studio roadmap | 📌 Active Reference |
 | [navigation-overhaul-plan.md](./navigation-overhaul-plan.md) | Project-centric navigation: URL hierarchy, security, sidebar modes, phased rollout | 🔄 In Progress |
 | [component-architecture-plan.md](./component-architecture-plan.md) | Entity component coupling: shared type registry, workflow for adding new components, meta-driven UI | ✅ Mostly Done |
 | [css-architecture-plan.md](./css-architecture-plan.md) | CSS tree: `base.css` → `auth.css` / `projects.css` / `app-core.css` modular structure | 🔄 In Progress |
