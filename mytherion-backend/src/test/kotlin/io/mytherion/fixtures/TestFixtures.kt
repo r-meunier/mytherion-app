@@ -16,6 +16,9 @@ import org.springframework.security.crypto.password.PasswordEncoder
 /**
  * Test data factory for integration and E2E tests.
  *
+ * Every method **persists** through the injected repositories, so this requires a live database.
+ * Use [ProjectTestFixtures] instead for unit tests that only need detached objects or DTOs.
+ *
  * Inject or instantiate this class and call the relevant factory method. 
  * All methods use [TestUsers] constants as defaults so test identities are consistent everywhere.
  *

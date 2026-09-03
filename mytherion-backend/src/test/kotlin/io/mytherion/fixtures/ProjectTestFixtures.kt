@@ -1,4 +1,4 @@
-package io.mytherion.project
+package io.mytherion.fixtures
 
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
@@ -10,7 +10,12 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * Test fixtures for Project-related tests
+ * In-memory builders for Project-related tests.
+ *
+ * Constructs detached objects and DTOs without touching the database, so unit tests and
+ * `@WebMvcTest` slices can use them without a repository or a Spring context.
+ *
+ * Use [TestFixtures] instead when a test needs rows actually persisted.
  */
 object ProjectTestFixtures {
 

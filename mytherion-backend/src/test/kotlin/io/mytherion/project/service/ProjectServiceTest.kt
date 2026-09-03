@@ -11,7 +11,7 @@ import io.mockk.verify
 import io.mytherion.auth.service.CurrentUserProvider
 import io.mytherion.entity.service.EntityQueryService
 import io.mytherion.platform.monitoring.MetricsService
-import io.mytherion.project.ProjectTestFixtures
+import io.mytherion.fixtures.ProjectTestFixtures
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.UpdateProjectRequest
 import io.mytherion.project.exception.ProjectAccessDeniedException

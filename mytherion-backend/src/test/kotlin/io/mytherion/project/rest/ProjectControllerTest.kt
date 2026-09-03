@@ -10,7 +10,7 @@ import io.mytherion.auth.jwt.JwtAuthFilter
 import io.mytherion.auth.jwt.JwtService
 import io.mytherion.auth.util.CookieUtil
 import io.mytherion.platform.monitoring.PerformanceInterceptor
-import io.mytherion.project.ProjectTestFixtures
+import io.mytherion.fixtures.ProjectTestFixtures
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
 import io.mytherion.project.dto.UpdateProjectRequest

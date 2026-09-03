@@ -1,6 +1,7 @@
 package io.mytherion.project
 
 import io.mytherion.auth.jwt.JwtService
+import io.mytherion.fixtures.ProjectTestFixtures
 import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.user.model.User
 import io.mytherion.user.repository.UserRepository

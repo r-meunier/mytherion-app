@@ -63,6 +63,7 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:5.0.1")
     testImplementation("io.mockk:mockk:1.14.11")
     testImplementation("com.approvaltests:approvaltests:31.0.0")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.4.1")
     testImplementation("com.google.code.gson:gson:2.14.0")
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
