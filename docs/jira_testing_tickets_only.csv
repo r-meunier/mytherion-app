@@ -1,5 +1,0 @@
-Summary,Description,Issue Type,Priority
-"Add unit tests for Auth UI components","Create frontend tests for LoginForm.tsx and RegisterForm.tsx to ensure user authentication flows render correctly and handle validation.","Task","High"
-"Add unit tests for core Entity UI components","Create frontend tests for EntityForm.tsx, EntityCard.tsx, and EntityList.tsx to ensure the primary MVP data forms are stable.","Task","High"
-"Add backend tests for MinIOStorageService","Implement integration or unit tests covering the file upload, retrieval, and deletion logic in the storage service.","Task","Medium"
-"Setup E2E testing for core MVP user journey","Implement a basic E2E test suite (e.g. Playwright or Cypress) covering the critical path: User Login -> Create Project -> Create Entity.","Story","High"

@@ -1,4 +1,0 @@
-Summary,Description,Issue Type,Priority
-"Implement custom query with filters (type, tags, search) in EntityService","File: `mytherion-backend/src/main/kotlin/io/mytherion/entity/service/EntityService.kt` (Line 198)","Task","Medium"
-"Complete IntegrationTests for article page","File: `mytherion-backend/src/test/kotlin/io/mytherion/IntegrationTests.kt` (Line 13 & 32). Missing test implementation for 'Assert article page title, content and status code'.","Task","Medium"
-"Update README with Implementation and Testing Document Links","File: `mytherion-backend/docs/README.md` (Line 78 & 82). Add missing links under Quick Links sections.","Task","Low"

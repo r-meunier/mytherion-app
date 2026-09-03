@@ -1,7 +1,0 @@
-Summary,Description,Issue Type,Priority
-"Implement custom query with filters (type, tags, search) in EntityService","File: mytherion-backend/src/main/kotlin/io/mytherion/entity/service/EntityService.kt (Line 198)","Task","High"
-"Complete IntegrationTests for article page","File: mytherion-backend/src/test/kotlin/io/mytherion/IntegrationTests.kt (Line 13 & 32). Missing test implementation for 'Assert article page title, content and status code'.","Task","Medium"
-"Update README with Implementation and Testing Document Links","File: mytherion-backend/docs/README.md (Line 78 & 82). Add missing links under Quick Links sections.","Task","Low"
-"Implement PDF Export Functionality","Add PDF generation dependency and build the default template to allow exporting entities to PDF as per MVP requirements. Optional: PNG card export.","Story","Medium"
-"Implement Basic AI Features for Entity Guidance","Integrate an LLM provider to offer 'Gentle Guidance', helping users structure sloppy text into Roles, Traits, and Motivations.","Story","High"
-"Wire up Image Upload and Display in Frontend","Ensure EntityForm supports uploading one image per entry to MinIO and EntityCard fetches and displays the image.","Story","High"

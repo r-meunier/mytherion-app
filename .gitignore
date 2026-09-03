@@ -6,6 +6,7 @@
 *.iws
 *.iml
 *.ipr
+*.xml
 .settings/
 .classpath
 .project
@@ -44,11 +45,14 @@ mytherion-frontend/next-env.d.ts
 
 # Logs and Debug
 *.log
+build_output.txt
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 mytherion-backend/logs/
+mytherion-frontend/scratch/
+mytherion-frontend/node_modules*/
 
 # Environment and Secrets
 .env
