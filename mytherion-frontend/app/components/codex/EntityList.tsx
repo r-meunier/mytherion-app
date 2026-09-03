@@ -4,6 +4,8 @@ import { useEffect, useState, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchEntities, setFilters, deleteEntity } from '@/app/store/entitySlice';
 import { Entity, EntityType } from '@/app/types/entity';
+import { categoryService } from '@/app/services/categoryService';
+import { Category } from '@/app/types/category';
 import EntityCard from './EntityCard';
 import EntityFilters from './EntityFilters';
 import PageHeader from '../ui/PageHeader';
@@ -19,17 +21,62 @@ export default function EntityList({ projectId, projectName, onCreateClick, onEd
   const dispatch = useAppDispatch();
   const { entities, loading, error, filters, pagination } = useAppSelector((state) => state.entities);
   
+  const [categories, setCategories] = useState<Category[]>([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [sortBy, setSortBy] = useState<'date' | 'name'>('date');
+  const [searchInput, setSearchInput] = useState(filters.search || '');
   
   const PAGE_SIZE = 20;
   const lastFetchedParams = useRef<string>('');
+
+  // Fetch categories for the project
+  useEffect(() => {
+    let isMounted = true;
+    categoryService.getCategories(projectId)
+      .then((data) => {
+        if (isMounted) setCategories(data);
+      })
+      .catch(() => {
+        // Silently handle
+      });
+    return () => { isMounted = false; };
+  }, [projectId]);
+
+  // Debounce search input to avoid flashing and firing queries on every keystroke
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchInput !== (filters.search || '')) {
+        dispatch(setFilters({ ...filters, search: searchInput }));
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput, dispatch, filters]);
+
+  // Sync search input if filters are reset externally
+  useEffect(() => {
+    if (filters.search !== undefined && filters.search !== searchInput) {
+      setSearchInput(filters.search);
+    }
+  }, [filters.search]);
+
+  // Handle escape key to dismiss delete modal
+  useEffect(() => {
+    if (!showDeleteConfirm) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowDeleteConfirm(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showDeleteConfirm]);
 
   useEffect(() => {
     const fetchKey = JSON.stringify({
       projectId,
       type: filters.type,
+      categoryId: filters.categoryId,
       search: filters.search,
       tags: filters.tags,
       page: currentPage,
@@ -54,18 +101,23 @@ export default function EntityList({ projectId, projectName, onCreateClick, onEd
       return;
     }
     setCurrentPage(0);
-  }, [filters.type, filters.search, filters.tags]);
+  }, [filters.type, filters.categoryId, filters.search, filters.tags]);
 
   const handleSearchChange = (search: string) => {
-    dispatch(setFilters({ ...filters, search }));
+    setSearchInput(search);
   };
 
   const handleTypeFilter = (type: EntityType | undefined) => {
     dispatch(setFilters({ ...filters, type }));
   };
 
+  const handleCategoryFilter = (categoryId: string | undefined) => {
+    dispatch(setFilters({ ...filters, categoryId }));
+  };
+
   const handleClearFilters = () => {
-    dispatch(setFilters({ type: undefined, tags: [], search: '' }));
+    setSearchInput('');
+    dispatch(setFilters({ type: undefined, categoryId: undefined, tags: [], search: '' }));
   };
 
   const handleDelete = async (entityId: string) => {
@@ -78,7 +130,7 @@ export default function EntityList({ projectId, projectName, onCreateClick, onEd
     setCurrentPage(newPage);
   };
 
-  const hasActiveFilters = filters.type || filters.search || (filters.tags && filters.tags.length > 0);
+  const hasActiveFilters = !!(filters.type || filters.categoryId || filters.search || (filters.tags && filters.tags.length > 0));
 
   const sortedEntities = [...entities].sort((a, b) => {
     if (sortBy === 'name') {
@@ -96,12 +148,15 @@ export default function EntityList({ projectId, projectName, onCreateClick, onEd
       >
         {/* Unified Glass Command Bar locked to the right */}
         <EntityFilters
-          search={filters.search || ''}
+          search={searchInput}
           onSearchChange={handleSearchChange}
           sortBy={sortBy}
           onSortChange={setSortBy}
           selectedType={filters.type}
           onTypeChange={handleTypeFilter}
+          categories={categories}
+          selectedCategoryId={filters.categoryId}
+          onCategoryChange={handleCategoryFilter}
           onCreateClick={onCreateClick}
         />
       </PageHeader>
@@ -161,9 +216,9 @@ export default function EntityList({ projectId, projectName, onCreateClick, onEd
       )}
 
       {/* Entity Grid */}
-      {!loading && sortedEntities.length > 0 && (
+      {sortedEntities.length > 0 && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-200 ${loading ? "opacity-60" : "opacity-100"}`}>
             {sortedEntities.map((entity) => (
               <EntityCard
                 key={entity.id}
@@ -186,14 +241,14 @@ export default function EntityList({ projectId, projectName, onCreateClick, onEd
                 <button
                   onClick={() => handlePageChange(pagination.page - 1)}
                   disabled={pagination.page === 0}
-                  className="px-4 py-2 glass text-white rounded-lg hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="px-4 py-2 glass text-white rounded-lg hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => handlePageChange(pagination.page + 1)}
                   disabled={pagination.page >= pagination.totalPages - 1}
-                  className="px-4 py-2 glass text-white rounded-lg hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="px-4 py-2 glass text-white rounded-lg hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                 >
                   Next
                 </button>
@@ -205,8 +260,15 @@ export default function EntityList({ projectId, projectName, onCreateClick, onEd
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="glass rounded-2xl p-6 max-w-md w-full mx-4 border border-white/20">
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 cursor-pointer animate-in fade-in duration-150"
+          onClick={() => setShowDeleteConfirm(null)}
+          data-testid="delete-modal-backdrop"
+        >
+          <div 
+            className="glass rounded-2xl p-6 max-w-md w-full mx-4 border border-white/20 cursor-default shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-start gap-3 mb-4">
               <span className="material-symbols-outlined text-secondary text-[32px]">warning</span>
               <div>
@@ -219,13 +281,13 @@ export default function EntityList({ projectId, projectName, onCreateClick, onEd
             <div className="flex gap-3">
               <button
                 onClick={() => handleDelete(showDeleteConfirm)}
-                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-lg shadow-red-600/20 transition-all font-semibold"
+                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-lg shadow-red-600/20 transition-all font-semibold cursor-pointer"
               >
                 Delete
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(null)}
-                className="flex-1 px-4 py-2.5 glass text-white rounded-lg hover:bg-white/10 transition-all font-semibold"
+                className="flex-1 px-4 py-2.5 glass text-white rounded-lg hover:bg-white/10 transition-all font-semibold cursor-pointer"
               >
                 Cancel
               </button>

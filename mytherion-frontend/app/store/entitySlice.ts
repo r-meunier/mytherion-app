@@ -23,6 +23,7 @@ const initialState: EntityState = {
   error: null,
   filters: {
     type: undefined,
+    categoryId: undefined,
     tags: [],
     search: '',
   },
@@ -50,6 +51,7 @@ export const fetchEntities = createAsyncThunk(
   }) => {
     const response = await entityService.getEntities(projectId, {
       type: filters?.type,
+      categoryId: filters?.categoryId,
       tags: filters?.tags,
       search: filters?.search,
       page,
@@ -101,6 +103,7 @@ const entitySlice = createSlice({
     clearFilters: (state) => {
       state.filters = {
         type: undefined,
+        categoryId: undefined,
         tags: [],
         search: '',
       };

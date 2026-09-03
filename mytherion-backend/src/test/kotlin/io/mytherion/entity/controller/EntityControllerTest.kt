@@ -149,6 +149,41 @@ class EntityControllerTest {
     }
 
     @Test
+    fun `listEntities with categoryId should pass category filter to service`() {
+        val categoryId = UUID.randomUUID()
+        val entityDTO =
+            EntityDTO(
+                id = entityId,
+                projectId = projectId,
+                type = EntityType.CHARACTER,
+                name = "Test Character",
+                categoryId = categoryId,
+                description = "Test description",
+                notes = null,
+                tags = listOf("hero"),
+                thumbnail = null,
+                metadata = null,
+                version = 0L,
+                createdAt = Instant.now(),
+                updatedAt = Instant.now()
+            )
+
+        val page = PageImpl(listOf(entityDTO))
+        io.mockk.slot<io.mytherion.entity.dto.EntitySearchRequest>().also { slot ->
+            every { entityService.searchEntities(projectId, capture(slot)) } returns page
+
+            mockMvc.perform(
+                get("/api/projects/$projectId/entities")
+                    .param("categoryId", categoryId.toString())
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.content[0].categoryId").value(categoryId.toString()))
+
+            org.junit.jupiter.api.Assertions.assertEquals(categoryId, slot.captured.categoryId)
+        }
+    }
+
+    @Test
     fun `createEntity should return created entity`() {
         // Given
         val request =

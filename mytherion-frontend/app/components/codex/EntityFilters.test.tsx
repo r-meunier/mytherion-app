@@ -68,4 +68,55 @@ describe('EntityFilters Component', () => {
 
     expect(defaultProps.onCreateClick).toHaveBeenCalledTimes(1);
   });
+
+  it('renders category filter and calls onCategoryChange when category selected', () => {
+    const onCategoryChange = jest.fn();
+    const categories = [
+      { id: 'cat-1', name: 'Magic & Lore' },
+      { id: 'cat-2', name: 'Factions' },
+    ];
+
+    render(
+      <EntityFilters
+        {...defaultProps}
+        categories={categories}
+        selectedCategoryId="cat-1"
+        onCategoryChange={onCategoryChange}
+      />
+    );
+
+    const categoryButton = screen.getByTitle('Filter by Category');
+    expect(categoryButton).toBeInTheDocument();
+    fireEvent.click(categoryButton);
+
+    expect(screen.getByText('Magic & Lore')).toBeInTheDocument();
+    expect(screen.getByText('Factions')).toBeInTheDocument();
+
+    const factionsOption = screen.getByText('Factions');
+    fireEvent.click(factionsOption);
+
+    expect(onCategoryChange).toHaveBeenCalledWith('cat-2');
+  });
+
+  it('calls onCategoryChange with undefined when "All Categories" is selected', () => {
+    const onCategoryChange = jest.fn();
+    const categories = [{ id: 'cat-1', name: 'Magic & Lore' }];
+
+    render(
+      <EntityFilters
+        {...defaultProps}
+        categories={categories}
+        selectedCategoryId="cat-1"
+        onCategoryChange={onCategoryChange}
+      />
+    );
+
+    const categoryButton = screen.getByTitle('Filter by Category');
+    fireEvent.click(categoryButton);
+
+    const allCategoriesOption = screen.getByText('All Categories');
+    fireEvent.click(allCategoriesOption);
+
+    expect(onCategoryChange).toHaveBeenCalledWith(undefined);
+  });
 });

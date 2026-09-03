@@ -49,6 +49,11 @@ class EmailVerificationIntegrationTest {
     @MockK
     private lateinit var emailService: io.mytherion.email.EmailService
 
+    @org.junit.jupiter.api.BeforeEach
+    fun setUp() {
+        cleanup()
+    }
+
     @AfterEach
     fun cleanup() {
         tokenRepository.deleteAll()
