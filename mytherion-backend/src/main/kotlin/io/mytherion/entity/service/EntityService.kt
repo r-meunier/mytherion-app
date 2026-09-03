@@ -1,19 +1,19 @@
 package io.mytherion.entity.service
 
-import io.mytherion.auth.CurrentUserProvider
+import io.mytherion.auth.service.CurrentUserProvider
 import io.mytherion.category.repository.CategoryRepository
 import io.mytherion.entity.dto.*
 import io.mytherion.entity.exception.*
 import io.mytherion.entity.model.Entity
 import io.mytherion.entity.repository.EntityRepository
-import io.mytherion.logging.debugWith
-import io.mytherion.logging.errorWith
-import io.mytherion.logging.infoWith
-import io.mytherion.logging.measureTime
-import io.mytherion.monitoring.MetricsService
+import io.mytherion.platform.logging.debugWith
+import io.mytherion.platform.logging.errorWith
+import io.mytherion.platform.logging.infoWith
+import io.mytherion.platform.logging.measureTime
+import io.mytherion.platform.monitoring.MetricsService
 import io.mytherion.project.service.ProjectService
-import io.mytherion.storage.StorageService
-import io.mytherion.storage.dto.UploadResponse
+import io.mytherion.platform.storage.StorageService
+import io.mytherion.platform.storage.dto.UploadResponse
 import io.mytherion.user.model.User
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value

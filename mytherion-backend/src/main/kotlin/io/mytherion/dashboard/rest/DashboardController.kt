@@ -2,7 +2,7 @@ package io.mytherion.dashboard.rest
 
 import io.mytherion.dashboard.dto.DashboardStatsDTO
 import io.mytherion.dashboard.service.DashboardService
-import io.mytherion.logging.logger
+import io.mytherion.platform.logging.logger
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import java.util.UUID

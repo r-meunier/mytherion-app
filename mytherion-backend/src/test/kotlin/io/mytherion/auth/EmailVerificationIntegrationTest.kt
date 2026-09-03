@@ -47,7 +47,7 @@ class EmailVerificationIntegrationTest {
     private lateinit var passwordEncoder: PasswordEncoder
 
     @MockK
-    private lateinit var emailService: io.mytherion.email.EmailService
+    private lateinit var emailService: io.mytherion.platform.email.EmailService
 
     @org.junit.jupiter.api.BeforeEach
     fun setUp() {

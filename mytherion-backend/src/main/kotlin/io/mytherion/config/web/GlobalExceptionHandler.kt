@@ -3,8 +3,8 @@ package io.mytherion.config.web
 import io.mytherion.common.exception.ApiException
 import io.mytherion.common.web.ErrorResponse
 import io.mytherion.common.web.ValidationErrorResponse
-import io.mytherion.logging.errorWith
-import io.mytherion.logging.logger
+import io.mytherion.platform.logging.errorWith
+import io.mytherion.platform.logging.logger
 import java.time.Instant
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

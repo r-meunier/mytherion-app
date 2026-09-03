@@ -1,6 +1,6 @@
 package io.mytherion.dashboard.service
 
-import io.mytherion.auth.CurrentUserProvider
+import io.mytherion.auth.service.CurrentUserProvider
 import io.mytherion.dashboard.dto.DashboardStatsDTO
 import io.mytherion.entity.repository.EntityRepository
 import io.mytherion.project.repository.ProjectRepository

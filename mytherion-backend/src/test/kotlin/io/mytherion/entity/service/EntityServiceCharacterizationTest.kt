@@ -3,7 +3,7 @@ package io.mytherion.entity.service
 import tools.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import io.mytherion.auth.CurrentUserProvider
+import io.mytherion.auth.service.CurrentUserProvider
 import io.mytherion.entity.dto.EntityDTO
 import io.mytherion.entity.dto.EntitySearchRequest
 import io.mytherion.entity.model.EntityType

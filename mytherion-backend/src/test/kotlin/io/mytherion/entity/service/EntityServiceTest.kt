@@ -4,7 +4,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import io.mytherion.auth.CurrentUserProvider
+import io.mytherion.auth.service.CurrentUserProvider
 import io.mytherion.category.repository.CategoryRepository
 import io.mytherion.entity.dto.CreateEntityRequest
 import io.mytherion.entity.dto.UpdateEntityRequest
@@ -13,12 +13,12 @@ import io.mytherion.entity.exception.ImageNotFoundException
 import io.mytherion.entity.model.Entity
 import io.mytherion.entity.model.EntityType
 import io.mytherion.entity.repository.EntityRepository
-import io.mytherion.monitoring.MetricsService
+import io.mytherion.platform.monitoring.MetricsService
 import io.mytherion.project.exception.ProjectAccessDeniedException
 import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.model.Project
 import io.mytherion.project.service.ProjectService
-import io.mytherion.storage.StorageService
+import io.mytherion.platform.storage.StorageService
 import io.mytherion.user.model.User
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
