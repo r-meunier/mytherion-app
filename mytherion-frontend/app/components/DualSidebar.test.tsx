@@ -88,4 +88,20 @@ describe('DualSidebar - Project Mode & Scoped Codex Navigation', () => {
 
     expect(onCreateEntity).toHaveBeenCalledTimes(1);
   });
+
+  it('renders Admin Portal link with routes.admin.users() for admin in global mode', () => {
+    (useAppSelector as unknown as jest.Mock).mockImplementation((selector: any) => {
+      const state = {
+        projects: { currentProject: null },
+        auth: { user: { ...mockUser, role: 'ADMIN' } },
+      };
+      return selector(state);
+    });
+
+    render(<DualSidebar />);
+
+    const adminLink = screen.getByRole('link', { name: /admin portal/i });
+    expect(adminLink).toBeInTheDocument();
+    expect(adminLink).toHaveAttribute('href', '/admin/users');
+  });
 });

@@ -13,6 +13,7 @@ import {
   getManagementItems,
   NavItem 
 } from "../config/projectNavigation";
+import routes from "../config/routes";
 
 interface DualSidebarProps {
   activeSection?: string;
@@ -78,7 +79,7 @@ export default function DualSidebar({
       : getGlobalManagementItems();
     
     if (isAdmin && !isProjectMode) {
-      const adminItem = { id: 'admin', label: 'Admin Portal', href: '/admin/users', icon: 'admin_panel_settings' };
+      const adminItem = { id: 'admin', label: 'Admin Portal', href: routes.admin.users(), icon: 'admin_panel_settings' };
       if (!items.some(i => i.id === 'admin')) {
         return [items[0], adminItem, ...items.slice(1)];
       }
