@@ -2,7 +2,6 @@ package io.mytherion.auth
 
 import tools.jackson.databind.ObjectMapper
 import io.mytherion.auth.dto.AuthDTO
-import io.mytherion.config.seed.TestUsers
 import io.mytherion.fixtures.TestFixtures
 import io.mytherion.user.model.UserRole
 import io.mytherion.user.repository.UserRepository
@@ -10,7 +9,6 @@ import jakarta.servlet.http.Cookie
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
-import java.util.UUID
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

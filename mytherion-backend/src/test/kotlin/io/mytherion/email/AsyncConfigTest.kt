@@ -2,7 +2,6 @@ package io.mytherion.email
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
-import java.util.UUID
 import org.junit.jupiter.api.Test
 
 class AsyncConfigTest {

@@ -10,8 +10,10 @@ import io.mytherion.auth.util.CookieUtil
 import io.mytherion.entity.dto.CreateEntityRequest
 import io.mytherion.entity.dto.EntityDTO
 import io.mytherion.entity.dto.UpdateEntityRequest
+import io.mytherion.entity.exception.EntityNotFoundException
 import io.mytherion.entity.model.EntityType
 import io.mytherion.entity.service.EntityService
+import io.mytherion.project.exception.ProjectAccessDeniedException
 import io.mytherion.storage.dto.UploadResponse
 import java.time.Instant
 import java.util.UUID
@@ -62,6 +64,9 @@ class EntityControllerTest {
     @MockkBean
     private lateinit var currentUserProvider: io.mytherion.auth.CurrentUserProvider
 
+    private val projectId = UUID.fromString("00000000-0000-0000-0000-000000000001")
+    private val entityId = UUID.fromString("00000000-0000-0000-0000-000000000001")
+
     @org.junit.jupiter.api.BeforeEach
     fun setUpInterceptors() {
         every { projectAccessInterceptor.preHandle(any(), any(), any()) } returns true
@@ -78,8 +83,8 @@ class EntityControllerTest {
         // Given
         val entityDTO =
             EntityDTO(
-                id = UUID.fromString("00000000-0000-0000-0000-000000000001"),
-                projectId = UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                id = entityId,
+                projectId = projectId,
                 type = EntityType.CHARACTER,
                 name = "Test Character",
                 categoryId = null,
@@ -88,7 +93,7 @@ class EntityControllerTest {
                 tags = listOf("hero", "mage"),
                 thumbnail = null,
                 metadata = null,
-            version = 0L,
+                version = 0L,
                 createdAt = Instant.now(),
                 updatedAt = Instant.now()
             )
@@ -98,13 +103,49 @@ class EntityControllerTest {
 
         // When/Then
         mockMvc.perform(
-            get("/api/projects/00000000-0000-0000-0000-000000000001/entities")
+            get("/api/projects/$projectId/entities")
                 .param("page", "0")
                 .param("size", "20")
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.content[0].id").value("00000000-0000-0000-0000-000000000001"))
+            .andExpect(jsonPath("$.content").isArray)
+            .andExpect(jsonPath("$.content[0].id").value(entityId.toString()))
             .andExpect(jsonPath("$.content[0].name").value("Test Character"))
+    }
+
+    @Test
+    fun `listEntities with filters should pass filters to service`() {
+        // Given
+        val entityDTO =
+            EntityDTO(
+                id = entityId,
+                projectId = projectId,
+                type = EntityType.CHARACTER,
+                name = "Test Character",
+                categoryId = null,
+                description = "Test description",
+                notes = null,
+                tags = listOf("hero"),
+                thumbnail = null,
+                metadata = null,
+                version = 0L,
+                createdAt = Instant.now(),
+                updatedAt = Instant.now()
+            )
+
+        val page = PageImpl(listOf(entityDTO))
+        every { entityService.searchEntities(any(), any()) } returns page
+
+        // When/Then
+        mockMvc.perform(
+            get("/api/projects/$projectId/entities")
+                .param("type", "CHARACTER")
+                .param("tags", "hero,mage")
+                .param("search", "test")
+                .param("page", "0")
+                .param("size", "20")
+        )
+            .andExpect(status().isOk)
     }
 
     @Test
@@ -114,21 +155,23 @@ class EntityControllerTest {
             CreateEntityRequest(
                 type = EntityType.CHARACTER,
                 name = "New Character",
+                description = "Detailed description",
+                tags = listOf("hero")
             )
 
         val entityDTO =
             EntityDTO(
-                id = UUID.fromString("00000000-0000-0000-0000-000000000001"),
-                projectId = UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                id = entityId,
+                projectId = projectId,
                 type = EntityType.CHARACTER,
                 name = "New Character",
                 categoryId = null,
-                description = null,
+                description = "Detailed description",
                 notes = null,
-                tags = null,
+                tags = listOf("hero"),
                 thumbnail = null,
                 metadata = null,
-            version = 0L,
+                version = 0L,
                 createdAt = Instant.now(),
                 updatedAt = Instant.now()
             )
@@ -137,22 +180,24 @@ class EntityControllerTest {
 
         // When/Then
         mockMvc.perform(
-            post("/api/projects/00000000-0000-0000-0000-000000000001/entities")
+            post("/api/projects/$projectId/entities")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isCreated)
-            .andExpect(jsonPath("$.id").value("00000000-0000-0000-0000-000000000001"))
+            .andExpect(jsonPath("$.id").value(entityId.toString()))
             .andExpect(jsonPath("$.name").value("New Character"))
     }
+
+    // ==================== Get Entity Tests ====================
 
     @Test
     fun `getEntity should return entity`() {
         // Given
         val entityDTO =
             EntityDTO(
-                id = UUID.fromString("00000000-0000-0000-0000-000000000001"),
-                projectId = UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                id = entityId,
+                projectId = projectId,
                 type = EntityType.CHARACTER,
                 name = "Test Character",
                 categoryId = null,
@@ -161,30 +206,53 @@ class EntityControllerTest {
                 tags = listOf("hero"),
                 thumbnail = null,
                 metadata = null,
-            version = 0L,
+                version = 0L,
                 createdAt = Instant.now(),
                 updatedAt = Instant.now()
             )
 
-        every { entityService.getEntity(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns entityDTO
+        every { entityService.getEntity(projectId, entityId) } returns entityDTO
 
         // When/Then
-        mockMvc.perform(get("/api/projects/00000000-0000-0000-0000-000000000001/entities/00000000-0000-0000-0000-000000000001"))
+        mockMvc.perform(get("/api/projects/$projectId/entities/$entityId"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.id").value("00000000-0000-0000-0000-000000000001"))
+            .andExpect(jsonPath("$.id").value(entityId.toString()))
             .andExpect(jsonPath("$.name").value("Test Character"))
     }
 
     @Test
+    fun `getEntity should return 404 when entity not found or does not belong to project`() {
+        // Given
+        every { entityService.getEntity(projectId, entityId) } throws EntityNotFoundException(entityId)
+
+        // When/Then
+        mockMvc.perform(get("/api/projects/$projectId/entities/$entityId"))
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.error").value("Not Found"))
+    }
+
+    @Test
+    fun `getEntity should return 403 when user lacks project access`() {
+        // Given
+        every { entityService.getEntity(projectId, entityId) } throws ProjectAccessDeniedException(projectId)
+
+        // When/Then
+        mockMvc.perform(get("/api/projects/$projectId/entities/$entityId"))
+            .andExpect(status().isForbidden)
+            .andExpect(jsonPath("$.error").value("Forbidden"))
+    }
+
+    // ==================== Update Entity Tests ====================
+
+    @Test
     fun `updateEntity should return updated entity`() {
         // Given
-        val request =
-            UpdateEntityRequest(name = "Updated Name",)
+        val request = UpdateEntityRequest(name = "Updated Name")
 
         val entityDTO =
             EntityDTO(
-                id = UUID.fromString("00000000-0000-0000-0000-000000000001"),
-                projectId = UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                id = entityId,
+                projectId = projectId,
                 type = EntityType.CHARACTER,
                 name = "Updated Name",
                 categoryId = null,
@@ -193,16 +261,16 @@ class EntityControllerTest {
                 tags = null,
                 thumbnail = null,
                 metadata = null,
-            version = 0L,
+                version = 0L,
                 createdAt = Instant.now(),
                 updatedAt = Instant.now()
             )
 
-        every { entityService.updateEntity(any(), any()) } returns entityDTO
+        every { entityService.updateEntity(projectId, entityId, any()) } returns entityDTO
 
         // When/Then
         mockMvc.perform(
-            patch("/api/projects/00000000-0000-0000-0000-000000000001/entities/00000000-0000-0000-0000-000000000001")
+            patch("/api/projects/$projectId/entities/$entityId")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
@@ -211,13 +279,43 @@ class EntityControllerTest {
     }
 
     @Test
-    fun `deleteEntity should return no content`() {
+    fun `updateEntity should return 404 when entity does not belong to project`() {
         // Given
-        every { entityService.deleteEntity(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Unit
+        val request = UpdateEntityRequest(name = "Updated Name")
+        every { entityService.updateEntity(projectId, entityId, any()) } throws EntityNotFoundException(entityId)
 
         // When/Then
-        mockMvc.perform(delete("/api/projects/00000000-0000-0000-0000-000000000001/entities/00000000-0000-0000-0000-000000000001")).andExpect(status().isNoContent)
+        mockMvc.perform(
+            patch("/api/projects/$projectId/entities/$entityId")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+        )
+            .andExpect(status().isNotFound)
     }
+
+    // ==================== Delete Entity Tests ====================
+
+    @Test
+    fun `deleteEntity should return no content`() {
+        // Given
+        every { entityService.deleteEntity(projectId, entityId) } returns Unit
+
+        // When/Then
+        mockMvc.perform(delete("/api/projects/$projectId/entities/$entityId"))
+            .andExpect(status().isNoContent)
+    }
+
+    @Test
+    fun `deleteEntity should return 404 when entity does not belong to project`() {
+        // Given
+        every { entityService.deleteEntity(projectId, entityId) } throws EntityNotFoundException(entityId)
+
+        // When/Then
+        mockMvc.perform(delete("/api/projects/$projectId/entities/$entityId"))
+            .andExpect(status().isNotFound)
+    }
+
+    // ==================== Image Tests ====================
 
     @Test
     fun `uploadImage should return upload response`() {
@@ -239,20 +337,42 @@ class EntityControllerTest {
                 size = file.size
             )
 
-        every { entityService.uploadImage(any(), any()) } returns uploadResponse
+        every { entityService.uploadImage(projectId, entityId, any()) } returns uploadResponse
 
         // When/Then
-        mockMvc.perform(multipart("/api/projects/00000000-0000-0000-0000-000000000001/entities/00000000-0000-0000-0000-000000000001/image").file(file))
+        mockMvc.perform(multipart("/api/projects/$projectId/entities/$entityId/image").file(file))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.url").value("test-bucket/entities/1/test.jpg"))
     }
 
     @Test
-    fun `deleteImage should return no content`() {
+    fun `uploadImage should return 404 when entity does not belong to project`() {
         // Given
-        every { entityService.deleteImage(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Unit
+        val file = MockMultipartFile("file", "test.jpg", "image/jpeg", "test image content".toByteArray())
+        every { entityService.uploadImage(projectId, entityId, any()) } throws EntityNotFoundException(entityId)
 
         // When/Then
-        mockMvc.perform(delete("/api/projects/00000000-0000-0000-0000-000000000001/entities/00000000-0000-0000-0000-000000000001/image")).andExpect(status().isNoContent)
+        mockMvc.perform(multipart("/api/projects/$projectId/entities/$entityId/image").file(file))
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun `deleteImage should return no content`() {
+        // Given
+        every { entityService.deleteImage(projectId, entityId) } returns Unit
+
+        // When/Then
+        mockMvc.perform(delete("/api/projects/$projectId/entities/$entityId/image"))
+            .andExpect(status().isNoContent)
+    }
+
+    @Test
+    fun `deleteImage should return 404 when entity does not belong to project`() {
+        // Given
+        every { entityService.deleteImage(projectId, entityId) } throws EntityNotFoundException(entityId)
+
+        // When/Then
+        mockMvc.perform(delete("/api/projects/$projectId/entities/$entityId/image"))
+            .andExpect(status().isNotFound)
     }
 }
