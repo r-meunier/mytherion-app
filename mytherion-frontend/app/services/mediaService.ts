@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { API_URL, STORAGE_URL } from './apiConfig';
+import apiRoutes from '../config/apiRoutes';
 import logger from '../utils/logger';
 
 const mediaLogger = logger.child({ service: 'mediaService' });
@@ -41,7 +42,7 @@ export const mediaService = {
     formData.append('file', file);
 
     try {
-      const response = await axios.post(`${API_URL}/api/projects/${projectId}/entities/${entityId}/image`, formData, {
+      const response = await axios.post(`${API_URL}${apiRoutes.entities.image(projectId, entityId)}`, formData, {
         withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -62,7 +63,7 @@ export const mediaService = {
     mediaLogger.debug('Deleting entity image', { projectId, entityId });
 
     try {
-      await axios.delete(`${API_URL}/api/projects/${projectId}/entities/${entityId}/image`, {
+      await axios.delete(`${API_URL}${apiRoutes.entities.image(projectId, entityId)}`, {
         withCredentials: true,
       });
       mediaLogger.debug('Entity image deleted successfully', { projectId, entityId });

@@ -1,6 +1,7 @@
 import { User } from "../types/auth";
 import { parseErrorMessage } from "../utils/errorMessages";
 import { API_URL } from "./apiConfig";
+import apiRoutes from "../config/apiRoutes";
 
 export interface UserUpdateData {
   username?: string;
@@ -12,7 +13,7 @@ class UserService {
    * Get all users (Admin only)
    */
   async getAllUsers(): Promise<User[]> {
-    const response = await fetch(`${API_URL}/api/user`, {
+    const response = await fetch(`${API_URL}${apiRoutes.users.list}`, {
       method: "GET",
       credentials: "include",
     });
@@ -29,7 +30,7 @@ class UserService {
    * Update user details (Admin or Owner)
    */
   async updateUser(userId: string, data: UserUpdateData): Promise<User> {
-    const response = await fetch(`${API_URL}/api/user/${userId}`, {
+    const response = await fetch(`${API_URL}${apiRoutes.users.detail(userId)}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -50,7 +51,7 @@ class UserService {
    * Delete user (Admin or Owner)
    */
   async deleteUser(userId: string): Promise<void> {
-    const response = await fetch(`${API_URL}/api/user/${userId}`, {
+    const response = await fetch(`${API_URL}${apiRoutes.users.detail(userId)}`, {
       method: "DELETE",
       credentials: "include",
     });

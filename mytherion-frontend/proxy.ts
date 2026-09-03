@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import routes from '@/app/config/routes'
 
 // Paths that do not require authentication
-const publicPaths = ['/login', '/register', '/verify-email']
+const publicPaths = [routes.login(), routes.register(), routes.verifyEmail()]
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -15,14 +16,14 @@ export function proxy(request: NextRequest) {
   // If the user is NOT logged in and tries to access a protected route (like /, /projects, etc.)
   if (!token && !isPublicPath) {
     // Redirect them immediately to /login
-    const loginUrl = new URL('/login', request.url)
+    const loginUrl = new URL(routes.login(), request.url)
     return NextResponse.redirect(loginUrl)
   }
 
   // If the user IS logged in and tries to access /login or /register
-  if (token && isPublicPath && pathname !== '/verify-email') {
+  if (token && isPublicPath && pathname !== routes.verifyEmail()) {
     // Redirect them immediately to the dashboard
-    const dashboardUrl = new URL('/', request.url)
+    const dashboardUrl = new URL(routes.home(), request.url)
     return NextResponse.redirect(dashboardUrl)
   }
 

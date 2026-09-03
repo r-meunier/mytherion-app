@@ -2,12 +2,13 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import routes from '@/app/config/routes';
 
 export default function ProjectsPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/');
+    router.replace(routes.home());
   }, [router]);
 
   return (

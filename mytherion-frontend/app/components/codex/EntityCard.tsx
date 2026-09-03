@@ -5,6 +5,7 @@ import { entityTypeConfig } from './EntityTypeSelector';
 import { useRouter } from 'next/navigation';
 import { useIsMounted } from '@/app/hooks/useIsMounted';
 import { mediaService } from '@/app/services/mediaService';
+import routes from '@/app/config/routes';
 
 interface EntityCardProps {
   entity: Entity;
@@ -18,7 +19,7 @@ export default function EntityCard({ entity, onEdit, onDelete }: EntityCardProps
   const typeConfig = entityTypeConfig[entity.type];
 
   const handleCardClick = () => {
-    router.push(`/projects/${entity.projectId}/entities/${entity.id}`);
+    router.push(routes.project(entity.projectId).codex.detail(entity.id));
   };
 
   const handleEdit = (e: React.MouseEvent) => {
@@ -26,7 +27,7 @@ export default function EntityCard({ entity, onEdit, onDelete }: EntityCardProps
     if (onEdit) {
       onEdit(entity);
     } else {
-      router.push(`/projects/${entity.projectId}/entities/${entity.id}/edit`);
+      router.push(routes.project(entity.projectId).codex.edit(entity.id));
     }
   };
 

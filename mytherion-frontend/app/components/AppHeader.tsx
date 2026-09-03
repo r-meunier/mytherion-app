@@ -5,8 +5,9 @@ import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { logoutUser } from "../store/authSlice";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import routes from "../config/routes";
 
-export default function DashboardHeader() {
+export default function AppHeader() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();
@@ -21,13 +22,13 @@ export default function DashboardHeader() {
 
   const handleLogout = async () => {
     await dispatch(logoutUser());
-    router.push("/login");
+    router.push(routes.login());
   };
 
   const isProjectMode = pathname.startsWith("/projects/");
   const isWorldsPage = pathname === "/";
   const navItems = [
-    { label: isProjectMode ? "Back to Worlds" : "Library", href: "/", active: pathname === "/" },
+    { label: isProjectMode ? "Back to Projects" : "Projects", href: routes.home(), active: pathname === "/" },
     { label: "Grimoire", href: "#", active: false },
     { label: "Chronicles", href: "#", active: false },
     { label: "Atlas", href: "#", active: false },
@@ -83,7 +84,7 @@ export default function DashboardHeader() {
       {/* Left Side: Branding & Navigation Tabs */}
       <div className="flex items-center gap-8 h-full">
         {/* Branding */}
-        <Link href="/" className="group flex items-center gap-3 mr-2">
+        <Link href={routes.home()} className="group flex items-center gap-3 mr-2">
           <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/30 transition-all duration-500 group-hover:scale-105 shadow-lg shadow-primary/10">
             <span className="material-symbols-outlined text-primary text-[24px]">auto_awesome</span>
           </div>
@@ -108,7 +109,7 @@ export default function DashboardHeader() {
                   : "text-white/60 hover:text-white"
               }`}
             >
-              {isProjectMode && item.href === "/" && (
+              {isProjectMode && item.href === routes.home() && (
                 <span className="material-symbols-outlined text-[18px] mr-2 transition-transform group-hover/nav:-translate-x-1">
                   arrow_back
                 </span>
@@ -252,7 +253,7 @@ export default function DashboardHeader() {
             </div>
 
             {!isAuthenticated && (
-              <Link href="/login">
+              <Link href={routes.login()}>
                 <button className="bg-primary hover:bg-primary/80 text-[#2c0051] px-5 py-2 rounded-full text-sm font-bold transition-all shadow-lg shadow-primary/20">
                   Login
                 </button>

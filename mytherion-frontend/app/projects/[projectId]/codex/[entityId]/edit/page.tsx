@@ -5,8 +5,9 @@ import { useRouter, useParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchEntity, updateEntity, clearCurrentEntity } from '@/app/store/entitySlice';
 import { UpdateEntityRequest, CreateEntityRequest } from '@/app/types/entity';
-import EntityForm from '@/app/components/entities/EntityForm';
-import DashboardHeader from '@/app/components/DashboardHeader';
+import EntityForm from '@/app/components/codex/EntityForm';
+import AppHeader from '@/app/components/AppHeader';
+import routes from '@/app/config/routes';
 
 export default function EditEntityPage() {
   const router = useRouter();
@@ -36,18 +37,18 @@ export default function EditEntityPage() {
   const handleSubmit = async (data: CreateEntityRequest | UpdateEntityRequest) => {
     const result = await dispatch(updateEntity({ projectId, id: entityId, data: data as UpdateEntityRequest }));
     if (updateEntity.fulfilled.match(result)) {
-      router.push(`/projects/${projectId}/entities/${entityId}`);
+      router.push(routes.project(projectId).codex.detail(entityId));
     }
   };
 
   const handleCancel = () => {
-    router.push(`/projects/${projectId}/entities/${entityId}`);
+    router.push(routes.project(projectId).codex.detail(entityId));
   };
 
   if (loading || !currentEntity) {
     return (
       <div className="min-h-screen bg-[#0b0710] flex flex-col">
-        <DashboardHeader />
+        <AppHeader />
         <div className="flex items-center justify-center flex-1">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
@@ -64,7 +65,7 @@ export default function EditEntityPage() {
         <div className="floating-shard w-16 h-16 top-1/2 left-1/4 opacity-30" style={{ animationDelay: "-12s", animationDuration: "15s", borderRadius: "50%" }} />
       </div>
 
-      <DashboardHeader />
+      <AppHeader />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
         {/* Breadcrumb */}
@@ -72,7 +73,7 @@ export default function EditEntityPage() {
           <ol className="inline-flex items-center space-x-1 md:space-x-2 text-xs font-semibold text-white/40">
             <li className="inline-flex items-center">
               <button
-                onClick={() => router.push('/projects')}
+                onClick={() => router.push(routes.home())}
                 className="hover:text-white transition-colors"
               >
                 Worlds
@@ -82,7 +83,7 @@ export default function EditEntityPage() {
               <div className="flex items-center">
                 <span className="material-symbols-outlined text-[16px] text-white/20 mx-1">chevron_right</span>
                 <button
-                  onClick={() => router.push(`/projects/${projectId}`)}
+                  onClick={() => router.push(routes.project(projectId).root)}
                   className="hover:text-white transition-colors"
                 >
                   World
@@ -93,7 +94,7 @@ export default function EditEntityPage() {
               <div className="flex items-center">
                 <span className="material-symbols-outlined text-[16px] text-white/20 mx-1">chevron_right</span>
                 <button
-                  onClick={() => router.push(`/projects/${projectId}/entities`)}
+                  onClick={() => router.push(routes.project(projectId).codex.index())}
                   className="hover:text-white transition-colors"
                 >
                   Codex
@@ -104,7 +105,7 @@ export default function EditEntityPage() {
               <div className="flex items-center">
                 <span className="material-symbols-outlined text-[16px] text-white/20 mx-1">chevron_right</span>
                 <button
-                  onClick={() => router.push(`/projects/${projectId}/entities/${entityId}`)}
+                  onClick={() => router.push(routes.project(projectId).codex.detail(entityId))}
                   className="hover:text-white transition-colors truncate max-w-[140px]"
                 >
                   {currentEntity.name}

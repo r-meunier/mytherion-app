@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAppDispatch } from '../store/hooks';
 import { verifyEmail, clearError, resendVerification } from '../store/authSlice';
+import routes from '../config/routes';
 
 export default function VerifyEmailPage() {
   const searchParams = useSearchParams();
@@ -29,7 +30,7 @@ export default function VerifyEmailPage() {
       .then(() => {
         setStatus('success');
         setMessage('Email verified successfully!');
-        setTimeout(() => router.push('/'), 3000);
+        setTimeout(() => router.push(routes.home()), 3000);
       })
       .catch((error) => {
         setStatus('error');
@@ -44,7 +45,7 @@ export default function VerifyEmailPage() {
 
   const handleGoToLogin = () => {
     dispatch(clearError());
-    router.push('/login');
+    router.push(routes.login());
   };
 
   const handleResendVerification = async () => {

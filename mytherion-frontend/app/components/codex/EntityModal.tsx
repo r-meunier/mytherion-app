@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { createEntity, updateEntity, fetchEntity, clearError } from '@/app/store/entitySlice';
-import { Entity, CreateEntityRequest, UpdateEntityRequest } from '@/app/types/entity';
+import { Entity, EntityType, CreateEntityRequest, UpdateEntityRequest } from '@/app/types/entity';
 import { mediaService } from '@/app/services/mediaService';
 import EntityForm from './EntityForm';
 

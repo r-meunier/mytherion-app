@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Category, CreateCategoryRequest } from '../types/category';
 import logger from '../utils/logger';
 import { API_URL } from './apiConfig';
+import apiRoutes from '../config/apiRoutes';
 
 const serviceLogger = logger.child({ service: 'categoryService' });
 
@@ -11,7 +12,7 @@ export const categoryService = {
     serviceLogger.debug('Fetching categories', { projectId });
 
     try {
-      const response = await axios.get(`${API_URL}/api/projects/${projectId}/categories`, {
+      const response = await axios.get(`${API_URL}${apiRoutes.categories.list(projectId)}`, {
         withCredentials: true,
       });
       serviceLogger.debug('Categories fetched successfully', { 
@@ -30,7 +31,7 @@ export const categoryService = {
     serviceLogger.debug('Creating category', { projectId, name: data.name });
 
     try {
-      const response = await axios.post(`${API_URL}/api/projects/${projectId}/categories`, data, {
+      const response = await axios.post(`${API_URL}${apiRoutes.categories.list(projectId)}`, data, {
         withCredentials: true,
       });
       serviceLogger.debug('Category created successfully', { 
