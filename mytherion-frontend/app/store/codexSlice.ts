@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { codexService, Page } from '../services/codexService';
-import { CodexEntry, CreateEntryRequest, UpdateEntryRequest, EntryType, EntryFilters } from '../types/codex';
+import { CodexEntry, CreateEntryRequest, UpdateEntryRequest, EntryFilters } from '../types/codex';
 
 interface EntryState {
   entries: CodexEntry[];

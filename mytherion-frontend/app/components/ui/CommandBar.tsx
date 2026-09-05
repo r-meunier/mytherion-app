@@ -28,11 +28,6 @@ export interface CommandBarProps {
   filterLabel?: string;
   onFilterChange?: (filter: string) => void;
 
-  secondarySelectedFilter?: string;
-  secondaryFilterOptions?: CommandBarOption[];
-  secondaryFilterLabel?: string;
-  onSecondaryFilterChange?: (filter: string) => void;
-
   viewMode?: "grid" | "list";
   onViewChange?: (view: "grid" | "list") => void;
 
@@ -52,10 +47,6 @@ export default function CommandBar({
   filterOptions,
   filterLabel = "Filter",
   onFilterChange,
-  secondarySelectedFilter,
-  secondaryFilterOptions,
-  secondaryFilterLabel = "Filter",
-  onSecondaryFilterChange,
   viewMode = "grid",
   onViewChange,
   primaryAction,
@@ -63,18 +54,13 @@ export default function CommandBar({
 }: CommandBarProps) {
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isSecondaryFilterOpen, setIsSecondaryFilterOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
-  const secondaryFilterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
         setIsFilterOpen(false);
-      }
-      if (secondaryFilterRef.current && !secondaryFilterRef.current.contains(event.target as Node)) {
-        setIsSecondaryFilterOpen(false);
       }
       if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
         setIsSortOpen(false);
@@ -94,20 +80,10 @@ export default function CommandBar({
     setIsFilterOpen(false);
   };
 
-  const handleSecondaryFilterSelect = (value: string) => {
-    onSecondaryFilterChange?.(value);
-    setIsSecondaryFilterOpen(false);
-  };
-
   const isFilterActive =
     selectedFilter &&
     selectedFilter !== "all" &&
     selectedFilter !== "none";
-
-  const isSecondaryFilterActive =
-    secondarySelectedFilter &&
-    secondarySelectedFilter !== "all" &&
-    secondarySelectedFilter !== "none";
 
   const currentSortLabel =
     sortOptions?.find((o) => o.value === sortBy)?.label || sortBy || "Sort";
@@ -215,52 +191,6 @@ export default function CommandBar({
                       <span className="capitalize">{opt.label}</span>
                       {isSelected && (
                         <span className="material-symbols-outlined text-sm">check</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Secondary Filter Popover — generic; currently no caller supplies it */}
-        {secondaryFilterOptions && secondaryFilterOptions.length > 0 && (
-          <div className="relative" ref={secondaryFilterRef}>
-            <button
-              type="button"
-              onClick={() => setIsSecondaryFilterOpen(!isSecondaryFilterOpen)}
-              className={`p-2 rounded-full transition-all flex items-center justify-center cursor-pointer ${
-                isSecondaryFilterActive || isSecondaryFilterOpen
-                  ? "text-primary bg-primary/10"
-                  : "text-white/40 hover:text-white hover:bg-white/5"
-              }`}
-              title={`Filter by ${secondaryFilterLabel}`}
-              aria-label={`Filter by ${secondaryFilterLabel}`}
-            >
-              <span className="material-symbols-outlined text-[20px]">category</span>
-            </button>
-
-            {isSecondaryFilterOpen && (
-              <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-52 bg-[#1f1a23] backdrop-blur-2xl border border-white/10 rounded-xl shadow-2xl p-1.5 animate-in fade-in zoom-in-95 duration-150 max-h-60 overflow-y-auto custom-scrollbar">
-                <p className="px-3 py-1.5 text-[10px] font-bold text-white/30 uppercase tracking-widest">
-                  {secondaryFilterLabel}
-                </p>
-                {secondaryFilterOptions.map((opt) => {
-                  const isSelected = secondarySelectedFilter === opt.value;
-                  return (
-                    <button
-                      key={opt.value}
-                      onClick={() => handleSecondaryFilterSelect(opt.value)}
-                      className={`w-full text-left px-3 py-1.5 text-sm font-medium rounded-lg flex items-center justify-between cursor-pointer ${
-                        isSelected
-                          ? "bg-primary/20 text-primary font-bold"
-                          : "text-white/70 hover:bg-white/5 hover:text-white"
-                      }`}
-                    >
-                      <span className="capitalize truncate">{opt.label}</span>
-                      {isSelected && (
-                        <span className="material-symbols-outlined text-sm shrink-0 ml-2">check</span>
                       )}
                     </button>
                   );
