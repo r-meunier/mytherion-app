@@ -8,7 +8,7 @@ data class DashboardStatsDTO(
     val entitiesThisWeek: Long,
     val recentEdits: Long,
     val totalProjects: Long,
-    val recentEntities: List<io.mytherion.entity.dto.EntityDTO> = emptyList(),
+    val recentEntities: List<io.mytherion.codex.dto.EntryDTO> = emptyList(),
     val entityCountByType: Map<String, Int> = emptyMap(),
     val lastUpdated: Instant = Instant.now()
 )

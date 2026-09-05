@@ -9,7 +9,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.verify
 import io.mytherion.auth.service.CurrentUserProvider
-import io.mytherion.entity.service.EntityQueryService
+import io.mytherion.codex.service.CodexEntryQueryService
 import io.mytherion.platform.monitoring.MetricsService
 import io.mytherion.fixtures.ProjectTestFixtures
 import io.mytherion.project.dto.CreateProjectRequest
@@ -44,7 +44,7 @@ class ProjectServiceTest {
   private lateinit var currentUserProvider: CurrentUserProvider
 
   @MockK
-  private lateinit var entityQueryService: EntityQueryService
+  private lateinit var entryQueryService: CodexEntryQueryService
 
   @MockK
   private lateinit var metricsService: MetricsService
@@ -76,12 +76,12 @@ class ProjectServiceTest {
 
     // Stub metricsService calls (these methods return Unit)
     every { metricsService.recordProjectCreation(any(), any()) } just Runs
-    every { metricsService.recordEntityQuery(any(), any(), any()) } just Runs
-    every { metricsService.recordEntityQuery(any(), any(), any()) } just Runs
+    every { metricsService.recordEntryQuery(any(), any(), any()) } just Runs
+    every { metricsService.recordEntryQuery(any(), any(), any()) } just Runs
 
-    // Default stub for entityQueryService
-    every { entityQueryService.countByProject(any()) } returns 0L
-    every { entityQueryService.countByProjectGrouped(any()) } returns emptyMap()
+    // Default stub for entryQueryService
+    every { entryQueryService.countByProject(any()) } returns 0L
+    every { entryQueryService.countByProjectGrouped(any()) } returns emptyMap()
   }
 
   @AfterEach
@@ -318,7 +318,7 @@ class ProjectServiceTest {
   fun `deleteProject when valid should delete project`() {
     // Given
     every { projectRepository.findById(testProjectId) } returns Optional.of(testProject)
-    every { entityQueryService.countByProject(testProject) } returns 0L
+    every { entryQueryService.countByProject(testProject) } returns 0L
     every { projectRepository.save(testProject) } returns testProject
 
     // When
@@ -326,7 +326,7 @@ class ProjectServiceTest {
 
     // Then
     verify { projectRepository.findById(testProjectId) }
-    verify { entityQueryService.countByProject(testProject) }
+    verify { entryQueryService.countByProject(testProject) }
     verify { projectRepository.save(testProject) }
     assertTrue(testProject.isDeleted(), "Project should be marked as deleted")
   }
@@ -364,12 +364,12 @@ class ProjectServiceTest {
   // ==================== Get Project Stats Tests ====================
 
   @Test
-  fun `getProjectStats should return stats with entity counts`() {
+  fun `getProjectStats should return stats with entry counts`() {
     // Given
     val projectId = testProjectId
     every { projectRepository.findById(projectId) } returns Optional.of(testProject)
-    every { entityQueryService.countByProject(testProject) } returns 10L
-    every { entityQueryService.countByProjectGrouped(testProject) } returns
+    every { entryQueryService.countByProject(testProject) } returns 10L
+    every { entryQueryService.countByProjectGrouped(testProject) } returns
         mapOf("CHARACTER" to 5, "LOCATION" to 5)
 
     // When
@@ -379,28 +379,28 @@ class ProjectServiceTest {
     assertNotNull(result)
     assertEquals(projectId, result.id)
     assertEquals("Test Project", result.name)
-    assertEquals(10, result.entityCount)
+    assertEquals(10, result.entryCount)
     assertEquals(5, result.entityCountByType["CHARACTER"])
     assertEquals(5, result.entityCountByType["LOCATION"])
 
-    verify { entityQueryService.countByProject(testProject) }
-    verify { entityQueryService.countByProjectGrouped(testProject) }
+    verify { entryQueryService.countByProject(testProject) }
+    verify { entryQueryService.countByProjectGrouped(testProject) }
   }
 
   @Test
-  fun `getProjectStats should return empty stats for project with no entities`() {
+  fun `getProjectStats should return empty stats for project with no entries`() {
     // Given
     val projectId = testProjectId
     every { projectRepository.findById(projectId) } returns Optional.of(testProject)
-    every { entityQueryService.countByProject(testProject) } returns 0L
-    every { entityQueryService.countByProjectGrouped(testProject) } returns emptyMap()
+    every { entryQueryService.countByProject(testProject) } returns 0L
+    every { entryQueryService.countByProjectGrouped(testProject) } returns emptyMap()
 
     // When
     val result = projectService.getProjectStats(projectId)
 
     // Then
     assertNotNull(result)
-    assertEquals(0, result.entityCount)
+    assertEquals(0, result.entryCount)
     assertTrue(result.entityCountByType.isEmpty())
   }
 

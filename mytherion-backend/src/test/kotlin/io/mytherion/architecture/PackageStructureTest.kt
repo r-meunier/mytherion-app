@@ -170,8 +170,7 @@ class PackageStructureTest {
         val DOMAINS = arrayOf(
             "$ROOT.user..",
             "$ROOT.project..",
-            "$ROOT.entity..",
-            "$ROOT.category..",
+            "$ROOT.codex..",
             "$ROOT.dashboard..",
             "$ROOT.auth.."
         )

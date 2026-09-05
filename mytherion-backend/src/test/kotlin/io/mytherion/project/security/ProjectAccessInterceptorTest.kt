@@ -68,7 +68,7 @@ class ProjectAccessInterceptorTest {
 
     @Test
     fun `preHandle when projectId path variable is missing should return true`() {
-        every { request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE) } returns mapOf("entityId" to "123")
+        every { request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE) } returns mapOf("entryId" to "123")
 
         val result = interceptor.preHandle(request, response, Any())
 

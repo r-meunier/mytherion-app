@@ -1,11 +1,11 @@
 package io.mytherion.fixtures
 
 import io.mytherion.config.seed.TestUsers
-import io.mytherion.entity.model.Entity
-import io.mytherion.entity.model.EntityMetadata
-import io.mytherion.entity.model.EntityType
-import io.mytherion.entity.model.components.*
-import io.mytherion.entity.repository.EntityRepository
+import io.mytherion.codex.model.CodexEntry
+import io.mytherion.codex.model.EntryContent
+import io.mytherion.codex.model.EntryType
+import io.mytherion.codex.model.sections.*
+import io.mytherion.codex.repository.CodexEntryRepository
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.user.model.User
@@ -46,7 +46,7 @@ class TestFixtures(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
     private val projectRepository: ProjectRepository? = null,
-    private val entityRepository: EntityRepository? = null
+    private val entryRepository: CodexEntryRepository? = null
 ) {
 
     // ════════════════════════════════════════════════════════════════
@@ -138,51 +138,51 @@ class TestFixtures(
     // ════════════════════════════════════════════════════════════════
 
     /**
-     * Create and persist a CHARACTER entity in the given project.
-     * Requires [entityRepository] to be provided in the constructor.
+     * Create and persist a CHARACTER entry in the given project.
+     * Requires [entryRepository] to be provided in the constructor.
      */
-    fun createCharacterEntity(
+    fun createCharacterEntry(
         project: Project,
         name: String = "Test Character",
         tags: List<String> = listOf("test"),
-        components: List<EntityComponent> = listOf(
-            BioComponent(data = BioData(
+        sections: List<EntrySection> = listOf(
+            BioSection(data = BioData(
                 status = "Alive",
                 age = Quantity(value = 30.0, unit = "years"),
                 gender = "Unknown"
             ))
         )
-    ): Entity {
-        val repo = requireNotNull(entityRepository) {
-            "EntityRepository was not provided to TestFixtures"
+    ): CodexEntry {
+        val repo = requireNotNull(entryRepository) {
+            "CodexEntryRepository was not provided to TestFixtures"
         }
         return repo.save(
-            Entity(
+            CodexEntry(
                 project = project,
-                type = EntityType.CHARACTER,
+                type = EntryType.CHARACTER,
                 name = name,
                 tags = tags.toTypedArray(),
-                metadata = EntityMetadata(components.toMutableList())
+                content = EntryContent(sections.toMutableList())
             )
         )
     }
 
     /**
-     * Create and persist a LOCATION entity in the given project.
-     * Requires [entityRepository] to be provided in the constructor.
+     * Create and persist a LOCATION entry in the given project.
+     * Requires [entryRepository] to be provided in the constructor.
      */
-    fun createLocationEntity(
+    fun createLocationEntry(
         project: Project,
         name: String = "Test Location",
         tags: List<String> = listOf("test")
-    ): Entity {
-        val repo = requireNotNull(entityRepository) {
-            "EntityRepository was not provided to TestFixtures"
+    ): CodexEntry {
+        val repo = requireNotNull(entryRepository) {
+            "CodexEntryRepository was not provided to TestFixtures"
         }
         return repo.save(
-            Entity(
+            CodexEntry(
                 project = project,
-                type = EntityType.LOCATION,
+                type = EntryType.LOCATION,
                 name = name,
                 tags = tags.toTypedArray()
             )
@@ -190,28 +190,28 @@ class TestFixtures(
     }
 
     /**
-     * Create and persist a generic entity of any type.
-     * Requires [entityRepository] to be provided in the constructor.
+     * Create and persist a generic entry of any type.
+     * Requires [entryRepository] to be provided in the constructor.
      */
-    fun createEntity(
+    fun createEntry(
         project: Project,
-        type: EntityType,
+        type: EntryType,
         name: String,
         description: String? = null,
         tags: List<String> = emptyList(),
-        components: List<EntityComponent> = emptyList()
-    ): Entity {
-        val repo = requireNotNull(entityRepository) {
-            "EntityRepository was not provided to TestFixtures"
+        sections: List<EntrySection> = emptyList()
+    ): CodexEntry {
+        val repo = requireNotNull(entryRepository) {
+            "CodexEntryRepository was not provided to TestFixtures"
         }
         return repo.save(
-            Entity(
+            CodexEntry(
                 project = project,
                 type = type,
                 name = name,
                 description = description,
                 tags = tags.toTypedArray(),
-                metadata = if (components.isNotEmpty()) EntityMetadata(components.toMutableList()) else null
+                content = if (sections.isNotEmpty()) EntryContent(sections.toMutableList()) else null
             )
         )
     }

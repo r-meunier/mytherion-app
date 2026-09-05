@@ -45,7 +45,7 @@ object TestUsers {
     const val EMPTY_USER_EMAIL    = "empty@mytherion.dev"
     const val EMPTY_USER_USERNAME = "emptyuser"
 
-    // ── Worldbuilder (verified, multiple projects with entities) ─────
+    // ── Worldbuilder (verified, multiple projects with entries) ─────
     const val BUILDER_EMAIL    = "builder@mytherion.dev"
     const val BUILDER_USERNAME = "worldbuilder"
 }

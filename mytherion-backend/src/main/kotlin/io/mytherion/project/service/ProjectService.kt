@@ -1,7 +1,7 @@
 package io.mytherion.project.service
 
 import io.mytherion.auth.service.CurrentUserProvider
-import io.mytherion.entity.service.EntityQueryService
+import io.mytherion.codex.service.CodexEntryQueryService
 import io.mytherion.platform.logging.debugWith
 import io.mytherion.platform.logging.infoWith
 import io.mytherion.platform.logging.logger
@@ -29,7 +29,7 @@ import java.util.UUID
 class ProjectService(
     private val projectRepository: ProjectRepository,
     private val currentUserProvider: CurrentUserProvider,
-    private val entityQueryService: EntityQueryService,
+    private val entryQueryService: CodexEntryQueryService,
     private val metricsService: MetricsService
 ) {
     private val logger = logger()
@@ -51,7 +51,7 @@ class ProjectService(
 
     /**
      * Fetch a project and verify that the given user owns it. Used by other services (e.g.
-     * EntityService) to validate project access without directly querying ProjectRepository.
+     * CodexEntryService) to validate project access without directly querying ProjectRepository.
      */
     fun getVerifiedProject(projectId: UUID, userId: UUID): Project {
         val project =
@@ -88,7 +88,7 @@ class ProjectService(
             
             val result = if (search.isNullOrBlank() && genre.isNullOrBlank()) {
                 projectRepository.findAllByOwnerAndDeletedAtIsNull(user, pageable).map { project ->
-                    val count = entityQueryService.countByProject(project)
+                    val count = entryQueryService.countByProject(project)
                     ProjectResponse.from(project, count)
                 }
             } else {
@@ -100,7 +100,7 @@ class ProjectService(
                     ?.let { "%$it%" }
                 val genreFilter = genre?.takeIf { it.isNotBlank() }
                 projectRepository.searchProjects(user, namePattern, genreFilter, pageable).map { project ->
-                    val count = entityQueryService.countByProject(project)
+                    val count = entryQueryService.countByProject(project)
                     ProjectResponse.from(project, count)
                 }
             }
@@ -127,8 +127,8 @@ class ProjectService(
             }
         verifyOwnership(project, user)
 
-        val count = entityQueryService.countByProject(project)
-        logger.infoWith("Project fetched", "projectId" to projectId, "name" to project.name, "entityCount" to count)
+        val count = entryQueryService.countByProject(project)
+        logger.infoWith("Project fetched", "projectId" to projectId, "name" to project.name, "entryCount" to count)
         return ProjectResponse.from(project, count)
     }
 
@@ -190,7 +190,7 @@ class ProjectService(
         request.genre?.let { project.genre = it }
 
         val saved = projectRepository.save(project)
-        val count = entityQueryService.countByProject(saved)
+        val count = entryQueryService.countByProject(saved)
         logger.infoWith("Project updated successfully", "projectId" to projectId)
 
         return ProjectResponse.from(saved, count)
@@ -207,21 +207,21 @@ class ProjectService(
         val startTime = System.currentTimeMillis()
 
         return logger.measureTime("Calculate project stats") {
-            // Use efficient database aggregation instead of loading all entities
-            val entityCount = entityQueryService.countByProject(project).toInt()
-            val entityCountByType = entityQueryService.countByProjectGrouped(project)
+            // Use efficient database aggregation instead of loading all entries
+            val entryCount = entryQueryService.countByProject(project).toInt()
+            val entityCountByType = entryQueryService.countByProjectGrouped(project)
 
             logger.infoWith(
                 "Project stats calculated",
                 "projectId" to projectId,
-                "entityCount" to entityCount,
+                "entryCount" to entryCount,
                 "types" to entityCountByType.keys
             )
 
             val duration = System.currentTimeMillis() - startTime
-            metricsService.recordEntityQuery(projectId, entityCount, duration)
+            metricsService.recordEntryQuery(projectId, entryCount, duration)
 
-            io.mytherion.project.dto.ProjectStatsDTO.from(project, entityCount, entityCountByType)
+            io.mytherion.project.dto.ProjectStatsDTO.from(project, entryCount, entityCountByType)
         }
     }
 
@@ -233,13 +233,13 @@ class ProjectService(
         val project = projectRepository.findById(projectId).orElseThrow { ProjectNotFoundException(projectId) }
         verifyOwnership(project, user)
 
-        // Check if project has entities before deleting
-        val count = entityQueryService.countByProject(project)
+        // Check if project has entries before deleting
+        val count = entryQueryService.countByProject(project)
         if (count > 0) {
             logger.warnWith(
-                "Cannot delete project with entities",
+                "Cannot delete project with entries",
                 "projectId" to projectId,
-                "entityCount" to count
+                "entryCount" to count
             )
             throw ProjectHasEntitiesException(projectId, count.toInt())
         }

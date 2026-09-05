@@ -1,3 +1,10 @@
+-- Mytherion initial schema.
+--
+-- Squashed from the previous V1 + V2 as part of MYT-81 (canonical terminology).
+-- Renames `entities` to `codex_entries`, drops the `categories` table and the
+-- `entities.category_id` column, and renames `metadata` to `content`.
+-- See docs/terminology.md.
+
 CREATE TABLE users (
     id UUID PRIMARY KEY,
     created_at TIMESTAMP NOT NULL,
@@ -33,20 +40,7 @@ CREATE TABLE projects (
     CONSTRAINT fk_project_owner FOREIGN KEY (owner) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_project_name_lower ON projects (LOWER(name));
-
-CREATE TABLE categories (
-    id UUID PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
-    project_id UUID NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    deleted_at TIMESTAMP,
-    CONSTRAINT fk_category_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-);
-
-CREATE TABLE entities (
+CREATE TABLE codex_entries (
     id UUID PRIMARY KEY,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
@@ -55,14 +49,12 @@ CREATE TABLE entities (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     notes TEXT,
-    category_id UUID,
     tags TEXT[],
     thumbnail TEXT,
-    metadata JSONB,
+    content JSONB,
     version BIGINT NOT NULL DEFAULT 0,
     deleted_at TIMESTAMP,
-    CONSTRAINT fk_entity_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
-    CONSTRAINT fk_entity_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+    CONSTRAINT fk_codex_entry_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
 
 -- Indexes
@@ -71,12 +63,13 @@ CREATE INDEX idx_users_deleted_at ON users(deleted_at);
 CREATE INDEX idx_verification_user ON email_verification_tokens(user_id);
 CREATE INDEX idx_verification_expires ON email_verification_tokens(expires_at);
 
+CREATE INDEX idx_project_name_lower ON projects (LOWER(name));
 CREATE INDEX idx_projects_user_id ON projects(owner);
 CREATE INDEX idx_projects_deleted_at ON projects(deleted_at);
+CREATE INDEX idx_projects_owner_deleted_at ON projects(owner, deleted_at);
 
-CREATE UNIQUE INDEX idx_categories_project_name ON categories (project_id, LOWER(name));
-
-CREATE INDEX idx_entities_project_id ON entities(project_id);
-CREATE INDEX idx_entities_type ON entities(type);
-CREATE INDEX idx_entities_deleted_at ON entities(deleted_at);
-CREATE INDEX idx_entities_tags ON entities USING GIN(tags);
+CREATE INDEX idx_codex_entries_project_id ON codex_entries(project_id);
+CREATE INDEX idx_codex_entries_type ON codex_entries(type);
+CREATE INDEX idx_codex_entries_deleted_at ON codex_entries(deleted_at);
+CREATE INDEX idx_codex_entries_tags ON codex_entries USING GIN(tags);
+CREATE INDEX idx_codex_entries_project_deleted_at ON codex_entries(project_id, deleted_at);
