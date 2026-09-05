@@ -126,8 +126,9 @@ SectionType.LOCATION_DETAILS  "this entry HAS location data attached"
 
 `SectionType` values (19), in three groups:
 
-- **Generic**, usable on any entry — unchanged:
-  `BIO`, `APPEARANCE`, `PSYCHOLOGY`, `SOCIAL`, `HISTORY`, `ORIGINS`, `PERSPECTIVES`, `CUSTOM`
+- **Generic**, usable on any entry:
+  `BIO`, `APPEARANCE`, `PSYCHOLOGY`, `SOCIAL`, `HISTORY`, `ORIGINS`, `PERSPECTIVES`, and
+  `CUSTOM` → `CUSTOM_FIELDS` (renamed: `CUSTOM` was the last name shared with `EntryType`)
 - **Type-specific detail blocks** — suffixed to break the collision:
   `CULTURE` → `CULTURE_DETAILS`, `LOCATION` → `LOCATION_DETAILS`,
   `ORGANIZATION` → `ORGANIZATION_DETAILS`, `SPECIES` → `SPECIES_DETAILS`,

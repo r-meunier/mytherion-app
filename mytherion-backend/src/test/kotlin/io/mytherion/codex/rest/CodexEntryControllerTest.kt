@@ -335,7 +335,7 @@ class CodexEntryControllerTest {
         every { entryService.uploadThumbnail(projectId, entryId, any()) } returns uploadResponse
 
         // When/Then
-        mockMvc.perform(multipart("/api/projects/$projectId/entries/$entryId/image").file(file))
+        mockMvc.perform(multipart("/api/projects/$projectId/entries/$entryId/thumbnail").file(file))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.url").value("test-bucket/entries/1/test.jpg"))
     }
@@ -347,7 +347,7 @@ class CodexEntryControllerTest {
         every { entryService.uploadThumbnail(projectId, entryId, any()) } throws EntryNotFoundException(entryId)
 
         // When/Then
-        mockMvc.perform(multipart("/api/projects/$projectId/entries/$entryId/image").file(file))
+        mockMvc.perform(multipart("/api/projects/$projectId/entries/$entryId/thumbnail").file(file))
             .andExpect(status().isNotFound)
     }
 
@@ -357,7 +357,7 @@ class CodexEntryControllerTest {
         every { entryService.deleteThumbnail(projectId, entryId) } returns Unit
 
         // When/Then
-        mockMvc.perform(delete("/api/projects/$projectId/entries/$entryId/image"))
+        mockMvc.perform(delete("/api/projects/$projectId/entries/$entryId/thumbnail"))
             .andExpect(status().isNoContent)
     }
 
@@ -367,7 +367,7 @@ class CodexEntryControllerTest {
         every { entryService.deleteThumbnail(projectId, entryId) } throws EntryNotFoundException(entryId)
 
         // When/Then
-        mockMvc.perform(delete("/api/projects/$projectId/entries/$entryId/image"))
+        mockMvc.perform(delete("/api/projects/$projectId/entries/$entryId/thumbnail"))
             .andExpect(status().isNotFound)
     }
 }

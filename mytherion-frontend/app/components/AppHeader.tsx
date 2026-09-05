@@ -26,7 +26,7 @@ export default function AppHeader() {
   };
 
   const isProjectMode = pathname.startsWith("/projects/");
-  const isWorldsPage = pathname === "/";
+  const isProjectsPage = pathname === "/";
   const navItems = [
     { label: isProjectMode ? "Back to Projects" : "Projects", href: routes.home(), active: pathname === "/" },
     { label: "Grimoire", href: "#", active: false },
@@ -127,8 +127,8 @@ export default function AppHeader() {
         ) : (
           <div className="flex items-center gap-3">
             <div className="glass-command flex items-center px-2 py-1 gap-1">
-              {/* Leftmost Expanding Search Icon / Bar (Hidden on Worlds entrypoint) */}
-              {!isWorldsPage && (
+              {/* Leftmost Expanding Search Icon / Bar (Hidden on Projects entrypoint) */}
+              {!isProjectsPage && (
                 <div 
                   ref={searchContainerRef}
                   className={`flex items-center rounded-full transition-all duration-300 ${

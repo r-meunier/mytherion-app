@@ -46,7 +46,7 @@ export default function ProjectFilters({
         setSearch(q);
         onSearchChange?.(q);
       }}
-      searchPlaceholder="Filter worlds..."
+      searchPlaceholder="Filter projects..."
       sortBy={sortBy}
       sortOptions={SORT_OPTIONS}
       onSortChange={(s) => {
@@ -65,7 +65,7 @@ export default function ProjectFilters({
       primaryAction={
         onCreateClick
           ? {
-              label: "Create World",
+              label: "Create Project",
               icon: "add",
               onClick: onCreateClick,
             }

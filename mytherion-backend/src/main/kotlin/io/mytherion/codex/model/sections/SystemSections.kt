@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class CustomSection(
     override val id: String = "CUSTOM",
-    override val type: String = "CUSTOM",
+    override val type: String = "CUSTOM_FIELDS",
     val data: Map<String, Any> = emptyMap()
 ) : EntrySection
 

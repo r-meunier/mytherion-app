@@ -32,8 +32,8 @@ export const routes = {
         return query ? `${base}?${query}` : base;
       },
       new: () => `/projects/${projectId}/codex/new`,
-      detail: (entityId: string) => `/projects/${projectId}/codex/${entityId}`,
-      edit: (entityId: string) => `/projects/${projectId}/codex/${entityId}/edit`,
+      detail: (entryId: string) => `/projects/${projectId}/codex/${entryId}`,
+      edit: (entryId: string) => `/projects/${projectId}/codex/${entryId}/edit`,
     },
     planner: `/projects/${projectId}/planner`,
     manuscript: `/projects/${projectId}/manuscript`,

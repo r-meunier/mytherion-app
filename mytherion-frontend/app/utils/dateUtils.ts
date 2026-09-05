@@ -1,5 +1,5 @@
 /**
- * Date and time formatting utilities for Mytherion cards and UI components.
+ * Date and time formatting utilities for Mytherion cards and UI sections.
  */
 
 export interface TimeDifference {

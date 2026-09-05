@@ -40,29 +40,29 @@ describe('mediaService', () => {
     });
   });
 
-  describe('getImageUrl', () => {
+  describe('getThumbnailUrl', () => {
     it('returns null for null/undefined input', () => {
-      expect(mediaService.getImageUrl(null)).toBeNull();
-      expect(mediaService.getImageUrl(undefined)).toBeNull();
+      expect(mediaService.getThumbnailUrl(null)).toBeNull();
+      expect(mediaService.getThumbnailUrl(undefined)).toBeNull();
     });
 
     it('returns absolute URLs as-is', () => {
       const url = 'https://s3.amazonaws.com/my-bucket/image.jpg';
-      expect(mediaService.getImageUrl(url)).toBe(url);
+      expect(mediaService.getThumbnailUrl(url)).toBe(url);
     });
 
     it('prefixes relative thumbnail paths with MinIO endpoint', () => {
-      const result = mediaService.getImageUrl('entities/1/image.jpg');
-      expect(result).toBe('http://localhost:9000/entities/1/image.jpg');
+      const result = mediaService.getThumbnailUrl('entries/1/image.jpg');
+      expect(result).toBe('http://localhost:9000/entries/1/image.jpg');
     });
   });
 
-  describe('uploadEntityImage', () => {
-    it('sends multipart POST request to entity image endpoint', async () => {
+  describe('uploadEntryThumbnail', () => {
+    it('sends multipart POST request to entry thumbnail endpoint', async () => {
       const mockResponse = {
         data: {
-          url: 'http://localhost:9000/mytherion-uploads/entities/1/img.png',
-          objectKey: 'entities/1/img.png',
+          url: 'http://localhost:9000/mytherion-uploads/entries/1/img.png',
+          objectKey: 'entries/1/img.png',
           bucketName: 'mytherion-uploads',
           contentType: 'image/png',
           size: 1024,
@@ -71,10 +71,10 @@ describe('mediaService', () => {
       mockedAxios.post.mockResolvedValueOnce(mockResponse);
 
       const file = new File(['img-content'], 'img.png', { type: 'image/png' });
-      const result = await mediaService.uploadEntityImage('proj-1', 'entity-1', file);
+      const result = await mediaService.uploadEntryThumbnail('proj-1', 'entry-1', file);
 
       expect(mockedAxios.post).toHaveBeenCalledWith(
-        expect.stringContaining('/api/projects/proj-1/entities/entity-1/image'),
+        expect.stringContaining('/api/projects/proj-1/entries/entry-1/thumbnail'),
         expect.any(FormData),
         expect.objectContaining({
           withCredentials: true,
@@ -85,14 +85,14 @@ describe('mediaService', () => {
     });
   });
 
-  describe('deleteEntityImage', () => {
-    it('sends DELETE request to entity image endpoint', async () => {
+  describe('deleteEntryThumbnail', () => {
+    it('sends DELETE request to entry thumbnail endpoint', async () => {
       mockedAxios.delete.mockResolvedValueOnce({ status: 204 });
 
-      await mediaService.deleteEntityImage('proj-1', 'entity-1');
+      await mediaService.deleteEntryThumbnail('proj-1', 'entry-1');
 
       expect(mockedAxios.delete).toHaveBeenCalledWith(
-        expect.stringContaining('/api/projects/proj-1/entities/entity-1/image'),
+        expect.stringContaining('/api/projects/proj-1/entries/entry-1/thumbnail'),
         { withCredentials: true }
       );
     });

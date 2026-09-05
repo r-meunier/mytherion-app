@@ -3,10 +3,10 @@
 import { useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { createEntity, clearCurrentEntity } from '@/app/store/entitySlice';
+import { createEntity, clearCurrentEntity } from '@/app/store/codexSlice';
 import { fetchProject } from '@/app/store/projectSlice';
-import { CreateEntityRequest, UpdateEntityRequest } from '@/app/types/entity';
-import EntityForm from '@/app/components/codex/EntityForm';
+import { CreateEntryRequest, UpdateEntryRequest } from '@/app/types/codex';
+import EntryForm from '@/app/components/codex/EntryForm';
 import DualSidebar from '@/app/components/DualSidebar';
 import AppHeader from '@/app/components/AppHeader';
 import Link from 'next/link';
@@ -19,7 +19,7 @@ export default function NewEntityPage() {
   
   const dispatch = useAppDispatch();
   const { currentProject } = useAppSelector((state) => state.projects);
-  const { loading, error, currentEntity } = useAppSelector((state) => state.entities);
+  const { loading, error, currentEntity } = useAppSelector((state) => state.entries);
 
   useEffect(() => {
     if (!currentProject || currentProject.id !== projectId) {
@@ -31,15 +31,15 @@ export default function NewEntityPage() {
     };
   }, [dispatch, projectId, currentProject]);
 
-  // Redirect to entity detail page after successful creation
+  // Redirect to entry detail page after successful creation
   useEffect(() => {
     if (currentEntity && !loading && !error) {
       router.push(routes.project(projectId).codex.detail(currentEntity.id));
     }
   }, [currentEntity, loading, error, projectId, router]);
 
-  const handleSubmit = async (data: CreateEntityRequest | UpdateEntityRequest) => {
-    await dispatch(createEntity({ projectId, data: data as CreateEntityRequest }));
+  const handleSubmit = async (data: CreateEntryRequest | UpdateEntryRequest) => {
+    await dispatch(createEntity({ projectId, data: data as CreateEntryRequest }));
   };
 
   const handleCancel = () => {
@@ -91,19 +91,19 @@ export default function NewEntityPage() {
                 <span className="material-symbols-outlined text-base mr-1.5 group-hover:-translate-x-1 transition-transform">
                   arrow_back
                 </span>
-                Back to Entity Codex
+                Back to CodexCodex
               </Link>
               <h1 className="font-display-lg text-2xl sm:text-3xl font-bold text-white text-glow tracking-tight">
-                Create Entity
+                Create CodexEntry
               </h1>
               <p className="text-xs sm:text-sm text-white/60 mt-1 max-w-lg font-medium tracking-wide">
-                Add a new character, location, organization, or other entity to {currentProject.name}
+                Add a new character, location, organization, or other entry to {currentProject.name}
               </p>
             </div>
 
             {/* Form */}
             <div className="glass-panel rounded-2xl p-6 sm:p-8 max-w-4xl">
-              <EntityForm
+              <EntryForm
                 projectId={projectId}
                 onSubmit={handleSubmit}
                 onCancel={handleCancel}

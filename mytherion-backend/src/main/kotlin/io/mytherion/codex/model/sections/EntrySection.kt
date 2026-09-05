@@ -35,7 +35,7 @@ import java.util.UUID
     JsonSubTypes.Type(value = LocationRelationsSection::class, name = "LOCATION_RELATIONS"),
     JsonSubTypes.Type(value = ItemSection::class, name = "ITEM_DETAILS"),
     JsonSubTypes.Type(value = ItemRelationsSection::class, name = "ITEM_RELATIONS"),
-    JsonSubTypes.Type(value = CustomSection::class, name = "CUSTOM")
+    JsonSubTypes.Type(value = CustomSection::class, name = "CUSTOM_FIELDS")
 )
 @JsonIgnoreProperties(ignoreUnknown = true)
 sealed interface EntrySection {

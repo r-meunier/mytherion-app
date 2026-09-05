@@ -33,42 +33,42 @@ export const mediaService = {
   },
 
   /**
-   * Upload an image for a specific entity
+   * Upload an image for a specific entry
    */
-  uploadEntityImage: async (projectId: string, entityId: string, file: File): Promise<UploadResponse> => {
-    mediaLogger.debug('Uploading entity image', { projectId, entityId, fileName: file.name, fileSize: file.size });
+  uploadEntryThumbnail: async (projectId: string, entryId: string, file: File): Promise<UploadResponse> => {
+    mediaLogger.debug('Uploading entry image', { projectId, entryId, fileName: file.name, fileSize: file.size });
 
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const response = await axios.post(`${API_URL}${apiRoutes.entities.image(projectId, entityId)}`, formData, {
+      const response = await axios.post(`${API_URL}${apiRoutes.entries.thumbnail(projectId, entryId)}`, formData, {
         withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      mediaLogger.debug('Entity image uploaded successfully', { projectId, entityId, url: response.data.url });
+      mediaLogger.debug('Entry image uploaded successfully', { projectId, entryId, url: response.data.url });
       return response.data;
     } catch (error) {
-      mediaLogger.error('Failed to upload entity image', error, { projectId, entityId });
+      mediaLogger.error('Failed to upload entry image', error, { projectId, entryId });
       throw error;
     }
   },
 
   /**
-   * Delete an image from a specific entity
+   * Delete an image from a specific entry
    */
-  deleteEntityImage: async (projectId: string, entityId: string): Promise<void> => {
-    mediaLogger.debug('Deleting entity image', { projectId, entityId });
+  deleteEntryThumbnail: async (projectId: string, entryId: string): Promise<void> => {
+    mediaLogger.debug('Deleting entry image', { projectId, entryId });
 
     try {
-      await axios.delete(`${API_URL}${apiRoutes.entities.image(projectId, entityId)}`, {
+      await axios.delete(`${API_URL}${apiRoutes.entries.thumbnail(projectId, entryId)}`, {
         withCredentials: true,
       });
-      mediaLogger.debug('Entity image deleted successfully', { projectId, entityId });
+      mediaLogger.debug('Entry image deleted successfully', { projectId, entryId });
     } catch (error) {
-      mediaLogger.error('Failed to delete entity image', error, { projectId, entityId });
+      mediaLogger.error('Failed to delete entry image', error, { projectId, entryId });
       throw error;
     }
   },
@@ -76,7 +76,7 @@ export const mediaService = {
   /**
    * Helper to resolve MinIO or relative storage URL to full absolute URL
    */
-  getImageUrl: (thumbnailPath: string | null | undefined): string | null => {
+  getThumbnailUrl: (thumbnailPath: string | null | undefined): string | null => {
     if (!thumbnailPath) return null;
     if (thumbnailPath.startsWith('http://') || thumbnailPath.startsWith('https://')) {
       return thumbnailPath;

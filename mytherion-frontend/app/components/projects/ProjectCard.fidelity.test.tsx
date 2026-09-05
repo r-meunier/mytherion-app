@@ -37,10 +37,10 @@ describe('ProjectCard High Fidelity', () => {
     jest.useRealTimers();
   });
 
-  it('renders arcane metadata correctly', () => {
+  it('renders arcane content correctly', () => {
     render(<ProjectCard project={mockProject} onEdit={() => {}} onDelete={() => {}} />);
 
-    // Verify Entity Count with localized formatting
+    // Verify CodexEntry Count with localized formatting
     expect(screen.getByText(/1,250/)).toBeInTheDocument();
     expect(screen.getByText(/Entities/)).toBeInTheDocument();
     

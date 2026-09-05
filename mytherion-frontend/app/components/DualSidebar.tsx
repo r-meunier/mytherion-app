@@ -91,8 +91,8 @@ export default function DualSidebar({
 
   const isItemActive = (itemId: string) => {
     if (currentActiveSection === itemId) return true;
-    if (itemId === "codex" && currentActiveSection === "entities") return true;
-    if (itemId === "entities" && currentActiveSection === "codex") return true;
+    if (itemId === "codex" && currentActiveSection === "entries") return true;
+    if (itemId === "entries" && currentActiveSection === "codex") return true;
     return false;
   };
 
@@ -266,7 +266,7 @@ export default function DualSidebar({
                 className="bg-[#ddb7ff] text-[#2c0051] hover:bg-[#f0dbff] w-full py-2.5 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(221,183,255,0.4)] active:scale-95 cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[18px]">add</span>
-                <span>Create New Entity</span>
+                <span>Create New Entry</span>
               </button>
             )}
           </div>

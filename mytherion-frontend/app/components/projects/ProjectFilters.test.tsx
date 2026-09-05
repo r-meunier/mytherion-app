@@ -14,7 +14,7 @@ describe('ProjectFilters', () => {
     jest.clearAllMocks();
   });
 
-  it('renders search input with placeholder and create world button', () => {
+  it('renders search input with placeholder and create project button', () => {
     render(
       <ProjectFilters
         onSearchChange={mockOnSearchChange}
@@ -26,8 +26,8 @@ describe('ProjectFilters', () => {
       />
     );
 
-    expect(screen.getByPlaceholderText('Filter worlds...')).toBeInTheDocument();
-    expect(screen.getByText('Create World')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Filter projects...')).toBeInTheDocument();
+    expect(screen.getByText('Create Project')).toBeInTheDocument();
     expect(screen.getByText('Date')).toBeInTheDocument();
   });
 
@@ -40,7 +40,7 @@ describe('ProjectFilters', () => {
       />
     );
 
-    const searchInput = screen.getByPlaceholderText('Filter worlds...');
+    const searchInput = screen.getByPlaceholderText('Filter projects...');
     fireEvent.change(searchInput, { target: { value: 'Aetheria' } });
 
     expect(mockOnSearchChange).toHaveBeenCalledWith('Aetheria');
@@ -95,14 +95,14 @@ describe('ProjectFilters', () => {
     expect(mockOnViewChange).toHaveBeenCalledWith('grid');
   });
 
-  it('calls onCreateClick when clicking Create World button', () => {
+  it('calls onCreateClick when clicking Create Project button', () => {
     render(
       <ProjectFilters
         onCreateClick={mockOnCreateClick}
       />
     );
 
-    const createBtn = screen.getByRole('button', { name: /create world/i });
+    const createBtn = screen.getByRole('button', { name: /create project/i });
     fireEvent.click(createBtn);
 
     expect(mockOnCreateClick).toHaveBeenCalledTimes(1);

@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchProject, clearCurrentProject } from '@/app/store/projectSlice';
-import { Entity } from '@/app/types/entity';
-import EntityList from '@/app/components/codex/EntityList';
-import EntityModal from '@/app/components/codex/EntityModal';
+import { CodexEntry } from '@/app/types/codex';
+import EntryList from '@/app/components/codex/EntryList';
+import EntryModal from '@/app/components/codex/EntryModal';
 import DualSidebar from '@/app/components/DualSidebar';
 import AppHeader from '@/app/components/AppHeader';
 import { getProjectNavItems, getManagementItems } from '@/app/config/projectNavigation';
@@ -18,7 +18,7 @@ export default function CodexPage() {
   const dispatch = useAppDispatch();
   const { currentProject, loading, error } = useAppSelector((state) => state.projects);
   const [showModal, setShowModal] = useState(false);
-  const [editingEntity, setEditingEntity] = useState<Entity | null>(null);
+  const [editingEntity, setEditingEntity] = useState<CodexEntry | null>(null);
 
   useEffect(() => {
     if (!projectId) return;
@@ -39,8 +39,8 @@ export default function CodexPage() {
     setShowModal(true);
   };
 
-  const handleEditClick = (entity: Entity) => {
-    setEditingEntity(entity);
+  const handleEditClick = (entry: CodexEntry) => {
+    setEditingEntity(entry);
     setShowModal(true);
   };
 
@@ -117,7 +117,7 @@ export default function CodexPage() {
         
         <main className="flex-1 flex flex-col overflow-hidden relative">
           <div className="flex-1 overflow-y-auto px-6 sm:px-12 py-10 space-y-10 scroll-smooth relative z-10 custom-scrollbar">
-            <EntityList 
+            <EntryList 
               projectId={projectId} 
               projectName={currentProject.name}
               onCreateClick={handleCreateClick}
@@ -126,11 +126,11 @@ export default function CodexPage() {
           </div>
         </main>
 
-        <EntityModal
+        <EntryModal
           isOpen={showModal}
           onClose={handleCloseModal}
           projectId={projectId}
-          entity={editingEntity}
+          entry={editingEntity}
         />
       </div>
     </div>

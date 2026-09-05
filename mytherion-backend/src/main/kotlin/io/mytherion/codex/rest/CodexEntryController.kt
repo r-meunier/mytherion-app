@@ -135,8 +135,8 @@ class CodexEntryController(private val entryService: CodexEntryService) {
         }
     }
 
-    /** Upload image for entry POST /api/projects/{projectId}/entries/{id}/image */
-    @PostMapping("/{id}/image", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    /** Upload image for entry POST /api/projects/{projectId}/entries/{id}/thumbnail */
+    @PostMapping("/{id}/thumbnail", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun uploadThumbnail(
         @PathVariable projectId: UUID,
         @PathVariable id: UUID,
@@ -189,8 +189,8 @@ class CodexEntryController(private val entryService: CodexEntryService) {
         }
     }
 
-    /** Delete image from entry DELETE /api/projects/{projectId}/entries/{id}/image */
-    @DeleteMapping("/{id}/image")
+    /** Delete image from entry DELETE /api/projects/{projectId}/entries/{id}/thumbnail */
+    @DeleteMapping("/{id}/thumbnail")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteThumbnail(
         @PathVariable projectId: UUID,

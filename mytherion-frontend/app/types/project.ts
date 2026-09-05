@@ -1,5 +1,5 @@
 /**
- * Project / World domain interfaces and request models
+ * Project / Project domain interfaces and request models
  */
 
 export interface Project {

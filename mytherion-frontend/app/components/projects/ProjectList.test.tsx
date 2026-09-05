@@ -142,8 +142,8 @@ describe('ProjectList', () => {
       />
     );
 
-    expect(screen.getByText('No worlds found')).toBeInTheDocument();
-    const createBtn = screen.getByRole('button', { name: /create world/i });
+    expect(screen.getByText('No projects found')).toBeInTheDocument();
+    const createBtn = screen.getByRole('button', { name: /create project/i });
     fireEvent.click(createBtn);
     expect(mockOnCreateClick).toHaveBeenCalledTimes(1);
   });
@@ -181,7 +181,7 @@ describe('ProjectList', () => {
       />
     );
 
-    expect(screen.getByText('No worlds found')).toBeInTheDocument();
+    expect(screen.getByText('No projects found')).toBeInTheDocument();
   });
 
   it('opens delete confirmation overlay and confirms deletion', () => {
@@ -193,7 +193,7 @@ describe('ProjectList', () => {
     );
 
     // Open options menu for the first project
-    const menuButtons = screen.getAllByLabelText('World options');
+    const menuButtons = screen.getAllByLabelText('Project options');
     fireEvent.click(menuButtons[0]);
 
     // Click Delete in dropdown
@@ -220,7 +220,7 @@ describe('ProjectList', () => {
       />
     );
 
-    const menuButtons = screen.getAllByLabelText('World options');
+    const menuButtons = screen.getAllByLabelText('Project options');
     fireEvent.click(menuButtons[0]);
 
     const deleteButtons = screen.getAllByText('Delete');

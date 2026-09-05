@@ -56,8 +56,8 @@ describe('DualSidebar - Project Mode & Scoped Codex Navigation', () => {
     expect(activeLinks.length).toBeGreaterThan(0);
   });
 
-  it('highlights Codex backward-compatibly when legacy activeSection is "entities"', () => {
-    const { container } = render(<DualSidebar activeSection="entities" projectId="proj-101" />);
+  it('highlights Codex backward-compatibly when legacy activeSection is "entries"', () => {
+    const { container } = render(<DualSidebar activeSection="entries" projectId="proj-101" />);
 
     const activeLinks = container.querySelectorAll('.text-primary');
     expect(activeLinks.length).toBeGreaterThan(0);
@@ -73,7 +73,7 @@ describe('DualSidebar - Project Mode & Scoped Codex Navigation', () => {
     expect(phase2Badges.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('triggers onCreateEntity when the Create New Entity button is clicked', () => {
+  it('triggers onCreateEntity when the Create New Entry button is clicked', () => {
     const onCreateEntity = jest.fn();
     render(
       <DualSidebar 
@@ -83,7 +83,7 @@ describe('DualSidebar - Project Mode & Scoped Codex Navigation', () => {
       />
     );
 
-    const createBtn = screen.getByRole('button', { name: /create new entity/i });
+    const createBtn = screen.getByRole('button', { name: /create new entry/i });
     fireEvent.click(createBtn);
 
     expect(onCreateEntity).toHaveBeenCalledTimes(1);

@@ -41,7 +41,7 @@ export default function ProjectStats({ stats }: ProjectStatsProps) {
         </div>
       </div>
 
-      {/* Entity Type Breakdown */}
+      {/* CodexEntry Type Breakdown */}
       {totalEntities > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {Object.entries(stats.entityCountByType).map(([type, count]) => {
@@ -74,7 +74,7 @@ export default function ProjectStats({ stats }: ProjectStatsProps) {
       ) : (
         <div className="text-center py-8 text-slate-400">
           <span className="material-symbols-outlined text-[48px] mb-4 block text-slate-500">inbox</span>
-          <p>No entities yet. Start adding entities to see statistics.</p>
+          <p>No entries yet. Start adding entries to see statistics.</p>
         </div>
       )}
     </div>

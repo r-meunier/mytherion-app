@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Entity } from '../types/entity';
+import { CodexEntry } from '../types/codex';
 import { API_URL } from './apiConfig';
 import apiRoutes from '../config/apiRoutes';
 
@@ -8,7 +8,7 @@ export interface DashboardStats {
   entitiesThisWeek: number;
   recentEdits: number;
   totalProjects: number;
-  recentEntities: Entity[];
+  recentEntities: CodexEntry[];
   entityCountByType: Record<string, number>;
   lastUpdated: string;
 }
