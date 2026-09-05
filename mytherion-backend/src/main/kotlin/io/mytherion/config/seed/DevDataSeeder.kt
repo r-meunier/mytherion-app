@@ -5,8 +5,8 @@ import io.mytherion.entity.model.EntityMetadata
 import io.mytherion.entity.model.EntityType
 import io.mytherion.entity.model.components.*
 import io.mytherion.entity.repository.EntityRepository
-import io.mytherion.logging.infoWith
-import io.mytherion.logging.logger
+import io.mytherion.platform.logging.infoWith
+import io.mytherion.platform.logging.logger
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.category.model.Category

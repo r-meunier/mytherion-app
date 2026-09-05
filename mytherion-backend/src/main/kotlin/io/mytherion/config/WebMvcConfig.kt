@@ -1,6 +1,7 @@
 package io.mytherion.config
 
-import io.mytherion.monitoring.PerformanceInterceptor
+import io.mytherion.platform.monitoring.PerformanceInterceptor
+import io.mytherion.project.security.ProjectAccessInterceptor
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
@@ -13,7 +14,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @Configuration
 class WebMvcConfig(
     private val performanceInterceptor: PerformanceInterceptor,
-    private val projectAccessInterceptor: io.mytherion.project.rest.ProjectAccessInterceptor
+    private val projectAccessInterceptor: ProjectAccessInterceptor
 ) : WebMvcConfigurer {
 
     override fun addInterceptors(registry: InterceptorRegistry) {

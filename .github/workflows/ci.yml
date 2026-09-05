@@ -52,6 +52,9 @@ jobs:
           done
           
       - name: Run Backend Tests
+        # `check` runs both the fast `test` task and `integrationTest` (the
+        # database-backed @IntegrationTest classes). Do not narrow this to
+        # `test`, which would silently skip the integration suite.
         working-directory: ./mytherion-backend
         env:
           SPRING_PROFILES_ACTIVE: test
@@ -65,7 +68,7 @@ jobs:
           MINIO_SECRET_KEY: minioadmin
           MINIO_BUCKET: mytherion-uploads
           JWT_SECRET: "this-is-a-test-secret-that-is-at-least-32-characters-long"
-        run: ./gradlew test
+        run: ./gradlew check
 
   frontend-test:
     name: Frontend Tests

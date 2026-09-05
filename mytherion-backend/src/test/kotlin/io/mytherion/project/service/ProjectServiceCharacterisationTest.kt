@@ -8,8 +8,8 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.verify
-import io.mytherion.auth.CurrentUserProvider
-import io.mytherion.project.ProjectTestFixtures
+import io.mytherion.auth.service.CurrentUserProvider
+import io.mytherion.fixtures.ProjectTestFixtures
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.user.model.User
@@ -35,7 +35,7 @@ class ProjectServiceCharacterisationTest {
     private lateinit var entityQueryService: io.mytherion.entity.service.EntityQueryService
 
     @MockK
-    private lateinit var metricsService: io.mytherion.monitoring.MetricsService
+    private lateinit var metricsService: io.mytherion.platform.monitoring.MetricsService
 
     @InjectMockKs
     private lateinit var projectService: ProjectService

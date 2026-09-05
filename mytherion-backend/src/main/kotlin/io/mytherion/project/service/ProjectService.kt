@@ -1,13 +1,13 @@
 package io.mytherion.project.service
 
-import io.mytherion.auth.CurrentUserProvider
+import io.mytherion.auth.service.CurrentUserProvider
 import io.mytherion.entity.service.EntityQueryService
-import io.mytherion.logging.debugWith
-import io.mytherion.logging.infoWith
-import io.mytherion.logging.logger
-import io.mytherion.logging.measureTime
-import io.mytherion.logging.warnWith
-import io.mytherion.monitoring.MetricsService
+import io.mytherion.platform.logging.debugWith
+import io.mytherion.platform.logging.infoWith
+import io.mytherion.platform.logging.logger
+import io.mytherion.platform.logging.measureTime
+import io.mytherion.platform.logging.warnWith
+import io.mytherion.platform.monitoring.MetricsService
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
 import io.mytherion.project.dto.UpdateProjectRequest

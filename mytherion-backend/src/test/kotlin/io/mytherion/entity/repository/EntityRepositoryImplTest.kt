@@ -1,5 +1,6 @@
 package io.mytherion.entity.repository
 
+import io.mytherion.support.IntegrationTest
 import io.mytherion.entity.model.Entity
 import io.mytherion.entity.model.EntityType
 import io.mytherion.fixtures.TestFixtures
@@ -15,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.domain.PageRequest
 import org.springframework.test.context.ActiveProfiles
 
+@IntegrationTest
 @SpringBootTest
 @ActiveProfiles("test")
 @org.springframework.transaction.annotation.Transactional

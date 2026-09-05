@@ -1,5 +1,6 @@
 package io.mytherion.auth
 
+import io.mytherion.support.IntegrationTest
 import io.mockk.impl.annotations.MockK
 import tools.jackson.databind.ObjectMapper
 import io.mytherion.auth.dto.AuthDTO
@@ -25,6 +26,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
+@IntegrationTest
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -47,7 +49,7 @@ class EmailVerificationIntegrationTest {
     private lateinit var passwordEncoder: PasswordEncoder
 
     @MockK
-    private lateinit var emailService: io.mytherion.email.EmailService
+    private lateinit var emailService: io.mytherion.platform.email.EmailService
 
     @org.junit.jupiter.api.BeforeEach
     fun setUp() {

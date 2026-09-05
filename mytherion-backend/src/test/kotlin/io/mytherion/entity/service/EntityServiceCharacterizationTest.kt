@@ -1,9 +1,10 @@
 package io.mytherion.entity.service
 
+import io.mytherion.support.IntegrationTest
 import tools.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import io.mytherion.auth.CurrentUserProvider
+import io.mytherion.auth.service.CurrentUserProvider
 import io.mytherion.entity.dto.EntityDTO
 import io.mytherion.entity.dto.EntitySearchRequest
 import io.mytherion.entity.model.EntityType
@@ -24,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 
+@IntegrationTest
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional

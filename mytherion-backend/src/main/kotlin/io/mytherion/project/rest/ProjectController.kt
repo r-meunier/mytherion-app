@@ -1,8 +1,8 @@
 package io.mytherion.project.rest
 
-import io.mytherion.logging.errorWith
-import io.mytherion.logging.infoWith
-import io.mytherion.logging.logger
+import io.mytherion.platform.logging.errorWith
+import io.mytherion.platform.logging.infoWith
+import io.mytherion.platform.logging.logger
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
 import io.mytherion.project.dto.UpdateProjectRequest

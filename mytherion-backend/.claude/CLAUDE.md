@@ -65,34 +65,57 @@ Flyway will re-run migrations on startup.
 Root package:
 `src/main/kotlin/io/mytherion`
 
-Common domains/modules:
-- `config` — Security, Flyway, app config
-- `health` — health check endpoint
+Business domains — each holds its own `model`, `dto`, `repository`, `service`, `rest`, `exception`:
 - `user` — user domain
-- `project` — projects/worlds
-- `entry` — codex entries
+- `project` — projects/worlds (plus `security/ProjectAccessInterceptor`)
+- `entity` — codex entities and their components
+- `category` — entity categories
+- `dashboard` — aggregate stats
+- `auth` — authentication (`rest`, `service`, `jwt`, `model`, `repository`, `dto`, `util`)
+
+Supporting packages:
+- `common` — shared kernel: `exception/ApiException`, `web/ErrorResponse`, `model/AbstractAuditableEntity`. Depends on nothing.
+- `platform` — infrastructure: `email`, `storage`, `logging`, `monitoring`, `health`
+- `config` — wiring only: Security, WebMvc, Password, `web/GlobalExceptionHandler`
 - `MytherionApplication.kt` — app entrypoint
+
+Dependency rule: `domain → common` and `domain → platform` are fine; `common` depends on
+nothing; `platform` must not depend on a business domain. These are enforced by ArchUnit in
+`src/test/kotlin/io/mytherion/architecture/PackageStructureTest.kt` — a violation fails the build.
 
 ### When adding a feature
 Prefer this flow:
-1) Identify the domain (`project`, `entry`, `user`, etc.)
-2) Add/extend JPA entity + repository + service + controller inside the same domain package
+1) Identify the domain (`project`, `entity`, `user`, etc.)
+2) Add/extend JPA entity + repository + service + controller inside the same domain package,
+   putting the controller in that domain's `rest/` package
 3) Add a Flyway migration for schema changes
 4) Update/extend endpoints under the existing `/api/...` pattern (health is `/api/health`)
+
+### Errors
+Client-facing errors extend `common.exception.ApiException` and declare their own
+`HttpStatus` and error label. `GlobalExceptionHandler` then renders them generically, so a new
+domain exception needs **no** change to shared code. Leave genuine infrastructure failures as
+plain exceptions — they fall through to the generic handler, which logs the cause and returns a
+masked 500 rather than leaking internals.
+
+### Tests
+- `./gradlew test` — fast tests only (unit + `@WebMvcTest` slices)
+- `./gradlew integrationTest` — classes marked `@IntegrationTest`; needs a database
+- `./gradlew check` — both; this is what CI runs
 
 ## Current vs planned features (context)
 Current:
 - Postgres schema managed via Flyway
-- Project creation/listing
-- Entry model groundwork
+- Project creation/listing, search and stats
+- Entity CRUD with a polymorphic component system
+- Categories and tagging/search
+- Auth (JWT via httpOnly cookies) and email verification
+- Image uploads via MinIO
+- Tenant isolation through `ProjectAccessInterceptor`
 - Health endpoint
 - Dockerized local DB
 
 Planned (don’t implement unless asked):
-- Auth (JWT)
-- Entry CRUD
-- Tagging/search
-- Image uploads
 - Relationship mapping
 - Export (PDF/image)
 - AI-assisted structuring tools

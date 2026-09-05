@@ -8,10 +8,10 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.verify
-import io.mytherion.auth.CurrentUserProvider
+import io.mytherion.auth.service.CurrentUserProvider
 import io.mytherion.entity.service.EntityQueryService
-import io.mytherion.monitoring.MetricsService
-import io.mytherion.project.ProjectTestFixtures
+import io.mytherion.platform.monitoring.MetricsService
+import io.mytherion.fixtures.ProjectTestFixtures
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.UpdateProjectRequest
 import io.mytherion.project.exception.ProjectAccessDeniedException
