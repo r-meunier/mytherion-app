@@ -2,14 +2,14 @@
 
 import { EntryType } from '@/app/types/codex';
 
-interface EntityTypeSelectorProps {
+interface EntryTypeSelectorProps {
   value: EntryType | undefined;
   onChange: (type: EntryType) => void;
   disabled?: boolean;
   label?: string;
 }
 
-const entityTypeConfig = {
+const entryTypeConfig = {
   [EntryType.CHARACTER]: { icon: '👤', label: 'Character', color: 'text-blue-400' },
   [EntryType.LOCATION]: { icon: '📍', label: 'Location', color: 'text-green-400' },
   [EntryType.ORGANIZATION]: { icon: '🏛️', label: 'Organization', color: 'text-purple-400' },
@@ -24,12 +24,12 @@ export default function EntryTypeSelector({
   onChange, 
   disabled = false,
   label = 'Entry Type'
-}: EntityTypeSelectorProps) {
+}: EntryTypeSelectorProps) {
   return (
     <div className="space-y-2">
       {label && <label className="block text-sm font-medium text-gray-300">{label}</label>}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 w-full">
-        {Object.entries(entityTypeConfig).map(([type, config]) => {
+        {Object.entries(entryTypeConfig).map(([type, config]) => {
           const isSelected = value === type;
           return (
             <button
@@ -58,4 +58,4 @@ export default function EntryTypeSelector({
   );
 }
 
-export { entityTypeConfig };
+export { entryTypeConfig };

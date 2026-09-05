@@ -1,8 +1,11 @@
-# Entity Management API Documentation
+# Entry Management API Documentation
+
+> Vocabulary follows [`terminology.md`](../../../docs/terminology.md). `Category` was removed in MYT-81.
+
 
 ## Overview
 
-The Entity Management API provides endpoints for managing lore entities (characters, locations, organizations, species, cultures, and items) within projects.
+The Entry Management API provides endpoints for managing lore entries (characters, locations, organizations, species, cultures, and items) within projects.
 
 ---
 
@@ -20,7 +23,7 @@ All endpoints require JWT authentication via HttpOnly cookie (set during login).
 
 ---
 
-## Entity Types
+## Entry Types
 
 - `CHARACTER` - Characters in your lore
 - `LOCATION` - Places and locations
@@ -33,19 +36,19 @@ All endpoints require JWT authentication via HttpOnly cookie (set during login).
 
 ## Endpoints
 
-### List Entities
+### List Entries
 
-Get a paginated list of entities in a project with optional filters.
+Get a paginated list of entries in a project with optional filters.
 
 **Request:**
 
 ```http
-GET /api/projects/{projectId}/entities?type=CHARACTER&tags=hero,mage&search=gandalf&page=0&size=20
+GET /api/projects/{projectId}/entries?type=CHARACTER&tags=hero,mage&search=gandalf&page=0&size=20
 ```
 
 **Query Parameters:**
 
-- `type` (optional) - Filter by entity type
+- `type` (optional) - Filter by entry type
 - `tags` (optional) - Comma-separated list of tags
 - `search` (optional) - Search in name, summary, description
 - `page` (optional, default: 0) - Page number
@@ -64,8 +67,8 @@ GET /api/projects/{projectId}/entities?type=CHARACTER&tags=hero,mage&search=gand
       "summary": "A wise wizard",
       "description": "Gandalf the Grey, later Gandalf the White...",
       "tags": ["wizard", "hero", "mage"],
-      "imageUrl": "mytherion-uploads/entities/1/gandalf.jpg",
-      "metadata": "{\"age\": \"2000+\", \"role\": \"Wizard\"}",
+      "thumbnail": "mytherion-uploads/entries/1/gandalf.jpg",
+      "content": "{\"age\": \"2000+\", \"role\": \"Wizard\"}",
       "createdAt": "2026-01-18T22:00:00Z",
       "updatedAt": "2026-01-18T22:00:00Z"
     }
@@ -81,14 +84,14 @@ GET /api/projects/{projectId}/entities?type=CHARACTER&tags=hero,mage&search=gand
 
 ---
 
-### Create Entity
+### Create Entry
 
-Create a new entity in a project.
+Create a new entry in a project.
 
 **Request:**
 
 ```http
-POST /api/projects/{projectId}/entities
+POST /api/projects/{projectId}/entries
 Content-Type: application/json
 
 {
@@ -97,7 +100,7 @@ Content-Type: application/json
   "summary": "Heir to the throne of Gondor",
   "description": "Aragorn II, son of Arathorn...",
   "tags": ["ranger", "king", "hero"],
-  "metadata": "{\"age\": \"87\", \"role\": \"Ranger/King\"}"
+  "content": "{\"age\": \"87\", \"role\": \"Ranger/King\"}"
 }
 ```
 
@@ -108,7 +111,7 @@ Content-Type: application/json
 - `summary` - Optional, max 1000 characters
 - `description` - Optional
 - `tags` - Optional array
-- `metadata` - Optional JSON string
+- `content` - Optional JSON object of entry sections
 
 **Response:** `201 Created`
 
@@ -121,8 +124,8 @@ Content-Type: application/json
   "summary": "Heir to the throne of Gondor",
   "description": "Aragorn II, son of Arathorn...",
   "tags": ["ranger", "king", "hero"],
-  "imageUrl": null,
-  "metadata": "{\"age\": \"87\", \"role\": \"Ranger/King\"}",
+  "thumbnail": null,
+  "content": "{\"age\": \"87\", \"role\": \"Ranger/King\"}",
   "createdAt": "2026-01-18T23:00:00Z",
   "updatedAt": "2026-01-18T23:00:00Z"
 }
@@ -130,14 +133,14 @@ Content-Type: application/json
 
 ---
 
-### Get Entity
+### Get Entry
 
-Get a single entity by ID.
+Get a single entry by ID.
 
 **Request:**
 
 ```http
-GET /api/entities/{id}
+GET /api/projects/{projectId}/entries/{id}
 ```
 
 **Response:** `200 OK`
@@ -151,8 +154,8 @@ GET /api/entities/{id}
   "summary": "A wise wizard",
   "description": "Gandalf the Grey...",
   "tags": ["wizard", "hero"],
-  "imageUrl": "mytherion-uploads/entities/1/gandalf.jpg",
-  "metadata": "{\"age\": \"2000+\"}",
+  "thumbnail": "mytherion-uploads/entries/1/gandalf.jpg",
+  "content": "{\"age\": \"2000+\"}",
   "createdAt": "2026-01-18T22:00:00Z",
   "updatedAt": "2026-01-18T22:00:00Z"
 }
@@ -160,19 +163,19 @@ GET /api/entities/{id}
 
 **Error Responses:**
 
-- `404 Not Found` - Entity not found or deleted
+- `404 Not Found` - Entry not found or deleted
 - `403 Forbidden` - Access denied (not project owner)
 
 ---
 
-### Update Entity
+### Update Entry
 
-Update an existing entity (partial update).
+Update an existing entry (partial update).
 
 **Request:**
 
 ```http
-PATCH /api/entities/{id}
+PATCH /api/projects/{projectId}/entries/{id}
 Content-Type: application/json
 
 {
@@ -195,8 +198,8 @@ Content-Type: application/json
   "summary": "The White Wizard",
   "description": "Gandalf the Grey...",
   "tags": ["wizard", "hero", "white"],
-  "imageUrl": "mytherion-uploads/entities/1/gandalf.jpg",
-  "metadata": "{\"age\": \"2000+\"}",
+  "thumbnail": "mytherion-uploads/entries/1/gandalf.jpg",
+  "content": "{\"age\": \"2000+\"}",
   "createdAt": "2026-01-18T22:00:00Z",
   "updatedAt": "2026-01-18T23:05:00Z"
 }
@@ -204,30 +207,30 @@ Content-Type: application/json
 
 ---
 
-### Delete Entity
+### Delete Entry
 
-Soft delete an entity.
+Soft delete an entry.
 
 **Request:**
 
 ```http
-DELETE /api/entities/{id}
+DELETE /api/projects/{projectId}/entries/{id}
 ```
 
 **Response:** `204 No Content`
 
-**Note:** This is a soft delete. The entity is marked as deleted but not removed from the database.
+**Note:** This is a soft delete. The entry is marked as deleted but not removed from the database.
 
 ---
 
 ### Upload Image
 
-Upload an image for an entity.
+Upload an image for an entry.
 
 **Request:**
 
 ```http
-POST /api/entities/{id}/image
+POST /api/projects/{projectId}/entries/{id}/thumbnail
 Content-Type: multipart/form-data
 
 file: [binary image data]
@@ -242,8 +245,8 @@ file: [binary image data]
 
 ```json
 {
-  "url": "mytherion-uploads/entities/1/1737238800000_gandalf.jpg",
-  "objectKey": "entities/1/1737238800000_gandalf.jpg",
+  "url": "mytherion-uploads/entries/1/1737238800000_gandalf.jpg",
+  "objectKey": "entries/1/1737238800000_gandalf.jpg",
   "bucketName": "mytherion-uploads",
   "contentType": "image/jpeg",
   "size": 245678
@@ -258,19 +261,19 @@ file: [binary image data]
 
 ### Delete Image
 
-Delete an entity's image.
+Delete an entry's image.
 
 **Request:**
 
 ```http
-DELETE /api/entities/{id}/image
+DELETE /api/projects/{projectId}/entries/{id}/thumbnail
 ```
 
 **Response:** `204 No Content`
 
 **Error Responses:**
 
-- `404 Not Found` - No image found for entity
+- `404 Not Found` - No image found for entry
 
 ---
 
@@ -278,7 +281,7 @@ DELETE /api/entities/{id}/image
 
 ### Get Project Statistics
 
-Get entity count and breakdown by type for a project.
+Get entry count and breakdown by type for a project.
 
 **Request:**
 
@@ -293,8 +296,8 @@ GET /api/projects/{id}/stats
   "id": 1,
   "name": "Middle Earth",
   "description": "Tolkien's world",
-  "entityCount": 25,
-  "entityCountByType": {
+  "entryCount": 25,
+  "entryCountByType": {
     "CHARACTER": 10,
     "LOCATION": 8,
     "ORGANIZATION": 4,
@@ -326,7 +329,7 @@ GET /api/projects/{id}/stats
   "status": 400,
   "error": "Bad Request",
   "message": "Name is required",
-  "path": "/api/projects/1/entities"
+  "path": "/api/projects/1/entries"
 }
 ```
 
@@ -339,7 +342,7 @@ GET /api/projects/{id}/stats
 1. Create the character:
 
 ```bash
-curl -X POST http://localhost:8080/api/projects/1/entities \
+curl -X POST http://localhost:8080/api/projects/1/entries \
   -H "Content-Type: application/json" \
   -d '{
     "type": "CHARACTER",
@@ -352,30 +355,30 @@ curl -X POST http://localhost:8080/api/projects/1/entities \
 2. Upload an image:
 
 ```bash
-curl -X POST http://localhost:8080/api/entities/3/image \
+curl -X POST http://localhost:8080/api/projects/{projectId}/entries/3/thumbnail \
   -F "file=@frodo.jpg"
 ```
 
-### Search for Entities
+### Search for Entries
 
 Search for all wizard characters:
 
 ```bash
-curl "http://localhost:8080/api/projects/1/entities?type=CHARACTER&tags=wizard&page=0&size=10"
+curl "http://localhost:8080/api/projects/1/entries?type=CHARACTER&tags=wizard&page=0&size=10"
 ```
 
 ### Update and Delete
 
-Update entity:
+Update entry:
 
 ```bash
-curl -X PATCH http://localhost:8080/api/entities/1 \
+curl -X PATCH http://localhost:8080/api/entries/1 \
   -H "Content-Type: application/json" \
   -d '{"summary": "Updated summary"}'
 ```
 
-Delete entity:
+Delete entry:
 
 ```bash
-curl -X DELETE http://localhost:8080/api/entities/1
+curl -X DELETE http://localhost:8080/api/entries/1
 ```

@@ -19,7 +19,7 @@ describe('EntrySectionsEditor', () => {
   it('renders the correct tabs for a CHARACTER entry', () => {
     render(
       <EntrySectionsEditor
-        entityType={EntryType.CHARACTER}
+        entryType={EntryType.CHARACTER}
         content={mockMetadata as any}
         onUpdateComponent={mockOnUpdate}
       />
@@ -35,7 +35,7 @@ describe('EntrySectionsEditor', () => {
   it('switches tabs when clicked', () => {
     render(
       <EntrySectionsEditor
-        entityType={EntryType.CHARACTER}
+        entryType={EntryType.CHARACTER}
         content={mockMetadata as any}
         onUpdateComponent={mockOnUpdate}
       />
@@ -54,7 +54,7 @@ describe('EntrySectionsEditor', () => {
   it('calls onUpdateComponent when a field changes', () => {
     render(
       <EntrySectionsEditor
-        entityType={EntryType.CHARACTER}
+        entryType={EntryType.CHARACTER}
         content={mockMetadata as any}
         onUpdateComponent={mockOnUpdate}
       />
@@ -69,7 +69,7 @@ describe('EntrySectionsEditor', () => {
   it('handles LOCATION entry specific tabs', () => {
     render(
       <EntrySectionsEditor
-        entityType={EntryType.LOCATION}
+        entryType={EntryType.LOCATION}
         content={{ sections: [] }}
         onUpdateComponent={mockOnUpdate}
       />

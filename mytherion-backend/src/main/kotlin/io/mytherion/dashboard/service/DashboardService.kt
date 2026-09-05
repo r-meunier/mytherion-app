@@ -23,26 +23,26 @@ class DashboardService(
     fun getDashboardStats(): DashboardStatsDTO {
         val currentUser = currentUserProvider.getCurrentUser()
 
-        val totalEntities = entryRepository.countByOwnerAndDeletedAtIsNull(currentUser)
+        val totalEntries = entryRepository.countByOwnerAndDeletedAtIsNull(currentUser)
         val totalProjects = projectRepository.countByOwnerAndDeletedAtIsNull(currentUser)
 
         val since = Instant.now().minus(24, ChronoUnit.HOURS)
         val recentEdits = entryRepository.countRecentEditsByOwner(currentUser, since)
 
         val weekAgo = Instant.now().minus(7, ChronoUnit.DAYS)
-        val entitiesThisWeek = entryRepository.countByOwnerAndCreatedAtAfter(currentUser, weekAgo)
+        val entriesThisWeek = entryRepository.countByOwnerAndCreatedAtAfter(currentUser, weekAgo)
 
-        val recentEntities = entryRepository.findRecentEntitiesByOwner(
+        val recentEntries = entryRepository.findRecentEntriesByOwner(
             currentUser,
             org.springframework.data.domain.PageRequest.of(0, 3)
         ).map(io.mytherion.codex.dto.EntryDTO::from)
 
         return DashboardStatsDTO(
-            totalEntities = totalEntities,
-            entitiesThisWeek = entitiesThisWeek,
+            totalEntries = totalEntries,
+            entriesThisWeek = entriesThisWeek,
             recentEdits = recentEdits,
             totalProjects = totalProjects,
-            recentEntities = recentEntities
+            recentEntries = recentEntries
         )
     }
 
@@ -54,29 +54,29 @@ class DashboardService(
         val project = projectRepository.findByIdAndOwnerAndDeletedAtIsNull(projectId, currentUser)
             ?: throw ProjectNotFoundException(projectId)
 
-        val totalEntities = entryRepository.countByProjectAndDeletedAtIsNull(project)
+        val totalEntries = entryRepository.countByProjectAndDeletedAtIsNull(project)
         
         val since = Instant.now().minus(24, ChronoUnit.HOURS)
         val recentEdits = entryRepository.countRecentEditsByProject(project, since)
 
         val weekAgo = Instant.now().minus(7, ChronoUnit.DAYS)
-        val entitiesThisWeek = entryRepository.countByProjectAndCreatedAtAfter(project, weekAgo)
+        val entriesThisWeek = entryRepository.countByProjectAndCreatedAtAfter(project, weekAgo)
 
-        val recentEntities = entryRepository.findRecentEntitiesByProject(
+        val recentEntries = entryRepository.findRecentEntriesByProject(
             project,
             org.springframework.data.domain.PageRequest.of(0, 3)
         ).map(io.mytherion.codex.dto.EntryDTO::from)
 
-        val entityCountByType = entryRepository.countByProjectAndTypeGrouped(project)
+        val entryCountByType = entryRepository.countByProjectAndTypeGrouped(project)
             .associate { it.getType().name to it.getCount().toInt() }
 
         return DashboardStatsDTO(
-            totalEntities = totalEntities,
-            entitiesThisWeek = entitiesThisWeek,
+            totalEntries = totalEntries,
+            entriesThisWeek = entriesThisWeek,
             recentEdits = recentEdits,
             totalProjects = 1, // Current context is 1 project
-            recentEntities = recentEntities,
-            entityCountByType = entityCountByType
+            recentEntries = recentEntries,
+            entryCountByType = entryCountByType
         )
     }
 }

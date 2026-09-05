@@ -1,5 +1,10 @@
 # 📖 Worldbuilder Persona: *Elena creates the World of "Aeloria"*
 
+> **Historical record — manual test session, 2026-09-01.** Left verbatim as an
+> observation log. Its vocabulary predates [`terminology.md`](./terminology.md):
+> "World" = Project, "Entity" = Codex Entry, and Category has since been removed.
+
+
 > **Goal:** Elena is setting up a new dark fantasy world, creating her protagonist (*Kaelen Voss*), attaching character lore and artwork, organizing categories, and testing search and editing flows.
 
 ---

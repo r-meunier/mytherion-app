@@ -364,7 +364,7 @@ class CodexEntryServiceTest {
         }
     }
 
-    // ==================== Search Entities Tests ====================
+    // ==================== Search Entries Tests ====================
 
     @Test
     fun `searchEntries should call custom repository method`() {

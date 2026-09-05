@@ -9,8 +9,8 @@ A living checklist of what needs to be in place before Mytherion is deployed and
 The core user loop must work end-to-end without gaps or happy-path-only behaviour.
 
 - [ ] Create a world / project
-- [ ] Define custom entity types
-- [ ] Populate entities with metadata
+- [ ] Define custom entry types
+- [ ] Populate entries with metadata
 - [ ] AI assistance navigating and expanding the Codex
 - [ ] All flows handle edge cases and errors gracefully, not just the happy path
 

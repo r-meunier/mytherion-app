@@ -5,7 +5,7 @@ import java.util.UUID
 import org.springframework.http.HttpStatus
 
 /** Exception thrown when attempting to delete a project that still has entries */
-class ProjectHasEntitiesException(projectId: UUID, entryCount: Int) :
+class ProjectHasEntriesException(projectId: UUID, entryCount: Int) :
     ApiException(
         HttpStatus.CONFLICT,
         "Conflict",

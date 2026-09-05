@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { createEntity, clearCurrentEntity } from '@/app/store/codexSlice';
+import { createEntry, clearCurrentEntry } from '@/app/store/codexSlice';
 import { fetchProject } from '@/app/store/projectSlice';
 import { CreateEntryRequest, UpdateEntryRequest } from '@/app/types/codex';
 import EntryForm from '@/app/components/codex/EntryForm';
@@ -12,14 +12,14 @@ import AppHeader from '@/app/components/AppHeader';
 import Link from 'next/link';
 import routes from '@/app/config/routes';
 
-export default function NewEntityPage() {
+export default function NewEntryPage() {
   const router = useRouter();
   const params = useParams();
   const projectId = (params.projectId as string);
   
   const dispatch = useAppDispatch();
   const { currentProject } = useAppSelector((state) => state.projects);
-  const { loading, error, currentEntity } = useAppSelector((state) => state.entries);
+  const { loading, error, currentEntry } = useAppSelector((state) => state.entries);
 
   useEffect(() => {
     if (!currentProject || currentProject.id !== projectId) {
@@ -27,19 +27,19 @@ export default function NewEntityPage() {
     }
 
     return () => {
-      dispatch(clearCurrentEntity());
+      dispatch(clearCurrentEntry());
     };
   }, [dispatch, projectId, currentProject]);
 
   // Redirect to entry detail page after successful creation
   useEffect(() => {
-    if (currentEntity && !loading && !error) {
-      router.push(routes.project(projectId).codex.detail(currentEntity.id));
+    if (currentEntry && !loading && !error) {
+      router.push(routes.project(projectId).codex.detail(currentEntry.id));
     }
-  }, [currentEntity, loading, error, projectId, router]);
+  }, [currentEntry, loading, error, projectId, router]);
 
   const handleSubmit = async (data: CreateEntryRequest | UpdateEntryRequest) => {
-    await dispatch(createEntity({ projectId, data: data as CreateEntryRequest }));
+    await dispatch(createEntry({ projectId, data: data as CreateEntryRequest }));
   };
 
   const handleCancel = () => {

@@ -24,7 +24,7 @@ describe('ProjectCard High Fidelity', () => {
     description: 'A floating realm of arcane science.',
     createdAt: '2024-01-15T10:00:00Z',
     updatedAt: new Date().toISOString(),
-    entityCount: 1250,
+    entryCount: 1250,
     genre: 'High Fantasy'
   };
 
@@ -42,7 +42,7 @@ describe('ProjectCard High Fidelity', () => {
 
     // Verify CodexEntry Count with localized formatting
     expect(screen.getByText(/1,250/)).toBeInTheDocument();
-    expect(screen.getByText(/Entities/)).toBeInTheDocument();
+    expect(screen.getByText(/Entries/)).toBeInTheDocument();
     
     // Verify Genre Badge
     expect(screen.getByText('High Fantasy')).toBeInTheDocument();

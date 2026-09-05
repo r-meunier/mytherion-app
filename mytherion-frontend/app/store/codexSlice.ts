@@ -2,9 +2,9 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { codexService, Page } from '../services/codexService';
 import { CodexEntry, CreateEntryRequest, UpdateEntryRequest, EntryType, EntryFilters } from '../types/codex';
 
-interface EntityState {
+interface EntryState {
   entries: CodexEntry[];
-  currentEntity: CodexEntry | null;
+  currentEntry: CodexEntry | null;
   loading: boolean;
   error: string | null;
   filters: EntryFilters;
@@ -16,9 +16,9 @@ interface EntityState {
   };
 }
 
-const initialState: EntityState = {
+const initialState: EntryState = {
   entries: [],
-  currentEntity: null,
+  currentEntry: null,
   loading: false,
   error: null,
   filters: {
@@ -35,8 +35,8 @@ const initialState: EntityState = {
 };
 
 // Async thunks
-export const fetchEntities = createAsyncThunk(
-  'entries/fetchEntities',
+export const fetchEntries = createAsyncThunk(
+  'entries/fetchEntries',
   async ({ 
     projectId, 
     filters, 
@@ -48,7 +48,7 @@ export const fetchEntities = createAsyncThunk(
     page?: number; 
     size?: number;
   }) => {
-    const response = await codexService.getEntities(projectId, {
+    const response = await codexService.getEntries(projectId, {
       type: filters?.type,
       tags: filters?.tags,
       search: filters?.search,
@@ -59,34 +59,34 @@ export const fetchEntities = createAsyncThunk(
   }
 );
 
-export const fetchEntity = createAsyncThunk(
-  'entries/fetchEntity',
+export const fetchEntry = createAsyncThunk(
+  'entries/fetchEntry',
   async ({ projectId, id }: { projectId: string; id: string }) => {
-    const response = await codexService.getEntity(projectId, id);
+    const response = await codexService.getEntry(projectId, id);
     return response;
   }
 );
 
-export const createEntity = createAsyncThunk(
-  'entries/createEntity',
+export const createEntry = createAsyncThunk(
+  'entries/createEntry',
   async ({ projectId, data }: { projectId: string; data: CreateEntryRequest }) => {
-    const response = await codexService.createEntity(projectId, data);
+    const response = await codexService.createEntry(projectId, data);
     return response;
   }
 );
 
-export const updateEntity = createAsyncThunk(
-  'entries/updateEntity',
+export const updateEntry = createAsyncThunk(
+  'entries/updateEntry',
   async ({ projectId, id, data }: { projectId: string; id: string; data: UpdateEntryRequest }) => {
-    const response = await codexService.updateEntity(projectId, id, data);
+    const response = await codexService.updateEntry(projectId, id, data);
     return response;
   }
 );
 
-export const deleteEntity = createAsyncThunk(
-  'entries/deleteEntity',
+export const deleteEntry = createAsyncThunk(
+  'entries/deleteEntry',
   async ({ projectId, id }: { projectId: string; id: string }) => {
-    await codexService.deleteEntity(projectId, id);
+    await codexService.deleteEntry(projectId, id);
     return id;
   }
 );
@@ -108,18 +108,18 @@ const codexSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
-    clearCurrentEntity: (state) => {
-      state.currentEntity = null;
+    clearCurrentEntry: (state) => {
+      state.currentEntry = null;
     },
   },
   extraReducers: (builder) => {
     // Fetch entries
     builder
-      .addCase(fetchEntities.pending, (state) => {
+      .addCase(fetchEntries.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchEntities.fulfilled, (state, action: PayloadAction<Page<CodexEntry>>) => {
+      .addCase(fetchEntries.fulfilled, (state, action: PayloadAction<Page<CodexEntry>>) => {
         state.loading = false;
         state.entries = action.payload.content;
         state.pagination = {
@@ -129,20 +129,20 @@ const codexSlice = createSlice({
           totalElements: action.payload.totalElements,
         };
       })
-      .addCase(fetchEntities.rejected, (state, action) => {
+      .addCase(fetchEntries.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch entries';
       });
 
     // Fetch single entry
     builder
-      .addCase(fetchEntity.pending, (state) => {
+      .addCase(fetchEntry.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchEntity.fulfilled, (state, action: PayloadAction<CodexEntry>) => {
+      .addCase(fetchEntry.fulfilled, (state, action: PayloadAction<CodexEntry>) => {
         state.loading = false;
-        state.currentEntity = action.payload;
+        state.currentEntry = action.payload;
         const index = state.entries.findIndex((e) => e.id === action.payload.id);
         if (index !== -1) {
           state.entries[index] = action.payload;
@@ -150,67 +150,67 @@ const codexSlice = createSlice({
           state.entries.unshift(action.payload);
         }
       })
-      .addCase(fetchEntity.rejected, (state, action) => {
+      .addCase(fetchEntry.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch entry';
       });
 
     // Create entry
     builder
-      .addCase(createEntity.pending, (state) => {
+      .addCase(createEntry.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(createEntity.fulfilled, (state, action: PayloadAction<CodexEntry>) => {
+      .addCase(createEntry.fulfilled, (state, action: PayloadAction<CodexEntry>) => {
         state.loading = false;
         state.entries.unshift(action.payload);
-        state.currentEntity = action.payload;
+        state.currentEntry = action.payload;
       })
-      .addCase(createEntity.rejected, (state, action) => {
+      .addCase(createEntry.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to create entry';
       });
 
     // Update entry
     builder
-      .addCase(updateEntity.pending, (state) => {
+      .addCase(updateEntry.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateEntity.fulfilled, (state, action: PayloadAction<CodexEntry>) => {
+      .addCase(updateEntry.fulfilled, (state, action: PayloadAction<CodexEntry>) => {
         state.loading = false;
         const index = state.entries.findIndex((e) => e.id === action.payload.id);
         if (index !== -1) {
           state.entries[index] = action.payload;
         }
-        if (state.currentEntity?.id === action.payload.id) {
-          state.currentEntity = action.payload;
+        if (state.currentEntry?.id === action.payload.id) {
+          state.currentEntry = action.payload;
         }
       })
-      .addCase(updateEntity.rejected, (state, action) => {
+      .addCase(updateEntry.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to update entry';
       });
 
     // Delete entry
     builder
-      .addCase(deleteEntity.pending, (state) => {
+      .addCase(deleteEntry.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteEntity.fulfilled, (state, action: PayloadAction<string>) => {
+      .addCase(deleteEntry.fulfilled, (state, action: PayloadAction<string>) => {
         state.loading = false;
         state.entries = state.entries.filter((e) => e.id !== action.payload);
-        if (state.currentEntity?.id === action.payload) {
-          state.currentEntity = null;
+        if (state.currentEntry?.id === action.payload) {
+          state.currentEntry = null;
         }
       })
-      .addCase(deleteEntity.rejected, (state, action) => {
+      .addCase(deleteEntry.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to delete entry';
       });
   },
 });
 
-export const { setFilters, clearFilters, clearError, clearCurrentEntity } = codexSlice.actions;
+export const { setFilters, clearFilters, clearError, clearCurrentEntry } = codexSlice.actions;
 export default codexSlice.reducer;

@@ -1,7 +1,7 @@
 /**
  * @file projects.css
  * @description Specialized child style for the Projects Dashboard (Main Entrypoint).
- * Focuses on the layout and interaction patterns of the world library.
+ * Focuses on the layout and interaction patterns of the project library.
  * 
  * @inheritance
  * Inherits from @base.css.
@@ -93,7 +93,7 @@
 }
 
 /* ==========================================================================
-   2026 Arcane Your Worlds Theme (MYT-73)
+   2026 Arcane Projects Theme (MYT-73)
    ========================================================================== */
 
 /* Ambient Background & Shards */

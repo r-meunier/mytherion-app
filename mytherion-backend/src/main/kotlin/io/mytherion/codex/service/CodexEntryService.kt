@@ -59,7 +59,7 @@ class CodexEntryService(
         // 3. Verify entry belongs to the specified projectId
         if (entry.project.id != projectId) {
             logger.warn(
-                "CodexEntry project mismatch: entryId={}, entityProjectId={}, requestedProjectId={}, userId={}",
+                "CodexEntry project mismatch: entryId={}, entryProjectId={}, requestedProjectId={}, userId={}",
                 id,
                 entry.project.id,
                 projectId,
@@ -212,7 +212,7 @@ class CodexEntryService(
                     Sort.by(Sort.Direction.DESC, "createdAt")
                 )
 
-            val entitiesPage = entryRepository.searchEntries(
+            val entriesPage = entryRepository.searchEntries(
                 projectId = projectId,
                 type = searchRequest.type,
                 tags = searchRequest.tags,
@@ -223,19 +223,19 @@ class CodexEntryService(
             logger.infoWith(
                 "CodexEntry search completed",
                 "projectId" to projectId,
-                "totalResults" to entitiesPage.totalElements,
-                "pageResults" to entitiesPage.content.size
+                "totalResults" to entriesPage.totalElements,
+                "pageResults" to entriesPage.content.size
             )
 
             val duration = System.currentTimeMillis() - startTime
             metricsService.recordEntrySearch(
                 projectId = projectId,
-                totalResults = entitiesPage.totalElements.toInt(),
-                pageResults = entitiesPage.content.size,
+                totalResults = entriesPage.totalElements.toInt(),
+                pageResults = entriesPage.content.size,
                 durationMs = duration
             )
 
-            entitiesPage.map { EntryDTO.from(it) }
+            entriesPage.map { EntryDTO.from(it) }
         }
     }
 

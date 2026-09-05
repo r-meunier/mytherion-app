@@ -3,20 +3,20 @@
 import { useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { fetchEntity, updateEntity, clearCurrentEntity } from '@/app/store/codexSlice';
+import { fetchEntry, updateEntry, clearCurrentEntry } from '@/app/store/codexSlice';
 import { UpdateEntryRequest, CreateEntryRequest } from '@/app/types/codex';
 import EntryForm from '@/app/components/codex/EntryForm';
 import AppHeader from '@/app/components/AppHeader';
 import routes from '@/app/config/routes';
 
-export default function EditEntityPage() {
+export default function EditEntryPage() {
   const router = useRouter();
   const params = useParams();
   const entryId = (params.entryId as string);
   const projectId = (params.projectId as string);
   
   const dispatch = useAppDispatch();
-  const { currentEntity, loading, error } = useAppSelector((state) => state.entries);
+  const { currentEntry, loading, error } = useAppSelector((state) => state.entries);
   const { user } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
@@ -25,18 +25,18 @@ export default function EditEntityPage() {
       return;
     }
 
-    if (!currentEntity || currentEntity.id !== entryId) {
-      dispatch(fetchEntity({ projectId, id: entryId }));
+    if (!currentEntry || currentEntry.id !== entryId) {
+      dispatch(fetchEntry({ projectId, id: entryId }));
     }
 
     return () => {
-      dispatch(clearCurrentEntity());
+      dispatch(clearCurrentEntry());
     };
-  }, [dispatch, entryId, projectId, currentEntity, user, router]);
+  }, [dispatch, entryId, projectId, currentEntry, user, router]);
 
   const handleSubmit = async (data: CreateEntryRequest | UpdateEntryRequest) => {
-    const result = await dispatch(updateEntity({ projectId, id: entryId, data: data as UpdateEntryRequest }));
-    if (updateEntity.fulfilled.match(result)) {
+    const result = await dispatch(updateEntry({ projectId, id: entryId, data: data as UpdateEntryRequest }));
+    if (updateEntry.fulfilled.match(result)) {
       router.push(routes.project(projectId).codex.detail(entryId));
     }
   };
@@ -45,7 +45,7 @@ export default function EditEntityPage() {
     router.push(routes.project(projectId).codex.detail(entryId));
   };
 
-  if (loading || !currentEntity) {
+  if (loading || !currentEntry) {
     return (
       <div className="min-h-screen bg-[#0b0710] flex flex-col">
         <AppHeader />
@@ -108,7 +108,7 @@ export default function EditEntityPage() {
                   onClick={() => router.push(routes.project(projectId).codex.detail(entryId))}
                   className="hover:text-white transition-colors truncate max-w-[140px]"
                 >
-                  {currentEntity.name}
+                  {currentEntry.name}
                 </button>
               </div>
             </li>
@@ -124,7 +124,7 @@ export default function EditEntityPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="font-display-lg text-2xl sm:text-3xl font-bold text-white text-glow tracking-tight">
-            Edit {currentEntity.name}
+            Edit {currentEntry.name}
           </h1>
           <p className="text-xs sm:text-sm text-white/60 mt-1 font-medium">Update entry information</p>
         </div>
@@ -132,7 +132,7 @@ export default function EditEntityPage() {
         {/* Form */}
         <div className="glass-panel rounded-2xl p-6 sm:p-8">
           <EntryForm
-            entry={currentEntity}
+            entry={currentEntry}
             projectId={projectId}
             onSubmit={handleSubmit}
             onCancel={handleCancel}

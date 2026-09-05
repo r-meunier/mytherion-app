@@ -380,8 +380,8 @@ class ProjectServiceTest {
     assertEquals(projectId, result.id)
     assertEquals("Test Project", result.name)
     assertEquals(10, result.entryCount)
-    assertEquals(5, result.entityCountByType["CHARACTER"])
-    assertEquals(5, result.entityCountByType["LOCATION"])
+    assertEquals(5, result.entryCountByType["CHARACTER"])
+    assertEquals(5, result.entryCountByType["LOCATION"])
 
     verify { entryQueryService.countByProject(testProject) }
     verify { entryQueryService.countByProjectGrouped(testProject) }
@@ -401,7 +401,7 @@ class ProjectServiceTest {
     // Then
     assertNotNull(result)
     assertEquals(0, result.entryCount)
-    assertTrue(result.entityCountByType.isEmpty())
+    assertTrue(result.entryCountByType.isEmpty())
   }
 
   @Test

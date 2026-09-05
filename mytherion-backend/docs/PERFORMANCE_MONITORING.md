@@ -152,16 +152,16 @@ class ProjectService {
         verifyOwnership(project, user)
 
         return logger.measureTime("Calculate project stats") {
-            val entityCount = logger.measureTime("Count entities") {
-                entityRepository.countByProjectAndDeletedAtIsNull(project).toInt()
+            val entryCount = logger.measureTime("Count entries") {
+                entryRepository.countByProjectAndDeletedAtIsNull(project).toInt()
             }
 
-            val entityCountByType = logger.measureTime("Count by type") {
-                entityRepository.countByProjectAndTypeGrouped(project)
+            val entryCountByType = logger.measureTime("Count by type") {
+                entryRepository.countByProjectAndTypeGrouped(project)
                     .associate { it.getType().name to it.getCount().toInt() }
             }
 
-            ProjectStatsDTO.from(project, entityCount, entityCountByType)
+            ProjectStatsDTO.from(project, entryCount, entryCountByType)
         }
     }
 }
@@ -258,15 +258,15 @@ class MetricsService(private val meterRegistry: MeterRegistry) {
             .record(durationMs, java.util.concurrent.TimeUnit.MILLISECONDS)
     }
 
-    fun recordEntityQuery(projectId: Long, entityCount: Int, durationMs: Long) {
-        meterRegistry.counter("entity.queries.total",
+    fun recordEntityQuery(projectId: Long, entryCount: Int, durationMs: Long) {
+        meterRegistry.counter("entry.queries.total",
             "project_id", projectId.toString()
         ).increment()
 
-        meterRegistry.gauge("entity.query.size", entityCount.toDouble())
+        meterRegistry.gauge("entry.query.size", entryCount.toDouble())
 
-        Timer.builder("entity.query.duration")
-            .tag("size_bucket", getSizeBucket(entityCount))
+        Timer.builder("entry.query.duration")
+            .tag("size_bucket", getSizeBucket(entryCount))
             .register(meterRegistry)
             .record(durationMs, java.util.concurrent.TimeUnit.MILLISECONDS)
     }

@@ -1,4 +1,4 @@
-# Entity Management Setup Guide
+# Entry Management Setup Guide
 
 ## Prerequisites
 
@@ -71,7 +71,7 @@ Expected migrations:
 - V1: Initial tables
 - V2: User soft delete
 - V3: Email verification
-- V4: Entry to Entity refactoring
+- V4: Entry to Entry refactoring
 - V5: Project enhancements
 
 ---
@@ -115,10 +115,10 @@ See `src/main/resources/application.yml` for full configuration.
 
 ## Database Schema
 
-### Entities Table
+### Entries Table
 
 ```sql
-CREATE TABLE entities (
+CREATE TABLE entries (
     id BIGSERIAL PRIMARY KEY,
     project_id BIGINT NOT NULL REFERENCES projects(id),
     type VARCHAR(50) NOT NULL,
@@ -184,8 +184,8 @@ The bucket is private by default. Images are accessed via presigned URLs.
 ### Run Specific Test Class
 
 ```bash
-./gradlew test --tests EntityServiceTest
-./gradlew test --tests EntityControllerTest
+./gradlew test --tests CodexEntryServiceTest
+./gradlew test --tests CodexEntryControllerTest
 ```
 
 ### Test Coverage
@@ -218,10 +218,10 @@ curl -X POST http://localhost:8080/api/projects \
   }'
 ```
 
-### Create an Entity
+### Create an Entry
 
 ```bash
-curl -X POST http://localhost:8080/api/projects/1/entities \
+curl -X POST http://localhost:8080/api/projects/1/entries \
   -H "Content-Type: application/json" \
   -d '{
     "type": "CHARACTER",
@@ -231,10 +231,10 @@ curl -X POST http://localhost:8080/api/projects/1/entities \
   }'
 ```
 
-### List Entities
+### List Entries
 
 ```bash
-curl http://localhost:8080/api/projects/1/entities
+curl http://localhost:8080/api/projects/1/entries
 ```
 
 ---

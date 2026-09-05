@@ -180,8 +180,8 @@ class CodexEntryTenantIsolationE2ETest {
         assertEquals(HttpStatus.NOT_FOUND, status)
 
         // Verify entry in DB was NOT changed
-        val entityFromDb = entryRepository.findById(entryInProject1.id!!).orElseThrow()
-        assertEquals("E2E Test Character", entityFromDb.name)
+        val entryFromDb = entryRepository.findById(entryInProject1.id!!).orElseThrow()
+        assertEquals("E2E Test Character", entryFromDb.name)
     }
 
     @Test
@@ -194,8 +194,8 @@ class CodexEntryTenantIsolationE2ETest {
         assertEquals(HttpStatus.NOT_FOUND, status)
 
         // Verify entry in DB was NOT soft-deleted
-        val entityFromDb = entryRepository.findById(entryInProject1.id!!).orElseThrow()
-        assertFalse(entityFromDb.isDeleted())
+        val entryFromDb = entryRepository.findById(entryInProject1.id!!).orElseThrow()
+        assertFalse(entryFromDb.isDeleted())
     }
 
     @Test
@@ -231,8 +231,8 @@ class CodexEntryTenantIsolationE2ETest {
         assertEquals(HttpStatus.NOT_FOUND, status)
 
         // Verify entry is untouched
-        val entityFromDb = entryRepository.findById(entryInProject1.id!!).orElseThrow()
-        assertFalse(entityFromDb.isDeleted())
+        val entryFromDb = entryRepository.findById(entryInProject1.id!!).orElseThrow()
+        assertFalse(entryFromDb.isDeleted())
     }
 
         }

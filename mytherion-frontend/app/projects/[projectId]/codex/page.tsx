@@ -18,7 +18,7 @@ export default function CodexPage() {
   const dispatch = useAppDispatch();
   const { currentProject, loading, error } = useAppSelector((state) => state.projects);
   const [showModal, setShowModal] = useState(false);
-  const [editingEntity, setEditingEntity] = useState<CodexEntry | null>(null);
+  const [editingEntry, setEditingEntry] = useState<CodexEntry | null>(null);
 
   useEffect(() => {
     if (!projectId) return;
@@ -35,18 +35,18 @@ export default function CodexPage() {
   }, [dispatch]);
 
   const handleCreateClick = () => {
-    setEditingEntity(null);
+    setEditingEntry(null);
     setShowModal(true);
   };
 
   const handleEditClick = (entry: CodexEntry) => {
-    setEditingEntity(entry);
+    setEditingEntry(entry);
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setEditingEntity(null);
+    setEditingEntry(null);
   };
 
   const projectNavItems = getProjectNavItems(projectId);
@@ -112,7 +112,7 @@ export default function CodexPage() {
         <DualSidebar 
           activeSection="codex"
           projectId={projectId}
-          onCreateEntity={handleCreateClick}
+          onCreateEntry={handleCreateClick}
         />
         
         <main className="flex-1 flex flex-col overflow-hidden relative">
@@ -130,7 +130,7 @@ export default function CodexPage() {
           isOpen={showModal}
           onClose={handleCloseModal}
           projectId={projectId}
-          entry={editingEntity}
+          entry={editingEntry}
         />
       </div>
     </div>

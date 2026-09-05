@@ -69,14 +69,14 @@ class ProjectServiceCharacterisationTest {
     }
 
     @Test
-    fun `deleteProject should throw ProjectHasEntitiesException when project has entries`() {
+    fun `deleteProject should throw ProjectHasEntriesException when project has entries`() {
         // Given - this locks down the cross-module CodexEntryRepository access guard
         every { projectRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Optional.of(testProject)
         every { entryQueryService.countByProject(testProject) } returns 3L
 
         // When & Then
         val exception =
-            assertThrows<io.mytherion.project.exception.ProjectHasEntitiesException> {
+            assertThrows<io.mytherion.project.exception.ProjectHasEntriesException> {
                 projectService.deleteProject(UUID.fromString("00000000-0000-0000-0000-000000000001"))
             }
         assertEquals(

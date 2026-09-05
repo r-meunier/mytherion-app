@@ -239,7 +239,7 @@ export default function ProjectCard({
           <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
             <div className="flex items-center text-[10px] font-bold text-white/40 uppercase tracking-[0.15em]">
               <span className="material-symbols-outlined text-[14px] mr-1.5 text-primary/70">database</span>
-              <span>{(project.entityCount || 0).toLocaleString()} Entities</span>
+              <span>{(project.entryCount || 0).toLocaleString()} Entries</span>
             </div>
             <span className="text-white/40 font-medium text-[11px]">
               {formatDate(project.updatedAt || project.createdAt)}
@@ -327,7 +327,7 @@ export default function ProjectCard({
 
           <div className="flex items-center text-[10px] font-bold text-white/40 uppercase tracking-[0.15em]">
             <span className="material-symbols-outlined text-[14px] mr-1.5 text-primary/70">database</span>
-            <span>{(project.entityCount || 0).toLocaleString()} Entities</span>
+            <span>{(project.entryCount || 0).toLocaleString()} Entries</span>
           </div>
         </div>
       </div>

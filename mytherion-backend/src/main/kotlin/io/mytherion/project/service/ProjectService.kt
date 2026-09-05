@@ -12,7 +12,7 @@ import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
 import io.mytherion.project.dto.UpdateProjectRequest
 import io.mytherion.project.exception.ProjectAccessDeniedException
-import io.mytherion.project.exception.ProjectHasEntitiesException
+import io.mytherion.project.exception.ProjectHasEntriesException
 import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
@@ -209,19 +209,19 @@ class ProjectService(
         return logger.measureTime("Calculate project stats") {
             // Use efficient database aggregation instead of loading all entries
             val entryCount = entryQueryService.countByProject(project).toInt()
-            val entityCountByType = entryQueryService.countByProjectGrouped(project)
+            val entryCountByType = entryQueryService.countByProjectGrouped(project)
 
             logger.infoWith(
                 "Project stats calculated",
                 "projectId" to projectId,
                 "entryCount" to entryCount,
-                "types" to entityCountByType.keys
+                "types" to entryCountByType.keys
             )
 
             val duration = System.currentTimeMillis() - startTime
             metricsService.recordEntryQuery(projectId, entryCount, duration)
 
-            io.mytherion.project.dto.ProjectStatsDTO.from(project, entryCount, entityCountByType)
+            io.mytherion.project.dto.ProjectStatsDTO.from(project, entryCount, entryCountByType)
         }
     }
 
@@ -241,7 +241,7 @@ class ProjectService(
                 "projectId" to projectId,
                 "entryCount" to count
             )
-            throw ProjectHasEntitiesException(projectId, count.toInt())
+            throw ProjectHasEntriesException(projectId, count.toInt())
         }
 
         project.markDeleted()

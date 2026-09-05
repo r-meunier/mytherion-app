@@ -9,7 +9,7 @@ export interface Project {
   createdAt: string;
   updatedAt: string;
   genre?: string;
-  entityCount?: number;
+  entryCount?: number;
   userId?: string;
 }
 
@@ -17,8 +17,8 @@ export interface ProjectStats {
   id: string;
   name: string;
   description: string | null;
-  entityCount: number;
-  entityCountByType: Record<string, number>;
+  entryCount: number;
+  entryCountByType: Record<string, number>;
   createdAt: string;
   updatedAt: string;
 }

@@ -9,7 +9,7 @@ export enum EntryType {
 }
 
 /** Unified structure for linking entries */
-export interface EntityLink {
+export interface EntryLink {
   targetId: string;
   label?: string;
   content?: Record<string, any>;
@@ -37,13 +37,13 @@ export interface CharacterArc {
 }
 
 export interface OpinionLink {
-  entry: EntityLink;
+  entry: EntryLink;
   opinion?: string;
   stance?: string;
 }
 
 export interface CulturalLens {
-  entry: EntityLink;
+  entry: EntryLink;
   opinion?: string;
 }
 
@@ -92,20 +92,20 @@ export interface HistoryData {
 }
 
 export interface CharacterRelationsData {
-  birthplace?: EntityLink;
-  residence?: EntityLink;
-  leaderOf: EntityLink[];
-  memberOf: EntityLink[];
-  owns: EntityLink[];
-  species?: EntityLink;
-  culture?: EntityLink;
+  birthplace?: EntryLink;
+  residence?: EntryLink;
+  leaderOf: EntryLink[];
+  memberOf: EntryLink[];
+  owns: EntryLink[];
+  species?: EntryLink;
+  culture?: EntryLink;
 }
 
 export interface OriginsData {
-  birthplace?: EntityLink;
-  residence?: EntityLink;
-  species?: EntityLink;
-  culture?: EntityLink;
+  birthplace?: EntryLink;
+  residence?: EntryLink;
+  species?: EntryLink;
+  culture?: EntryLink;
 }
 
 export interface OrganizationData {
@@ -120,14 +120,14 @@ export interface OrganizationData {
 }
 
 export interface OrgRelationsData {
-  parentOrg?: EntityLink;
-  subsidiaries: EntityLink[];
-  leaders: EntityLink[];
-  members: EntityLink[];
-  operatingLocations: EntityLink[];
-  affiliatedSpecies: EntityLink[];
-  culture?: EntityLink;
-  ownedItems: EntityLink[];
+  parentOrg?: EntryLink;
+  subsidiaries: EntryLink[];
+  leaders: EntryLink[];
+  members: EntryLink[];
+  operatingLocations: EntryLink[];
+  affiliatedSpecies: EntryLink[];
+  culture?: EntryLink;
+  ownedItems: EntryLink[];
 }
 
 export interface CultureData {
@@ -141,14 +141,14 @@ export interface CultureData {
 }
 
 export interface CultureRelationsData {
-  locations: EntityLink[];
-  leaders: EntityLink[];
-  members: EntityLink[];
-  parentCulture?: EntityLink;
-  derivatives: EntityLink[];
-  species: EntityLink[];
-  affiliatedOrgs: EntityLink[];
-  ownedItems: EntityLink[];
+  locations: EntryLink[];
+  leaders: EntryLink[];
+  members: EntryLink[];
+  parentCulture?: EntryLink;
+  derivatives: EntryLink[];
+  species: EntryLink[];
+  affiliatedOrgs: EntryLink[];
+  ownedItems: EntryLink[];
 }
 
 export interface SpeciesData {
@@ -165,12 +165,12 @@ export interface SpeciesData {
 }
 
 export interface SpeciesRelationsData {
-  locations: EntityLink[];
-  ancestors: EntityLink[];
-  subspecies: EntityLink[];
-  affiliatedOrgs: EntityLink[];
-  ownedItems: EntityLink[];
-  culture?: EntityLink;
+  locations: EntryLink[];
+  ancestors: EntryLink[];
+  subspecies: EntryLink[];
+  affiliatedOrgs: EntryLink[];
+  ownedItems: EntryLink[];
+  culture?: EntryLink;
 }
 
 export interface LocationData {
@@ -185,13 +185,13 @@ export interface LocationData {
 }
 
 export interface LocationRelationsData {
-  parentLocation?: EntityLink;
-  species: EntityLink[];
-  cultures: EntityLink[];
-  bornHere: EntityLink[];
-  residents: EntityLink[];
-  items: EntityLink[];
-  organizations: EntityLink[];
+  parentLocation?: EntryLink;
+  species: EntryLink[];
+  cultures: EntryLink[];
+  bornHere: EntryLink[];
+  residents: EntryLink[];
+  items: EntryLink[];
+  organizations: EntryLink[];
 }
 
 export interface ItemData {
@@ -205,8 +205,8 @@ export interface ItemData {
 }
 
 export interface ItemRelationsData {
-  currentLocation?: EntityLink;
-  owners: EntityLink[];
+  currentLocation?: EntryLink;
+  owners: EntryLink[];
 }
 
 export interface PerspectiveData {

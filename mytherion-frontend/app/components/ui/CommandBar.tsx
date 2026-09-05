@@ -54,7 +54,7 @@ export default function CommandBar({
   onFilterChange,
   secondarySelectedFilter,
   secondaryFilterOptions,
-  secondaryFilterLabel = "Category",
+  secondaryFilterLabel = "Filter",
   onSecondaryFilterChange,
   viewMode = "grid",
   onViewChange,
@@ -224,7 +224,7 @@ export default function CommandBar({
           </div>
         )}
 
-        {/* Secondary Filter Popover (e.g. Category) */}
+        {/* Secondary Filter Popover — generic; currently no caller supplies it */}
         {secondaryFilterOptions && secondaryFilterOptions.length > 0 && (
           <div className="relative" ref={secondaryFilterRef}>
             <button

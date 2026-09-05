@@ -44,8 +44,8 @@ const TAB_CONFIG: Record<string, TabDefinition[]> = {
   ],
 };
 
-interface EntityMetadataEditorProps {
-  entityType: EntryType;
+interface EntrySectionsEditorProps {
+  entryType: EntryType;
   content: EntryContent;
   onUpdateComponent?: (type: SectionType, data: Record<string, any>) => void;
   disabled?: boolean;
@@ -53,13 +53,13 @@ interface EntityMetadataEditorProps {
 }
 
 export default function EntrySectionsEditor({ 
-  entityType, 
+  entryType, 
   content, 
   onUpdateComponent, 
   disabled = false,
   readOnly = false
-}: EntityMetadataEditorProps) {
-  const tabs = TAB_CONFIG[entityType] || [{ id: 'custom', label: 'Custom Fields', sections: [SectionType.CUSTOM_FIELDS] }];
+}: EntrySectionsEditorProps) {
+  const tabs = TAB_CONFIG[entryType] || [{ id: 'custom', label: 'Custom Fields', sections: [SectionType.CUSTOM_FIELDS] }];
   const [activeTab, setActiveTab] = useState(tabs[0].id);
 
   const currentTabDef = tabs.find(t => t.id === activeTab) || tabs[0];

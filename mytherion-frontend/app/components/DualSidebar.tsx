@@ -25,7 +25,7 @@ interface DualSidebarProps {
   title?: string;
   subTitle?: string;
   onCreateProject?: () => void;
-  onCreateEntity?: () => void;
+  onCreateEntry?: () => void;
 }
 
 export default function DualSidebar({
@@ -38,7 +38,7 @@ export default function DualSidebar({
   title: customTitle,
   subTitle: customSubTitle,
   onCreateProject,
-  onCreateEntity,
+  onCreateEntry,
 }: DualSidebarProps) {
   const { currentProject } = useAppSelector((state) => state.projects);
   const { user } = useAppSelector((state) => state.auth);
@@ -260,9 +260,9 @@ export default function DualSidebar({
         <div className="px-2 mb-8 pt-2">
           {/* Contextual Actions */}
           <div className="flex flex-col gap-3">
-            {isProjectMode && onCreateEntity && (
+            {isProjectMode && onCreateEntry && (
               <button
-                onClick={onCreateEntity}
+                onClick={onCreateEntry}
                 className="bg-[#ddb7ff] text-[#2c0051] hover:bg-[#f0dbff] w-full py-2.5 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(221,183,255,0.4)] active:scale-95 cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[18px]">add</span>

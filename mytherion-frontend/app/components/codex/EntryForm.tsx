@@ -8,7 +8,7 @@ import TagInput from './TagInput';
 import EntrySectionsEditor from './sections/EntrySectionsEditor';
 import SectionDispatcher from './sections/SectionDispatcher';
 
-interface EntityFormProps {
+interface EntryFormProps {
   entry?: CodexEntry;
   projectId: string;
   defaultType?: EntryType;
@@ -19,7 +19,7 @@ interface EntityFormProps {
   error?: string | null;
 }
 
-export default function EntryForm({ entry, projectId, defaultType, isOpen, onSubmit, onCancel, loading = false, error }: EntityFormProps) {
+export default function EntryForm({ entry, projectId, defaultType, isOpen, onSubmit, onCancel, loading = false, error }: EntryFormProps) {
   const isEditMode = !!entry;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -437,7 +437,7 @@ export default function EntryForm({ entry, projectId, defaultType, isOpen, onSub
           
           <div className="bg-gray-900/40 rounded-2xl p-2 border border-gray-800/50">
             <EntrySectionsEditor 
-              entityType={formData.type}
+              entryType={formData.type}
               content={formData.content}
               onUpdateComponent={updateComponentData}
               disabled={loading}

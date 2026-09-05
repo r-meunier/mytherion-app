@@ -177,7 +177,7 @@ class AbstractAuditableEntityTest {
 
         assertEquals(saved1, saved1)
         assertNotEquals(saved1, saved2)
-        assertEquals(saved1.hashCode(), saved2.hashCode(), "Entities of same type have stable hashCode")
+        assertEquals(saved1.hashCode(), saved2.hashCode(), "Entries of same type have stable hashCode")
     }
 
     @Test

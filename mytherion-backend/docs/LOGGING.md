@@ -146,16 +146,16 @@ All logs within a request will include the `requestId` for correlation.
 
 ```kotlin
 @Service
-class EntityService(
-    private val entityRepository: EntityRepository
+class CodexEntryService(
+    private val entryRepository: CodexEntryRepository
 ) {
-    private val logger = LoggerFactory.getLogger(EntityService::class.java)
+    private val logger = LoggerFactory.getLogger(CodexEntryService::class.java)
 
-    fun createEntity(projectId: Long, request: CreateEntityRequest): EntityDTO {
-        val entity = Entity(/* ... */)
-        val saved = entityRepository.save(entity)
-        logger.info("Created entity: ${saved.id} in project: $projectId")
-        return EntityDTO.from(saved)
+    fun createEntity(projectId: Long, request: CreateEntityRequest): EntryDTO {
+        val entry = Entry(/* ... */)
+        val saved = entryRepository.save(entry)
+        logger.info("Created entry: ${saved.id} in project: $projectId")
+        return EntryDTO.from(saved)
     }
 }
 ```
@@ -164,32 +164,32 @@ class EntityService(
 
 ```kotlin
 @Service
-class EntityService(
-    private val entityRepository: EntityRepository
+class CodexEntryService(
+    private val entryRepository: CodexEntryRepository
 ) {
     private val logger = logger()  // Kotlin extension
 
-    fun createEntity(projectId: Long, request: CreateEntityRequest): EntityDTO {
+    fun createEntity(projectId: Long, request: CreateEntityRequest): EntryDTO {
         logger.infoWith(
-            "Creating entity",
+            "Creating entry",
             "projectId" to projectId,
             "type" to request.type,
             "name" to request.name
         )
 
-        val entity = logger.measureTime("Save entity") {
-            val entity = Entity(/* ... */)
-            entityRepository.save(entity)
+        val entry = logger.measureTime("Save entry") {
+            val entry = Entry(/* ... */)
+            entryRepository.save(entry)
         }
 
         logger.infoWith(
-            "Entity created successfully",
-            "entityId" to entity.id,
+            "Entry created successfully",
+            "entryId" to entry.id,
             "projectId" to projectId,
-            "name" to entity.name
+            "name" to entry.name
         )
 
-        return EntityDTO.from(entity)
+        return EntryDTO.from(entry)
     }
 }
 ```
@@ -221,7 +221,7 @@ The logging extensions automatically manage MDC context:
 
 ```kotlin
 logger.infoWith(
-    "Processing entities",
+    "Processing entries",
     "projectId" to projectId,
     "userId" to userId
 )
@@ -255,7 +255,7 @@ The logging pattern includes:
 - Thread name
 - Logger name
 - Message
-- Additional MDC context (userId, projectId, entityId)
+- Additional MDC context (userId, projectId, entryId)
 
 ---
 
@@ -356,21 +356,21 @@ class ProjectService {
 
 ```kotlin
 @Service
-class EntityService {
+class CodexEntryService {
     private val logger = logger()
 
-    fun searchEntities(projectId: Long, filters: EntitySearchRequest): Page<EntityDTO> {
+    fun searchEntries(projectId: Long, filters: EntrySearchRequest): Page<EntryDTO> {
         logger.debugWith(
-            "Searching entities",
+            "Searching entries",
             "projectId" to projectId,
             "type" to filters.type,
             "tags" to filters.tags,
             "search" to filters.search
         )
 
-        val result = logger.measureTime("Entity search") {
+        val result = logger.measureTime("Entry search") {
             // Complex search logic
-            entityRepository.search(filters)
+            entryRepository.search(filters)
         }
 
         logger.infoWith(

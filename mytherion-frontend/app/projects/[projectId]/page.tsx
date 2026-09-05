@@ -156,11 +156,11 @@ export default function ProjectDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="child-panel p-5">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-white/40 text-[11px] font-bold uppercase tracking-wider">Total Entities</span>
+                  <span className="text-white/40 text-[11px] font-bold uppercase tracking-wider">Total Entries</span>
                   <span className="material-symbols-outlined text-white/20 text-[20px]">dataset</span>
                 </div>
                 <p className="text-3xl font-bold text-white text-glow">
-                  {stats?.totalEntities ?? 0}
+                  {stats?.totalEntries ?? 0}
                 </p>
               </div>
               <div className="child-panel p-5">
@@ -169,7 +169,7 @@ export default function ProjectDashboard() {
                   <span className="material-symbols-outlined text-white/20 text-[20px]">group</span>
                 </div>
                 <p className="text-3xl font-bold text-white text-glow">
-                  {stats?.entityCountByType?.['CHARACTER'] ?? 0}
+                  {stats?.entryCountByType?.['CHARACTER'] ?? 0}
                 </p>
               </div>
               <div className="child-panel p-5">
@@ -178,7 +178,7 @@ export default function ProjectDashboard() {
                   <span className="material-symbols-outlined text-white/20 text-[20px]">location_on</span>
                 </div>
                 <p className="text-3xl font-bold text-white text-glow">
-                  {stats?.entityCountByType?.['LOCATION'] ?? 0}
+                  {stats?.entryCountByType?.['LOCATION'] ?? 0}
                 </p>
               </div>
             </div>

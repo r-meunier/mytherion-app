@@ -4,12 +4,12 @@ import { API_URL } from './apiConfig';
 import apiRoutes from '../config/apiRoutes';
 
 export interface DashboardStats {
-  totalEntities: number;
-  entitiesThisWeek: number;
+  totalEntries: number;
+  entriesThisWeek: number;
   recentEdits: number;
   totalProjects: number;
-  recentEntities: CodexEntry[];
-  entityCountByType: Record<string, number>;
+  recentEntries: CodexEntry[];
+  entryCountByType: Record<string, number>;
   lastUpdated: string;
 }
 

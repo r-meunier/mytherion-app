@@ -45,7 +45,7 @@ describe('ProjectList', () => {
       createdAt: '2024-01-10T10:00:00Z',
       updatedAt: '2024-01-10T10:00:00Z',
       genre: 'High Fantasy',
-      entityCount: 15,
+      entryCount: 15,
     },
     {
       id: 'p2',
@@ -54,7 +54,7 @@ describe('ProjectList', () => {
       createdAt: '2024-01-15T12:00:00Z',
       updatedAt: '2024-01-15T12:00:00Z',
       genre: 'Steampunk',
-      entityCount: 42,
+      entryCount: 42,
     },
   ];
 

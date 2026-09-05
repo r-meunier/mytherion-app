@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { createEntity, updateEntity, fetchEntity, clearError } from '@/app/store/codexSlice';
+import { createEntry, updateEntry, fetchEntry, clearError } from '@/app/store/codexSlice';
 import { CodexEntry, EntryType, CreateEntryRequest, UpdateEntryRequest } from '@/app/types/codex';
 import { mediaService } from '@/app/services/mediaService';
 import EntryForm from './EntryForm';
 
 import BaseModal from '../ui/modals/BaseModal';
 
-interface EntityModalProps {
+interface EntryModalProps {
   isOpen: boolean;
   onClose: () => void;
   projectId: string;
@@ -18,7 +18,7 @@ interface EntityModalProps {
   onSuccess?: () => void;
 }
 
-export default function EntryModal({ isOpen, onClose, projectId, entry, defaultType, onSuccess }: EntityModalProps) {
+export default function EntryModal({ isOpen, onClose, projectId, entry, defaultType, onSuccess }: EntryModalProps) {
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((state) => state.entries);
   const [formKey, setFormKey] = useState(0);
@@ -38,12 +38,12 @@ export default function EntryModal({ isOpen, onClose, projectId, entry, defaultT
 
     try {
       if (entry) {
-        const result = await dispatch(updateEntity({ projectId, id: entry.id, data: data as UpdateEntryRequest }));
-        if (updateEntity.fulfilled.match(result)) {
+        const result = await dispatch(updateEntry({ projectId, id: entry.id, data: data as UpdateEntryRequest }));
+        if (updateEntry.fulfilled.match(result)) {
           if (imageFile) {
             try {
               await mediaService.uploadEntryThumbnail(projectId, entry.id, imageFile);
-              await dispatch(fetchEntity({ projectId, id: entry.id }));
+              await dispatch(fetchEntry({ projectId, id: entry.id }));
             } catch (err) {
               console.error('Image upload failed', err);
             }
@@ -53,13 +53,13 @@ export default function EntryModal({ isOpen, onClose, projectId, entry, defaultT
           onClose();
         }
       } else {
-        const result = await dispatch(createEntity({ projectId, data: data as CreateEntryRequest }));
-        if (createEntity.fulfilled.match(result)) {
-          const createdEntity = result.payload as CodexEntry;
-          if (imageFile && createdEntity?.id) {
+        const result = await dispatch(createEntry({ projectId, data: data as CreateEntryRequest }));
+        if (createEntry.fulfilled.match(result)) {
+          const createdEntry = result.payload as CodexEntry;
+          if (imageFile && createdEntry?.id) {
             try {
-              await mediaService.uploadEntryThumbnail(projectId, createdEntity.id, imageFile);
-              await dispatch(fetchEntity({ projectId, id: createdEntity.id }));
+              await mediaService.uploadEntryThumbnail(projectId, createdEntry.id, imageFile);
+              await dispatch(fetchEntry({ projectId, id: createdEntry.id }));
             } catch (err) {
               console.error('Image upload failed', err);
             }

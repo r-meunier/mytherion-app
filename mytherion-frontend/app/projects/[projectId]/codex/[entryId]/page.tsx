@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { fetchEntity, deleteEntity, clearCurrentEntity } from '@/app/store/codexSlice';
+import { fetchEntry, deleteEntry, clearCurrentEntry } from '@/app/store/codexSlice';
 import { fetchProject } from '@/app/store/projectSlice';
-import { entityTypeConfig } from '@/app/components/codex/EntryTypeSelector';
+import { entryTypeConfig } from '@/app/components/codex/EntryTypeSelector';
 import DualSidebar from '@/app/components/DualSidebar';
 import AppHeader from '@/app/components/AppHeader';
 import Link from 'next/link';
@@ -15,14 +15,14 @@ import { EntryContent } from '@/app/types/codex';
 import { mediaService } from '@/app/services/mediaService';
 import routes from '@/app/config/routes';
 
-export default function EntityDetailPage() {
+export default function EntryDetailPage() {
   const router = useRouter();
   const params = useParams();
   const entryId = (params.entryId as string);
   const projectId = (params.projectId as string);
   
   const dispatch = useAppDispatch();
-  const { currentEntity, loading, error } = useAppSelector((state) => state.entries);
+  const { currentEntry, loading, error } = useAppSelector((state) => state.entries);
   const { currentProject } = useAppSelector((state) => state.projects);
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -33,7 +33,7 @@ export default function EntityDetailPage() {
   }, []);
 
   useEffect(() => {
-    dispatch(fetchEntity({ projectId, id: entryId }));
+    dispatch(fetchEntry({ projectId, id: entryId }));
     if (!currentProject || currentProject.id !== projectId) {
       dispatch(fetchProject(projectId));
     }
@@ -41,7 +41,7 @@ export default function EntityDetailPage() {
 
   useEffect(() => {
     return () => {
-      dispatch(clearCurrentEntity());
+      dispatch(clearCurrentEntry());
     };
   }, [dispatch]);
 
@@ -50,7 +50,7 @@ export default function EntityDetailPage() {
   };
 
   const handleDelete = async () => {
-    await dispatch(deleteEntity({ projectId, id: entryId }));
+    await dispatch(deleteEntry({ projectId, id: entryId }));
     router.push(routes.project(projectId).codex.index());
   };
 
@@ -68,7 +68,7 @@ export default function EntityDetailPage() {
     return { sections: [] };
   };
 
-  if (loading || !currentEntity || !currentProject) {
+  if (loading || !currentEntry || !currentProject) {
     return (
       <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
         <AppHeader />
@@ -103,8 +103,8 @@ export default function EntityDetailPage() {
     );
   }
 
-  const typeConfig = entityTypeConfig[currentEntity.type];
-  const content = normalizeMetadata(currentEntity.content);
+  const typeConfig = entryTypeConfig[currentEntry.type];
+  const content = normalizeMetadata(currentEntry.content);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
@@ -144,12 +144,12 @@ export default function EntityDetailPage() {
               <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -mr-32 -mt-32 pointer-events-none" />
               <div className="relative z-10">
                 {/* Optional Hero Image Banner */}
-                {currentEntity.thumbnail && (
+                {currentEntry.thumbnail && (
                   <div className="relative w-full h-64 md:h-80 mb-6 rounded-xl overflow-hidden bg-black/40 border border-white/10 shadow-2xl">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={mediaService.getThumbnailUrl(currentEntity.thumbnail) || ''}
-                      alt={currentEntity.name}
+                      src={mediaService.getThumbnailUrl(currentEntry.thumbnail) || ''}
+                      alt={currentEntry.name}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0b0710]/90 via-transparent to-transparent pointer-events-none" />
@@ -162,14 +162,14 @@ export default function EntityDetailPage() {
                     <div>
                       <div className="flex flex-wrap items-center gap-3 mb-2">
                         <h1 className="font-display-lg text-2xl sm:text-3xl font-bold text-white text-glow tracking-tight">
-                          {currentEntity.name}
+                          {currentEntry.name}
                         </h1>
                         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${typeConfig.color} bg-primary/10 border border-primary/20`}>
                           {typeConfig.label}
                         </span>
                       </div>
-                      {currentEntity.description && (
-                        <p className="text-white/60 text-sm max-w-2xl leading-relaxed">{currentEntity.description}</p>
+                      {currentEntry.description && (
+                        <p className="text-white/60 text-sm max-w-2xl leading-relaxed">{currentEntry.description}</p>
                       )}
                     </div>
                   </div>
@@ -192,9 +192,9 @@ export default function EntityDetailPage() {
                 </div>
 
                 {/* Tags */}
-                {currentEntity.tags && currentEntity.tags.length > 0 && (
+                {currentEntry.tags && currentEntry.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-white/5">
-                    {currentEntity.tags.map((tag) => (
+                    {currentEntry.tags.map((tag) => (
                       <span
                         key={tag}
                         className="px-2.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-bold border border-primary/20 uppercase tracking-wider"
@@ -218,7 +218,7 @@ export default function EntityDetailPage() {
                   </h2>
                   <div className="glass-panel rounded-2xl p-5">
                     <EntrySectionsEditor 
-                      entityType={currentEntity.type}
+                      entryType={currentEntry.type}
                       content={content}
                       readOnly={true}
                     />
@@ -226,14 +226,14 @@ export default function EntityDetailPage() {
                 </div>
 
                 {/* Description Section */}
-                {currentEntity.description && (
+                {currentEntry.description && (
                   <div className="glass-panel rounded-2xl p-6">
                     <h2 className="text-xs font-bold text-white/60 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                       <span>Description</span>
                     </h2>
                     <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">
-                      {currentEntity.description}
+                      {currentEntry.description}
                     </p>
                   </div>
                 )}
@@ -242,7 +242,7 @@ export default function EntityDetailPage() {
               {/* Right Column - Meta & Notes */}
               <div className="space-y-8">
                 {/* Private Notes Section */}
-                {currentEntity.notes && (
+                {currentEntry.notes && (
                   <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-6 relative overflow-hidden backdrop-blur-xl">
                     <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
                       <span className="material-symbols-outlined text-6xl text-amber-400">edit_note</span>
@@ -252,7 +252,7 @@ export default function EntityDetailPage() {
                       Private Scratchpad
                     </h2>
                     <p className="text-amber-200/80 italic whitespace-pre-wrap text-sm leading-relaxed relative z-10">
-                      {currentEntity.notes}
+                      {currentEntry.notes}
                     </p>
                   </div>
                 )}
@@ -267,13 +267,13 @@ export default function EntityDetailPage() {
                     <div className="p-3.5 bg-white/5 rounded-xl border border-white/5">
                       <span className="text-white/40 text-xs font-semibold uppercase tracking-wider">Created</span>
                       <p className="text-white font-medium text-sm mt-0.5">
-                        {mounted ? new Date(currentEntity.createdAt).toLocaleString() : '...'}
+                        {mounted ? new Date(currentEntry.createdAt).toLocaleString() : '...'}
                       </p>
                     </div>
                     <div className="p-3.5 bg-white/5 rounded-xl border border-white/5">
                       <span className="text-white/40 text-xs font-semibold uppercase tracking-wider">Last Updated</span>
                       <p className="text-white font-medium text-sm mt-0.5">
-                        {mounted ? new Date(currentEntity.updatedAt).toLocaleString() : '...'}
+                        {mounted ? new Date(currentEntry.updatedAt).toLocaleString() : '...'}
                       </p>
                     </div>
                   </div>
@@ -292,7 +292,7 @@ export default function EntityDetailPage() {
                 <div>
                   <h3 className="text-h3 text-xl mb-2">Delete Entry?</h3>
                   <p className="text-slate-400">
-                    Are you sure you want to delete <strong className="text-white">{currentEntity.name}</strong>? This action cannot be undone.
+                    Are you sure you want to delete <strong className="text-white">{currentEntry.name}</strong>? This action cannot be undone.
                   </p>
                 </div>
               </div>

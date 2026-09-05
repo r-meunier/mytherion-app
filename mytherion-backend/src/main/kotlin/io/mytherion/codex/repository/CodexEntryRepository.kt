@@ -23,7 +23,7 @@ interface CodexEntryRepository : JpaRepository<CodexEntry, UUID>, CodexEntryRepo
     fun countByOwnerAndCreatedAtAfter(owner: io.mytherion.user.model.User, since: java.time.Instant): Long
 
     @Query("SELECT e FROM CodexEntry e JOIN FETCH e.project WHERE e.project.owner = :owner AND e.deletedAt IS NULL ORDER BY e.updatedAt DESC")
-    fun findRecentEntitiesByOwner(
+    fun findRecentEntriesByOwner(
         owner: io.mytherion.user.model.User,
         pageable: org.springframework.data.domain.Pageable
     ): List<CodexEntry>
@@ -45,7 +45,7 @@ interface CodexEntryRepository : JpaRepository<CodexEntry, UUID>, CodexEntryRepo
     fun countByProjectAndCreatedAtAfter(project: Project, since: java.time.Instant): Long
 
     @Query("SELECT e FROM CodexEntry e JOIN FETCH e.project WHERE e.project = :project AND e.deletedAt IS NULL ORDER BY e.updatedAt DESC")
-    fun findRecentEntitiesByProject(
+    fun findRecentEntriesByProject(
         project: Project,
         pageable: org.springframework.data.domain.Pageable
     ): List<CodexEntry>

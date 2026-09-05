@@ -11,7 +11,7 @@ data class ProjectStatsDTO(
     val name: String,
     val description: String?,
     val entryCount: Int,
-    val entityCountByType: Map<String, Int>,
+    val entryCountByType: Map<String, Int>,
     val createdAt: Instant,
     val updatedAt: Instant
 ) {
@@ -19,14 +19,14 @@ data class ProjectStatsDTO(
         fun from(
             project: Project,
             entryCount: Int,
-            entityCountByType: Map<String, Int>
+            entryCountByType: Map<String, Int>
         ): ProjectStatsDTO {
             return ProjectStatsDTO(
                 id = requireNotNull(project.id) { "Project ID is missing" },
                 name = project.name,
                 description = project.description,
                 entryCount = entryCount,
-                entityCountByType = entityCountByType,
+                entryCountByType = entryCountByType,
                 createdAt = project.createdAt,
                 updatedAt = project.updatedAt
             )

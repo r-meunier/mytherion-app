@@ -32,7 +32,7 @@ describe('EntryList Component', () => {
   const mockDispatch = jest.fn();
   const projectId = 'proj-123';
 
-  const mockEntities: CodexEntry[] = [
+  const mockEntries: CodexEntry[] = [
     {
       id: 'entry-1',
       projectId,
@@ -63,7 +63,7 @@ describe('EntryList Component', () => {
     (useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
 
     (useAppSelector as jest.Mock).mockReturnValue({
-      entries: mockEntities,
+      entries: mockEntries,
       loading: false,
       error: null,
       filters: {
@@ -80,7 +80,7 @@ describe('EntryList Component', () => {
     });
   });
 
-  const renderEntityList = async (props = {}) => {
+  const renderEntryList = async (props = {}) => {
     const result = render(<EntryList projectId={projectId} {...props} />);
     await waitFor(() => {
     });
@@ -88,14 +88,14 @@ describe('EntryList Component', () => {
   };
 
   it('renders entry list', async () => {
-    await renderEntityList({ projectName: "Middle-earth" });
+    await renderEntryList({ projectName: "Middle-earth" });
 
     expect(screen.getByText('Gandalf the Grey')).toBeInTheDocument();
     expect(screen.getByText('Rivendell')).toBeInTheDocument();
   });
 
   it('opens delete confirmation modal and dismisses it on backdrop click', async () => {
-    await renderEntityList();
+    await renderEntryList();
 
     // Click delete on first entry card
     const deleteButtons = screen.getAllByTitle('Delete');
@@ -113,7 +113,7 @@ describe('EntryList Component', () => {
   });
 
   it('does not dismiss delete modal when clicking inside the modal dialog body', async () => {
-    await renderEntityList();
+    await renderEntryList();
 
     const deleteButtons = screen.getAllByTitle('Delete');
     fireEvent.click(deleteButtons[0]);
@@ -129,7 +129,7 @@ describe('EntryList Component', () => {
   });
 
   it('dismisses delete modal when pressing the Escape key', async () => {
-    await renderEntityList();
+    await renderEntryList();
 
     const deleteButtons = screen.getAllByTitle('Delete');
     fireEvent.click(deleteButtons[0]);
@@ -146,16 +146,16 @@ describe('EntryList Component', () => {
   it('keeps entry cards mounted with reduced opacity during refetch without flashing', async () => {
     // When loading is true but entries already exist (background refetch on search)
     (useAppSelector as jest.Mock).mockReturnValue({
-      entries: mockEntities,
+      entries: mockEntries,
       loading: true, // background loading
       error: null,
       filters: { search: 'Gandalf' },
       pagination: { page: 0, size: 20, totalPages: 1, totalElements: 1 },
     });
 
-    const { container } = await renderEntityList();
+    const { container } = await renderEntryList();
 
-    // Entities should NOT be unmounted or replaced with empty/skeleton screen
+    // Entries should NOT be unmounted or replaced with empty/skeleton screen
     expect(screen.getByText('Gandalf the Grey')).toBeInTheDocument();
     
     // Grid should have opacity-60 styling for smooth transition
@@ -164,7 +164,7 @@ describe('EntryList Component', () => {
   });
 
       it('immediately flushes search on Enter without waiting for debounce', async () => {
-    await renderEntityList();
+    await renderEntryList();
 
     const searchInput = screen.getByPlaceholderText('Filter entries...');
     fireEvent.change(searchInput, { target: { value: 'InstantSearch' } });

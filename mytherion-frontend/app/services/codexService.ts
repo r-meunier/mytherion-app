@@ -21,7 +21,7 @@ export interface EntryFilters {
 
 export const codexService = {
   // Get entries with filters
-  getEntities: async (
+  getEntries: async (
     projectId: string,
     filters?: EntryFilters
   ): Promise<Page<CodexEntry>> => {
@@ -39,7 +39,7 @@ export const codexService = {
       const response = await axios.get(endpoint, {
         withCredentials: true,
       });
-      serviceLogger.debug('Entities fetched successfully', { 
+      serviceLogger.debug('Entries fetched successfully', { 
         projectId, 
         count: response.data.content.length,
         totalElements: response.data.totalElements 
@@ -52,7 +52,7 @@ export const codexService = {
   },
 
   // Get single entry
-  getEntity: async (projectId: string, id: string): Promise<CodexEntry> => {
+  getEntry: async (projectId: string, id: string): Promise<CodexEntry> => {
     serviceLogger.debug('Fetching entry', { projectId, entryId: id });
 
     try {
@@ -68,7 +68,7 @@ export const codexService = {
   },
 
   // Create entry
-  createEntity: async (projectId: string, data: CreateEntryRequest): Promise<CodexEntry> => {
+  createEntry: async (projectId: string, data: CreateEntryRequest): Promise<CodexEntry> => {
     serviceLogger.debug('Creating entry', { projectId, type: data.type, name: data.name });
 
     try {
@@ -88,7 +88,7 @@ export const codexService = {
   },
 
   // Update entry
-  updateEntity: async (projectId: string, id: string, data: UpdateEntryRequest): Promise<CodexEntry> => {
+  updateEntry: async (projectId: string, id: string, data: UpdateEntryRequest): Promise<CodexEntry> => {
     serviceLogger.debug('Updating entry', { projectId, entryId: id, updates: Object.keys(data) });
 
     try {
@@ -104,7 +104,7 @@ export const codexService = {
   },
 
   // Delete entry
-  deleteEntity: async (projectId: string, id: string): Promise<void> => {
+  deleteEntry: async (projectId: string, id: string): Promise<void> => {
     serviceLogger.debug('Deleting entry', { projectId, entryId: id });
 
     try {

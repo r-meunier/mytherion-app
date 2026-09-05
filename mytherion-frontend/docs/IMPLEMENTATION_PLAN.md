@@ -1,5 +1,10 @@
 # Frontend Implementation Plan - Entity Management
 
+> **Historical record.** Vocabulary predates [`terminology.md`](../../docs/terminology.md):
+> "Entity" = Codex Entry, "Component" = Entry Section, "World" = Project.
+> Category was removed in MYT-81.
+
+
 ## Overview
 
 Complete frontend implementation for the Mytherion entity management system, building on top of the completed backend (Phases 1-7).

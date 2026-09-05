@@ -65,7 +65,7 @@ class DevDataSeeder(
             description = "A high-fantasy world fractured by an ancient cataclysm. Floating continents drift above a sea of storms, connected by magical ley-bridges.",
             genre = "Fantasy"
         )
-        seedShatteredRealmsEntities(shatteredRealms)
+        seedShatteredRealmsEntries(shatteredRealms)
 
         // ── worldbuilder's multiple projects ─────────────────────────
         val ironEmpire = createProject(
@@ -74,7 +74,7 @@ class DevDataSeeder(
             description = "A steampunk industrial empire on the brink of revolution. Clockwork soldiers patrol the smog-filled streets while rebel engineers plot from the underground.",
             genre = "Steampunk"
         )
-        seedIronEmpireEntities(ironEmpire)
+        seedIronEmpireEntries(ironEmpire)
 
         val echoesOfEden = createProject(
             owner = builder,
@@ -82,7 +82,7 @@ class DevDataSeeder(
             description = "A post-apocalyptic world where nature has reclaimed the ruins of a fallen civilization. Scattered tribes worship the ancient machines they no longer understand.",
             genre = "Post-Apocalyptic"
         )
-        seedEchoesOfEdenEntities(echoesOfEden)
+        seedEchoesOfEdenEntries(echoesOfEden)
 
         val stellarDrift = createProject(
             owner = builder,
@@ -90,7 +90,7 @@ class DevDataSeeder(
             description = "Humanity's last colony ships drift between dying stars. Political intrigue and resource wars define life aboard the Arks.",
             genre = "Sci-Fi"
         )
-        seedStellarDriftEntities(stellarDrift)
+        seedStellarDriftEntries(stellarDrift)
 
         logger.infoWith(
             "[SEED] ═══ Dev data seed complete ═══",
@@ -163,7 +163,7 @@ class DevDataSeeder(
     //  THE SHATTERED REALMS  (testuser's project)
     // ════════════════════════════════════════════════════════════════
 
-    private fun seedShatteredRealmsEntities(project: Project) {
+    private fun seedShatteredRealmsEntries(project: Project) {
         // Character: Vaelith Stormweaver
         createEntry(
             project = project,
@@ -255,7 +255,7 @@ class DevDataSeeder(
     //  THE IRON EMPIRE  (worldbuilder project #1)
     // ════════════════════════════════════════════════════════════════
 
-    private fun seedIronEmpireEntities(project: Project) {
+    private fun seedIronEmpireEntries(project: Project) {
         createEntry(
             project = project,
             type = EntryType.CHARACTER,
@@ -317,7 +317,7 @@ class DevDataSeeder(
     //  ECHOES OF EDEN  (worldbuilder project #2)
     // ════════════════════════════════════════════════════════════════
 
-    private fun seedEchoesOfEdenEntities(project: Project) {
+    private fun seedEchoesOfEdenEntries(project: Project) {
         createEntry(
             project = project,
             type = EntryType.CHARACTER,
@@ -366,7 +366,7 @@ class DevDataSeeder(
     //  STELLAR DRIFT  (worldbuilder project #3)
     // ════════════════════════════════════════════════════════════════
 
-    private fun seedStellarDriftEntities(project: Project) {
+    private fun seedStellarDriftEntries(project: Project) {
         createEntry(
             project = project,
             type = EntryType.CHARACTER,

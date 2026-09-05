@@ -1,5 +1,10 @@
 # Frontend Phase 3: Projects UI - Task List
 
+> **Historical record.** Vocabulary predates [`terminology.md`](../../docs/terminology.md):
+> "Entity" = Codex Entry, "Component" = Entry Section, "World" = Project.
+> Category was removed in MYT-81.
+
+
 ## ✅ Completed Tasks
 
 ### Redux Setup

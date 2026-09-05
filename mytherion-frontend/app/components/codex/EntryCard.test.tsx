@@ -10,7 +10,7 @@ jest.mock('next/navigation', () => ({
   }),
 }));
 
-const mockEntityWithoutImage: CodexEntry = {
+const mockEntryWithoutThumbnail: CodexEntry = {
   id: 'entry-1',
   projectId: 'proj-1',
   type: EntryType.CHARACTER,
@@ -23,8 +23,8 @@ const mockEntityWithoutImage: CodexEntry = {
   updatedAt: '2026-01-01T00:00:00Z',
 };
 
-const mockEntityWithImage: CodexEntry = {
-  ...mockEntityWithoutImage,
+const mockEntryWithThumbnail: CodexEntry = {
+  ...mockEntryWithoutThumbnail,
   id: 'entry-2',
   name: 'Galadriel',
   thumbnail: 'entries/entry-2/portrait.webp',
@@ -32,7 +32,7 @@ const mockEntityWithImage: CodexEntry = {
 
 describe('EntryCard - Image display', () => {
   it('renders without an image or placeholder when thumbnail is undefined/null', () => {
-    const { container } = render(<EntryCard entry={mockEntityWithoutImage} />);
+    const { container } = render(<EntryCard entry={mockEntryWithoutThumbnail} />);
     
     expect(screen.getByText('Elrond')).toBeInTheDocument();
     const images = container.querySelectorAll('img');
@@ -40,7 +40,7 @@ describe('EntryCard - Image display', () => {
   });
 
   it('renders image when thumbnail is present', () => {
-    render(<EntryCard entry={mockEntityWithImage} />);
+    render(<EntryCard entry={mockEntryWithThumbnail} />);
     
     expect(screen.getByText('Galadriel')).toBeInTheDocument();
     const image = screen.getByAltText('Galadriel');

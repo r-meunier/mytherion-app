@@ -215,8 +215,8 @@ curl "http://localhost:8080/actuator/metrics/http.server.requests?tag=uri:/api/p
 
 You should see:
 
-- **Before optimization**: 1000-5000ms for projects with many entities
-- **After optimization**: < 200ms regardless of entity count
+- **Before optimization**: 1000-5000ms for projects with many entries
+- **After optimization**: < 200ms regardless of entry count
 
 ---
 

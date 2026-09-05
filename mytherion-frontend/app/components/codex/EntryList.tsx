@@ -2,20 +2,20 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { fetchEntities, setFilters, deleteEntity } from '@/app/store/codexSlice';
+import { fetchEntries, setFilters, deleteEntry } from '@/app/store/codexSlice';
 import { CodexEntry, EntryType } from '@/app/types/codex';
 import EntryCard from './EntryCard';
 import EntryFilters from './EntryFilters';
 import PageHeader from '../ui/PageHeader';
 
-interface EntityListProps {
+interface EntryListProps {
   projectId: string;
   projectName?: string;
   onCreateClick?: () => void;
   onEditClick?: (entry: CodexEntry) => void;
 }
 
-export default function EntryList({ projectId, projectName, onCreateClick, onEditClick }: EntityListProps) {
+export default function EntryList({ projectId, projectName, onCreateClick, onEditClick }: EntryListProps) {
   const dispatch = useAppDispatch();
   const { entries, loading, error, filters, pagination } = useAppSelector((state) => state.entries);
   
@@ -68,7 +68,7 @@ export default function EntryList({ projectId, projectName, onCreateClick, onEdi
     if (lastFetchedParams.current !== fetchKey) {
       lastFetchedParams.current = fetchKey;
       
-      dispatch(fetchEntities({ 
+      dispatch(fetchEntries({ 
         projectId, 
         filters, 
         page: currentPage, 
@@ -100,9 +100,9 @@ export default function EntryList({ projectId, projectName, onCreateClick, onEdi
   };
 
   const handleDelete = async (entryId: string) => {
-    await dispatch(deleteEntity({ projectId, id: entryId }));
+    await dispatch(deleteEntry({ projectId, id: entryId }));
     setShowDeleteConfirm(null);
-    dispatch(fetchEntities({ projectId, filters, page: currentPage, size: PAGE_SIZE }));
+    dispatch(fetchEntries({ projectId, filters, page: currentPage, size: PAGE_SIZE }));
   };
 
   const handlePageChange = (newPage: number) => {
@@ -111,7 +111,7 @@ export default function EntryList({ projectId, projectName, onCreateClick, onEdi
 
   const hasActiveFilters = !!(filters.type || filters.search || (filters.tags && filters.tags.length > 0));
 
-  const sortedEntities = [...entries].sort((a, b) => {
+  const sortedEntries = [...entries].sort((a, b) => {
     if (sortBy === 'name') {
       return a.name.localeCompare(b.name);
     }
@@ -160,7 +160,7 @@ export default function EntryList({ projectId, projectName, onCreateClick, onEdi
       )}
 
       {/* Empty State */}
-      {!loading && sortedEntities.length === 0 && (
+      {!loading && sortedEntries.length === 0 && (
         <div className="text-center py-16">
           <span className="material-symbols-outlined text-[64px] text-white/20 mb-4 block">inbox</span>
           <h3 className="text-xl font-display font-bold text-white mb-2">
@@ -193,10 +193,10 @@ export default function EntryList({ projectId, projectName, onCreateClick, onEdi
       )}
 
       {/* CodexEntry Grid */}
-      {sortedEntities.length > 0 && (
+      {sortedEntries.length > 0 && (
         <>
           <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-200 ${loading ? "opacity-60" : "opacity-100"}`}>
-            {sortedEntities.map((entry) => (
+            {sortedEntries.map((entry) => (
               <EntryCard
                 key={entry.id}
                 entry={entry}

@@ -1,23 +1,23 @@
 'use client';
 
 import { CodexEntry } from '@/app/types/codex';
-import { entityTypeConfig } from './EntryTypeSelector';
+import { entryTypeConfig } from './EntryTypeSelector';
 import { useRouter } from 'next/navigation';
 import { useIsMounted } from '@/app/hooks/useIsMounted';
 import { mediaService } from '@/app/services/mediaService';
 import routes from '@/app/config/routes';
 import { formatRelativeTime } from '@/app/utils/dateUtils';
 
-interface EntityCardProps {
+interface EntryCardProps {
   entry: CodexEntry;
   onEdit?: (entry: CodexEntry) => void;
   onDelete?: (entry: CodexEntry) => void;
 }
 
-export default function EntryCard({ entry, onEdit, onDelete }: EntityCardProps) {
+export default function EntryCard({ entry, onEdit, onDelete }: EntryCardProps) {
   const router = useRouter();
   const isMounted = useIsMounted();
-  const typeConfig = entityTypeConfig[entry.type];
+  const typeConfig = entryTypeConfig[entry.type];
 
   const handleCardClick = () => {
     router.push(routes.project(entry.projectId).codex.detail(entry.id));

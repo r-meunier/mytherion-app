@@ -94,7 +94,7 @@ export const projectService = {
       const response = await api.get(apiRoutes.projects.stats(id));
       serviceLogger.debug('Project stats fetched successfully', { 
         projectId: id,
-        entityCount: response.data.entityCount 
+        entryCount: response.data.entryCount 
       });
       return response.data;
     } catch (error) {

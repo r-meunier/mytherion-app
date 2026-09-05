@@ -6,7 +6,7 @@ interface ProjectStatsProps {
   stats: ProjectStats;
 }
 
-const entityTypeIcons: Record<string, string> = {
+const entryTypeIcons: Record<string, string> = {
   CHARACTER: 'person',
   LOCATION: 'location_on',
   ORGANIZATION: 'groups',
@@ -15,7 +15,7 @@ const entityTypeIcons: Record<string, string> = {
   ITEM: 'diamond',
 };
 
-const entityTypeColors: Record<string, string> = {
+const entryTypeColors: Record<string, string> = {
   CHARACTER: 'from-primary to-purple-400',
   LOCATION: 'from-blue-600 to-blue-400',
   ORGANIZATION: 'from-green-600 to-green-400',
@@ -25,7 +25,7 @@ const entityTypeColors: Record<string, string> = {
 };
 
 export default function ProjectStats({ stats }: ProjectStatsProps) {
-  const totalEntities = stats.entityCount;
+  const totalEntries = stats.entryCount;
 
   return (
     <div className="glass rounded-2xl p-6">
@@ -35,19 +35,19 @@ export default function ProjectStats({ stats }: ProjectStatsProps) {
       <div className="mb-8 p-6 bg-primary/10 rounded-xl border border-primary/20">
         <div className="text-center">
           <div className="text-5xl font-display font-bold text-white mb-2">
-            {totalEntities}
+            {totalEntries}
           </div>
-          <div className="text-slate-300 text-lg">Total Entities</div>
+          <div className="text-slate-300 text-lg">Total Entries</div>
         </div>
       </div>
 
       {/* CodexEntry Type Breakdown */}
-      {totalEntities > 0 ? (
+      {totalEntries > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {Object.entries(stats.entityCountByType).map(([type, count]) => {
-            const icon = entityTypeIcons[type] || 'diamond';
-            const colorClass = entityTypeColors[type] || 'from-slate-600 to-slate-400';
-            const percentage = ((count / totalEntities) * 100).toFixed(1);
+          {Object.entries(stats.entryCountByType).map(([type, count]) => {
+            const icon = entryTypeIcons[type] || 'diamond';
+            const colorClass = entryTypeColors[type] || 'from-slate-600 to-slate-400';
+            const percentage = ((count / totalEntries) * 100).toFixed(1);
 
             return (
               <div

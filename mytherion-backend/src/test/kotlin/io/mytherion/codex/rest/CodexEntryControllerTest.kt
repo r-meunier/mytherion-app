@@ -81,7 +81,7 @@ class CodexEntryControllerTest {
     @Test
     fun `listEntries should return paginated entries`() {
         // Given
-        val entityDTO =
+        val entryDTO =
             EntryDTO(
                 id = entryId,
                 projectId = projectId,
@@ -97,7 +97,7 @@ class CodexEntryControllerTest {
                 updatedAt = Instant.now()
             )
 
-        val page = PageImpl(listOf(entityDTO))
+        val page = PageImpl(listOf(entryDTO))
         every { entryService.searchEntries(any(), any()) } returns page
 
         // When/Then
@@ -115,7 +115,7 @@ class CodexEntryControllerTest {
     @Test
     fun `listEntries with filters should pass filters to service`() {
         // Given
-        val entityDTO =
+        val entryDTO =
             EntryDTO(
                 id = entryId,
                 projectId = projectId,
@@ -131,7 +131,7 @@ class CodexEntryControllerTest {
                 updatedAt = Instant.now()
             )
 
-        val page = PageImpl(listOf(entityDTO))
+        val page = PageImpl(listOf(entryDTO))
         every { entryService.searchEntries(any(), any()) } returns page
 
         // When/Then
@@ -157,7 +157,7 @@ class CodexEntryControllerTest {
                 tags = listOf("hero")
             )
 
-        val entityDTO =
+        val entryDTO =
             EntryDTO(
                 id = entryId,
                 projectId = projectId,
@@ -173,7 +173,7 @@ class CodexEntryControllerTest {
                 updatedAt = Instant.now()
             )
 
-        every { entryService.createEntry(any(), any()) } returns entityDTO
+        every { entryService.createEntry(any(), any()) } returns entryDTO
 
         // When/Then
         mockMvc.perform(
@@ -191,7 +191,7 @@ class CodexEntryControllerTest {
     @Test
     fun `getEntry should return entry`() {
         // Given
-        val entityDTO =
+        val entryDTO =
             EntryDTO(
                 id = entryId,
                 projectId = projectId,
@@ -207,7 +207,7 @@ class CodexEntryControllerTest {
                 updatedAt = Instant.now()
             )
 
-        every { entryService.getEntry(projectId, entryId) } returns entityDTO
+        every { entryService.getEntry(projectId, entryId) } returns entryDTO
 
         // When/Then
         mockMvc.perform(get("/api/projects/$projectId/entries/$entryId"))
@@ -245,7 +245,7 @@ class CodexEntryControllerTest {
         // Given
         val request = UpdateEntryRequest(name = "Updated Name")
 
-        val entityDTO =
+        val entryDTO =
             EntryDTO(
                 id = entryId,
                 projectId = projectId,
@@ -261,7 +261,7 @@ class CodexEntryControllerTest {
                 updatedAt = Instant.now()
             )
 
-        every { entryService.updateEntry(projectId, entryId, any()) } returns entityDTO
+        every { entryService.updateEntry(projectId, entryId, any()) } returns entryDTO
 
         // When/Then
         mockMvc.perform(

@@ -1,14 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./authSlice";
 import projectReducer from "./projectSlice";
-import entityReducer from "./codexSlice";
+import entryReducer from "./codexSlice";
 import dashboardReducer from "./dashboardSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     projects: projectReducer,
-    entries: entityReducer,
+    entries: entryReducer,
     dashboard: dashboardReducer,
   },
 });

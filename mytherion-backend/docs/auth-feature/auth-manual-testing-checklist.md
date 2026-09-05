@@ -1,5 +1,10 @@
 # Authentication Manual Testing Checklist
 
+> **Historical record.** Vocabulary predates [`terminology.md`](../../docs/terminology.md):
+> "Entity" = Codex Entry, "Component" = Entry Section, "World" = Project.
+> Category was removed in MYT-81.
+
+
 This checklist guides you through manually testing all authentication features. Check off each item as you complete it.
 
 ---

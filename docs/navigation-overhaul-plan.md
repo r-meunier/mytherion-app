@@ -10,7 +10,7 @@ Standardize the URL structure to reflect the project context:
 - `/projects`: **The Hub**. List of all user projects.
 - `/projects/new`: Create a new world.
 - `/projects/[id]`: **Project Dashboard**. Overview of a specific world.
-- `/projects/[id]/codex`: The entity browser (Characters, etc.) for that world.
+- `/projects/[id]/codex`: The codex entry browser (Characters, etc.) for that world.
 - `/projects/[id]/timeline`: Chronological map for that world.
 - `/projects/[id]/settings`: World-specific configurations.
 
@@ -23,22 +23,22 @@ Introduce a `projectContext` in the Redux store:
 
 ### 3.1. API Restructuring
 Transition from global endpoints to project-scoped endpoints:
-- **Current**: `GET /api/entities`
-- **Future**: `GET /api/projects/{projectId}/entities`
-- **Current**: `POST /api/entities`
-- **Future**: `POST /api/projects/{projectId}/entities` (Automatically associates entity with project)
+- **Current**: `GET /api/entries`
+- **Future**: `GET /api/projects/{projectId}/entries`
+- **Current**: `POST /api/entries`
+- **Future**: `POST /api/projects/{projectId}/entries` (Automatically associates the entry with the project)
 
 ### 3.2. Project-Scoped Security (Tenant Isolation)
 Implement a security layer to enforce data isolation:
 - **Project Access Interceptor**: A Spring Boot Interceptor/Filter that extracts `projectId` from the URL and verifies that the authenticated user owns or has access to that project.
-- **Resource Ownership**: Ensure that no resource (Entity, Note, Timeline) can be accessed or modified if it doesn't belong to the `projectId` provided in the path.
+- **Resource Ownership**: Ensure that no resource (Codex Entry, Note, Timeline) can be accessed or modified if it doesn't belong to the `projectId` provided in the path.
 
 ### 3.3. Service & Repository Layer Updates
 - **Filtering**: All service methods (e.g., `findAllByProject`) must now pass a mandatory `projectId`.
-- **Validation**: When creating sub-resources (like a character relation), verify that both entities belong to the same project context.
+- **Validation**: When creating sub-resources (like a character relation), verify that both entries belong to the same project context.
 
 ### 3.4. Database Optimization
-- Ensure `projectId` is indexed on all entity-related tables to maintain high performance as the number of worlds grows.
+- Ensure `projectId` is indexed on all entry-related tables to maintain high performance as the number of projects grows.
 
 ## 4. Component Updates
 
@@ -54,7 +54,7 @@ Refactor `DualSidebar.tsx` to handle two distinct modes:
 
 ### 4.2. Project Dashboard (`app/projects/[id]/page.tsx`)
 - Enhance the current project page to become the "Home" for that world.
-- Add "Quick Create" buttons that automatically associate new entities with the current `projectId`.
+- Add "Quick Create" buttons that automatically associate new entries with the current `projectId`.
 - Show "Recent Edits" *within this world*.
 
 ### 4.3. Navigation Hub (`app/page.tsx`)
@@ -62,17 +62,19 @@ Refactor `DualSidebar.tsx` to handle two distinct modes:
 - Or, show a "Welcome Back" screen that highlights the last edited project and a "Jump Back In" button.
 
 ## 5. API & Data Layer (Frontend)
-- **Filter by Project**: Ensure all entity fetching hooks (e.g., `useEntities`) accept a `projectId` parameter and use the new scoped URL format.
-- **Auto-Association**: Update the `EntityForm` to automatically include the `projectId` from the current URL context when creating new items.
+- **Filter by Project**: Ensure all entry fetching hooks (e.g., `useEntries`) accept a `projectId` parameter and use the new scoped URL format.
+- **Auto-Association**: Update the `EntryForm` to automatically include the `projectId` from the current URL context when creating new items.
 
 ## 6. Phased Rollout
 1. **Phase 1: Backend API Refactor**. Update the REST controllers to support `{projectId}` path variables and enforce security.
-2. **Phase 2: URL Refactoring (Frontend)**. Move existing global entity views under the `/projects/[id]` route.
+2. **Phase 2: URL Refactoring (Frontend)**. Move existing global entry views under the `/projects/[id]` route.
 3. **Phase 3: Contextual Sidebar**. Update the sidebar to dynamically change its menu based on whether a project is "Active".
 4. **Phase 4: Dashboard Redesign**. Turn the main landing page into a Project Selection Hub.
-5. **Phase 5: Deep Linking & Storage**. Ensure that navigating directly to `/projects/5/entities` correctly sets the app context and stores the last-active project in local storage.
+5. **Phase 5: Deep Linking & Storage**. Ensure that navigating directly to `/projects/5/codex` correctly sets the app context and stores the last-active project in local storage.
 
 ## 7. Open Questions / Design Decisions
-- Should we allow "Global Search" across all worlds?
+- Should we allow "Global Search" across all projects?
 - Do we need a "Global Codex" that shows everything regardless of project? (Likely no, to keep focus.)
-- How do we handle "Shared Entities" (e.g., a recurring character in a series)?
+- How do we handle "Shared Entries" (e.g., a recurring character in a series)?
+
+> Vocabulary note: written before [`terminology.md`](./terminology.md). "World" here means **Project**.
