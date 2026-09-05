@@ -167,8 +167,15 @@ later, they should return as a deliberate feature with a distinct job (a folder 
 Naming conventions decay without a check. Enforced mechanically where possible:
 
 - ArchUnit rules in `PackageStructureTest` cover package placement.
-- The banned-word list above should become a lint/grep check in CI so `Entity`, `Component` and
-  `World` cannot re-enter the vocabulary unnoticed.
+- `scripts/check_contract_parity.py` runs in CI as the **Contract Parity** job and asserts that
+  backend and frontend still agree: enum values, route paths, JSON payload fields, MDC keys,
+  schema-to-model mapping, and ApprovalTests fixture names. Both test suites can pass while one
+  of these is broken, since neither crosses the boundary — which is how a `/image` vs
+  `/thumbnail` mismatch and a set of orphaned test fixtures reached review during MYT-81.
+- A lint/grep check for the banned-word list is **not** implemented. It was considered and
+  deferred: every banned word has legitimate uses (`@Entity`, `ResponseEntity`, `@Component`,
+  `Worldview`, the product tagline), so it needs a hand-maintained allowlist, and it would not
+  have caught either bug above — both were consistency failures, not vocabulary drift.
 
 Anything this document does not name is not yet standardised — add it here first, then write the
 code.
