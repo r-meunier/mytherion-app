@@ -1,5 +1,10 @@
 ## 1. First: Constraints (so we don’t build nonsense)
 
+> **Historical record — original MVP design.** Vocabulary and endpoints predate
+> [`terminology.md`](../../../docs/terminology.md): "Entity" = Codex Entry, `entities` table is now
+> `codex_entries`, `/entities` is now `/entries`, and Category was removed in MYT-81.
+
+
 Ground Rules:
 
 * **Small team = me** → no microservices hell. Start as a well-structured monolith.

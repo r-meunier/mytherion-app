@@ -53,7 +53,7 @@ abstract class AbstractAuditableEntity {
 
         other as AbstractAuditableEntity
 
-        // Entities with null IDs are transient and only equal by instance identity (this === other)
+        // Entries with null IDs are transient and only equal by instance identity (this === other)
         return id != null && id == other.id
     }
 

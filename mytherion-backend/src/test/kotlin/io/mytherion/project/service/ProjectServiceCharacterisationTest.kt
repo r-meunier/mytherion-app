@@ -32,7 +32,7 @@ class ProjectServiceCharacterisationTest {
     private lateinit var currentUserProvider: CurrentUserProvider
 
     @MockK
-    private lateinit var entityQueryService: io.mytherion.entity.service.EntityQueryService
+    private lateinit var entryQueryService: io.mytherion.codex.service.CodexEntryQueryService
 
     @MockK
     private lateinit var metricsService: io.mytherion.platform.monitoring.MetricsService
@@ -60,7 +60,7 @@ class ProjectServiceCharacterisationTest {
 
         // Stub metricsService calls (these methods return Unit)
         every { metricsService.recordProjectCreation(any(), any()) } just Runs
-        every { metricsService.recordEntityQuery(any(), any(), any()) } just Runs
+        every { metricsService.recordEntryQuery(any(), any(), any()) } just Runs
     }
 
     @AfterEach
@@ -69,18 +69,18 @@ class ProjectServiceCharacterisationTest {
     }
 
     @Test
-    fun `deleteProject should throw ProjectHasEntitiesException when project has entities`() {
-        // Given - this locks down the cross-module EntityRepository access guard
+    fun `deleteProject should throw ProjectHasEntriesException when project has entries`() {
+        // Given - this locks down the cross-module CodexEntryRepository access guard
         every { projectRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Optional.of(testProject)
-        every { entityQueryService.countByProject(testProject) } returns 3L
+        every { entryQueryService.countByProject(testProject) } returns 3L
 
         // When & Then
         val exception =
-            assertThrows<io.mytherion.project.exception.ProjectHasEntitiesException> {
+            assertThrows<io.mytherion.project.exception.ProjectHasEntriesException> {
                 projectService.deleteProject(UUID.fromString("00000000-0000-0000-0000-000000000001"))
             }
         assertEquals(
-            "Cannot delete project with id 00000000-0000-0000-0000-000000000001: it contains 3 entities. Delete all entities first.",
+            "Cannot delete project with id 00000000-0000-0000-0000-000000000001: it contains 3 entries. Delete all entries first.",
             exception.message
         )
         verify(exactly = 0) { projectRepository.delete(any()) }

@@ -94,12 +94,12 @@ Mytherion began as a worldbuilding platform focused on data sovereignty ("the au
 Aligned with the [Navigation Overhaul Plan](./navigation-overhaul-plan.md), the URL hierarchy cleanly separates global hub activities from project-specific workflows:
 
 ```text
-/projects                      -> Global Project Hub (All worlds/novels)
+/projects                      -> Global Project Hub (All projects/novels)
 /projects/new                  -> Create a new world/novel project
 
 /projects/[id]                 -> Project Dashboard (Overview, word counts, quick actions)
-/projects/[id]/codex           -> The Codex (Entities: Characters, Locations, Items, etc.)
-/projects/[id]/codex/[entityId]-> Single Entity Inspector & Editor
+/projects/[id]/codex           -> The Codex (Entries: Characters, Locations, Items, etc.)
+/projects/[id]/codex/[entryId] -> Single Entry Inspector & Editor
 /projects/[id]/planner         -> [Phase 2] Outliner, Beat Sheets, Arcs & Timelines
 /projects/[id]/manuscript      -> [Phase 2] Chapter & Scene Writing Studio
 /projects/[id]/settings        -> Project Settings, Export/Import, API Key Management
@@ -113,12 +113,12 @@ To bring the Codex MVP to prototype completion before launching the Manuscript/P
 
 1. **Project Navigation Scoping:**
    * Finalize the dual-mode sidebar (Global vs. Project mode).
-   * Ensure entity routes are strictly scoped under `/projects/[id]/codex`.
+   * Ensure entry routes are strictly scoped under `/projects/[id]/codex`.
 2. **Backend Query & Filter Enhancements:**
-   * Implement full entity filtering by type, tags, and text search in `EntityService.kt`.
+   * Implement full entry filtering by type, tags, and text search in `CodexEntryService.kt`.
    * Enforce tenant isolation / project ownership at the API boundary.
 3. **Media Integration:**
-   * Connect MinIO image upload directly to `EntityForm` and render portraits in `EntityCard` and entity detail pages.
+   * Connect MinIO thumbnail upload directly to `EntryForm` and render portraits in `EntryCard` and entry detail pages.
 4. **UI & Ergonomic Polish:**
-   * Streamline entity creation and editing to reduce form friction.
+   * Streamline entry creation and editing to reduce form friction.
    * Finalize design system typography and dark-mode aesthetic.

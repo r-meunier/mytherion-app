@@ -154,12 +154,12 @@ class PackageStructureTest {
             .and()
             .haveSimpleNameEndingWith("Exception")
             .and()
-            .doNotHaveSimpleName("ImageDeletionException")
+            .doNotHaveSimpleName("ThumbnailDeletionException")
             .should()
             .beAssignableTo("io.mytherion.common.exception.ApiException")
             .because(
                 "client-facing domain errors must extend ApiException so GlobalExceptionHandler can " +
-                    "translate them generically; infrastructure failures like ImageDeletionException must remain plain exceptions"
+                    "translate them generically; infrastructure failures like ThumbnailDeletionException must remain plain exceptions"
             )
             .check(productionClasses)
     }
@@ -170,8 +170,7 @@ class PackageStructureTest {
         val DOMAINS = arrayOf(
             "$ROOT.user..",
             "$ROOT.project..",
-            "$ROOT.entity..",
-            "$ROOT.category..",
+            "$ROOT.codex..",
             "$ROOT.dashboard..",
             "$ROOT.auth.."
         )

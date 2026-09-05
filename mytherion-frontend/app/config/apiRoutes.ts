@@ -23,14 +23,11 @@ export const apiRoutes = {
     detail: (projectId: string) => `/api/projects/${projectId}`,
     stats: (projectId: string) => `/api/projects/${projectId}/stats`,
   },
-  entities: {
-    list: (projectId: string) => `/api/projects/${projectId}/entities`,
-    create: (projectId: string) => `/api/projects/${projectId}/entities`,
-    detail: (projectId: string, entityId: string) => `/api/projects/${projectId}/entities/${entityId}`,
-    image: (projectId: string, entityId: string) => `/api/projects/${projectId}/entities/${entityId}/image`,
-  },
-  categories: {
-    list: (projectId: string) => `/api/projects/${projectId}/categories`,
+  entries: {
+    list: (projectId: string) => `/api/projects/${projectId}/entries`,
+    create: (projectId: string) => `/api/projects/${projectId}/entries`,
+    detail: (projectId: string, entryId: string) => `/api/projects/${projectId}/entries/${entryId}`,
+    thumbnail: (projectId: string, entryId: string) => `/api/projects/${projectId}/entries/${entryId}/thumbnail`,
   },
   dashboard: {
     stats: '/api/dashboard/stats',

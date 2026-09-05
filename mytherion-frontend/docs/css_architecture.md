@@ -43,7 +43,7 @@ app/styles/
 ### 4. `app-core.css` (The World Look)
 - **Role**: Provides the standard look for the inner application experience.
 - **Specializations**:
-    - Modal systems and entity management UI.
+    - Modal systems and entry management UI.
     - Complex animations (Loading bars, subtle bounces).
     - Shared application-wide utilities.
 

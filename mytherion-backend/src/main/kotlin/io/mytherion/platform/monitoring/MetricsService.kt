@@ -10,7 +10,7 @@ import java.util.UUID
  * Micrometer-based metrics service for recording domain-specific performance metrics.
  *
  * This complements the generic HTTP and JVM metrics provided by Spring Boot Actuator by
- * capturing timings and counts for key business operations (auth, projects, entities, storage, etc.).
+ * capturing timings and counts for key business operations (auth, projects, entries, storage, etc.).
  */
 @Service
 class MetricsService(
@@ -35,27 +35,27 @@ class MetricsService(
     }
 
     /**
-     * Record statistics about querying entities for a project.
+     * Record statistics about querying entries for a project.
      *
      * Metrics:
-     *  - entity.queries.total (counter)
-     *  - entity.query.size (gauge - last observed size)
-     *  - entity.query.duration (timer with size_bucket tag)
+     *  - entry.queries.total (counter)
+     *  - entry.query.size (gauge - last observed size)
+     *  - entry.query.duration (timer with size_bucket tag)
      */
-    fun recordEntityQuery(projectId: UUID, entityCount: Int, durationMs: Long) {
-        // Total number of entity queries per project
+    fun recordEntryQuery(projectId: UUID, entryCount: Int, durationMs: Long) {
+        // Total number of entry queries per project
         meterRegistry.counter(
-            "entity.queries.total",
+            "entry.queries.total",
             "project_id", projectId.toString()
         ).increment()
 
         // Last observed result size (simple gauge)
-        meterRegistry.gauge("entity.query.size", entityCount.toDouble())
+        meterRegistry.gauge("entry.query.size", entryCount.toDouble())
 
         // Duration of the query, bucketed by size
-        Timer.builder("entity.query.duration")
-            .tag("size_bucket", getSizeBucket(entityCount))
-            .description("Time to query entities for a project")
+        Timer.builder("entry.query.duration")
+            .tag("size_bucket", getSizeBucket(entryCount))
+            .description("Time to query entries for a project")
             .register(meterRegistry)
             .record(durationMs, TimeUnit.MILLISECONDS)
     }
@@ -98,34 +98,34 @@ class MetricsService(
 
     // endregion
 
-    // region Entity search metrics
+    // region CodexEntry search metrics
 
     /**
-     * Record high-level statistics about entity searches.
+     * Record high-level statistics about entry searches.
      *
      * Metrics:
-     *  - entity.search.total (counter)
-     *  - entity.search.duration (timer)
+     *  - entry.search.total (counter)
+     *  - entry.search.duration (timer)
      */
-    fun recordEntitySearch(
+    fun recordEntrySearch(
         projectId: UUID,
         totalResults: Int,
         pageResults: Int,
         durationMs: Long
     ) {
         meterRegistry.counter(
-            "entity.search.total",
+            "entry.search.total",
             "project_id", projectId.toString()
         ).increment()
 
-        Timer.builder("entity.search.duration")
+        Timer.builder("entry.search.duration")
             .tag("project_id", projectId.toString())
-            .description("Time to execute entity search")
+            .description("Time to execute entry search")
             .register(meterRegistry)
             .record(durationMs, TimeUnit.MILLISECONDS)
 
-        meterRegistry.gauge("entity.search.results.total", totalResults.toDouble())
-        meterRegistry.gauge("entity.search.results.page", pageResults.toDouble())
+        meterRegistry.gauge("entry.search.results.total", totalResults.toDouble())
+        meterRegistry.gauge("entry.search.results.page", pageResults.toDouble())
     }
 
     // endregion

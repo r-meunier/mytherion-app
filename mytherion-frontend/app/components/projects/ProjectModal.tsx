@@ -82,7 +82,7 @@ export default function ProjectModal({ isOpen, onClose, project }: ProjectModalP
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditing ? 'Edit World' : 'Initiate New World'}
+      title={isEditing ? 'Edit Project' : 'Initiate New Project'}
       description={isEditing ? 'Refine the details of your creation.' : 'Summon the foundation of your next masterpiece.'}
       icon={isEditing ? 'edit' : 'auto_awesome'}
       decorativeIcon={isEditing ? 'edit_document' : 'history_edu'}

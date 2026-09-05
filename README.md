@@ -15,14 +15,14 @@ Mytherion is organized into two main services:
 ### [Backend](./mytherion-backend)
 
 - **Tech Stack:** Kotlin, Spring Boot, PostgreSQL, MinIO.
-- **Key Features:** JWT Auth (httpOnly), Project/Entity CRUD, JSONB metadata, Performance monitoring.
+- **Key Features:** JWT Auth (httpOnly), Project/Codex Entry CRUD, JSONB entry content, Performance monitoring.
 - **Primary Purpose:** High-performance API, data persistence, and worldbuilding logic.
 
 ### [Frontend](./mytherion-frontend)
 
 - **Tech Stack:** Next.js, React, TypeScript, Redux Toolkit, Tailwind CSS.
 - **Key Features:** Responsive dashboard, project management UI, Codex management, modern aesthetics.
-- **Primary Purpose:** User interface, world visualization, and creative workflow management.
+- **Primary Purpose:** User interface, project visualization, and creative workflow management.
 
 ---
 
@@ -109,9 +109,9 @@ When running the backend with the `dev` profile (which is the default in both Do
 
 Mytherion is built on three core pillars:
 
-1.  **Structural Freedom:** No rigid boxes. Define your own entity types and metadata.
+1.  **Structural Freedom:** No rigid boxes. Define your own codex entry types and sections.
 2.  **AI as an Engineering Tool:** AI that navigates your Codex dynamically, just like Cursor or Claude Code navigate a codebase.
-3.  **Creative Work as Data:** Every world, character, and scene is treated as structured, versioned, and navigable data.
+3.  **Creative Work as Data:** Every project, character, and scene is treated as structured, versioned, and navigable data.
 
 For a deeper dive into the philosophy and future roadmap, see the [Backend Vision](./mytherion-backend/README.md#three-core-pillars).
 

@@ -1,0 +1,54 @@
+{
+  "content" : [ {
+    "id" : "999",
+    "projectId" : "999",
+    "type" : "CHARACTER",
+    "name" : "Elara Starweaver",
+    "description" : null,
+    "notes" : null,
+    "tags" : [ "magic", "hero" ],
+    "thumbnail" : null,
+    "content" : null,
+    "version" : 0,
+    "createdAt" : "2026-01-01T00:00:00Z",
+    "updatedAt" : "2026-01-01T00:00:00Z"
+  }, {
+    "id" : "999",
+    "projectId" : "999",
+    "type" : "CHARACTER",
+    "name" : "Garrick Stone",
+    "description" : null,
+    "notes" : null,
+    "tags" : [ "melee", "hero" ],
+    "thumbnail" : null,
+    "content" : null,
+    "version" : 0,
+    "createdAt" : "2026-01-01T00:00:00Z",
+    "updatedAt" : "2026-01-01T00:00:00Z"
+  } ],
+  "empty" : false,
+  "first" : true,
+  "last" : true,
+  "number" : 0,
+  "numberOfElements" : 2,
+  "pageable" : {
+    "offset" : 0,
+    "pageNumber" : 0,
+    "pageSize" : 10,
+    "paged" : true,
+    "sort" : {
+      "empty" : false,
+      "sorted" : true,
+      "unsorted" : false
+    },
+    "unpaged" : false
+  },
+  "size" : 10,
+  "sort" : {
+    "empty" : false,
+    "sorted" : true,
+    "unsorted" : false
+  },
+  "totalElements" : 2,
+  "totalPages" : 1
+}

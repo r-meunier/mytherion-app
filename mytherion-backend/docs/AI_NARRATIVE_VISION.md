@@ -18,7 +18,7 @@ Most AI roleplay tools (SillyTavern, etc.) use flat text blobs. Mytherion's **Se
 
 ## 3. Pillar 2: The Virtual Persona System
 
-Introduce a dedicated **`AI_PERSONA`** component for every entity:
+Introduce a dedicated **`AI_PERSONA`** component for every entry:
 
 - **Voice & Tone**: 5-10 "Sample Dialogue" lines to train the AI's speech pattern.
 - **First Message**: The default "greeting" for starting a chat.
@@ -31,7 +31,7 @@ Introduce a dedicated **`AI_PERSONA`** component for every entity:
 
 A writing suite that "knows" your world.
 
-- **Lore-Checking**: As you write "Julien drew his silver sword," the system highlights "silver sword" and links it to the ITEM entity.
+- **Lore-Checking**: As you write "Julien drew his silver sword," the system highlights "silver sword" and links it to the ITEM entry.
 - **Consistency Alerts**: If you write that a character is in a location they shouldn't be, the system flags it based on the `RELATIONS` data.
 - **AI Drafting**: Use AI to expand descriptions or brainstorm dialogue, with the AI already aware of the character's `Mannerisms` and `Quirks`.
 

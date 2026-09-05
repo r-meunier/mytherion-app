@@ -10,23 +10,23 @@ data class ProjectStatsDTO(
     val id: UUID,
     val name: String,
     val description: String?,
-    val entityCount: Int,
-    val entityCountByType: Map<String, Int>,
+    val entryCount: Int,
+    val entryCountByType: Map<String, Int>,
     val createdAt: Instant,
     val updatedAt: Instant
 ) {
     companion object {
         fun from(
             project: Project,
-            entityCount: Int,
-            entityCountByType: Map<String, Int>
+            entryCount: Int,
+            entryCountByType: Map<String, Int>
         ): ProjectStatsDTO {
             return ProjectStatsDTO(
                 id = requireNotNull(project.id) { "Project ID is missing" },
                 name = project.name,
                 description = project.description,
-                entityCount = entityCount,
-                entityCountByType = entityCountByType,
+                entryCount = entryCount,
+                entryCountByType = entryCountByType,
                 createdAt = project.createdAt,
                 updatedAt = project.updatedAt
             )

@@ -2,7 +2,7 @@
 
 **Notes**: MVP should be... Create Character / Organization / Culture / Species / Location / Items. Possibility to store images (at least one per entry) Simple, structured fields Clean templates for each type Tagging + search functionality Collections ("Projects") Relationship-mapping (could be a later feature) UI-wise I want Beautiful (later customizable) card view + data mode Export as PNG or PDF (auto export? auto view?) Gentle suggestions / guidance (I personally always struggle with finding where a specific entry should belong category-wise and I'm sure I'm not the only one.) I also want to combine the painpoints from various existing writing tools and provide a LIGHTWEIGHT solution.
 
-## Core Entities
+## Core Entries
 - Character
 - Organization
 - Culture
@@ -10,7 +10,7 @@
 - Location
 - Item
 
-### Entity Fields
+### Entry Fields
 - Name
 - Short Description / Summary
 - Optional long notes
@@ -33,7 +33,7 @@
 ### Projects / Collections
 
 Each "Project" contains:
-- Entities
+- Entries
 - Tags scoped inside project
 - Simple overview page
 

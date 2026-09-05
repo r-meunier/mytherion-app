@@ -16,10 +16,10 @@ data class ProjectResponse(
     val createdAt: Instant,
     val updatedAt: Instant,
     val genre: String?,
-    val entityCount: Long = 0
+    val entryCount: Long = 0
 ) {
     companion object {
-        fun from(project: Project, entityCount: Long = 0) =
+        fun from(project: Project, entryCount: Long = 0) =
             ProjectResponse(
                 id = requireNotNull(project.id) { "Project ID is missing" },
                 name = project.name,
@@ -29,7 +29,7 @@ data class ProjectResponse(
                 createdAt = project.createdAt,
                 updatedAt = project.updatedAt,
                 genre = project.genre,
-                entityCount = entityCount
+                entryCount = entryCount
             )
     }
 }

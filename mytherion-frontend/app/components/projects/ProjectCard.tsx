@@ -47,8 +47,8 @@ function CardMenu({ onEdit, onDelete, className = "" }: CardMenuProps) {
           setMenuOpen(!menuOpen);
         }}
         className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/70 transition-all shadow-md group-hover:border-white/20 cursor-pointer"
-        title="World options"
-        aria-label="World options"
+        title="Project options"
+        aria-label="Project options"
         aria-haspopup="menu"
         aria-expanded={menuOpen}
       >
@@ -75,7 +75,7 @@ function CardMenu({ onEdit, onDelete, className = "" }: CardMenuProps) {
           className="w-full text-left px-3 py-2 text-xs font-semibold rounded-lg flex items-center gap-2.5 text-white/80 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
         >
           <span className="material-symbols-outlined text-[16px] text-primary">edit</span>
-          <span>Edit World</span>
+          <span>Edit Project</span>
         </button>
         <button
           type="button"
@@ -239,7 +239,7 @@ export default function ProjectCard({
           <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
             <div className="flex items-center text-[10px] font-bold text-white/40 uppercase tracking-[0.15em]">
               <span className="material-symbols-outlined text-[14px] mr-1.5 text-primary/70">database</span>
-              <span>{(project.entityCount || 0).toLocaleString()} Entities</span>
+              <span>{(project.entryCount || 0).toLocaleString()} Entries</span>
             </div>
             <span className="text-white/40 font-medium text-[11px]">
               {formatDate(project.updatedAt || project.createdAt)}
@@ -327,7 +327,7 @@ export default function ProjectCard({
 
           <div className="flex items-center text-[10px] font-bold text-white/40 uppercase tracking-[0.15em]">
             <span className="material-symbols-outlined text-[14px] mr-1.5 text-primary/70">database</span>
-            <span>{(project.entityCount || 0).toLocaleString()} Entities</span>
+            <span>{(project.entryCount || 0).toLocaleString()} Entries</span>
           </div>
         </div>
       </div>

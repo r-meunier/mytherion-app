@@ -16,9 +16,9 @@ I don't believe in forcing creativity into boxes. And I don't think AI for writi
 
 #### 1. Creative freedom over structure
 
-Mytherion ships with a default structure — a Codex with entity types like Character, Location, Organization, Culture, Species, and Item, and some pre-defined project genres. These are starting points, not hard requirements.
+Mytherion ships with a default structure — a Codex with entry types like Character, Location, Organization, Culture, Species, and Item, and some pre-defined project genres. These are starting points, not hard requirements.
 
-The goal down the line is to be able to customise everything: custom categories, custom tags, custom metadata fields. If your world has Factions, Deities, Starships, or Arcane Schools, you should be able to define those as first-class entities. The platform should fit the project — not the other way around.
+The goal down the line is to be able to customise everything: custom categories, custom tags, custom metadata fields. If your world has Factions, Deities, Starships, or Arcane Schools, you should be able to define those as first-class entries. The platform should fit the project — not the other way around.
 
 #### 2. AI support that works the way coding tools do
 
@@ -26,7 +26,7 @@ Writing a novel _is_ engineering in its form. An author building a world, defini
 
 Coding AI agents handle context differently than their web chat counterparts do. They _go find what's relevant to your current prompt_, on the fly. Ask it to summarise all chapters? It'll pull the chapter files. Ask it to revise a single paragraph? It pulls that section and the context. It dynamically scopes what it needs. That makes a huge difference when you're working on a 50k+ word project across dozens if not hundreds of files.
 
-That's the model Mytherion brings to writing — tools like Claude Code, Cursor, Codex, Gemini CLI. Instead of forcing you to craft elaborate prompts and cross your fingers, the AI should navigate the Codex, read entity definitions, trace relationship threads, and apply it exactly where it matters.
+That's the model Mytherion brings to writing — tools like Claude Code, Cursor, Codex, Gemini CLI. Instead of forcing you to craft elaborate prompts and cross your fingers, the AI should navigate the Codex, read entry definitions, trace relationship threads, and apply it exactly where it matters.
 
 #### 3. Your world is your data — and you should own it
 
@@ -63,7 +63,7 @@ Mytherion wants to build that infrastructure: a platform where your creative pro
 - Responsive design with modern aesthetics
 - Session persistence
 - Email verification flow
-- Entity management (Codex) UI
+- Entry management (Codex) UI
 
 ---
 
@@ -89,9 +89,9 @@ I used Axios mainly for a clean API layer and interceptors (especially for auth/
 
 **Tradeoff:** `fetch` could've been enough. Axios is another dependency to maintain, so the benefit's mostly in consistency and ergonomics.
 
-### Entity management scope limited in MVP
+### Entry management scope limited in MVP
 
-I intentionally focused on auth + project CRUD first before building the full entity management UI. I wanted to stabilize the main app flow before expanding feature breadth.
+I intentionally focused on auth + project CRUD first before building the full entry management UI. I wanted to stabilize the main app flow before expanding feature breadth.
 
 **Tradeoff:** the README roadmap grew faster than the implemented UI in some areas, which is something I want to keep tighter going forward.
 
@@ -190,7 +190,7 @@ mytherion-frontend/
 │   │   ├── DualSidebar.tsx
 │   │   ├── VerificationBanner.tsx
 │   │   ├── dashboard/        # Dashboard-specific components
-│   │   ├── entities/         # Entity management components
+│   │   ├── entries/         # Entry management components
 │   │   └── projects/         # Project management components
 │   │       ├── ProjectCard.tsx
 │   │       ├── ProjectList.tsx
@@ -226,7 +226,7 @@ mytherion-frontend/
 │   │   └── [projectId]/      # Dynamic project routes
 │   │       ├── page.tsx      # Project dashboard
 │   │       ├── settings/     # Project settings
-│   │       ├── entities/     # Entity management
+│   │       ├── entries/     # Entry management
 │   │       └── analytics/    # Analytics (planned)
 │   ├── layout.tsx            # Root layout with Redux Provider
 │   ├── page.tsx              # Home page
@@ -288,9 +288,9 @@ mytherion-frontend/
 
 - **Project Dashboard** (`/projects/[projectId]`)
   - Project overview and statistics
-  - Entity count breakdown by type
+  - Entry count breakdown by type
   - Quick actions (edit, delete, settings)
-  - Navigation to entity management
+  - Navigation to entry management
   - Breadcrumb navigation
   - Responsive layout
 
@@ -303,8 +303,8 @@ mytherion-frontend/
   - Success notifications
 
 - **Project Statistics**
-  - Total entity count
-  - Breakdown by entity type (Character, Location, etc.)
+  - Total entry count
+  - Breakdown by entry type (Character, Location, etc.)
   - Visual icons for each type
   - Real-time updates
 
@@ -355,7 +355,7 @@ mytherion-frontend/
 - **State Slices**
   - `authSlice` – User authentication and session
   - `projectSlice` – Project management
-  - `entitySlice` – Entity (Codex) management
+  - `codexSlice` – Entry (Codex) management
 
 ### Security
 
@@ -555,7 +555,7 @@ npm test
 
 ### Short-term
 
-- **Entity Management enhancements**
+- **Entry Management enhancements**
   - Advanced filtering and search
   - Tag management UI
   - Type-specific metadata forms
@@ -563,8 +563,8 @@ npm test
 ### Medium-term
 
 - **Custom Codex structure**
-  - User-defined entity categories (beyond the 6 defaults)
-  - Custom metadata field editor per entity type
+  - User-defined entry categories (beyond the 6 defaults)
+  - Custom metadata field editor per entry type
   - Custom tag taxonomies
   - Genre and project type customisation
 
@@ -575,9 +575,9 @@ npm test
   - Fallback images
 
 - **Relationship Mapping**
-  - Visual graph of entity connections
+  - Visual graph of entry connections
   - Relationship types (ally, rival, origin, etc.)
-  - Filterable by entity type
+  - Filterable by entry type
 
 ### Long-term
 
@@ -591,12 +591,12 @@ npm test
 - **AI Layer**
   - AI assistant that navigates the Codex like a codebase — dynamically scoping what's relevant to your current request rather than loading everything at once
   - Ask it to summarise all chapters → it pulls the chapter files; ask it to revise a paragraph → it pulls that section and the surrounding context
-  - Targeted edits to individual entities, scenes, or passages without touching unrelated content
+  - Targeted edits to individual entries, scenes, or passages without touching unrelated content
   - Context-aware suggestions backed by your own world's lore (not generic fiction tropes)
   - Works _with_ version history — understands what changed, when, and why
 
 - **Version history and structural infrastructure**
-  - Every entity, chapter, and narrative thread treated as versioned, diffable, structurally navigable content
+  - Every entry, chapter, and narrative thread treated as versioned, diffable, structurally navigable content
   - The same baseline infrastructure a software project takes for granted: history, recovery, visibility, and coherence across the whole project graph
   - No draft is ever truly lost
 
@@ -604,7 +604,7 @@ npm test
   - Collaborative editing
   - Export to PDF, Markdown, or Docx
   - Mobile app (React Native)
-  - Version history for entities and narrative content
+  - Version history for entries and narrative content
 
 ---
 
@@ -623,7 +623,7 @@ npm test
 - **Redux for global state:**
   - Authentication
   - Projects
-  - Entities
+  - Entries
 
 - **Local state for component state:**
   - Form inputs

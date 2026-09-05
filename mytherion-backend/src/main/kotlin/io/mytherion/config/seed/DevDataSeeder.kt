@@ -1,16 +1,14 @@
 package io.mytherion.config.seed
 
-import io.mytherion.entity.model.Entity
-import io.mytherion.entity.model.EntityMetadata
-import io.mytherion.entity.model.EntityType
-import io.mytherion.entity.model.components.*
-import io.mytherion.entity.repository.EntityRepository
+import io.mytherion.codex.model.CodexEntry
+import io.mytherion.codex.model.EntryContent
+import io.mytherion.codex.model.EntryType
+import io.mytherion.codex.model.sections.*
+import io.mytherion.codex.repository.CodexEntryRepository
 import io.mytherion.platform.logging.infoWith
 import io.mytherion.platform.logging.logger
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
-import io.mytherion.category.model.Category
-import io.mytherion.category.repository.CategoryRepository
 import io.mytherion.user.model.User
 import io.mytherion.user.model.UserRole
 import io.mytherion.user.repository.UserRepository
@@ -22,7 +20,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 /**
- * Seeds the database with test users, demo projects, and sample entities
+ * Seeds the database with test users, demo projects, and sample entries
  * on application startup. Only active in non-production environments.
  *
  * Idempotent: skips seeding if any users already exist.
@@ -34,8 +32,7 @@ import org.springframework.transaction.annotation.Transactional
 class DevDataSeeder(
     private val userRepository: UserRepository,
     private val projectRepository: ProjectRepository,
-    private val categoryRepository: CategoryRepository,
-    private val entityRepository: EntityRepository,
+    private val entryRepository: CodexEntryRepository,
     private val passwordEncoder: PasswordEncoder
 ) : ApplicationRunner {
 
@@ -68,7 +65,7 @@ class DevDataSeeder(
             description = "A high-fantasy world fractured by an ancient cataclysm. Floating continents drift above a sea of storms, connected by magical ley-bridges.",
             genre = "Fantasy"
         )
-        seedShatteredRealmsEntities(shatteredRealms)
+        seedShatteredRealmsEntries(shatteredRealms)
 
         // ── worldbuilder's multiple projects ─────────────────────────
         val ironEmpire = createProject(
@@ -77,7 +74,7 @@ class DevDataSeeder(
             description = "A steampunk industrial empire on the brink of revolution. Clockwork soldiers patrol the smog-filled streets while rebel engineers plot from the underground.",
             genre = "Steampunk"
         )
-        seedIronEmpireEntities(ironEmpire)
+        seedIronEmpireEntries(ironEmpire)
 
         val echoesOfEden = createProject(
             owner = builder,
@@ -85,7 +82,7 @@ class DevDataSeeder(
             description = "A post-apocalyptic world where nature has reclaimed the ruins of a fallen civilization. Scattered tribes worship the ancient machines they no longer understand.",
             genre = "Post-Apocalyptic"
         )
-        seedEchoesOfEdenEntities(echoesOfEden)
+        seedEchoesOfEdenEntries(echoesOfEden)
 
         val stellarDrift = createProject(
             owner = builder,
@@ -93,13 +90,13 @@ class DevDataSeeder(
             description = "Humanity's last colony ships drift between dying stars. Political intrigue and resource wars define life aboard the Arks.",
             genre = "Sci-Fi"
         )
-        seedStellarDriftEntities(stellarDrift)
+        seedStellarDriftEntries(stellarDrift)
 
         logger.infoWith(
             "[SEED] ═══ Dev data seed complete ═══",
             "users" to 5,
             "projects" to 4,
-            "entities" to entityRepository.count()
+            "entries" to entryRepository.count()
         )
     }
 
@@ -140,55 +137,49 @@ class DevDataSeeder(
         return project
     }
 
-    private fun createEntity(
+    private fun createEntry(
         project: Project,
-        type: EntityType,
+        type: EntryType,
         name: String,
-        category: String? = null,
         description: String? = null,
         tags: List<String> = emptyList(),
-        components: List<EntityComponent> = emptyList()
-    ): Entity {
-        val entity = entityRepository.save(
-            Entity(
+        sections: List<EntrySection> = emptyList()
+    ): CodexEntry {
+        val entry = entryRepository.save(
+            CodexEntry(
                 project = project,
                 type = type,
                 name = name,
-                category = category?.let { catName ->
-                    categoryRepository.findAllByProjectOrderByNameAsc(project).find { it.name == catName }
-                        ?: categoryRepository.save(Category(project = project, name = catName))
-                },
                 description = description,
                 tags = tags.toTypedArray(),
-                metadata = if (components.isNotEmpty()) EntityMetadata(components.toMutableList()) else null
+                content = if (sections.isNotEmpty()) EntryContent(sections.toMutableList()) else null
             )
         )
-        logger.infoWith("[SEED] Created entity", "name" to name, "type" to type, "projectId" to project.id)
-        return entity
+        logger.infoWith("[SEED] Created entry", "name" to name, "type" to type, "projectId" to project.id)
+        return entry
     }
 
     // ════════════════════════════════════════════════════════════════
     //  THE SHATTERED REALMS  (testuser's project)
     // ════════════════════════════════════════════════════════════════
 
-    private fun seedShatteredRealmsEntities(project: Project) {
+    private fun seedShatteredRealmsEntries(project: Project) {
         // Character: Vaelith Stormweaver
-        createEntity(
+        createEntry(
             project = project,
-            type = EntityType.CHARACTER,
+            type = EntryType.CHARACTER,
             name = "Vaelith Stormweaver",
-            category = "Protagonist",
             description = "Once the youngest Archon of the Luminari Order, Vaelith was exiled after a forbidden experiment shattered the Veil of Echoes. Now wandering the fractured realms, she searches for the Convergence Stones — artifacts rumoured to restore the world's shattered connections.",
             tags = listOf("protagonist", "mage", "exile", "ley-mage"),
-            components = listOf(
-                BioComponent(data = BioData(
+            sections = listOf(
+                BioSection(data = BioData(
                     status = "Alive",
                     age = Quantity(value = 34.0, unit = "years"),
                     gender = "Female",
                     role = "Arcane Scholar",
                     condition = "Scarred by ley-energy exposure"
                 )),
-                PsychologyComponent(data = PsychologyData(
+                PsychologySection(data = PsychologyData(
                     motivations = MotivationData(
                         externalGoal = "Restore the ley-lines before the last continent falls",
                         internalNeed = "Prove that her exile was unjust",
@@ -198,12 +189,12 @@ class DevDataSeeder(
                     negativeTraits = listOf("Reckless", "Haunted", "Stubborn"),
                     mannerisms = "Traces invisible glyphs in the air when thinking"
                 )),
-                AppearanceComponent(data = AppearanceData(
+                AppearanceSection(data = AppearanceData(
                     physicalFeatures = "Sharp angular features, silver-white hair streaked with violet from ley-exposure",
                     distinguishingMarks = "Luminous ley-burn scars running up both forearms",
                     clothingStyle = "Worn traveller's robes over practical leather armour, covered in arcane notation"
                 )),
-                SocialComponent(data = SocialData(
+                SocialSection(data = SocialData(
                     occupations = listOf("Wandering Scholar", "Former Archon"),
                     skills = listOf("Ley-Manipulation", "Ancient Languages", "Cartography"),
                     affiliations = "Formerly Luminari Order (exiled)"
@@ -212,14 +203,13 @@ class DevDataSeeder(
         )
 
         // Location: The Luminari Citadel
-        createEntity(
+        createEntry(
             project = project,
-            type = EntityType.LOCATION,
+            type = EntryType.LOCATION,
             name = "The Luminari Citadel",
-            category = "Landmark",
             tags = listOf("landmark", "ruins", "luminari", "arcane"),
-            components = listOf(
-                LocationComponent(data = LocationData(
+            sections = listOf(
+                LocationSection(data = LocationData(
                     population = Quantity(value = 200.0, unit = "scholars"),
                     geology = "Floating basalt island anchored by crystallized ley-nodes",
                     security = "Warded by ancient ley-barriers, though many are failing",
@@ -229,14 +219,13 @@ class DevDataSeeder(
         )
 
         // Organization: The Luminari Order
-        createEntity(
+        createEntry(
             project = project,
-            type = EntityType.ORGANIZATION,
+            type = EntryType.ORGANIZATION,
             name = "The Luminari Order",
-            category = "Faction",
             tags = listOf("faction", "mages", "luminari", "order"),
-            components = listOf(
-                OrganizationComponent(data = OrganizationData(
+            sections = listOf(
+                OrganizationSection(data = OrganizationData(
                     population = Quantity(value = 150.0, unit = "members"),
                     agenda = "Preserve remaining ley-lines and prevent further continental collapse",
                     powerStructure = "Council of Archons led by the High Illuminator",
@@ -246,14 +235,13 @@ class DevDataSeeder(
         )
 
         // Item: Convergence Stone
-        createEntity(
+        createEntry(
             project = project,
-            type = EntityType.ITEM,
+            type = EntryType.ITEM,
             name = "Convergence Stone",
-            category = "Artifact",
             tags = listOf("artifact", "quest-item", "ancient", "ley-stone"),
-            components = listOf(
-                ItemComponent(data = ItemData(
+            sections = listOf(
+                ItemSection(data = ItemData(
                     rarity = "Legendary",
                     material = "Crystallized ley-energy",
                     properties = listOf("Ley-Resonance", "Self-Repairing", "Sentient"),
@@ -267,21 +255,20 @@ class DevDataSeeder(
     //  THE IRON EMPIRE  (worldbuilder project #1)
     // ════════════════════════════════════════════════════════════════
 
-    private fun seedIronEmpireEntities(project: Project) {
-        createEntity(
+    private fun seedIronEmpireEntries(project: Project) {
+        createEntry(
             project = project,
-            type = EntityType.CHARACTER,
+            type = EntryType.CHARACTER,
             name = "Commissioner Greaves",
-            category = "Antagonist",
             tags = listOf("antagonist", "authority", "steampunk"),
-            components = listOf(
-                BioComponent(data = BioData(
+            sections = listOf(
+                BioSection(data = BioData(
                     status = "Alive",
                     age = Quantity(value = 58.0, unit = "years"),
                     gender = "Male",
                     role = "Commissioner of Compliance"
                 )),
-                PsychologyComponent(data = PsychologyData(
+                PsychologySection(data = PsychologyData(
                     motivations = MotivationData(
                         externalGoal = "Crush the rebel engineers and maintain imperial order",
                         internalNeed = "Justify the atrocities he committed during the Cog Wars"
@@ -292,34 +279,32 @@ class DevDataSeeder(
             )
         )
 
-        createEntity(
+        createEntry(
             project = project,
-            type = EntityType.CHARACTER,
+            type = EntryType.CHARACTER,
             name = "Renna Blackspanner",
-            category = "Protagonist",
             tags = listOf("protagonist", "engineer", "rebel"),
-            components = listOf(
-                BioComponent(data = BioData(
+            sections = listOf(
+                BioSection(data = BioData(
                     status = "Alive",
                     age = Quantity(value = 26.0, unit = "years"),
                     gender = "Female",
                     role = "Underground Engineer"
                 )),
-                SocialComponent(data = SocialData(
+                SocialSection(data = SocialData(
                     occupations = listOf("Mechanic", "Rebel Cell Leader"),
                     skills = listOf("Clockwork Engineering", "Explosives", "Lock-picking")
                 ))
             )
         )
 
-        createEntity(
+        createEntry(
             project = project,
-            type = EntityType.LOCATION,
+            type = EntryType.LOCATION,
             name = "Geartown",
-            category = "District",
             tags = listOf("industrial", "urban", "steampunk"),
-            components = listOf(
-                LocationComponent(data = LocationData(
+            sections = listOf(
+                LocationSection(data = LocationData(
                     population = Quantity(value = 450000.0, unit = "citizens"),
                     economy = "Heavy manufacturing, clockwork assembly, coal processing",
                     demographics = "Working class, overcrowded tenements, high mortality"
@@ -332,15 +317,14 @@ class DevDataSeeder(
     //  ECHOES OF EDEN  (worldbuilder project #2)
     // ════════════════════════════════════════════════════════════════
 
-    private fun seedEchoesOfEdenEntities(project: Project) {
-        createEntity(
+    private fun seedEchoesOfEdenEntries(project: Project) {
+        createEntry(
             project = project,
-            type = EntityType.CHARACTER,
+            type = EntryType.CHARACTER,
             name = "Kael Root-Speaker",
-            category = "Protagonist",
             tags = listOf("protagonist", "shaman", "nature"),
-            components = listOf(
-                BioComponent(data = BioData(
+            sections = listOf(
+                BioSection(data = BioData(
                     status = "Alive",
                     age = Quantity(value = 19.0, unit = "years"),
                     gender = "Non-binary",
@@ -349,28 +333,26 @@ class DevDataSeeder(
             )
         )
 
-        createEntity(
+        createEntry(
             project = project,
-            type = EntityType.LOCATION,
+            type = EntryType.LOCATION,
             name = "The Overgrown Spire",
-            category = "Ruin",
             tags = listOf("ruin", "nature", "ancient-tech"),
-            components = listOf(
-                LocationComponent(data = LocationData(
+            sections = listOf(
+                LocationSection(data = LocationData(
                     ecology = "Dense canopy ecosystem with bioluminescent fungi at lower levels",
                     history = "Once a corporate headquarters, now a sacred site for the Verdant Tribe"
                 ))
             )
         )
 
-        createEntity(
+        createEntry(
             project = project,
-            type = EntityType.ITEM,
+            type = EntryType.ITEM,
             name = "The Singing Core",
-            category = "Relic",
             tags = listOf("relic", "ancient-tech", "power-source"),
-            components = listOf(
-                ItemComponent(data = ItemData(
+            sections = listOf(
+                ItemSection(data = ItemData(
                     rarity = "Unique",
                     material = "Unknown alloy",
                     condition = "Functional (partially)",
@@ -384,21 +366,20 @@ class DevDataSeeder(
     //  STELLAR DRIFT  (worldbuilder project #3)
     // ════════════════════════════════════════════════════════════════
 
-    private fun seedStellarDriftEntities(project: Project) {
-        createEntity(
+    private fun seedStellarDriftEntries(project: Project) {
+        createEntry(
             project = project,
-            type = EntityType.CHARACTER,
+            type = EntryType.CHARACTER,
             name = "Captain Dara Voss",
-            category = "Protagonist",
             tags = listOf("protagonist", "captain", "leader"),
-            components = listOf(
-                BioComponent(data = BioData(
+            sections = listOf(
+                BioSection(data = BioData(
                     status = "Alive",
                     age = Quantity(value = 42.0, unit = "years"),
                     gender = "Female",
                     role = "Ark Commander"
                 )),
-                PsychologyComponent(data = PsychologyData(
+                PsychologySection(data = PsychologyData(
                     motivations = MotivationData(
                         externalGoal = "Find a habitable world before Ark-7's systems fail",
                         internalNeed = "Atone for the crew she sacrificed at the Battle of Proxima"
@@ -409,14 +390,13 @@ class DevDataSeeder(
             )
         )
 
-        createEntity(
+        createEntry(
             project = project,
-            type = EntityType.ORGANIZATION,
+            type = EntryType.ORGANIZATION,
             name = "The Ark Council",
-            category = "Government",
             tags = listOf("government", "council", "political"),
-            components = listOf(
-                OrganizationComponent(data = OrganizationData(
+            sections = listOf(
+                OrganizationSection(data = OrganizationData(
                     population = Quantity(value = 12.0, unit = "councilors"),
                     agenda = "Decide the fate of humanity's last 50,000 survivors",
                     powerStructure = "Rotating chair, one vote per Ark",

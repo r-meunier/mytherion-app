@@ -1,5 +1,10 @@
 # Semantic Entity Component System - Implementation Plan
 
+> **Historical record.** Vocabulary predates [`terminology.md`](../../docs/terminology.md):
+> "Entity" = Codex Entry, "Component" = Entry Section, "World" = Project.
+> Category was removed in MYT-81.
+
+
 ## 1. Core Architecture (Current State)
 
 The Mytherion entity system uses a **Semantic Component Architecture**. Entities are thin containers, and all domain-specific data is stored in modular, polymorphic components within a JSONB `metadata` column.

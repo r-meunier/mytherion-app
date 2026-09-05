@@ -39,7 +39,7 @@ const dancingScript = Dancing_Script({
   display: "swap",
 });
 
-export const metadata: Metadata = {
+export const content: Metadata = {
   title: "Mytherion | Your World, Structured",
   description: "The ultimate platform for worldbuilders and storytellers to structure their lore, characters, and timelines with AI-powered assistance.",
   keywords: ["worldbuilding", "storytelling", "writing", "RPG", "fantasy", "lore"],

@@ -16,9 +16,9 @@ I don't believe in forcing creativity into boxes. And I don't think AI for writi
 
 #### 1. Creative freedom over structure
 
-Mytherion ships with a default structure — a Codex with entity types like Character, Location, Organization, Culture, Species, and Item, and some pre-defined project genres. These are starting points, not hard requirements.
+Mytherion ships with a default structure — a Codex with entry types like Character, Location, Organization, Culture, Species, and Item, and some pre-defined project genres. These are starting points, not hard requirements.
 
-The goal down the line is to be able to customise everything: custom categories, custom tags, custom metadata fields. If your world has Factions, Deities, Starships, or Arcane Schools, you should be able to define those as first-class entities. The platform should fit the project — not the other way around.
+The goal down the line is to be able to customise everything: custom categories, custom tags, custom metadata fields. If your world has Factions, Deities, Starships, or Arcane Schools, you should be able to define those as first-class entries. The platform should fit the project — not the other way around.
 
 #### 2. AI support that works the way coding tools do
 
@@ -26,7 +26,7 @@ Writing a novel _is_ engineering in its form. An author building a world, defini
 
 Coding AI agents handle context differently than their web chat counterparts do. They _go find what's relevant to your current prompt_, on the fly. Ask it to summarise all chapters? It'll pull the chapter files. Ask it to revise a single paragraph? It pulls that section and the context. It dynamically scopes what it needs. That makes a huge difference when you're working on a 50k+ word project across dozens if not hundreds of files.
 
-That's the model Mytherion brings to writing — tools like Claude Code, Cursor, Codex, Gemini CLI. Instead of forcing you to craft elaborate prompts and cross your fingers, the AI should navigate the Codex, read entity definitions, trace relationship threads, and apply it exactly where it matters.
+That's the model Mytherion brings to writing — tools like Claude Code, Cursor, Codex, Gemini CLI. Instead of forcing you to craft elaborate prompts and cross your fingers, the AI should navigate the Codex, read entry definitions, trace relationship threads, and apply it exactly where it matters.
 
 #### 3. Your world is your data — and you should own it
 
@@ -63,7 +63,7 @@ Mytherion wants to build that infrastructure: a platform where your creative pro
 - Authentication with JWT httpOnly cookies
 - User registration, login, and email verification
 - Project CRUD operations with soft delete
-- Entity management (6 entity types with metadata)
+- Entry management (6 entry types with metadata)
 - Image upload and storage via MinIO
 - Performance monitoring with Actuator + Micrometer
 - Comprehensive structured logging
@@ -90,15 +90,15 @@ I used JWTs in httpOnly cookies instead of localStorage because I wanted safety 
 
 **Tradeoff:** cookie auth requires more care around CORS/CSRF and local dev setup. Can't just drop a token into an Authorization header everywhere.
 
-### Soft delete for projects (and later entities)
+### Soft delete for projects (and later entries)
 
 I used soft delete (`deletedAt`) because this app is for creative/worldbuilding content, where accidental deletion is very likely.
 
 **Tradeoff:** soft delete makes queries and uniqueness rules more complex. We need to consistently filter out deleted rows and think about restore behavior and indexing.
 
-### JSONB for entity metadata
+### JSONB for entry metadata
 
-Different entity types (character, location, item, etc.) need different fields. JSONB let me move faster without creating many type-specific tables too early and deciding on a hard schema.
+Different entry types (character, location, item, etc.) need different fields. JSONB let me move faster without creating many type-specific tables too early and deciding on a hard schema.
 
 **Tradeoff:** this gives flexibility, but needs more validation in code and can make querying/reporting more complex than a fully normalized schema. As the product grows and custom fields become first-class, some fields may need to be promoted into dedicated tables or a proper EAV model.
 
@@ -113,7 +113,7 @@ I added Actuator/Micrometer/structured logging early for practicing operability 
 - Contract tests between frontend and backend (to avoid docs/API drift)
 - Stricter API error schema and consistency across endpoints
 - Pagination/filtering strategy finalized across list endpoints
-- Better validation for JSONB metadata per entity type
+- Better validation for JSONB metadata per entry type
 - Role-based permissions / project sharing model
 - CI checks for formatting/linting/tests to keep repo quality consistent
 
@@ -237,15 +237,14 @@ Flyway tracks applied migrations in the `flyway_schema_history` table.
 src/main/kotlin/io/mytherion
 ├── config/           # Security, CORS, WebMvc, Flyway config
 │   └── seed/         # DevDataSeeder, TestUsers (profile-gated seed data)
-├── logging/          # Structured logging extensions
-├── monitoring/       # Performance interceptor, metrics
-├── health/           # Health check endpoint
-├── auth/             # Authentication (JWT, cookies)
+├── codex/            # Codex entries and their sections
+├── project/          # Projects domain (+ security/ProjectAccessInterceptor)
 ├── user/             # User domain (registration, profile)
-├── email/            # Email verification service
-├── project/          # Projects (worlds) domain
-├── entity/           # Codex entities (characters, locations, etc.)
-├── storage/          # MinIO image storage service
+├── auth/             # Authentication (JWT, cookies)
+├── dashboard/        # Aggregate stats
+├── common/           # Shared kernel: ApiException, ErrorResponse, auditable base
+├── platform/         # Infrastructure: email, storage, logging, monitoring, health
+├── config/           # Wiring only: security, web MVC, global exception handler
 └── MytherionApplication.kt
 ```
 
@@ -268,12 +267,12 @@ src/main/kotlin/io/mytherion
 - **Project CRUD operations** (Create, Read, Update, Delete)
 - **Soft delete**
 - **User-scoped projects** with ownership verification
-- **Project statistics** (entity counts by type)
+- **Project statistics** (entry counts by type)
 - **Pagination support**
 
-### Entity Management (Codex)
+### Entry Management (Codex)
 
-Support for 6 built-in entity types (the defaults — more to come):
+Support for 6 built-in entry types (the defaults — more to come):
 
 - **CHARACTER** – Age, role, personality traits
 - **LOCATION** – Region, climate, population
@@ -284,7 +283,7 @@ Support for 6 built-in entity types (the defaults — more to come):
 
 **Features:**
 
-- Full CRUD operations for all entity types
+- Full CRUD operations for all entry types
 - **Type-specific metadata** stored as JSONB
 - **Tag system** using PostgreSQL arrays
 - **Search and filtering** by type, tags, name
@@ -295,7 +294,7 @@ Support for 6 built-in entity types (the defaults — more to come):
 ### Image Storage
 
 - **MinIO object storage** integration
-- **Image upload** for entities and projects
+- **Image upload** for entries and projects
 - **URL generation** for stored images
 - **File validation** (type, size)
 
@@ -312,9 +311,9 @@ Support for 6 built-in entity types (the defaults — more to come):
 ### Database
 
 - **PostgreSQL** schema managed via Flyway
-- **JSONB** for flexible entity metadata
+- **JSONB** for flexible entry metadata
 - **PostgreSQL arrays** for tags
-- **Soft delete pattern** across entities
+- **Soft delete pattern** across entries
 - **Dockerized** local database
 
 ### API
@@ -352,16 +351,16 @@ Support for 6 built-in entity types (the defaults — more to come):
 | `/api/projects/{id}`       | DELETE | Soft delete project  |
 | `/api/projects/{id}/stats` | GET    | Get project stats    |
 
-### Entities
+### Entries
 
 | Endpoint               | Method | Description              |
 | ---------------------- | ------ | ------------------------ |
-| `/api/entities`        | GET    | List entities (filtered) |
-| `/api/entities`        | POST   | Create new entity        |
-| `/api/entities/{id}`   | GET    | Get entity details       |
-| `/api/entities/{id}`   | PUT    | Update entity            |
-| `/api/entities/{id}`   | DELETE | Soft delete entity       |
-| `/api/entities/search` | POST   | Advanced search          |
+| `/api/entries`        | GET    | List entries (filtered) |
+| `/api/entries`        | POST   | Create new entry        |
+| `/api/entries/{id}`   | GET    | Get entry details       |
+| `/api/entries/{id}`   | PUT    | Update entry            |
+| `/api/entries/{id}`   | DELETE | Soft delete entry       |
+| `/api/entries/search` | POST   | Advanced search          |
 
 ### Storage
 
@@ -394,7 +393,7 @@ Code is organized by **feature/domain**, not by layer:
 
 ### Soft Delete Pattern
 
-All entities use soft delete (`deletedAt` timestamp):
+All entries use soft delete (`deletedAt` timestamp):
 
 - Preserves data for audit trails
 - Allows "undo" functionality
@@ -402,9 +401,9 @@ All entities use soft delete (`deletedAt` timestamp):
 
 ### JSONB Metadata
 
-Entity-specific fields stored as JSONB:
+Entry-specific fields stored as JSONB:
 
-- Flexible schema for different entity types
+- Flexible schema for different entry types
 - No need for separate tables per type
 - Easy to add new fields without migrations
 - PostgreSQL provides efficient JSONB querying
@@ -450,7 +449,7 @@ JWT stored in httpOnly cookies:
 
 - Authentication flows
 - Project CRUD operations
-- Entity management
+- Entry management
 - Email verification
 - Soft delete behavior
 
@@ -463,7 +462,7 @@ JWT stored in httpOnly cookies:
 - **HTTP request metrics** (count, duration, percentiles)
 - **JVM metrics** (memory, GC, threads)
 - **Database metrics** (connection pool, query timing)
-- **Custom business metrics** (project creation, entity queries)
+- **Custom business metrics** (project creation, entry queries)
 
 ### Accessing Metrics
 
@@ -488,15 +487,15 @@ curl http://localhost:8080/actuator/prometheus
 - Two-factor authentication (2FA)
 - User profile updates
 - Project sharing/collaboration
-- Advanced entity search
+- Advanced entry search
 
 ### Medium-term
 
-- **Custom entity categories** — user-defined types beyond the 6 defaults
-- **Custom metadata fields** — define your own fields per entity type
+- **Custom entry categories** — user-defined types beyond the 6 defaults
+- **Custom metadata fields** — define your own fields per entry type
 - **Custom tags** — full tag taxonomy ownership
-- Relationship mapping between entities
-- Rich text editor support for entity descriptions
+- Relationship mapping between entries
+- Rich text editor support for entry descriptions
 - Export functionality (PDF, JSON, Markdown)
 - Bulk operations
 
@@ -504,15 +503,15 @@ curl http://localhost:8080/actuator/prometheus
 
 **Version history and structural infrastructure**
 
-Before AI can be genuinely useful at scale, the underlying data model needs to be right. That means treating every entity, chapter, and narrative thread as versioned, diffable, structurally navigable content. The goal is to build the same baseline infrastructure a software project takes for granted: history, recovery, visibility, and coherence across the whole project graph.
+Before AI can be genuinely useful at scale, the underlying data model needs to be right. That means treating every entry, chapter, and narrative thread as versioned, diffable, structurally navigable content. The goal is to build the same baseline infrastructure a software project takes for granted: history, recovery, visibility, and coherence across the whole project graph.
 
 **AI Layer**
 
 The AI layer is modeled on how coding agents work. Instead of static prompts and full-context document dumps, it should:
 
-- **Navigate the Codex** — find relevant entities by type, tag, or relationship before responding
+- **Navigate the Codex** — find relevant entries by type, tag, or relationship before responding
 - **Scope context dynamically** — pull only what's needed for the current request (a character's sheet, a chapter section, a location's lore) rather than sending everything at once
-- **Make targeted edits** — revise a specific paragraph, add a detail to one entity, without touching unrelated content
+- **Make targeted edits** — revise a specific paragraph, add a detail to one entry, without touching unrelated content
 - **Respect project structure** — understand that a 100k-word novel across 200 Codex entries is a project graph, not a flat document
 - **Work with version history** — understand what changed, when, and why, and use that as context
 

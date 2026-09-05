@@ -4,11 +4,11 @@ import java.time.Instant
 
 /** Aggregate statistics for the user dashboard. */
 data class DashboardStatsDTO(
-    val totalEntities: Long,
-    val entitiesThisWeek: Long,
+    val totalEntries: Long,
+    val entriesThisWeek: Long,
     val recentEdits: Long,
     val totalProjects: Long,
-    val recentEntities: List<io.mytherion.entity.dto.EntityDTO> = emptyList(),
-    val entityCountByType: Map<String, Int> = emptyMap(),
+    val recentEntries: List<io.mytherion.codex.dto.EntryDTO> = emptyList(),
+    val entryCountByType: Map<String, Int> = emptyMap(),
     val lastUpdated: Instant = Instant.now()
 )

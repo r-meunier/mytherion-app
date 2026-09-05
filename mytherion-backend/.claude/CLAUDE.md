@@ -1,7 +1,7 @@
 # CLAUDE.md — Mytherion Backend (Spring Boot + Kotlin)
 
 You are working in **Mytherion Backend**, a Spring Boot + Kotlin service for a lightweight worldbuilding / codex-style app.
-It provides structured storage for **projects (worlds)** and **entries** (characters, locations, cultures, etc.), and is an early MVP under active development.
+It provides structured storage for **projects** and their **codex entries** (characters, locations, cultures, etc.), and is an early MVP under active development.
 
 ## What matters most (guardrails)
 - This is **early MVP / active development**: schemas and migrations may change; DB resets are expected.
@@ -67,9 +67,8 @@ Root package:
 
 Business domains — each holds its own `model`, `dto`, `repository`, `service`, `rest`, `exception`:
 - `user` — user domain
-- `project` — projects/worlds (plus `security/ProjectAccessInterceptor`)
-- `entity` — codex entities and their components
-- `category` — entity categories
+- `project` — projects (plus `security/ProjectAccessInterceptor`)
+- `codex` — codex entries (`CodexEntry`) and their sections
 - `dashboard` — aggregate stats
 - `auth` — authentication (`rest`, `service`, `jwt`, `model`, `repository`, `dto`, `util`)
 
@@ -85,7 +84,7 @@ nothing; `platform` must not depend on a business domain. These are enforced by 
 
 ### When adding a feature
 Prefer this flow:
-1) Identify the domain (`project`, `entity`, `user`, etc.)
+1) Identify the domain (`project`, `codex`, `user`, etc.)
 2) Add/extend JPA entity + repository + service + controller inside the same domain package,
    putting the controller in that domain's `rest/` package
 3) Add a Flyway migration for schema changes
@@ -107,8 +106,8 @@ masked 500 rather than leaking internals.
 Current:
 - Postgres schema managed via Flyway
 - Project creation/listing, search and stats
-- Entity CRUD with a polymorphic component system
-- Categories and tagging/search
+- Codex entry CRUD with a polymorphic section system
+- Tagging/search
 - Auth (JWT via httpOnly cookies) and email verification
 - Image uploads via MinIO
 - Tenant isolation through `ProjectAccessInterceptor`
@@ -135,3 +134,7 @@ If you’re missing context:
 
 ## Licensing note
 This project is currently **not licensed for redistribution**.
+
+## Terminology
+`docs/terminology.md` is the canonical vocabulary and wins over the code. `Entity`, `Component`
+(as a domain term) and `World` are banned words — use `CodexEntry`, `EntrySection` and `Project`.

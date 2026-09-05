@@ -1,5 +1,9 @@
 # CI and Environment Fix Plan
 
+> **Historical record (Resolved).** Class names here predate [`terminology.md`](./terminology.md):
+> `EntityControllerTest` is now `CodexEntryControllerTest`, `EntityDTO` is now `EntryDTO`.
+
+
 ## 1. Backend Fixes
 
 ### 1.1 Resolve Flyway Connection Error in CI

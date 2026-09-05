@@ -11,7 +11,7 @@ export interface NavItem {
 
 /**
  * Get unified icon-level navigation (leftmost bar)
- * Includes 'Portal' (Worlds) and project-specific modules
+ * Includes 'Portal' (Projects) and project-specific modules
  */
 export const getProjectIconItems = (projectId?: string): NavItem[] => [
   { id: "overview", icon: "public", label: "Overview", href: projectId ? routes.project(projectId).root : routes.home() },
@@ -26,7 +26,7 @@ export const getProjectIconItems = (projectId?: string): NavItem[] => [
  * Legacy support for global icons
  */
 export const getGlobalIconItems = (): NavItem[] => [
-  { id: "projects", icon: "public", label: "Worlds", href: routes.home() },
+  { id: "projects", icon: "public", label: "Projects", href: routes.home() },
   { id: "codex", icon: "menu_book", label: "Codex", href: "#", disabled: true },
   { id: "planner", icon: "schema", label: "Planner", href: "#", badge: "Phase 2", disabled: true },
   { id: "manuscript", icon: "edit_note", label: "Manuscript", href: "#", badge: "Phase 2", disabled: true },
@@ -49,7 +49,7 @@ export const getProjectNavItems = (projectId?: string): NavItem[] => [
  * Legacy support for global nav
  */
 export const getGlobalNavItems = (): NavItem[] => [
-  { id: "projects", label: "Your Worlds", href: routes.home(), icon: "public" },
+  { id: "projects", label: "Your Projects", href: routes.home(), icon: "public" },
 ];
 
 /**

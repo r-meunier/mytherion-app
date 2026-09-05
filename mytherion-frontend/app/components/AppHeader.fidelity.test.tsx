@@ -33,7 +33,7 @@ describe('AppHeader High Fidelity', () => {
     });
   });
 
-  it('hides the top search on the Worlds page (pathname === "/")', () => {
+  it('hides the top search on the Projects page (pathname === "/")', () => {
     (usePathname as jest.Mock).mockReturnValue('/');
     render(<AppHeader />);
     

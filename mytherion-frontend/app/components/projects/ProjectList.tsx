@@ -83,9 +83,9 @@ export default function ProjectList({
             <span className="material-symbols-outlined text-[32px]">public_off</span>
           </div>
           <div className="space-y-1">
-            <h3 className="text-lg font-bold text-white">No worlds found</h3>
+            <h3 className="text-lg font-bold text-white">No projects found</h3>
             <p className="text-white/40 text-sm max-w-sm">
-              No creations match your current filters. Create a new world to begin.
+              No creations match your current filters. Create a new project to begin.
             </p>
           </div>
           <button
@@ -93,7 +93,7 @@ export default function ProjectList({
             className="px-5 py-2.5 bg-primary text-[#2c0051] font-bold text-sm rounded-full hover:bg-primary/90 transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_15px_rgba(221,183,255,0.4)]"
           >
             <span className="material-symbols-outlined text-[18px]">add</span>
-            <span>Create World</span>
+            <span>Create Project</span>
           </button>
         </div>
       ) : (
