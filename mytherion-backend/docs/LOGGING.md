@@ -17,7 +17,7 @@ The Mytherion backend uses a structured logging system built on SLF4J with Kotli
 ### Getting a Logger
 
 ```kotlin
-import io.mytherion.logging.logger
+import io.mytherion.platform.logging.logger
 
 class MyService {
     private val logger = logger()  // Kotlin extension
@@ -46,8 +46,8 @@ logger.error("Error message", exception)
 Use the `*With` extension functions to add structured context to your logs:
 
 ```kotlin
-import io.mytherion.logging.infoWith
-import io.mytherion.logging.errorWith
+import io.mytherion.platform.logging.infoWith
+import io.mytherion.platform.logging.errorWith
 
 // Info with context
 logger.infoWith(
@@ -81,8 +81,8 @@ logger.errorWith(
 Measure and log execution time automatically:
 
 ```kotlin
-import io.mytherion.logging.measureTime
-import io.mytherion.logging.LogLevel
+import io.mytherion.platform.logging.measureTime
+import io.mytherion.platform.logging.LogLevel
 
 val result = logger.measureTime("Database query", LogLevel.DEBUG) {
     repository.findAll()
@@ -100,7 +100,7 @@ val result = logger.measureTime("Database query", LogLevel.DEBUG) {
 Automatically log function entry/exit:
 
 ```kotlin
-import io.mytherion.logging.traced
+import io.mytherion.platform.logging.traced
 
 fun processUser(userId: Long) = logger.traced("processUser", "userId" to userId) {
     // Function logic here

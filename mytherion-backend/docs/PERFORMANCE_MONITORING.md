@@ -51,11 +51,11 @@ This document outlines a pragmatic, multi-layered approach to measuring and moni
 #### 1.1 Create Performance Logging Interceptor
 
 ```kotlin
-// src/main/kotlin/io/mytherion/monitoring/PerformanceInterceptor.kt
-package io.mytherion.monitoring
+// src/main/kotlin/io/mytherion/platform/monitoring/PerformanceInterceptor.kt
+package io.mytherion.platform.monitoring
 
-import io.mytherion.logging.logger
-import io.mytherion.logging.infoWith
+import io.mytherion.platform.logging.logger
+import io.mytherion.platform.logging.infoWith
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.stereotype.Component
@@ -116,7 +116,7 @@ class PerformanceInterceptor : HandlerInterceptor {
 // src/main/kotlin/io/mytherion/config/WebMvcConfig.kt
 package io.mytherion.config
 
-import io.mytherion.monitoring.PerformanceInterceptor
+import io.mytherion.platform.monitoring.PerformanceInterceptor
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
@@ -240,8 +240,8 @@ management:
 #### 2.3 Custom Metrics for Business Operations
 
 ```kotlin
-// src/main/kotlin/io/mytherion/monitoring/MetricsService.kt
-package io.mytherion.monitoring
+// src/main/kotlin/io/mytherion/platform/monitoring/MetricsService.kt
+package io.mytherion.platform.monitoring
 
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Timer

@@ -121,6 +121,49 @@ class PackageStructureTest {
             .check(productionClasses)
     }
 
+    // ════════════════════════════════════════════════════════════════
+    //  Test structure & tagging guardrails
+    // ════════════════════════════════════════════════════════════════
+
+    @Test
+    fun `spring boot tests must be annotated with @IntegrationTest`() {
+        val testClasses =
+            ClassFileImporter()
+                .withImportOption(ImportOption.Predefined.ONLY_INCLUDE_TESTS)
+                .importPackages(ROOT)
+
+        classes()
+            .that()
+            .areAnnotatedWith("org.springframework.boot.test.context.SpringBootTest")
+            .should()
+            .beAnnotatedWith("io.mytherion.support.IntegrationTest")
+            .because(
+                "SpringBootTest requires a live context/database and must carry the @IntegrationTest " +
+                    "annotation to be routed to integrationTest rather than polluting the fast unit test suite"
+            )
+            .check(testClasses)
+    }
+
+    @Test
+    fun `domain exceptions must extend ApiException or be explicitly whitelisted`() {
+        classes()
+            .that()
+            .resideInAnyPackage(*DOMAINS)
+            .and()
+            .resideInAPackage("..exception..")
+            .and()
+            .haveSimpleNameEndingWith("Exception")
+            .and()
+            .doNotHaveSimpleName("ImageDeletionException")
+            .should()
+            .beAssignableTo("io.mytherion.common.exception.ApiException")
+            .because(
+                "client-facing domain errors must extend ApiException so GlobalExceptionHandler can " +
+                    "translate them generically; infrastructure failures like ImageDeletionException must remain plain exceptions"
+            )
+            .check(productionClasses)
+    }
+
     private companion object {
         const val ROOT = "io.mytherion"
 
