@@ -5,15 +5,18 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import io.mytherion.auth.service.CurrentUserProvider
+import io.mytherion.project.exception.ProjectAccessDeniedException
 import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.user.model.User
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.springframework.http.HttpStatus
 import org.springframework.web.servlet.HandlerMapping
 import java.util.UUID
 
@@ -98,13 +101,33 @@ class ProjectAccessInterceptorTest {
     }
 
     @Test
-    fun `preHandle when project does not exist or does not belong to user should send 403 and return false`() {
+    fun `preHandle when project does not exist or does not belong to user should throw ProjectAccessDeniedException`() {
         every { request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE) } returns mapOf("projectId" to validProjectId.toString())
         every { projectRepository.existsByIdAndOwnerAndDeletedAtIsNull(validProjectId, testUser) } returns false
 
-        val result = interceptor.preHandle(request, response, Any())
+        assertThrows<ProjectAccessDeniedException> {
+            interceptor.preHandle(request, response, Any())
+        }
+    }
 
-        assertFalse(result)
-        verify { response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied to project") }
+    @Test
+    fun `denial carries the standard ApiException mapping rather than a container error`() {
+        every { request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE) } returns mapOf("projectId" to validProjectId.toString())
+        every { projectRepository.existsByIdAndOwnerAndDeletedAtIsNull(validProjectId, testUser) } returns false
+
+        val thrown = assertThrows<ProjectAccessDeniedException> {
+            interceptor.preHandle(request, response, Any())
+        }
+
+        // Routed through GlobalExceptionHandler, so tenant-isolation denials share the
+        // ErrorResponse shape with every other error rather than the servlet default.
+        assertEquals(HttpStatus.FORBIDDEN, thrown.status)
+        assertEquals("Forbidden", thrown.error)
+        assertEquals("Access denied to project with id $validProjectId", thrown.message)
+
+        // The interceptor must not also write to the response, or the body would be committed
+        // before the exception resolver can render the standard payload.
+        verify(exactly = 0) { response.sendError(any(), any()) }
+        verify(exactly = 0) { response.sendError(any()) }
     }
 }
