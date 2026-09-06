@@ -90,3 +90,22 @@ jobs:
       - name: Run Frontend Tests
         working-directory: ./mytherion-frontend
         run: npm test
+
+  contract-parity:
+    name: Contract Parity
+    runs-on: ubuntu-latest
+    # Asserts that backend and frontend still agree on enums, routes, payload
+    # fields, MDC keys, schema and test fixtures. Both suites above can pass
+    # while one of these is broken, because neither crosses the boundary --
+    # which is exactly how a /image vs /thumbnail mismatch and a set of
+    # orphaned ApprovalTests fixtures reached review during MYT-81.
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check backend/frontend contract parity
+        run: python scripts/check_contract_parity.py
