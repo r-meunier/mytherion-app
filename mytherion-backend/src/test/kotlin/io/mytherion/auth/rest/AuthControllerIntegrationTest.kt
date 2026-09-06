@@ -270,8 +270,13 @@ class AuthControllerIntegrationTest {
 
     @Test
     fun `GET me without cookie should return 401`() {
-        // When & Then - Expect 403 from Spring Security (no auth attempt made)
-        mockMvc.perform(get("/api/auth/me")).andExpect(status().isForbidden)
+        // When & Then - Expect 401 with standard ErrorResponse from RestAuthenticationEntryPoint
+        mockMvc.perform(get("/api/auth/me"))
+            .andExpect(status().isUnauthorized)
+            .andExpect(jsonPath("$.status").value(401))
+            .andExpect(jsonPath("$.error").value("Unauthorized"))
+            .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
+            .andExpect(jsonPath("$.timestamp").exists())
     }
 
     @Test
@@ -279,9 +284,13 @@ class AuthControllerIntegrationTest {
         // Given - Invalid cookie
         val invalidCookie = Cookie("mytherion_token", "invalid-jwt-token")
 
-        // When & Then - Expect 403 from Spring Security (invalid token)
+        // When & Then - Expect 401 with standard ErrorResponse from RestAuthenticationEntryPoint
         mockMvc.perform(get("/api/auth/me").cookie(invalidCookie))
-            .andExpect(status().isForbidden)
+            .andExpect(status().isUnauthorized)
+            .andExpect(jsonPath("$.status").value(401))
+            .andExpect(jsonPath("$.error").value("Unauthorized"))
+            .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
+            .andExpect(jsonPath("$.timestamp").exists())
     }
 
     // ==================== CORS Tests ====================
@@ -373,6 +382,10 @@ class AuthControllerIntegrationTest {
 
         // Verify old cookie no longer works (using cleared cookie with empty value)
         mockMvc.perform(get("/api/auth/me").cookie(clearedCookie))
-            .andExpect(status().isForbidden)
+            .andExpect(status().isUnauthorized)
+            .andExpect(jsonPath("$.status").value(401))
+            .andExpect(jsonPath("$.error").value("Unauthorized"))
+            .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))
+            .andExpect(jsonPath("$.timestamp").exists())
     }
 }
