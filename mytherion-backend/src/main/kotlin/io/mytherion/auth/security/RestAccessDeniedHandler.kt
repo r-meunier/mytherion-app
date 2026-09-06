@@ -1,27 +1,28 @@
 package io.mytherion.auth.security
 
 import io.mytherion.common.web.ErrorResponse
+import io.mytherion.common.web.ErrorMessages
+import io.mytherion.common.web.ErrorResponseWriter
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.web.access.AccessDeniedHandler
 import org.springframework.stereotype.Component
-import tools.jackson.databind.ObjectMapper
-import java.nio.charset.StandardCharsets
-import java.time.Instant
 
 /**
- * Access denied handler for REST API requests.
+ * Access denied handler for requests rejected by the Spring Security filter chain.
  *
- * Ensures unauthorized requests rejected by Spring Security return the standard
- * [ErrorResponse] JSON payload with HTTP 403 Forbidden status, rather than
- * Spring Security's default empty body or HTML error page.
+ * Returns the standard [ErrorResponse] payload instead of Spring Security's default empty body.
+ *
+ * Only covers denials raised *in the filter chain*. A denial from method security
+ * (`@PreAuthorize`) is thrown inside the controller invocation and never reaches this handler —
+ * `GlobalExceptionHandler.handleAccessDenied` renders that one. Both paths must produce the same
+ * body, so both use [ErrorMessages.ACCESS_DENIED].
  */
 @Component
 class RestAccessDeniedHandler(
-    private val objectMapper: ObjectMapper
+    private val errorResponseWriter: ErrorResponseWriter
 ) : AccessDeniedHandler {
 
     override fun handle(
@@ -29,17 +30,10 @@ class RestAccessDeniedHandler(
         response: HttpServletResponse,
         accessDeniedException: AccessDeniedException
     ) {
-        response.status = HttpServletResponse.SC_FORBIDDEN
-        response.contentType = MediaType.APPLICATION_JSON_VALUE
-        response.characterEncoding = StandardCharsets.UTF_8.name()
-
-        val errorResponse = ErrorResponse(
-            status = HttpStatus.FORBIDDEN.value(),
-            error = "Forbidden",
-            message = accessDeniedException.message ?: "Access denied",
-            timestamp = Instant.now()
-        )
-
-        response.writer.write(objectMapper.writeValueAsString(errorResponse))
+        // Deliberately not accessDeniedException.message: it varies by rejection cause, which
+        // would make the body differ between the two 403 paths and leaks detail to a caller
+        // who is by definition not authorised to have it.
+        errorResponseWriter.write(response, HttpStatus.FORBIDDEN, ErrorMessages.ACCESS_DENIED)
     }
+
 }

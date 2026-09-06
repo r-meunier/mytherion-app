@@ -1,6 +1,8 @@
 package io.mytherion.auth.security
 
+import io.mytherion.common.web.ErrorMessages
 import io.mytherion.common.web.ErrorResponse
+import io.mytherion.common.web.ErrorResponseWriter
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -15,7 +17,7 @@ import tools.jackson.databind.ObjectMapper
 class RestAuthenticationEntryPointTest {
 
     private val objectMapper = ObjectMapper()
-    private val entryPoint = RestAuthenticationEntryPoint(objectMapper)
+    private val entryPoint = RestAuthenticationEntryPoint(ErrorResponseWriter(objectMapper))
 
     @Test
     fun `commence sets 401 status and writes ErrorResponse payload`() {
@@ -32,7 +34,7 @@ class RestAuthenticationEntryPointTest {
         val error = objectMapper.readValue(response.contentAsString, ErrorResponse::class.java)
         assertEquals(401, error.status)
         assertEquals("Unauthorized", error.error)
-        assertEquals("Full authentication is required to access this resource", error.message)
+        assertEquals(ErrorMessages.UNAUTHENTICATED, error.message)
         assertNotNull(error.timestamp)
     }
 
@@ -48,7 +50,7 @@ class RestAuthenticationEntryPointTest {
         val error = objectMapper.readValue(response.contentAsString, ErrorResponse::class.java)
         assertEquals(401, error.status)
         assertEquals("Unauthorized", error.error)
-        assertEquals("Invalid token signature", error.message)
+        assertEquals(ErrorMessages.UNAUTHENTICATED, error.message)
         assertNotNull(error.timestamp)
     }
 }
