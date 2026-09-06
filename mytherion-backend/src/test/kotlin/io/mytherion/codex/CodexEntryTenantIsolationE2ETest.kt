@@ -11,6 +11,7 @@ import io.mytherion.user.model.User
 import io.mytherion.user.repository.UserRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -200,13 +201,25 @@ class CodexEntryTenantIsolationE2ETest {
 
     @Test
     fun `another user cannot access entry via victim project returning 403 Forbidden`() {
-        // User 2 tries to access User 1's project -> ProjectAccessInterceptor returns 403
-        val status = restClient.get()
+        // User 2 tries to access User 1's project -> ProjectAccessInterceptor denies
+        val (status, body) = restClient.get()
             .uri("/api/projects/${project1User1.id}/entries/${entryInProject1.id}")
             .header(HttpHeaders.AUTHORIZATION, "Bearer $user2Token")
-            .exchange { _, res -> res.statusCode }
+            .exchange { _, res ->
+                res.statusCode to res.bodyTo(object : ParameterizedTypeReference<Map<String, Any>>() {})
+            }
 
         assertEquals(HttpStatus.FORBIDDEN, status)
+
+        // The denial must use the standard ErrorResponse schema (MYT-23). The interceptor
+        // previously wrote this with response.sendError, which bypasses
+        // GlobalExceptionHandler and emits the servlet container's default body -- so a
+        // tenant-isolation 403 had a different shape from every other error the API returns.
+        assertNotNull(body, "403 from the interceptor returned no parseable JSON body")
+        assertEquals(403, (body!!["status"] as Number).toInt())
+        assertEquals("Forbidden", body["error"])
+        assertEquals("Access denied to project with id ${project1User1.id}", body["message"])
+        assertNotNull(body["timestamp"], "ErrorResponse should carry a timestamp")
     }
 
     @Test

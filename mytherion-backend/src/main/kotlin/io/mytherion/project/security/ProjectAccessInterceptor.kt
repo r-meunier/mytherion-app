@@ -2,6 +2,7 @@ package io.mytherion.project.security
 
 import io.mytherion.auth.service.CurrentUserProvider
 import io.mytherion.platform.logging.logger
+import io.mytherion.project.exception.ProjectAccessDeniedException
 import io.mytherion.project.repository.ProjectRepository
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -36,8 +37,12 @@ class ProjectAccessInterceptor(
                 
                 if (!projectExists) {
                     logger.warn("Access denied to project {} for user {}", projectId, currentUser.email)
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied to project")
-                    return false
+                    // Thrown rather than written with response.sendError: an exception from
+                    // preHandle is routed through the HandlerExceptionResolver to
+                    // GlobalExceptionHandler, so tenant-isolation denials return the same
+                    // ErrorResponse shape as every other error. sendError would emit the
+                    // servlet container's default body instead.
+                    throw ProjectAccessDeniedException(projectId)
                 }
             }
         }

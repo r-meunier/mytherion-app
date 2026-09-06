@@ -1,6 +1,7 @@
 package io.mytherion.config.web
 
 import io.mytherion.common.exception.ApiException
+import io.mytherion.common.web.ErrorMessages
 import io.mytherion.common.web.ErrorResponse
 import io.mytherion.common.web.ValidationErrorResponse
 import io.mytherion.platform.logging.errorWith
@@ -8,6 +9,7 @@ import io.mytherion.platform.logging.logger
 import java.time.Instant
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -33,6 +35,32 @@ class GlobalExceptionHandler {
                     status = ex.status.value(),
                     error = ex.error,
                     message = ex.message ?: ex.error,
+                    timestamp = Instant.now()
+                )
+            )
+    }
+
+    /**
+     * Handles authorization denials raised by method security (`@PreAuthorize`).
+     *
+     * Those are thrown inside the controller invocation, so `DispatcherServlet` catches them and
+     * offers them here before they can reach `ExceptionTranslationFilter` and
+     * `RestAccessDeniedHandler`. Without this method the catch-all below would claim them and
+     * return 500 — turning an authorization failure into an apparent server error.
+     *
+     * `AuthorizationDeniedException`, what Spring Security 6 method security actually throws,
+     * extends `AccessDeniedException`, so this covers both. The message is fixed and matches
+     * [ErrorMessages.ACCESS_DENIED] so the filter-chain and method-security
+     * paths return identical bodies.
+     */
+    @ExceptionHandler(AccessDeniedException::class)
+    fun handleAccessDenied(ex: AccessDeniedException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(
+                ErrorResponse(
+                    status = HttpStatus.FORBIDDEN.value(),
+                    error = "Forbidden",
+                    message = ErrorMessages.ACCESS_DENIED,
                     timestamp = Instant.now()
                 )
             )
