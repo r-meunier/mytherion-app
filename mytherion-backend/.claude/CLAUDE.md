@@ -97,13 +97,13 @@ timestamp, errors?`); clients branch on `code` (`common.web.ErrorCode`).
   and `ErrorCode`. `GlobalExceptionHandler` renders them generically, so a new domain exception
   needs no handler change. A new `ErrorCode` value must also be added to the frontend's
   `types/apiError.ts`; the contract parity check fails CI otherwise.
-- **Never throw `IllegalArgumentException`/`IllegalStateException` for a client error** — they
+- **Never throw `IllegalArgumentException`/`IllegalStateException` for a client error**: they
   are treated as bugs and become a masked 500. Use or add a typed `ApiException`.
 - Ownership/tenant 403s use `ErrorMessages.ACCESS_DENIED`; keep ids in the log, not the message.
 - Framework exceptions (bad JSON, type mismatch, 404/405/415, oversized upload) go through
   `ResponseEntityExceptionHandler.handleExceptionInternal`. Do not add an `@ExceptionHandler`
-  for a type it already handles — Spring refuses to start.
-- Leave genuine infrastructure failures as plain exceptions — they fall through to the generic
+  for a type it already handles, or Spring refuses to start.
+- Leave genuine infrastructure failures as plain exceptions; they fall through to the generic
   handler, which logs the cause and returns a masked 500 rather than leaking internals.
 
 ### Tests

@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.ConstraintViolationException
 import org.springframework.beans.TypeMismatchException
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
@@ -28,25 +29,14 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.multipart.MaxUploadSizeExceededException
+import org.springframework.web.multipart.MultipartException
 import org.springframework.web.multipart.support.MissingServletRequestPartException
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 
 /**
- * Global exception handler for the REST API. Every response it produces is an [ErrorResponse].
- *
- * Extends [ResponseEntityExceptionHandler] so that every exception Spring MVC raises itself —
- * malformed JSON, a bad path variable, a missing parameter, an unmapped route, a wrong method or
- * media type, an oversized upload — keeps its proper 4xx status. Before this, the catch-all below
- * claimed all of them and answered 500. [handleExceptionInternal] is the one funnel those all pass
- * through, so it is the only place they need converting.
- *
- * Do not add an `@ExceptionHandler` for an exception [ResponseEntityExceptionHandler] already
- * declares (e.g. [MethodArgumentNotValidException]): Spring refuses to start with two handlers
- * for the same type. Handle it in [describe] instead.
- *
- * Deliberately depends on no domain package: every client-facing domain exception extends
- * [ApiException] and carries its own status and code, so new domains plug in without touching
- * this file.
+ * Renders every exception as an [ErrorResponse]. Spring MVC's own exceptions arrive through
+ * [handleExceptionInternal]; don't add an `@ExceptionHandler` for a type the parent already
+ * handles, or Spring refuses to start.
  */
 @RestControllerAdvice
 class GlobalExceptionHandler(
@@ -56,28 +46,15 @@ class GlobalExceptionHandler(
 
     private val log = logger()
 
-    /** Handles every client-facing domain exception via its declared status and code. */
     @ExceptionHandler(ApiException::class)
     fun handleApiException(ex: ApiException, request: HttpServletRequest): ResponseEntity<ErrorResponse> =
         respond(ex.status, ex.code, ex.message ?: ex.status.reasonPhrase, request.requestURI)
 
-    /**
-     * Handles authorization denials raised by method security (`@PreAuthorize`).
-     *
-     * Those are thrown inside the controller invocation, so `DispatcherServlet` catches them and
-     * offers them here before they can reach `ExceptionTranslationFilter` and
-     * `RestAccessDeniedHandler`. Without this method the catch-all below would claim them and
-     * return 500 — turning an authorization failure into an apparent server error.
-     *
-     * `AuthorizationDeniedException`, what Spring Security method security actually throws,
-     * extends `AccessDeniedException`, so this covers both. The message is fixed so this and the
-     * filter-chain path return identical bodies.
-     */
+    /** `@PreAuthorize` denials; without this the catch-all would turn them into 500s. */
     @ExceptionHandler(AccessDeniedException::class)
     fun handleAccessDenied(ex: AccessDeniedException, request: HttpServletRequest): ResponseEntity<ErrorResponse> =
         respond(HttpStatus.FORBIDDEN, ErrorCode.ACCESS_DENIED, ErrorMessages.ACCESS_DENIED, request.requestURI)
 
-    /** Bean validation on a `@Validated` service or on an entity, outside the MVC binding step. */
     @ExceptionHandler(ConstraintViolationException::class)
     fun handleConstraintViolation(
         ex: ConstraintViolationException,
@@ -91,7 +68,24 @@ class GlobalExceptionHandler(
         )
     }
 
-    /** Last resort: log the real cause, return a masked 500 so internals are not leaked. */
+    @ExceptionHandler(OptimisticLockingFailureException::class)
+    fun handleOptimisticLock(
+        ex: OptimisticLockingFailureException,
+        request: HttpServletRequest
+    ): ResponseEntity<ErrorResponse> =
+        respond(
+            HttpStatus.CONFLICT,
+            ErrorCode.CONCURRENT_MODIFICATION,
+            "This was changed elsewhere. Reload and try again.",
+            request.requestURI
+        )
+
+    // The oversized subclass is matched more specifically by the parent and stays 413.
+    @ExceptionHandler(MultipartException::class)
+    fun handleMultipart(ex: MultipartException, request: HttpServletRequest): ResponseEntity<ErrorResponse> =
+        respond(HttpStatus.BAD_REQUEST, ErrorCode.MALFORMED_REQUEST, "Malformed multipart request", request.requestURI)
+
+    /** Last resort: logs the cause and returns a masked 500. */
     @ExceptionHandler(Exception::class)
     fun handleGenericException(ex: Exception, request: HttpServletRequest): ResponseEntity<ErrorResponse> {
         log.errorWith("Unhandled exception", ex, "path" to request.requestURI)
@@ -100,7 +94,6 @@ class GlobalExceptionHandler(
         )
     }
 
-    /** Renders every exception Spring MVC raises itself. See the class comment. */
     override fun handleExceptionInternal(
         ex: Exception,
         body: Any?,
@@ -113,8 +106,7 @@ class GlobalExceptionHandler(
             log.errorWith("Framework exception", ex, "path" to path)
         }
         val (code, message, errors) = describe(ex, statusCode)
-        // Delegating keeps the parent's bookkeeping: it skips already-committed responses and
-        // flags 500s for the error page machinery. Only the body is ours.
+        // Delegate so the parent still skips responses that are already committed.
         return super.handleExceptionInternal(
             ex, ErrorResponse.of(statusCode, code, message, path, errors), headers, statusCode, request
         )
@@ -133,11 +125,10 @@ class GlobalExceptionHandler(
                             (result.resolvableErrors.firstOrNull()?.defaultMessage ?: "Invalid value")
                     }
                 )
-            // The parser's own message quotes the offending input and internal type names.
+            // Never echo the parser's message: it quotes the input.
             is HttpMessageNotReadableException ->
                 Triple(ErrorCode.MALFORMED_REQUEST, "Malformed request body", null)
-            // Parameter names are ours and safe to echo; the rejected value is the caller's
-            // input and is deliberately not.
+            // Name the parameter, never the rejected value.
             is MissingServletRequestParameterException ->
                 Triple(ErrorCode.INVALID_PARAMETER, "Missing required parameter '${ex.parameterName}'", null)
             is MissingServletRequestPartException ->
@@ -183,7 +174,7 @@ class GlobalExceptionHandler(
     private companion object {
         const val VALIDATION_MESSAGE = "Request validation failed"
 
-        /** `5MB` rather than DataSize's `5242880B`, so the message matches what users were told. */
+        /** `5MB` rather than DataSize's `5242880B`. */
         fun label(size: DataSize): String {
             val bytes = size.toBytes()
             return when {

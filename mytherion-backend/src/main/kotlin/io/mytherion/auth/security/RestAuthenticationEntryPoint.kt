@@ -11,13 +11,7 @@ import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.stereotype.Component
 
-/**
- * Authentication entry point for requests rejected by the Spring Security filter chain.
- *
- * Returns the standard [ErrorResponse] payload with 401 instead of Spring Security's default
- * empty body. 401 rather than 403 is deliberate: the caller has not authenticated at all, so
- * the correct answer is "who are you?", not "you may not".
- */
+/** Renders filter-chain 401s (no valid session) as [ErrorResponse]. */
 @Component
 class RestAuthenticationEntryPoint(
     private val errorResponseWriter: ErrorResponseWriter
@@ -28,8 +22,7 @@ class RestAuthenticationEntryPoint(
         response: HttpServletResponse,
         authException: AuthenticationException
     ) {
-        // Deliberately not authException.message: it varies by failure cause (missing token,
-        // malformed token, expired token) and would tell an unauthenticated caller which.
+        // Fixed message: the exception's text would say whether the token was missing or invalid.
         errorResponseWriter.write(
             request, response, HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHENTICATED, ErrorMessages.UNAUTHENTICATED
         )

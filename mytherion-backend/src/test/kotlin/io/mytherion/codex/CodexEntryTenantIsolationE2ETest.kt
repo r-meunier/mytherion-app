@@ -211,15 +211,11 @@ class CodexEntryTenantIsolationE2ETest {
 
         assertEquals(HttpStatus.FORBIDDEN, status)
 
-        // The denial must use the standard ErrorResponse schema (MYT-23). The interceptor
-        // previously wrote this with response.sendError, which bypasses
-        // GlobalExceptionHandler and emits the servlet container's default body -- so a
-        // tenant-isolation 403 had a different shape from every other error the API returns.
         assertNotNull(body, "403 from the interceptor returned no parseable JSON body")
         assertEquals(403, (body!!["status"] as Number).toInt())
         assertEquals("Forbidden", body["error"])
         assertEquals("ACCESS_DENIED", body["code"])
-        // Fixed message, no project id: a caller learns nothing about a project it does not own.
+        // No project id in the message.
         assertEquals("Access denied", body["message"])
         assertNotNull(body["timestamp"], "ErrorResponse should carry a timestamp")
     }

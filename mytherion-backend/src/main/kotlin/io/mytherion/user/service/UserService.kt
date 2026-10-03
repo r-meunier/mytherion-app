@@ -26,9 +26,7 @@ class UserService(private val userRepository: UserRepository) {
 
     @Transactional
     fun updateUser(userId: UUID, currentUserId: UUID, isAdmin: Boolean, request: UpdateUserRequest): UserResponse {
-        // Authorization: users can only update their own profile unless they are an admin.
-        // Checked before the lookup so a non-admin cannot tell a missing user (404) from
-        // someone else's (403).
+        // Before the lookup, so a non-admin cannot tell a missing user (404) from another's (403).
         if (userId != currentUserId && !isAdmin) {
             throw UserAccessDeniedException(userId)
         }
@@ -64,7 +62,7 @@ class UserService(private val userRepository: UserRepository) {
 
     @Transactional
     fun deleteUser(userId: UUID, currentUserId: UUID, isAdmin: Boolean) {
-        // Authorization first, for the same reason as in updateUser.
+        // Before the lookup, as in updateUser.
         if (userId != currentUserId && !isAdmin) {
             throw UserAccessDeniedException(userId)
         }

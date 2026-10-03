@@ -1,79 +1,48 @@
 package io.mytherion.common.web
 
 /**
- * Stable, machine-readable identifier carried in every [ErrorResponse.code].
+ * Stable, machine-readable identifier carried in every [ErrorResponse.code]. Clients branch on
+ * this, never on the message.
  *
- * Clients branch on this rather than on [ErrorResponse.message], which is human-readable and may
- * be reworded at any time. The frontend mirrors this list as the `ErrorCode` union in
- * `types/apiError.ts`, and `scripts/check_contract_parity.py` fails CI if the two drift — so a new
- * value here is a contract change, made deliberately and in both places.
- *
- * Grouped by the status they are normally returned with. A code never changes status once
- * published; if the status needs to change, add a new code.
+ * Mirrored by the `ErrorCode` union in the frontend's `types/apiError.ts`; the contract parity
+ * check fails CI if they drift. A code never changes status once published: add a new one instead.
  */
 enum class ErrorCode {
+    // Request shape
+    BAD_REQUEST,                // 400 any other 4xx the framework raised
+    VALIDATION_FAILED,          // 400 bean validation failed; `errors` lists each field
+    MALFORMED_REQUEST,          // 400 body is not valid JSON or multipart
+    INVALID_PARAMETER,          // 400 path variable or query parameter missing or wrong type
+    NOT_FOUND,                  // 404 no endpoint at this path
+    METHOD_NOT_ALLOWED,         // 405 endpoint exists, method does not
+    NOT_ACCEPTABLE,             // 406 cannot produce the requested media type
+    FILE_TOO_LARGE,             // 413 upload exceeds spring.servlet.multipart.max-file-size
+    UNSUPPORTED_MEDIA_TYPE,     // 415 request body media type not accepted
 
-    // ── Request shape (raised by the framework, before any handler runs) ──
-    /** 400 — a 4xx the framework raised that has no more specific code below. */
-    BAD_REQUEST,
-    /** 400 — bean validation failed; [ErrorResponse.errors] lists each offending field. */
-    VALIDATION_FAILED,
-    /** 400 — the body is not valid JSON, or does not map onto the expected type. */
-    MALFORMED_REQUEST,
-    /** 400 — a path variable or query parameter is missing or has the wrong type. */
-    INVALID_PARAMETER,
-    /** 404 — no endpoint is mapped to this path. */
-    NOT_FOUND,
-    /** 405 */
-    METHOD_NOT_ALLOWED,
-    /** 406 */
-    NOT_ACCEPTABLE,
-    /** 413 — an uploaded file exceeds `spring.servlet.multipart.max-file-size`. */
-    FILE_TOO_LARGE,
-    /** 415 */
-    UNSUPPORTED_MEDIA_TYPE,
+    // Authentication & authorization
+    UNAUTHENTICATED,            // 401 no valid session
+    INVALID_CREDENTIALS,        // 401 login rejected; never says which field was wrong
+    ACCESS_DENIED,              // 403 any ownership, tenant or role denial; same body everywhere
+    EMAIL_NOT_VERIFIED,         // 403 correct credentials, email not verified yet
 
-    // ── Authentication & authorization ──
-    /** 401 — no valid session. */
-    UNAUTHENTICATED,
-    /** 401 — login rejected; deliberately does not say whether email or password was wrong. */
-    INVALID_CREDENTIALS,
-    /** 403 — every ownership / tenant-isolation / role denial. Identical body on every path. */
-    ACCESS_DENIED,
-    /** 403 — credentials are correct but the email address has not been verified yet. */
-    EMAIL_NOT_VERIFIED,
+    // Account
+    EMAIL_ALREADY_IN_USE,       // 409 email belongs to another account
+    USERNAME_ALREADY_IN_USE,    // 409 username belongs to another account
+    EMAIL_ALREADY_VERIFIED,     // 409 nothing left to verify
+    INVALID_VERIFICATION_TOKEN, // 400 token unknown
+    VERIFICATION_TOKEN_EXPIRED, // 410 token was valid once, now expired
+    INVALID_ROLE,               // 400 no such role
+    USER_NOT_FOUND,             // 404 no such user
 
-    // ── Account ──
-    /** 409 */
-    EMAIL_ALREADY_IN_USE,
-    /** 409 */
-    USERNAME_ALREADY_IN_USE,
-    /** 409 */
-    EMAIL_ALREADY_VERIFIED,
-    /** 400 */
-    INVALID_VERIFICATION_TOKEN,
-    /** 410 */
-    VERIFICATION_TOKEN_EXPIRED,
-    /** 400 */
-    INVALID_ROLE,
-    /** 404 */
-    USER_NOT_FOUND,
+    // Projects & codex
+    PROJECT_NOT_FOUND,          // 404 no such project
+    PROJECT_HAS_ENTRIES,        // 409 project still holds entries, cannot delete
+    ENTRY_NOT_FOUND,            // 404 no such entry
+    THUMBNAIL_NOT_FOUND,        // 404 entry has no image
+    INVALID_FILE,               // 400 upload is empty or not an accepted image type
+    CONCURRENT_MODIFICATION,    // 409 stale `version`; reload and retry
 
-    // ── Projects & codex ──
-    /** 404 */
-    PROJECT_NOT_FOUND,
-    /** 409 — a project cannot be deleted while it still holds entries. */
-    PROJECT_HAS_ENTRIES,
-    /** 404 */
-    ENTRY_NOT_FOUND,
-    /** 404 */
-    THUMBNAIL_NOT_FOUND,
-    /** 400 — an uploaded file is empty or not an accepted image type. */
-    INVALID_FILE,
-
-    // ── Server ──
-    /** 500 — the cause is logged, never returned. */
-    INTERNAL_ERROR,
-    /** 503 */
-    SERVICE_UNAVAILABLE,
+    // Server
+    INTERNAL_ERROR,             // 500 cause is logged, never returned
+    SERVICE_UNAVAILABLE,        // 503 temporarily unavailable
 }

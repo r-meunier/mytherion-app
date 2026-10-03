@@ -1,24 +1,14 @@
-/**
- * The error payload every backend endpoint returns, for every failure (MYT-23).
- *
- * Mirrors `ErrorResponse.kt` and `ErrorCode.kt` in the backend's `common.web` package.
- * `scripts/check_contract_parity.py` fails CI if the fields or the codes drift, so change both
- * sides together.
- */
+/** The error body every backend endpoint returns. Mirrors the backend; CI fails if they drift. */
 export interface ApiErrorResponse {
-  /** The HTTP status, repeated so the body is self-describing. */
   status: number;
-  /** The status's reason phrase, e.g. "Not Found". Never free text. */
   error: string;
-  /** Stable identifier to branch on. */
+  /** Branch on this. */
   code: ErrorCode;
-  /** Human-readable and may be reworded at any time; do not parse it. */
+  /** For humans; may change, never parse it. */
   message: string;
-  /** Request path without the query string. */
   path: string;
-  /** ISO-8601 instant. */
   timestamp: string;
-  /** field → reason; present only when `code` is `VALIDATION_FAILED`. */
+  /** Only for `VALIDATION_FAILED`. */
   errors?: Record<string, string>;
 }
 
@@ -52,11 +42,12 @@ export type ErrorCode =
   | 'ENTRY_NOT_FOUND'
   | 'THUMBNAIL_NOT_FOUND'
   | 'INVALID_FILE'
+  | 'CONCURRENT_MODIFICATION'
   // Server
   | 'INTERNAL_ERROR'
   | 'SERVICE_UNAVAILABLE';
 
-/** Narrow an unknown response body (Axios `error.response?.data`, a parsed `fetch` body) to the contract. */
+/** Narrows an unknown response body to an ApiErrorResponse. */
 export function isApiErrorResponse(body: unknown): body is ApiErrorResponse {
   if (typeof body !== 'object' || body === null) return false;
   const b = body as Record<string, unknown>;

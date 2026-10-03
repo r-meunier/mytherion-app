@@ -6,16 +6,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
 
 /**
- * The single error payload returned by every endpoint, for every failure.
- *
- * - [status] repeats the HTTP status so the body is self-describing when logged or forwarded.
- * - [error] is always the status's reason phrase (`"Not Found"`), never free text.
- * - [code] is the stable identifier clients branch on — see [ErrorCode].
- * - [message] is for humans and may change; do not parse it.
- * - [path] is the request URI without its query string, so tokens in `?token=` never echo back.
- * - [errors] maps field → reason and is present only for [ErrorCode.VALIDATION_FAILED].
- *
- * Build it through [of] so `error` can never disagree with `status`.
+ * The error body every endpoint returns. Clients branch on [code]; [message] is for humans.
+ * [path] omits the query string so tokens never echo back; [errors] is set only for validation.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ErrorResponse(

@@ -14,11 +14,7 @@ import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.access.AccessDeniedException
 import tools.jackson.databind.ObjectMapper
 
-/**
- * Covers serialisation only. Whether Spring actually invokes this handler is a separate
- * question, answered by `UserControllerSecurityIntegrationTest` — method security never
- * reaches here, which is precisely how a 500 hid behind green unit tests.
- */
+/** Serialisation only; `UserControllerSecurityIntegrationTest` covers whether Spring calls it. */
 class RestAccessDeniedHandlerTest {
 
     private val objectMapper = ObjectMapper()
@@ -49,8 +45,6 @@ class RestAccessDeniedHandlerTest {
         val request = MockHttpServletRequest()
         val response = MockHttpServletResponse()
 
-        // The cause varies (missing role, denied voter, method security). Echoing it would make
-        // the body differ between the two 403 paths and tell an unauthorised caller why.
         handler.handle(request, response, AccessDeniedException("user lacks ROLE_ADMIN on /api/user"))
 
         val error = objectMapper.readValue(response.contentAsString, ErrorResponse::class.java)

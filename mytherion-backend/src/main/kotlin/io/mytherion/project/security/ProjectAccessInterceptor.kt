@@ -37,11 +37,7 @@ class ProjectAccessInterceptor(
                 
                 if (!projectExists) {
                     logger.warn("Access denied to project {} for user {}", projectId, currentUser.email)
-                    // Thrown rather than written with response.sendError: an exception from
-                    // preHandle is routed through the HandlerExceptionResolver to
-                    // GlobalExceptionHandler, so tenant-isolation denials return the same
-                    // ErrorResponse shape as every other error. sendError would emit the
-                    // servlet container's default body instead.
+                    // Throw, not sendError: sendError bypasses GlobalExceptionHandler.
                     throw ProjectAccessDeniedException(projectId)
                 }
             }

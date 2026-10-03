@@ -10,10 +10,6 @@ import org.springframework.http.HttpStatus
 class ProjectNotFoundException(id: UUID) :
     ApiException(HttpStatus.NOT_FOUND, ErrorCode.PROJECT_NOT_FOUND, "Project with id $id not found")
 
-/**
- * Exception thrown when a user tries to access or modify a project they don't own — and, from
- * `ProjectAccessInterceptor`, when the project does not exist at all, so ownership cannot be
- * probed. The id is kept for logging and never reaches the response; see [ErrorMessages].
- */
+/** Exception thrown when a user accesses a project they don't own; the id is for logs only */
 class ProjectAccessDeniedException(val projectId: UUID) :
     ApiException(HttpStatus.FORBIDDEN, ErrorCode.ACCESS_DENIED, ErrorMessages.ACCESS_DENIED)

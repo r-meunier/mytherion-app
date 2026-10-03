@@ -7,7 +7,10 @@ import io.mytherion.platform.logging.errorWith
 import io.mytherion.platform.logging.infoWith
 import io.mytherion.platform.logging.logger
 import io.mytherion.platform.storage.dto.UploadResponse
+import io.mytherion.common.web.MAX_PAGE_SIZE
 import jakarta.validation.Valid
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -30,8 +33,8 @@ class CodexEntryController(private val entryService: CodexEntryService) {
         @RequestParam(required = false) type: io.mytherion.codex.model.EntryType?,
         @RequestParam(required = false) tags: List<String>?,
         @RequestParam(required = false) search: String?,
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "20") size: Int
+        @RequestParam(defaultValue = "0") @Min(0) page: Int,
+        @RequestParam(defaultValue = "20") @Min(1) @Max(MAX_PAGE_SIZE) size: Int
     ): Page<EntryDTO> {
         logger.infoWith(
             "List entries request",
@@ -170,10 +173,7 @@ class CodexEntryController(private val entryService: CodexEntryService) {
             throw InvalidFileException("Invalid file type. Allowed: JPEG, PNG, GIF, WebP")
         }
 
-        // No size check here: spring.servlet.multipart.max-file-size rejects an oversized file
-        // while the request is still being parsed, before this method runs, and
-        // GlobalExceptionHandler renders that as 413 FILE_TOO_LARGE. A second check against
-        // a separately configured number could only ever drift from it.
+        // No size check: multipart max-file-size rejects oversized files before this runs (413).
 
         return try {
             entryService.uploadThumbnail(projectId, id, file)

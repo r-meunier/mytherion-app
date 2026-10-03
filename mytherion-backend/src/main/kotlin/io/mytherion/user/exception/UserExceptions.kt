@@ -12,15 +12,10 @@ class UserNotFoundException private constructor(message: String) :
 
     constructor(id: UUID) : this("User with id $id not found")
 
-    /** For lookups by email, where echoing the address back would add nothing. */
     constructor() : this("User not found")
 }
 
-/**
- * Exception thrown when a user tries to read or change another user's account, or to change a
- * role without being an administrator. The id is kept for logging and never reaches the
- * response; see [ErrorMessages].
- */
+/** Exception thrown when a user changes another account, or a role without being admin */
 class UserAccessDeniedException(val userId: UUID) :
     ApiException(HttpStatus.FORBIDDEN, ErrorCode.ACCESS_DENIED, ErrorMessages.ACCESS_DENIED)
 

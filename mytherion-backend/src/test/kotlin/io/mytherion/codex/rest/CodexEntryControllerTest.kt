@@ -370,4 +370,62 @@ class CodexEntryControllerTest {
         mockMvc.perform(delete("/api/projects/$projectId/entries/$entryId/thumbnail"))
             .andExpect(status().isNotFound)
     }
+
+
+    // ==================== Error contract (MYT-23) ====================
+
+    @org.junit.jupiter.params.ParameterizedTest(name = "{0}")
+    @org.junit.jupiter.params.provider.ValueSource(strings = ["page=-1", "size=0", "size=101"])
+    fun `listEntries rejects out-of-range paging with 400 instead of 500`(query: String) {
+        mockMvc.perform(get("/api/projects/$projectId/entries?$query"))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+            .andExpect(jsonPath("$.errors.${query.substringBefore('=')}").exists())
+    }
+
+    @Test
+    fun `updateEntry with a stale version returns 409 instead of 500`() {
+        every { entryService.updateEntry(projectId, entryId, any()) } throws
+            org.springframework.orm.ObjectOptimisticLockingFailureException(
+                io.mytherion.codex.model.CodexEntry::class.java, entryId
+            )
+
+        mockMvc.perform(
+            patch("/api/projects/$projectId/entries/$entryId")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(UpdateEntryRequest(name = "x", version = 1L)))
+        )
+            .andExpect(status().isConflict)
+            .andExpect(jsonPath("$.code").value("CONCURRENT_MODIFICATION"))
+    }
+
+    @Test
+    fun `uploadThumbnail rejects an empty file with 400 INVALID_FILE`() {
+        val file = MockMultipartFile("file", "empty.png", "image/png", ByteArray(0))
+
+        mockMvc.perform(multipart("/api/projects/$projectId/entries/$entryId/thumbnail").file(file))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value("INVALID_FILE"))
+            .andExpect(jsonPath("$.message").value("File is empty"))
+    }
+
+    @Test
+    fun `uploadThumbnail rejects a non-image with 400 INVALID_FILE`() {
+        val file = MockMultipartFile("file", "notes.txt", "text/plain", "hello".toByteArray())
+
+        mockMvc.perform(multipart("/api/projects/$projectId/entries/$entryId/thumbnail").file(file))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value("INVALID_FILE"))
+            .andExpect(jsonPath("$.message").value("Invalid file type. Allowed: JPEG, PNG, GIF, WebP"))
+    }
+
+    @Test
+    fun `uploadThumbnail without a file part is 400 naming the part`() {
+        val wrongPart = MockMultipartFile("image", "a.png", "image/png", "x".toByteArray())
+
+        mockMvc.perform(multipart("/api/projects/$projectId/entries/$entryId/thumbnail").file(wrongPart))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value("INVALID_PARAMETER"))
+            .andExpect(jsonPath("$.message").value("Missing required part 'file'"))
+    }
 }

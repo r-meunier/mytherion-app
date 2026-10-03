@@ -30,18 +30,13 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MaxUploadSizeExceededException
+import org.springframework.web.multipart.MultipartException
+import org.springframework.orm.ObjectOptimisticLockingFailureException
 import tools.jackson.databind.json.JsonMapper
 import java.util.UUID
 import java.util.stream.Stream
 
-/**
- * Drives real requests through `DispatcherServlet` rather than calling handler methods directly.
- *
- * Most of what this class guards is *dispatch*: which of our handlers, or which of
- * `ResponseEntityExceptionHandler`'s, Spring picks for a given exception. Calling a handler method
- * by hand proves nothing about that — it is exactly how the original 500-for-malformed-JSON bug
- * stayed invisible.
- */
+/** Real requests through `DispatcherServlet`, since what matters is which handler Spring picks. */
 class GlobalExceptionHandlerTest {
 
     private class TestApiException : ApiException(HttpStatus.CONFLICT, ErrorCode.PROJECT_HAS_ENTRIES, "Still has entries")
@@ -63,6 +58,10 @@ class GlobalExceptionHandlerTest {
             )
         @GetMapping("/probe/boom") fun boom(): Nothing = throw IllegalStateException("db password is hunter2")
         @GetMapping("/probe/iae") fun iae(): Nothing = throw IllegalArgumentException("internal detail")
+        @GetMapping("/probe/bad-multipart") fun badMultipart(): Nothing =
+            throw MultipartException("Failed to parse multipart servlet request; no boundary")
+        @GetMapping("/probe/stale") fun stale(): Nothing =
+            throw ObjectOptimisticLockingFailureException(Body::class.java, "id-1")
     }
 
     private val mvc: MockMvc =
@@ -77,8 +76,6 @@ class GlobalExceptionHandlerTest {
             .andExpect(jsonPath("$.error").value(status.reasonPhrase))
             .andExpect(jsonPath("$.code").value(code.name))
             .andExpect(jsonPath("$.timestamp").exists())
-
-    // ── The contract: one shape, whatever the path ──
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("everyErrorPath")
@@ -95,8 +92,6 @@ class GlobalExceptionHandlerTest {
 
         assertEquals(expected, JsonMapper.builder().build().readTree(body).propertyNames().toSet())
     }
-
-    // ── What each path says ──
 
     @Test
     fun `ApiException renders its own status, code and message`() {
@@ -192,6 +187,18 @@ class GlobalExceptionHandlerTest {
             .andExpect(jsonPath("$.message").value("An unexpected error occurred"))
     }
 
+    @Test
+    fun `malformed multipart body is 400, not 500`() {
+        expectError(get("/probe/bad-multipart"), HttpStatus.BAD_REQUEST, ErrorCode.MALFORMED_REQUEST)
+            .andExpect(jsonPath("$.message").value("Malformed multipart request"))
+    }
+
+    @Test
+    fun `optimistic-lock conflict is 409 telling the user to reload`() {
+        expectError(get("/probe/stale"), HttpStatus.CONFLICT, ErrorCode.CONCURRENT_MODIFICATION)
+            .andExpect(jsonPath("$.message").value("This was changed elsewhere. Reload and try again."))
+    }
+
     companion object {
         @JvmStatic
         fun everyErrorPath(): Stream<org.junit.jupiter.params.provider.Arguments> = Stream.of(
@@ -211,6 +218,8 @@ class GlobalExceptionHandlerTest {
             args("unmapped route", get("/probe/nowhere"), HttpStatus.NOT_FOUND, ErrorCode.NOT_FOUND),
             args("wrong method", delete("/probe/param"), HttpStatus.METHOD_NOT_ALLOWED, ErrorCode.METHOD_NOT_ALLOWED),
             args("oversized upload", get("/probe/too-large"), HttpStatus.CONTENT_TOO_LARGE, ErrorCode.FILE_TOO_LARGE),
+            args("bad multipart", get("/probe/bad-multipart"), HttpStatus.BAD_REQUEST, ErrorCode.MALFORMED_REQUEST),
+            args("stale version", get("/probe/stale"), HttpStatus.CONFLICT, ErrorCode.CONCURRENT_MODIFICATION),
             args("unexpected", get("/probe/boom"), HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_ERROR),
         )
 

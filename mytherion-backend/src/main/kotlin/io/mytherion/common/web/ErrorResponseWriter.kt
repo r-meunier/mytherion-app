@@ -8,18 +8,7 @@ import org.springframework.stereotype.Component
 import tools.jackson.databind.ObjectMapper
 import java.nio.charset.StandardCharsets
 
-/**
- * Writes an [ErrorResponse] straight to the servlet response.
- *
- * Spring Security rejects requests inside the filter chain, before any handler runs, so those
- * responses cannot go through `GlobalExceptionHandler` and have to be serialised by hand. This
- * exists so the hand-written path produces exactly the same payload as the handled one — built by
- * the same [ErrorResponse.of] and serialised by the same [ObjectMapper] bean, so field order and
- * the `Instant` format match too.
- *
- * Prefer throwing an `ApiException` wherever a handler is actually reachable; this is only for
- * filter-level rejections.
- */
+/** Writes an [ErrorResponse] for Spring Security filter-chain rejections, where no handler runs. */
 @Component
 class ErrorResponseWriter(
     private val objectMapper: ObjectMapper
@@ -39,8 +28,7 @@ class ErrorResponseWriter(
         val body = ErrorResponse.of(status, code, message, request.requestURI)
 
         response.writer.write(objectMapper.writeValueAsString(body))
-        // Committed here rather than left to the container: Spring Security continues
-        // processing after the handler returns, and an uncommitted body can be replaced.
+        // Commit now: Spring Security keeps processing and could replace an uncommitted body.
         response.writer.flush()
     }
 }

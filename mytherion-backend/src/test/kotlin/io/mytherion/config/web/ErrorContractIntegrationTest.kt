@@ -31,15 +31,8 @@ import java.util.UUID
 import java.util.stream.Stream
 
 /**
- * The MYT-23 contract, end to end: every way a request can fail returns the same `ErrorResponse`
- * shape with the right status and code.
- *
- * `GlobalExceptionHandlerTest` covers dispatch inside `DispatcherServlet`. This covers what only a
- * real server exercises: the Spring Security filter chain (401, before any handler exists) and
- * Tomcat's multipart parsing (413, raised before the controller and the project interceptor).
- *
- * Creates only the user it needs and deletes it again — it must not call `deleteAll()`, which
- * would destroy local development data.
+ * Every failure path, against a real server, returns the same `ErrorResponse` shape and code.
+ * Deletes only the user it creates: never `deleteAll()`, which would wipe local dev data.
  */
 @IntegrationTest
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -76,7 +69,6 @@ class ErrorContractIntegrationTest {
         userRepository.deleteById(user.id!!)
     }
 
-    /** One way of failing: what to send, and what must come back. */
     data class Case(
         val label: String,
         val method: HttpMethod,
@@ -138,17 +130,10 @@ class ErrorContractIntegrationTest {
         assertEquals(case.path, body["path"])
     }
 
-    /**
-     * Oversized uploads go over a raw socket rather than [RestClient].
-     *
-     * Tomcat rejects the file while the body is still arriving and answers 413 straight away.
-     * curl and browsers read that response fine; both Java clients (JDK HttpClient and
-     * HttpURLConnection) report an I/O error instead, so they cannot observe it. A plain HTTP/1.0
-     * request — full body with a Content-Length, then read until close — behaves like a browser.
-     */
+    /** Raw socket: Tomcat answers 413 mid-upload, which Java HTTP clients see as an I/O error. */
     @Test
     fun `oversized upload returns 413 with the standard error contract`() {
-        // Just over the 5MB default, and well inside Tomcat's 2MB swallow margin.
+        // Just over 5MB, within Tomcat's 2MB swallow margin.
         val fileBytes = 5 * 1024 * 1024 + 64 * 1024
         val path = "/api/projects/${UUID.randomUUID()}/entries/${UUID.randomUUID()}/thumbnail"
 
@@ -183,7 +168,7 @@ class ErrorContractIntegrationTest {
             out.write(tail.toByteArray(StandardCharsets.US_ASCII))
             out.flush()
 
-            // HTTP/1.0: the server closes after responding, so read to EOF and split once.
+            // HTTP/1.0: the server closes after responding.
             val response = String(socket.getInputStream().readAllBytes(), StandardCharsets.UTF_8)
             val status = response.substringAfter(' ').take(3).toInt()
             val json = response.substringAfter("$crlf$crlf")

@@ -10,10 +10,7 @@ import org.springframework.http.HttpStatus
 class EntryNotFoundException(id: UUID) :
     ApiException(HttpStatus.NOT_FOUND, ErrorCode.ENTRY_NOT_FOUND, "CodexEntry not found with id: $id")
 
-/**
- * Exception thrown when a user tries to access or modify an entry they don't own. The id is kept
- * for logging and never reaches the response; see [ErrorMessages].
- */
+/** Exception thrown when a user accesses an entry they don't own; the id is for logs only */
 class EntryAccessDeniedException(val entryId: UUID) :
     ApiException(HttpStatus.FORBIDDEN, ErrorCode.ACCESS_DENIED, ErrorMessages.ACCESS_DENIED)
 

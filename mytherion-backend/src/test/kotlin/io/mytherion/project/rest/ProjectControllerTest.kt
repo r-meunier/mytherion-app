@@ -434,4 +434,16 @@ class ProjectControllerTest {
             .andExpect(status().isForbidden)
             .andExpect(jsonPath("$.status").value(403))
     }
+
+
+    // ==================== Error contract (MYT-23) ====================
+
+    @org.junit.jupiter.params.ParameterizedTest(name = "{0}")
+    @org.junit.jupiter.params.provider.ValueSource(strings = ["page=-1", "size=0", "size=101"])
+    fun `listProjects rejects out-of-range paging with 400 instead of 500`(query: String) {
+        mockMvc.perform(get("/api/projects?$query"))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+            .andExpect(jsonPath("$.errors.${query.substringBefore('=')}").exists())
+    }
 }

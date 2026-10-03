@@ -51,8 +51,8 @@ GET /api/projects/{projectId}/entries?type=CHARACTER&tags=hero,mage&search=ganda
 - `type` (optional) - Filter by entry type
 - `tags` (optional) - Comma-separated list of tags
 - `search` (optional) - Search in name, summary, description
-- `page` (optional, default: 0) - Page number
-- `size` (optional, default: 20) - Page size
+- `page` (optional, default: 0) - Page number, 0 or more
+- `size` (optional, default: 20) - Page size, 1 to 100. Out-of-range values return 400 `VALIDATION_FAILED`.
 
 **Response:** `200 OK`
 
@@ -345,14 +345,14 @@ they drift.
 
 | Status | Codes |
 |---|---|
-| `400 Bad Request` | `VALIDATION_FAILED`, `MALFORMED_REQUEST`, `INVALID_PARAMETER`, `INVALID_FILE`, `BAD_REQUEST` |
+| `400 Bad Request` | `VALIDATION_FAILED`, `MALFORMED_REQUEST` (bad JSON or multipart), `INVALID_PARAMETER`, `INVALID_FILE`, `BAD_REQUEST` |
 | `401 Unauthorized` | `UNAUTHENTICATED`, `INVALID_CREDENTIALS` |
-| `403 Forbidden` | `ACCESS_DENIED` — identical body for every ownership, tenant-isolation and role denial, and for projects that do not exist |
+| `403 Forbidden` | `ACCESS_DENIED`: identical body for every ownership, tenant-isolation and role denial, and for projects that do not exist |
 | `404 Not Found` | `PROJECT_NOT_FOUND`, `ENTRY_NOT_FOUND`, `THUMBNAIL_NOT_FOUND`, `NOT_FOUND` (no such endpoint) |
 | `405` / `415` | `METHOD_NOT_ALLOWED`, `UNSUPPORTED_MEDIA_TYPE` |
-| `409 Conflict` | `PROJECT_HAS_ENTRIES` |
+| `409 Conflict` | `PROJECT_HAS_ENTRIES`, `CONCURRENT_MODIFICATION` (stale `version` on update; reload and retry) |
 | `413 Content Too Large` | `FILE_TOO_LARGE` |
-| `500 Internal Server Error` | `INTERNAL_ERROR` — the cause is logged, never returned |
+| `500 Internal Server Error` | `INTERNAL_ERROR`: the cause is logged, never returned |
 
 ---
 

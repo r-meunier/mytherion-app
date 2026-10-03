@@ -23,14 +23,9 @@ spring:
     validate-on-migrate: true
   servlet:
     multipart:
-      # The single source of truth for upload size. Oversized files are rejected while the
-      # request is parsed, before any controller runs, and GlobalExceptionHandler returns
-      # 413 FILE_TOO_LARGE quoting this value. The frontend's pre-upload check
-      # (MEDIA_CONSTRAINTS in mediaService.ts) mirrors the default; the contract parity
-      # check fails CI if the two defaults drift.
+      # Single source of truth for upload size limit. The frontend's MAX_SIZE_MB mirrors the default (CI-checked).
       max-file-size: ${MAX_UPLOAD_FILE_SIZE:5MB}
-      # Whole multipart request: the file plus form fields and boundaries. Keep it above
-      # max-file-size, or a file just under the limit is rejected anyway.
+      # Keep above max-file-size: it also counts form fields and boundaries.
       max-request-size: ${MAX_UPLOAD_REQUEST_SIZE:6MB}
   mail:
     host: ${MAIL_HOST:localhost}

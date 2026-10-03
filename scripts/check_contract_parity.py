@@ -158,7 +158,7 @@ check(
 #  Error contract (MYT-23): the one body every failure returns
 # ────────────────────────────────────────────────────────────────
 
-be_error_codes = re.findall(r"^\s*([A-Z][A-Z_]+),?\s*$", extract(
+be_error_codes = re.findall(r"^\s*([A-Z][A-Z_]+),?\s*(?://.*)?$", extract(
     r"enum class ErrorCode \{(.*?)\n\}",
     read(BE / "common" / "web" / "ErrorCode.kt"),
     "ErrorCode enum in ErrorCode.kt"), re.M)
@@ -194,7 +194,7 @@ fe_upload_mb = extract(r"const MAX_SIZE_MB = (\d+);",
 check(
     "upload size limit defaults agree",
     bool(be_upload_mb) and be_upload_mb == fe_upload_mb,
-    f"backend allows {be_upload_mb}MB, frontend pre-check allows {fe_upload_mb}MB -- users "
+    f"backend allows {be_upload_mb}MB, frontend pre-check allows {fe_upload_mb}MB, so users "
     f"would be told one limit and refused at another",
 )
 

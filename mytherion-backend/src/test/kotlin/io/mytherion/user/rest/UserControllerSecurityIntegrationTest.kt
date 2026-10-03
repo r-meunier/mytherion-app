@@ -21,18 +21,8 @@ import org.springframework.web.client.RestClient
 import java.util.UUID
 
 /**
- * End-to-end coverage for the `@PreAuthorize("hasRole('ADMIN')")` guard on `GET /api/user`.
- *
- * Method security throws inside the controller invocation, so `DispatcherServlet` catches it and
- * offers it to `GlobalExceptionHandler` — it never reaches `RestAccessDeniedHandler`. Before
- * `handleAccessDenied` existed, the catch-all claimed it and a non-admin received
- * `500 An unexpected error occurred` instead of 403.
- *
- * A unit test on the handler cannot catch that, because the handler is never invoked. Only a real
- * request through the full filter chain and dispatcher can. Hence this test.
- *
- * Creates only the users it needs and deletes them again — it must not call `deleteAll()`, which
- * would destroy local development data.
+ * The `@PreAuthorize` guard on `GET /api/user`, through the real filter chain.
+ * Deletes only the users it creates: never `deleteAll()`, which would wipe local dev data.
  */
 @IntegrationTest
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -87,8 +77,6 @@ class UserControllerSecurityIntegrationTest {
 
         val (status, body) = getUsers(token)
 
-        // Regression guard: this returned 500 before GlobalExceptionHandler.handleAccessDenied,
-        // because the catch-all @ExceptionHandler(Exception) claimed AccessDeniedException.
         assertEquals(HttpStatus.FORBIDDEN, status, "an authorization failure must not surface as a server error")
 
         assertNotNull(body, "403 should carry a parseable JSON body")
@@ -122,9 +110,7 @@ class UserControllerSecurityIntegrationTest {
 
     @Test
     fun `both 403 paths return an identical body shape`() {
-        // Method security (this endpoint) and the filter chain (RestAccessDeniedHandler) are
-        // different code paths. MYT-23 requires a caller cannot tell them apart, so assert the
-        // exact keys and values the method-security path produces.
+        // Must match the filter-chain 403 exactly.
         val (_, token) = createUser(UserRole.USER)
 
         val (_, body) = getUsers(token)

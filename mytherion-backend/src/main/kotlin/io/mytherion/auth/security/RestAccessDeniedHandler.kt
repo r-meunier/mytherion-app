@@ -12,14 +12,8 @@ import org.springframework.security.web.access.AccessDeniedHandler
 import org.springframework.stereotype.Component
 
 /**
- * Access denied handler for requests rejected by the Spring Security filter chain.
- *
- * Returns the standard [ErrorResponse] payload instead of Spring Security's default empty body.
- *
- * Only covers denials raised *in the filter chain*. A denial from method security
- * (`@PreAuthorize`) is thrown inside the controller invocation and never reaches this handler —
- * `GlobalExceptionHandler.handleAccessDenied` renders that one. Both paths must produce the same
- * body, so both use [ErrorMessages.ACCESS_DENIED].
+ * Renders filter-chain 403s as [ErrorResponse]. Method-security denials never reach here; they
+ * go through `GlobalExceptionHandler.handleAccessDenied`.
  */
 @Component
 class RestAccessDeniedHandler(
@@ -31,9 +25,7 @@ class RestAccessDeniedHandler(
         response: HttpServletResponse,
         accessDeniedException: AccessDeniedException
     ) {
-        // Deliberately not accessDeniedException.message: it varies by rejection cause, which
-        // would make the body differ between the two 403 paths and leaks detail to a caller
-        // who is by definition not authorised to have it.
+        // Fixed message: the exception's text varies by cause and would leak it.
         errorResponseWriter.write(
             request, response, HttpStatus.FORBIDDEN, ErrorCode.ACCESS_DENIED, ErrorMessages.ACCESS_DENIED
         )
