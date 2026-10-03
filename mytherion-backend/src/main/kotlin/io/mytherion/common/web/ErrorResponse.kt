@@ -39,6 +39,8 @@ data class ErrorResponse(
         /** Code and message for a status raised without a more specific cause; 5xx is masked. */
         fun generic(status: HttpStatusCode): Pair<ErrorCode, String> {
             val code = when (status.value()) {
+                401 -> ErrorCode.UNAUTHENTICATED
+                403 -> ErrorCode.ACCESS_DENIED
                 404 -> ErrorCode.NOT_FOUND
                 405 -> ErrorCode.METHOD_NOT_ALLOWED
                 406 -> ErrorCode.NOT_ACCEPTABLE
