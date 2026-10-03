@@ -37,7 +37,6 @@ export type ErrorCode =
   | 'INVALID_ROLE'
   | 'USER_NOT_FOUND'
   // Projects & codex
-  | 'PROJECT_NOT_FOUND'
   | 'PROJECT_HAS_ENTRIES'
   | 'ENTRY_NOT_FOUND'
   | 'THUMBNAIL_NOT_FOUND'

@@ -15,7 +15,6 @@ import io.mytherion.fixtures.ProjectTestFixtures
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.UpdateProjectRequest
 import io.mytherion.project.exception.ProjectAccessDeniedException
-import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.user.model.User
@@ -32,7 +31,6 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
-import java.util.Optional
 
 @ExtendWith(MockKExtension::class)
 class ProjectServiceTest {
@@ -154,7 +152,7 @@ class ProjectServiceTest {
   @Test
   fun `getProjectById when project exists should return project`() {
     // Given
-    every { projectRepository.findByIdWithOwner(testProjectId) } returns testProject
+    every { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(testProjectId, testUser) } returns testProject
 
     // When
     val result = projectService.getProjectById(testProjectId)
@@ -164,21 +162,21 @@ class ProjectServiceTest {
     assertEquals(testProjectId, result.id)
     assertEquals("Test Project", result.name)
     assertEquals(testUser.id, result.ownerId)
-    verify { projectRepository.findByIdWithOwner(testProjectId) }
+    verify { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(testProjectId, testUser) }
   }
 
   @Test
-  fun `getProjectById when project not found should throw ProjectNotFoundException`() {
+  fun `getProjectById when project not found should throw the same ProjectAccessDeniedException`() {
     // Given
-    every { projectRepository.findByIdWithOwner(UUID.fromString("00000000-0000-0000-0000-000000000999")) } returns null
+    every { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(UUID.fromString("00000000-0000-0000-0000-000000000999"), testUser) } returns null
 
     // When & Then
     val exception =
-      assertThrows<ProjectNotFoundException> {
+      assertThrows<ProjectAccessDeniedException> {
         projectService.getProjectById(UUID.fromString("00000000-0000-0000-0000-000000000999"))
       }
-    assertEquals("Project with id 00000000-0000-0000-0000-000000000999 not found", exception.message)
-    verify { projectRepository.findByIdWithOwner(UUID.fromString("00000000-0000-0000-0000-000000000999")) }
+    assertEquals(UUID.fromString("00000000-0000-0000-0000-000000000999"), exception.projectId)
+    verify { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(UUID.fromString("00000000-0000-0000-0000-000000000999"), testUser) }
   }
 
   @Test
@@ -186,7 +184,7 @@ class ProjectServiceTest {
     // Given
     val otherUsersProject =
       ProjectTestFixtures.createTestProject(id = otherProjectId, owner = otherUser)
-    every { projectRepository.findByIdWithOwner(otherProjectId) } returns otherUsersProject
+    every { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(otherProjectId, testUser) } returns null
 
     // When & Then
     val exception =
@@ -194,7 +192,7 @@ class ProjectServiceTest {
         projectService.getProjectById(otherProjectId)
       }
     assertEquals(otherProjectId, exception.projectId)
-    verify { projectRepository.findByIdWithOwner(otherProjectId) }
+    verify { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(otherProjectId, testUser) }
   }
 
   // ==================== Create Project Tests ====================
@@ -245,7 +243,7 @@ class ProjectServiceTest {
         name = "Updated Name",
         description = "Updated description"
       )
-    every { projectRepository.findById(testProjectId) } returns Optional.of(testProject)
+    every { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(testProjectId, testUser) } returns testProject
     every { projectRepository.save(any<Project>()) } returns testProject
 
     // When
@@ -256,7 +254,7 @@ class ProjectServiceTest {
     assertEquals("Updated Name", testProject.name)
     assertEquals("Updated description", testProject.description)
 
-    verify { projectRepository.findById(testProjectId) }
+    verify { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(testProjectId, testUser) }
     verify { projectRepository.save(testProject) }
   }
 
@@ -264,7 +262,7 @@ class ProjectServiceTest {
   fun `updateProject with partial data should update only provided fields`() {
     // Given
     val request = UpdateProjectRequest(name = "Only Name Updated", description = null)
-    every { projectRepository.findById(testProjectId) } returns Optional.of(testProject)
+    every { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(testProjectId, testUser) } returns testProject
     every { projectRepository.save(any<Project>()) } returns testProject
 
     // When
@@ -281,17 +279,17 @@ class ProjectServiceTest {
   }
 
   @Test
-  fun `updateProject when project not found should throw ProjectNotFoundException`() {
+  fun `updateProject when project not found should throw the same ProjectAccessDeniedException`() {
     // Given
     val request = UpdateProjectRequest(name = "Updated Name")
-    every { projectRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000999")) } returns Optional.empty()
+    every { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(UUID.fromString("00000000-0000-0000-0000-000000000999"), testUser) } returns null
 
     // When & Then
     val exception =
-      assertThrows<ProjectNotFoundException> {
+      assertThrows<ProjectAccessDeniedException> {
         projectService.updateProject(UUID.fromString("00000000-0000-0000-0000-000000000999"), request)
       }
-    assertEquals("Project with id 00000000-0000-0000-0000-000000000999 not found", exception.message)
+    assertEquals(UUID.fromString("00000000-0000-0000-0000-000000000999"), exception.projectId)
     verify(exactly = 0) { projectRepository.save(any()) }
   }
 
@@ -301,7 +299,7 @@ class ProjectServiceTest {
     val otherUsersProject =
       ProjectTestFixtures.createTestProject(id = otherProjectId, owner = otherUser)
     val request = UpdateProjectRequest(name = "Hacked Name")
-    every { projectRepository.findById(otherProjectId) } returns Optional.of(otherUsersProject)
+    every { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(otherProjectId, testUser) } returns null
 
     // When & Then
     val exception =
@@ -317,7 +315,7 @@ class ProjectServiceTest {
   @Test
   fun `deleteProject when valid should delete project`() {
     // Given
-    every { projectRepository.findById(testProjectId) } returns Optional.of(testProject)
+    every { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(testProjectId, testUser) } returns testProject
     every { entryQueryService.countByProject(testProject) } returns 0L
     every { projectRepository.save(testProject) } returns testProject
 
@@ -325,23 +323,23 @@ class ProjectServiceTest {
     projectService.deleteProject(testProjectId)
 
     // Then
-    verify { projectRepository.findById(testProjectId) }
+    verify { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(testProjectId, testUser) }
     verify { entryQueryService.countByProject(testProject) }
     verify { projectRepository.save(testProject) }
     assertTrue(testProject.isDeleted(), "Project should be marked as deleted")
   }
 
   @Test
-  fun `deleteProject when project not found should throw ProjectNotFoundException`() {
+  fun `deleteProject when project not found should throw the same ProjectAccessDeniedException`() {
     // Given
-    every { projectRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000999")) } returns Optional.empty()
+    every { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(UUID.fromString("00000000-0000-0000-0000-000000000999"), testUser) } returns null
 
     // When & Then
     val exception =
-      assertThrows<ProjectNotFoundException> {
+      assertThrows<ProjectAccessDeniedException> {
         projectService.deleteProject(UUID.fromString("00000000-0000-0000-0000-000000000999"))
       }
-    assertEquals("Project with id 00000000-0000-0000-0000-000000000999 not found", exception.message)
+    assertEquals(UUID.fromString("00000000-0000-0000-0000-000000000999"), exception.projectId)
     verify(exactly = 0) { projectRepository.save(any()) }
   }
 
@@ -350,7 +348,7 @@ class ProjectServiceTest {
     // Given
     val otherUsersProject =
       ProjectTestFixtures.createTestProject(id = otherProjectId, owner = otherUser)
-    every { projectRepository.findById(otherProjectId) } returns Optional.of(otherUsersProject)
+    every { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(otherProjectId, testUser) } returns null
 
     // When & Then
     val exception =
@@ -367,7 +365,7 @@ class ProjectServiceTest {
   fun `getProjectStats should return stats with entry counts`() {
     // Given
     val projectId = testProjectId
-    every { projectRepository.findById(projectId) } returns Optional.of(testProject)
+    every { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(projectId, testUser) } returns testProject
     every { entryQueryService.countByProject(testProject) } returns 10L
     every { entryQueryService.countByProjectGrouped(testProject) } returns
         mapOf("CHARACTER" to 5, "LOCATION" to 5)
@@ -391,7 +389,7 @@ class ProjectServiceTest {
   fun `getProjectStats should return empty stats for project with no entries`() {
     // Given
     val projectId = testProjectId
-    every { projectRepository.findById(projectId) } returns Optional.of(testProject)
+    every { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(projectId, testUser) } returns testProject
     every { entryQueryService.countByProject(testProject) } returns 0L
     every { entryQueryService.countByProjectGrouped(testProject) } returns emptyMap()
 
@@ -405,16 +403,16 @@ class ProjectServiceTest {
   }
 
   @Test
-  fun `getProjectStats when project not found should throw ProjectNotFoundException`() {
+  fun `getProjectStats when project not found should throw the same ProjectAccessDeniedException`() {
     // Given
-    every { projectRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000999")) } returns Optional.empty()
+    every { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(UUID.fromString("00000000-0000-0000-0000-000000000999"), testUser) } returns null
 
     // When & Then
     val exception =
-      assertThrows<ProjectNotFoundException> {
+      assertThrows<ProjectAccessDeniedException> {
         projectService.getProjectStats(UUID.fromString("00000000-0000-0000-0000-000000000999"))
       }
-    assertEquals("Project with id 00000000-0000-0000-0000-000000000999 not found", exception.message)
+    assertEquals(UUID.fromString("00000000-0000-0000-0000-000000000999"), exception.projectId)
   }
 
   @Test
@@ -422,7 +420,7 @@ class ProjectServiceTest {
     // Given
     val otherUsersProject =
       ProjectTestFixtures.createTestProject(id = otherProjectId, owner = otherUser)
-    every { projectRepository.findById(otherProjectId) } returns Optional.of(otherUsersProject)
+    every { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(otherProjectId, testUser) } returns null
 
     // When & Then
     val exception =

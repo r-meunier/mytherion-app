@@ -35,7 +35,6 @@ enum class ErrorCode {
     USER_NOT_FOUND,             // 404 no such user
 
     // Projects & codex
-    PROJECT_NOT_FOUND,          // 404 no such project
     PROJECT_HAS_ENTRIES,        // 409 project still holds entries, cannot delete
     ENTRY_NOT_FOUND,            // 404 no such entry
     THUMBNAIL_NOT_FOUND,        // 404 entry has no image

@@ -5,6 +5,7 @@ import io.mytherion.common.web.ErrorCode
 import jakarta.validation.ConstraintViolationException
 import jakarta.validation.Validation
 import jakarta.validation.Valid
+import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -62,6 +63,10 @@ class GlobalExceptionHandlerTest {
             throw MultipartException("Failed to parse multipart servlet request; no boundary")
         @GetMapping("/probe/stale") fun stale(): Nothing =
             throw ObjectOptimisticLockingFailureException(Body::class.java, "id-1")
+        @GetMapping("/probe/min") fun min(@RequestParam @Min(1) n: Int) = n
+        @GetMapping("/probe/json-only") fun jsonOnly() = Body("x")
+        // Mapped without {id}, so Spring raises MissingPathVariableException: a 500 of its own.
+        @GetMapping("/probe/missing-var") fun missingVar(@PathVariable id: String) = id
     }
 
     private val mvc: MockMvc =
@@ -197,6 +202,34 @@ class GlobalExceptionHandlerTest {
     fun `optimistic-lock conflict is 409 telling the user to reload`() {
         expectError(get("/probe/stale"), HttpStatus.CONFLICT, ErrorCode.CONCURRENT_MODIFICATION)
             .andExpect(jsonPath("$.message").value("This was changed elsewhere. Reload and try again."))
+    }
+
+    @Test
+    fun `query parameter constraint violation is 400 naming the parameter`() {
+        expectError(get("/probe/min?n=0"), HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED)
+            .andExpect(jsonPath("$.errors.n").exists())
+    }
+
+    @Test
+    fun `unacceptable Accept header is 406`() {
+        mvc.perform(get("/probe/json-only").accept(MediaType.APPLICATION_XML))
+            .andExpect(status().isNotAcceptable)
+    }
+
+    @Test
+    fun `framework-raised 500 is masked`() {
+        expectError(get("/probe/missing-var"), HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_ERROR)
+            .andExpect(jsonPath("$.message").value("An unexpected error occurred"))
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @org.junit.jupiter.params.provider.CsvSource("5MB,5MB", "512KB,512KB", "1000B,1000B")
+    fun `upload limit is quoted in the unit it was configured in`(configured: String, expected: String) {
+        MockMvcBuilders.standaloneSetup(ProbeController())
+            .setControllerAdvice(GlobalExceptionHandler(DataSize.parse(configured)))
+            .build()
+            .perform(get("/probe/too-large"))
+            .andExpect(jsonPath("$.message").value("File exceeds the $expected upload limit"))
     }
 
     companion object {

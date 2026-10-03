@@ -15,7 +15,6 @@ import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
 import io.mytherion.project.dto.UpdateProjectRequest
 import io.mytherion.project.exception.ProjectAccessDeniedException
-import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.project.security.ProjectAccessInterceptor
 import io.mytherion.project.service.ProjectService
@@ -198,16 +197,15 @@ class ProjectControllerTest {
     }
 
     @Test
-    fun `getProjectById when not found should return 404`() {
+    fun `getProjectById when not found should return the same 403 as not owned`() {
         // Given
-        every { projectService.getProjectById(UUID.fromString("00000000-0000-0000-0000-000000000999")) } throws ProjectNotFoundException(UUID.fromString("00000000-0000-0000-0000-000000000999"))
+        every { projectService.getProjectById(UUID.fromString("00000000-0000-0000-0000-000000000999")) } throws ProjectAccessDeniedException(UUID.fromString("00000000-0000-0000-0000-000000000999"))
 
         // When & Then
         mockMvc.perform(get("/api/projects/00000000-0000-0000-0000-000000000999"))
-            .andExpect(status().isNotFound)
-            .andExpect(jsonPath("$.status").value(404))
-            .andExpect(jsonPath("$.error").value("Not Found"))
-            .andExpect(jsonPath("$.message").value("Project with id 00000000-0000-0000-0000-000000000999 not found"))
+            .andExpect(status().isForbidden)
+            .andExpect(jsonPath("$.code").value("ACCESS_DENIED"))
+            .andExpect(jsonPath("$.message").value("Access denied"))
     }
 
     @Test
@@ -369,11 +367,11 @@ class ProjectControllerTest {
     }
 
     @Test
-    fun `updateProject when not found should return 404`() {
+    fun `updateProject when not found should return the same 403 as not owned`() {
         // Given
         val request = UpdateProjectRequest(name = "Updated Name")
         every { projectService.updateProject(any(), any()) } throws
-                ProjectNotFoundException(UUID.fromString("00000000-0000-0000-0000-000000000999"))
+                ProjectAccessDeniedException(UUID.fromString("00000000-0000-0000-0000-000000000999"))
 
         // When & Then
         mockMvc.perform(
@@ -381,8 +379,8 @@ class ProjectControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         )
-            .andExpect(status().isNotFound)
-            .andExpect(jsonPath("$.status").value(404))
+            .andExpect(status().isForbidden)
+            .andExpect(jsonPath("$.code").value("ACCESS_DENIED"))
     }
 
     @Test
@@ -414,14 +412,14 @@ class ProjectControllerTest {
     }
 
     @Test
-    fun `deleteProject when not found should return 404`() {
+    fun `deleteProject when not found should return the same 403 as not owned`() {
         // Given
-        every { projectService.deleteProject(UUID.fromString("00000000-0000-0000-0000-000000000999")) } throws ProjectNotFoundException(UUID.fromString("00000000-0000-0000-0000-000000000999"))
+        every { projectService.deleteProject(UUID.fromString("00000000-0000-0000-0000-000000000999")) } throws ProjectAccessDeniedException(UUID.fromString("00000000-0000-0000-0000-000000000999"))
 
         // When & Then
         mockMvc.perform(delete("/api/projects/00000000-0000-0000-0000-000000000999"))
-            .andExpect(status().isNotFound)
-            .andExpect(jsonPath("$.status").value(404))
+            .andExpect(status().isForbidden)
+            .andExpect(jsonPath("$.code").value("ACCESS_DENIED"))
     }
 
     @Test

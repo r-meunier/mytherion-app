@@ -347,8 +347,8 @@ they drift.
 |---|---|
 | `400 Bad Request` | `VALIDATION_FAILED`, `MALFORMED_REQUEST` (bad JSON or multipart), `INVALID_PARAMETER`, `INVALID_FILE`, `BAD_REQUEST` |
 | `401 Unauthorized` | `UNAUTHENTICATED`, `INVALID_CREDENTIALS` |
-| `403 Forbidden` | `ACCESS_DENIED`: identical body for every ownership, tenant-isolation and role denial, and for projects that do not exist |
-| `404 Not Found` | `PROJECT_NOT_FOUND`, `ENTRY_NOT_FOUND`, `THUMBNAIL_NOT_FOUND`, `NOT_FOUND` (no such endpoint) |
+| `403 Forbidden` | `ACCESS_DENIED`: identical body for every ownership and role denial. A project that is missing, deleted or someone else's always gets this, never 404. |
+| `404 Not Found` | `ENTRY_NOT_FOUND`, `USER_NOT_FOUND`, `THUMBNAIL_NOT_FOUND`, `NOT_FOUND` (no such endpoint) |
 | `405` / `415` | `METHOD_NOT_ALLOWED`, `UNSUPPORTED_MEDIA_TYPE` |
 | `409 Conflict` | `PROJECT_HAS_ENTRIES`, `CONCURRENT_MODIFICATION` (stale `version` on update; reload and retry) |
 | `413 Content Too Large` | `FILE_TOO_LARGE` |

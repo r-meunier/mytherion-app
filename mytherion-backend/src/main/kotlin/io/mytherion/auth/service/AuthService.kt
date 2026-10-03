@@ -6,6 +6,7 @@ import io.mytherion.auth.exception.EmailAlreadyVerifiedException
 import io.mytherion.auth.exception.EmailNotVerifiedException
 import io.mytherion.auth.exception.InvalidCredentialsException
 import io.mytherion.auth.exception.InvalidVerificationTokenException
+import io.mytherion.auth.exception.NotAuthenticatedException
 import io.mytherion.auth.exception.VerificationTokenExpiredException
 import io.mytherion.auth.jwt.JwtService
 import io.mytherion.platform.monitoring.MetricsService
@@ -155,14 +156,8 @@ class AuthService(
 
     @Transactional(readOnly = true)
     fun getUserById(userId: UUID): AuthDTO.UserResponse {
-        val user =
-            userRepository.findById(userId).orElseThrow {
-                UserNotFoundException(userId)
-            }
-
-        if (user.isDeleted()) {
-            throw UserNotFoundException(userId)
-        }
+        // A valid token for a missing or deleted user is a dead session: 401, like everywhere else.
+        val user = userRepository.findByIdAndDeletedAtIsNull(userId) ?: throw NotAuthenticatedException()
 
         return AuthDTO.UserResponse(
             id = requireNotNull(user.id) { "User ID is missing" },

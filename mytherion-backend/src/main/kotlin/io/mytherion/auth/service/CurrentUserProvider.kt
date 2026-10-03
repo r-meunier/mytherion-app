@@ -21,9 +21,7 @@ class CurrentUserProvider(
             authentication.principal as? UUID
                 ?: throw IllegalStateException("Principal is not a valid User ID")
 
-        // A valid token for a vanished user is a dead session: 401, not 500.
-        return userRepository.findById(userId).orElseThrow {
-            NotAuthenticatedException()
-        }
+        // A valid token for a missing or deleted user is a dead session: 401, not 500.
+        return userRepository.findByIdAndDeletedAtIsNull(userId) ?: throw NotAuthenticatedException()
     }
 }

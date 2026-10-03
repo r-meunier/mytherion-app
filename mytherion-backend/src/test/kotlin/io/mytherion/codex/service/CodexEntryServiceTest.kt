@@ -14,7 +14,6 @@ import io.mytherion.codex.model.EntryType
 import io.mytherion.codex.repository.CodexEntryRepository
 import io.mytherion.platform.monitoring.MetricsService
 import io.mytherion.project.exception.ProjectAccessDeniedException
-import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.model.Project
 import io.mytherion.project.service.ProjectService
 import io.mytherion.platform.storage.StorageService
@@ -144,10 +143,10 @@ class CodexEntryServiceTest {
     fun `createEntry should throw exception when project not found`() {
         // Given
         val request = CreateEntryRequest(type = EntryType.CHARACTER, name = "New Character")
-        every { projectService.getVerifiedProject(projectId, testUser.id!!) } throws ProjectNotFoundException(projectId)
+        every { projectService.getVerifiedProject(projectId, testUser.id!!) } throws ProjectAccessDeniedException(projectId)
 
         // When/Then
-        assertThrows<ProjectNotFoundException> {
+        assertThrows<ProjectAccessDeniedException> {
             entryService.createEntry(projectId, request)
         }
     }
