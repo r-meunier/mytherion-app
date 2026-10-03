@@ -94,6 +94,7 @@ class UserControllerSecurityIntegrationTest {
         assertNotNull(body, "403 should carry a parseable JSON body")
         assertEquals(403, (body!!["status"] as Number).toInt())
         assertEquals("Forbidden", body["error"])
+        assertEquals("ACCESS_DENIED", body["code"])
         assertEquals(ErrorMessages.ACCESS_DENIED, body["message"])
         assertNotNull(body["timestamp"], "ErrorResponse should carry a timestamp")
     }
@@ -106,6 +107,7 @@ class UserControllerSecurityIntegrationTest {
         assertNotNull(body)
         assertEquals(401, (body!!["status"] as Number).toInt())
         assertEquals("Unauthorized", body["error"])
+        assertEquals("UNAUTHENTICATED", body["code"])
         assertEquals(ErrorMessages.UNAUTHENTICATED, body["message"])
     }
 
@@ -129,7 +131,7 @@ class UserControllerSecurityIntegrationTest {
 
         assertNotNull(body)
         assertEquals(
-            setOf("status", "error", "message", "timestamp"),
+            setOf("status", "error", "code", "message", "path", "timestamp"),
             body!!.keys,
             "ErrorResponse shape drifted; the two 403 paths would no longer match"
         )

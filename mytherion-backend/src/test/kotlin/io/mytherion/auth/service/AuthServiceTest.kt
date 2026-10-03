@@ -1,5 +1,10 @@
 package io.mytherion.auth.service
 
+import io.mytherion.auth.exception.EmailAlreadyInUseException
+import io.mytherion.auth.exception.InvalidCredentialsException
+import io.mytherion.common.web.ErrorCode
+import io.mytherion.user.exception.UserNotFoundException
+import io.mytherion.user.exception.UsernameAlreadyInUseException
 import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -124,7 +129,7 @@ class AuthServiceTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> { authService.register(request) }
+            assertThrows<EmailAlreadyInUseException> { authService.register(request) }
 
         assertEquals("Email already in use", exception.message)
         verify { userRepository.existsByEmail(request.email) }
@@ -146,7 +151,7 @@ class AuthServiceTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> { authService.register(request) }
+            assertThrows<UsernameAlreadyInUseException> { authService.register(request) }
 
         assertEquals("Username already in use", exception.message)
         verify { userRepository.existsByUsername(request.username) }
@@ -227,7 +232,7 @@ class AuthServiceTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> { authService.login(request) }
+            assertThrows<InvalidCredentialsException> { authService.login(request) }
 
         assertEquals("Invalid credentials", exception.message)
         verify { userRepository.findByEmailAndDeletedAtIsNull(request.email.lowercase()) }
@@ -248,7 +253,7 @@ class AuthServiceTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> { authService.login(request) }
+            assertThrows<InvalidCredentialsException> { authService.login(request) }
 
         assertEquals("Invalid credentials", exception.message)
         verify { passwordEncoder.matches(request.password, testUser.passwordHash) }
@@ -301,9 +306,9 @@ class AuthServiceTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> { authService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000999")) }
+            assertThrows<UserNotFoundException> { authService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000999")) }
 
-        assertEquals("User not found", exception.message)
+        assertEquals(ErrorCode.USER_NOT_FOUND, exception.code)
         verify { userRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000999")) }
     }
 
@@ -323,9 +328,9 @@ class AuthServiceTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> { authService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001")) }
+            assertThrows<UserNotFoundException> { authService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001")) }
 
-        assertEquals("User not found", exception.message)
+        assertEquals(ErrorCode.USER_NOT_FOUND, exception.code)
         verify { userRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) }
     }
 }

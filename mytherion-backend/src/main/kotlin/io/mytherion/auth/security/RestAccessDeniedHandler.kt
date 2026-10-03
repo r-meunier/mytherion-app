@@ -1,6 +1,7 @@
 package io.mytherion.auth.security
 
 import io.mytherion.common.web.ErrorResponse
+import io.mytherion.common.web.ErrorCode
 import io.mytherion.common.web.ErrorMessages
 import io.mytherion.common.web.ErrorResponseWriter
 import jakarta.servlet.http.HttpServletRequest
@@ -33,7 +34,9 @@ class RestAccessDeniedHandler(
         // Deliberately not accessDeniedException.message: it varies by rejection cause, which
         // would make the body differ between the two 403 paths and leaks detail to a caller
         // who is by definition not authorised to have it.
-        errorResponseWriter.write(response, HttpStatus.FORBIDDEN, ErrorMessages.ACCESS_DENIED)
+        errorResponseWriter.write(
+            request, response, HttpStatus.FORBIDDEN, ErrorCode.ACCESS_DENIED, ErrorMessages.ACCESS_DENIED
+        )
     }
 
 }

@@ -138,10 +138,11 @@ class EmailVerificationIntegrationTest {
         // When & Then
         mockMvc.perform(post("/api/auth/verify-email").param("token", "invalid-token-123"))
             .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value("INVALID_VERIFICATION_TOKEN"))
     }
 
     @Test
-    fun `POST verify-email with expired token should return 400`() {
+    fun `POST verify-email with expired token should return 410`() {
         // Given - Create user and expired token
         val user = createUnverifiedUser("test@example.com", "testuser")
         val expiredToken =
@@ -154,11 +155,12 @@ class EmailVerificationIntegrationTest {
 
         // When & Then
         mockMvc.perform(post("/api/auth/verify-email").param("token", expiredToken.token))
-            .andExpect(status().isBadRequest)
+            .andExpect(status().isGone)
+            .andExpect(jsonPath("$.code").value("VERIFICATION_TOKEN_EXPIRED"))
     }
 
     @Test
-    fun `POST verify-email with already verified token should return 400`() {
+    fun `POST verify-email with already verified token should return 409`() {
         // Given - Create user and already verified token
         val user = createUnverifiedUser("test@example.com", "testuser")
         val verifiedToken =
@@ -172,7 +174,8 @@ class EmailVerificationIntegrationTest {
 
         // When & Then
         mockMvc.perform(post("/api/auth/verify-email").param("token", verifiedToken.token))
-            .andExpect(status().isBadRequest)
+            .andExpect(status().isConflict)
+            .andExpect(jsonPath("$.code").value("EMAIL_ALREADY_VERIFIED"))
     }
 
     @Test
@@ -202,23 +205,25 @@ class EmailVerificationIntegrationTest {
     }
 
     @Test
-    fun `POST resend-verification with verified user should return 400`() {
+    fun `POST resend-verification with verified user should return 409`() {
         // Given - Create verified user
         val user = createVerifiedUser("verified@example.com", "verifieduser")
 
         // When & Then
         mockMvc.perform(post("/api/auth/resend-verification").param("email", user.email))
-            .andExpect(status().isBadRequest)
+            .andExpect(status().isConflict)
+            .andExpect(jsonPath("$.code").value("EMAIL_ALREADY_VERIFIED"))
     }
 
     @Test
-    fun `POST resend-verification with non-existent email should return 400`() {
+    fun `POST resend-verification with non-existent email should return 404`() {
         // When & Then
         mockMvc.perform(
             post("/api/auth/resend-verification")
                 .param("email", "nonexistent@example.com")
         )
-            .andExpect(status().isBadRequest)
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
     }
 
     @Test
@@ -265,7 +270,8 @@ class EmailVerificationIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest))
         )
-            .andExpect(status().isBadRequest)
+            .andExpect(status().isForbidden)
+            .andExpect(jsonPath("$.code").value("EMAIL_NOT_VERIFIED"))
             .andExpect(cookie().doesNotExist("mytherion_token"))
     }
 

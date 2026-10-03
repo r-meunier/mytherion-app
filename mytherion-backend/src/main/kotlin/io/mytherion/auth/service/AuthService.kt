@@ -1,8 +1,16 @@
 package io.mytherion.auth.service
 
 import io.mytherion.auth.dto.AuthDTO
+import io.mytherion.auth.exception.EmailAlreadyInUseException
+import io.mytherion.auth.exception.EmailAlreadyVerifiedException
+import io.mytherion.auth.exception.EmailNotVerifiedException
+import io.mytherion.auth.exception.InvalidCredentialsException
+import io.mytherion.auth.exception.InvalidVerificationTokenException
+import io.mytherion.auth.exception.VerificationTokenExpiredException
 import io.mytherion.auth.jwt.JwtService
 import io.mytherion.platform.monitoring.MetricsService
+import io.mytherion.user.exception.UserNotFoundException
+import io.mytherion.user.exception.UsernameAlreadyInUseException
 import io.mytherion.user.model.User
 import io.mytherion.user.model.UserRole
 import io.mytherion.user.repository.UserRepository
@@ -32,19 +40,19 @@ class AuthService(
                 durationMs = System.currentTimeMillis() - startTime,
                 success = false
             )
-            throw IllegalArgumentException("Email already in use")
+            throw EmailAlreadyInUseException()
         }
         if (userRepository.existsByUsername(req.username)) {
             metricsService.recordRegistration(
                 durationMs = System.currentTimeMillis() - startTime,
                 success = false
             )
-            throw IllegalArgumentException("Username already in use")
+            throw UsernameAlreadyInUseException()
         }
 
         val encodedPassword =
             passwordEncoder.encode(req.password)
-                ?: throw IllegalArgumentException("Password must not be null")
+                ?: error("PasswordEncoder returned null")
 
         val user =
             User(
@@ -98,7 +106,7 @@ class AuthService(
                         success = false,
                         reason = reason
                     )
-                    throw IllegalArgumentException("Invalid credentials")
+                    throw InvalidCredentialsException()
                 }
 
         if (!passwordEncoder.matches(req.password, user.passwordHash)) {
@@ -108,7 +116,7 @@ class AuthService(
                 success = false,
                 reason = reason
             )
-            throw IllegalArgumentException("Invalid credentials")
+            throw InvalidCredentialsException()
         }
 
         // Hard enforcement: Require email verification to login
@@ -119,7 +127,7 @@ class AuthService(
                 success = false,
                 reason = reason
             )
-            throw IllegalArgumentException("Please verify your email before logging in")
+            throw EmailNotVerifiedException()
         }
 
         val token =
@@ -149,11 +157,11 @@ class AuthService(
     fun getUserById(userId: UUID): AuthDTO.UserResponse {
         val user =
             userRepository.findById(userId).orElseThrow {
-                IllegalArgumentException("User not found")
+                UserNotFoundException(userId)
             }
 
         if (user.isDeleted()) {
-            throw IllegalArgumentException("User not found")
+            throw UserNotFoundException(userId)
         }
 
         return AuthDTO.UserResponse(
@@ -192,14 +200,14 @@ class AuthService(
     fun verifyEmail(token: String): AuthDTO.UserResponse {
         val verificationToken =
             verificationTokenRepository.findByToken(token)
-                ?: throw IllegalArgumentException("Invalid verification token")
+                ?: throw InvalidVerificationTokenException()
 
         if (verificationToken.isVerified()) {
-            throw IllegalArgumentException("Email already verified")
+            throw EmailAlreadyVerifiedException()
         }
 
         if (verificationToken.isExpired()) {
-            throw IllegalArgumentException("Verification token expired")
+            throw VerificationTokenExpiredException()
         }
 
         // Mark token as verified
@@ -224,11 +232,11 @@ class AuthService(
     fun resendVerificationEmail(userId: UUID) {
         val user =
             userRepository.findById(userId).orElseThrow {
-                IllegalArgumentException("User not found")
+                UserNotFoundException(userId)
             }
 
         if (user.emailVerified) {
-            throw IllegalArgumentException("Email already verified")
+            throw EmailAlreadyVerifiedException()
         }
 
         sendVerificationEmail(user)
@@ -238,10 +246,10 @@ class AuthService(
     fun resendVerificationEmailByEmail(email: String) {
         val user =
             userRepository.findByEmailAndDeletedAtIsNull(email.lowercase())
-                ?: throw IllegalArgumentException("User not found")
+                ?: throw UserNotFoundException()
 
         if (user.emailVerified) {
-            throw IllegalArgumentException("Email already verified")
+            throw EmailAlreadyVerifiedException()
         }
 
         sendVerificationEmail(user)

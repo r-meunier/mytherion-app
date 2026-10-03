@@ -93,7 +93,7 @@ class AuthControllerIntegrationTest {
     }
 
     @Test
-    fun `POST register with duplicate email should return 400`() {
+    fun `POST register with duplicate email should return 409`() {
         // Given - Create existing user
         val existingRequest =
             AuthDTO.RegisterRequest(
@@ -120,12 +120,13 @@ class AuthControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(duplicateRequest))
         )
-            .andExpect(status().isBadRequest)
+            .andExpect(status().isConflict)
+            .andExpect(jsonPath("$.code").value("EMAIL_ALREADY_IN_USE"))
             .andExpect(cookie().doesNotExist("mytherion_token"))
     }
 
     @Test
-    fun `POST register with duplicate username should return 400`() {
+    fun `POST register with duplicate username should return 409`() {
         // Given - Create existing user
         val existingRequest =
             AuthDTO.RegisterRequest(
@@ -152,7 +153,8 @@ class AuthControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(duplicateRequest))
         )
-            .andExpect(status().isBadRequest)
+            .andExpect(status().isConflict)
+            .andExpect(jsonPath("$.code").value("USERNAME_ALREADY_IN_USE"))
             .andExpect(cookie().doesNotExist("mytherion_token"))
     }
 
@@ -190,7 +192,7 @@ class AuthControllerIntegrationTest {
     }
 
     @Test
-    fun `POST login with wrong password should return 400`() {
+    fun `POST login with wrong password should return 401`() {
         // Given - Create a verified user
         fixtures.createVerifiedUser("test@example.com", "testuser", "password123")
 
@@ -203,12 +205,13 @@ class AuthControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest))
         )
-            .andExpect(status().isBadRequest)
+            .andExpect(status().isUnauthorized)
+            .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"))
             .andExpect(cookie().doesNotExist("mytherion_token"))
     }
 
     @Test
-    fun `POST login with non-existent email should return 400`() {
+    fun `POST login with non-existent email should return 401`() {
         // When & Then
         val loginRequest =
             AuthDTO.LoginRequest(email = "nonexistent@example.com", password = "password123")
@@ -218,7 +221,8 @@ class AuthControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest))
         )
-            .andExpect(status().isBadRequest)
+            .andExpect(status().isUnauthorized)
+            .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"))
             .andExpect(cookie().doesNotExist("mytherion_token"))
     }
 
@@ -273,6 +277,7 @@ class AuthControllerIntegrationTest {
         // When & Then - Expect 401 with standard ErrorResponse from RestAuthenticationEntryPoint
         mockMvc.perform(get("/api/auth/me"))
             .andExpect(status().isUnauthorized)
+            .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"))
             .andExpect(jsonPath("$.status").value(401))
             .andExpect(jsonPath("$.error").value("Unauthorized"))
             .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))

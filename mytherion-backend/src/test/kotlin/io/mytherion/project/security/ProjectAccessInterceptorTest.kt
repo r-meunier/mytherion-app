@@ -4,6 +4,8 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import io.mytherion.common.web.ErrorCode
+import io.mytherion.common.web.ErrorMessages
 import io.mytherion.auth.service.CurrentUserProvider
 import io.mytherion.project.exception.ProjectAccessDeniedException
 import io.mytherion.project.repository.ProjectRepository
@@ -122,8 +124,11 @@ class ProjectAccessInterceptorTest {
         // Routed through GlobalExceptionHandler, so tenant-isolation denials share the
         // ErrorResponse shape with every other error rather than the servlet default.
         assertEquals(HttpStatus.FORBIDDEN, thrown.status)
-        assertEquals("Forbidden", thrown.error)
-        assertEquals("Access denied to project with id $validProjectId", thrown.message)
+        assertEquals(ErrorCode.ACCESS_DENIED, thrown.code)
+        // Same fixed message as every other 403; the id stays out of the response so a caller
+        // cannot learn anything about a project they do not own.
+        assertEquals(ErrorMessages.ACCESS_DENIED, thrown.message)
+        assertEquals(validProjectId, thrown.projectId)
 
         // The interceptor must not also write to the response, or the body would be committed
         // before the exception resolver can render the standard payload.

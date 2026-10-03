@@ -1,6 +1,7 @@
 package io.mytherion.project.exception
 
 import io.mytherion.common.exception.ApiException
+import io.mytherion.common.web.ErrorCode
 import java.util.UUID
 import org.springframework.http.HttpStatus
 
@@ -8,6 +9,6 @@ import org.springframework.http.HttpStatus
 class ProjectHasEntriesException(projectId: UUID, entryCount: Int) :
     ApiException(
         HttpStatus.CONFLICT,
-        "Conflict",
+        ErrorCode.PROJECT_HAS_ENTRIES,
         "Cannot delete project with id $projectId: it contains $entryCount entries. Delete all entries first."
     )

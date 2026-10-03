@@ -220,9 +220,8 @@ class ProjectControllerTest {
             .andExpect(status().isForbidden)
             .andExpect(jsonPath("$.status").value(403))
             .andExpect(jsonPath("$.error").value("Forbidden"))
-            .andExpect(
-                jsonPath("$.message").value("Access denied to project with id 00000000-0000-0000-0000-000000000002")
-            )
+            .andExpect(jsonPath("$.code").value("ACCESS_DENIED"))
+            .andExpect(jsonPath("$.message").value("Access denied"))
     }
 
     // ==================== Create Project Tests ====================
@@ -265,7 +264,9 @@ class ProjectControllerTest {
         )
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.status").value(400))
-            .andExpect(jsonPath("$.error").value("Validation Failed"))
+            .andExpect(jsonPath("$.error").value("Bad Request"))
+            .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+            .andExpect(jsonPath("$.errors.name").exists())
     }
 
     @Test

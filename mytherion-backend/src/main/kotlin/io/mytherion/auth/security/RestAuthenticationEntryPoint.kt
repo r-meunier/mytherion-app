@@ -1,6 +1,7 @@
 package io.mytherion.auth.security
 
 import io.mytherion.common.web.ErrorResponse
+import io.mytherion.common.web.ErrorCode
 import io.mytherion.common.web.ErrorMessages
 import io.mytherion.common.web.ErrorResponseWriter
 import jakarta.servlet.http.HttpServletRequest
@@ -29,7 +30,9 @@ class RestAuthenticationEntryPoint(
     ) {
         // Deliberately not authException.message: it varies by failure cause (missing token,
         // malformed token, expired token) and would tell an unauthenticated caller which.
-        errorResponseWriter.write(response, HttpStatus.UNAUTHORIZED, ErrorMessages.UNAUTHENTICATED)
+        errorResponseWriter.write(
+            request, response, HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHENTICATED, ErrorMessages.UNAUTHENTICATED
+        )
     }
 
 }

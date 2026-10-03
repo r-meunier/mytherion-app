@@ -1,5 +1,6 @@
 package io.mytherion.auth.security
 
+import io.mytherion.common.web.ErrorCode
 import io.mytherion.common.web.ErrorMessages
 import io.mytherion.common.web.ErrorResponse
 import io.mytherion.common.web.ErrorResponseWriter
@@ -21,7 +22,7 @@ class RestAuthenticationEntryPointTest {
 
     @Test
     fun `commence sets 401 status and writes ErrorResponse payload`() {
-        val request = MockHttpServletRequest()
+        val request = MockHttpServletRequest("GET", "/api/auth/me")
         val response = MockHttpServletResponse()
         val exception = InsufficientAuthenticationException("Full authentication is required to access this resource")
 
@@ -35,6 +36,8 @@ class RestAuthenticationEntryPointTest {
         assertEquals(401, error.status)
         assertEquals("Unauthorized", error.error)
         assertEquals(ErrorMessages.UNAUTHENTICATED, error.message)
+        assertEquals(ErrorCode.UNAUTHENTICATED, error.code)
+        assertEquals("/api/auth/me", error.path)
         assertNotNull(error.timestamp)
     }
 

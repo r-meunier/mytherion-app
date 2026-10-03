@@ -218,7 +218,9 @@ class CodexEntryTenantIsolationE2ETest {
         assertNotNull(body, "403 from the interceptor returned no parseable JSON body")
         assertEquals(403, (body!!["status"] as Number).toInt())
         assertEquals("Forbidden", body["error"])
-        assertEquals("Access denied to project with id ${project1User1.id}", body["message"])
+        assertEquals("ACCESS_DENIED", body["code"])
+        // Fixed message, no project id: a caller learns nothing about a project it does not own.
+        assertEquals("Access denied", body["message"])
         assertNotNull(body["timestamp"], "ErrorResponse should carry a timestamp")
     }
 

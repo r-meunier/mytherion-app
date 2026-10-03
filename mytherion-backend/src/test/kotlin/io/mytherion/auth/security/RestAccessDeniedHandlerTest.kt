@@ -1,5 +1,6 @@
 package io.mytherion.auth.security
 
+import io.mytherion.common.web.ErrorCode
 import io.mytherion.common.web.ErrorMessages
 import io.mytherion.common.web.ErrorResponse
 import io.mytherion.common.web.ErrorResponseWriter
@@ -25,7 +26,7 @@ class RestAccessDeniedHandlerTest {
 
     @Test
     fun `handle sets 403 status and writes ErrorResponse payload`() {
-        val request = MockHttpServletRequest()
+        val request = MockHttpServletRequest("GET", "/api/user")
         val response = MockHttpServletResponse()
 
         handler.handle(request, response, AccessDeniedException("Access denied to requested resource"))
@@ -38,6 +39,8 @@ class RestAccessDeniedHandlerTest {
         assertEquals(403, error.status)
         assertEquals("Forbidden", error.error)
         assertEquals(ErrorMessages.ACCESS_DENIED, error.message)
+        assertEquals(ErrorCode.ACCESS_DENIED, error.code)
+        assertEquals("/api/user", error.path)
         assertNotNull(error.timestamp)
     }
 

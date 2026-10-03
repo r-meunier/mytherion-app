@@ -1,6 +1,7 @@
 package io.mytherion.codex.rest
 
 import io.mytherion.codex.dto.*
+import io.mytherion.codex.exception.InvalidFileException
 import io.mytherion.codex.service.CodexEntryService
 import io.mytherion.platform.logging.errorWith
 import io.mytherion.platform.logging.infoWith
@@ -154,7 +155,7 @@ class CodexEntryController(private val entryService: CodexEntryService) {
         // Validate file
         if (file.isEmpty) {
             logger.errorWith("File is empty", null, "projectId" to projectId, "entryId" to id)
-            throw IllegalArgumentException("File is empty")
+            throw InvalidFileException("File is empty")
         }
 
         val allowedTypes = listOf("image/jpeg", "image/png", "image/gif", "image/webp")
@@ -166,20 +167,13 @@ class CodexEntryController(private val entryService: CodexEntryService) {
                 "entryId" to id,
                 "contentType" to file.contentType
             )
-            throw IllegalArgumentException("Invalid file type. Allowed: JPEG, PNG, GIF, WebP")
+            throw InvalidFileException("Invalid file type. Allowed: JPEG, PNG, GIF, WebP")
         }
 
-        val maxSize = 5 * 1024 * 1024 // 5MB
-        if (file.size > maxSize) {
-            logger.errorWith(
-                "File size exceeds limit",
-                null,
-                "projectId" to projectId,
-                "entryId" to id,
-                "fileSize" to file.size
-            )
-            throw IllegalArgumentException("File size exceeds 5MB limit")
-        }
+        // No size check here: spring.servlet.multipart.max-file-size rejects an oversized file
+        // while the request is still being parsed, before this method runs, and
+        // GlobalExceptionHandler renders that as 413 FILE_TOO_LARGE. A second check against
+        // a separately configured number could only ever drift from it.
 
         return try {
             entryService.uploadThumbnail(projectId, id, file)
