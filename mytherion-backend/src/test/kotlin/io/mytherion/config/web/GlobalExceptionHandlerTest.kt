@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.RequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
@@ -43,6 +44,7 @@ import java.util.stream.Stream
 class GlobalExceptionHandlerTest {
 
     private class TestApiException : ApiException(HttpStatus.CONFLICT, ErrorCode.PROJECT_HAS_ENTRIES, "Still has entries")
+    private class TestUnauthenticated : ApiException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHENTICATED, "No session")
 
     data class Body(@field:NotBlank(message = "Name is required") val name: String = "")
 
@@ -59,6 +61,7 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/probe/id/{id}") fun byId(@PathVariable id: UUID) = id
         @GetMapping("/probe/param") fun param(@RequestParam token: String) = token
         @GetMapping("/probe/api") fun api(): Nothing = throw TestApiException()
+        @GetMapping("/probe/unauthenticated") fun unauthenticated(): Nothing = throw TestUnauthenticated()
         @GetMapping("/probe/denied") fun denied(): Nothing =
             throw AuthorizationDeniedException("Access Denied: hasRole('ADMIN')", AuthorizationDecision(false))
         @GetMapping("/probe/too-large") fun tooLarge(): Nothing = throw MaxUploadSizeExceededException(-1)
@@ -112,6 +115,18 @@ class GlobalExceptionHandlerTest {
         expectError(get("/probe/api"), HttpStatus.CONFLICT, ErrorCode.PROJECT_HAS_ENTRIES)
             .andExpect(jsonPath("$.message").value("Still has entries"))
             .andExpect(jsonPath("$.path").value("/probe/api"))
+    }
+
+    @Test
+    fun `a 401 carries the Bearer challenge RFC 9110 requires`() {
+        expectError(get("/probe/unauthenticated"), HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHENTICATED)
+            .andExpect(header().string("WWW-Authenticate", "Bearer"))
+    }
+
+    @Test
+    fun `a 403 carries no authentication challenge`() {
+        expectError(get("/probe/denied"), HttpStatus.FORBIDDEN, ErrorCode.ACCESS_DENIED)
+            .andExpect(header().doesNotExist("WWW-Authenticate"))
     }
 
     @Test

@@ -38,6 +38,7 @@ class RestAuthenticationEntryPointTest {
         assertEquals(ErrorMessages.UNAUTHENTICATED, error.message)
         assertEquals(ErrorCode.UNAUTHENTICATED, error.code)
         assertEquals("/api/auth/me", error.path)
+        assertEquals("Bearer", response.getHeader("WWW-Authenticate"))
         assertNotNull(error.timestamp)
     }
 

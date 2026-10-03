@@ -155,7 +155,7 @@ class GlobalExceptionHandler(
         path: String,
         errors: Map<String, List<String>>? = null
     ): ResponseEntity<ErrorResponse> =
-        ResponseEntity.status(status).body(ErrorResponse.of(status, code, message, path, errors))
+        ErrorResponse.of(status, code, message, path, errors).toEntity()
 
     private companion object {
         const val VALIDATION_MESSAGE = "Request validation failed"

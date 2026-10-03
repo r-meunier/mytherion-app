@@ -207,6 +207,7 @@ class AuthControllerIntegrationTest {
         )
             .andExpect(status().isUnauthorized)
             .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"))
+            .andExpect(header().string("WWW-Authenticate", "Bearer"))
             .andExpect(cookie().doesNotExist("mytherion_token"))
     }
 
@@ -223,6 +224,7 @@ class AuthControllerIntegrationTest {
         )
             .andExpect(status().isUnauthorized)
             .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"))
+            .andExpect(header().string("WWW-Authenticate", "Bearer"))
             .andExpect(cookie().doesNotExist("mytherion_token"))
     }
 
@@ -278,6 +280,7 @@ class AuthControllerIntegrationTest {
         mockMvc.perform(get("/api/auth/me"))
             .andExpect(status().isUnauthorized)
             .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"))
+            .andExpect(header().string("WWW-Authenticate", "Bearer"))
             .andExpect(jsonPath("$.status").value(401))
             .andExpect(jsonPath("$.error").value("Unauthorized"))
             .andExpect(jsonPath("$.message").value("Full authentication is required to access this resource"))

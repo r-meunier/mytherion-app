@@ -33,6 +33,6 @@ class ApiErrorController : ErrorController {
             log.errorWith("Error dispatch", cause, "path" to path)
         }
         val (code, message) = ErrorResponse.generic(status)
-        return ResponseEntity.status(status).body(ErrorResponse.of(status, code, message, path))
+        return ErrorResponse.of(status, code, message, path).toEntity()
     }
 }

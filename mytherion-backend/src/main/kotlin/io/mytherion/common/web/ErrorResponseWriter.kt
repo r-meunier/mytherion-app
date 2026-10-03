@@ -2,6 +2,7 @@ package io.mytherion.common.web
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
@@ -24,6 +25,9 @@ class ErrorResponseWriter(
         response.status = status.value()
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         response.characterEncoding = StandardCharsets.UTF_8.name()
+        if (status == HttpStatus.UNAUTHORIZED) {
+            response.setHeader(HttpHeaders.WWW_AUTHENTICATE, ErrorResponse.AUTH_CHALLENGE)
+        }
 
         val body = ErrorResponse.of(status, code, message, request.requestURI)
 

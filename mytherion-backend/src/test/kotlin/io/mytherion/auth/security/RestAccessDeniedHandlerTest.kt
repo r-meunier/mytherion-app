@@ -6,6 +6,7 @@ import io.mytherion.common.web.ErrorResponse
 import io.mytherion.common.web.ErrorResponseWriter
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
@@ -37,6 +38,7 @@ class RestAccessDeniedHandlerTest {
         assertEquals(ErrorMessages.ACCESS_DENIED, error.message)
         assertEquals(ErrorCode.ACCESS_DENIED, error.code)
         assertEquals("/api/user", error.path)
+        assertNull(response.getHeader("WWW-Authenticate"), "a 403 is not an authentication challenge")
         assertNotNull(error.timestamp)
     }
 

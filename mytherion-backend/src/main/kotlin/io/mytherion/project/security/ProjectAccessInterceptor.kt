@@ -36,7 +36,7 @@ class ProjectAccessInterceptor(
                 val projectExists = projectRepository.existsByIdAndOwnerAndDeletedAtIsNull(projectId, currentUser)
                 
                 if (!projectExists) {
-                    logger.warn("Project {} not found for user {}", projectId, currentUser.email)
+                    logger.warn("Project {} not found for user {}", projectId, currentUser.id)
                     // Throw, not sendError: sendError bypasses GlobalExceptionHandler.
                     throw ProjectNotFoundException(projectId)
                 }

@@ -2,8 +2,10 @@ package io.mytherion.common.web
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.time.Instant
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
+import org.springframework.http.ResponseEntity
 
 /**
  * The error body every endpoint returns. Clients branch on [code]; [message] is for humans.
@@ -19,7 +21,16 @@ data class ErrorResponse(
     val timestamp: Instant,
     val errors: Map<String, List<String>>? = null
 ) {
+    /** The response for this body; a 401 carries the challenge RFC 9110 requires. */
+    fun toEntity(): ResponseEntity<ErrorResponse> =
+        ResponseEntity.status(status)
+            .apply { if (status == HttpStatus.UNAUTHORIZED.value()) header(HttpHeaders.WWW_AUTHENTICATE, AUTH_CHALLENGE) }
+            .body(this)
+
     companion object {
+        /** `Bearer`, not `Basic`, so browsers never show a login popup. */
+        const val AUTH_CHALLENGE = "Bearer"
+
         fun of(
             status: HttpStatusCode,
             code: ErrorCode,
