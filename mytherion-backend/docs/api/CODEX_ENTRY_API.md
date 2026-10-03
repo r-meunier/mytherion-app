@@ -239,7 +239,7 @@ file: [binary image data]
 **Validation:**
 
 - **Allowed types:** JPEG, PNG, GIF, WebP
-- **Max size:** 5MB
+- **Max size:** 5MB by default, set by `MAX_UPLOAD_FILE_SIZE` (`spring.servlet.multipart.max-file-size`)
 
 **Response:** `200 OK`
 
@@ -255,7 +255,9 @@ file: [binary image data]
 
 **Error Responses:**
 
-- `400 Bad Request` - Invalid file type or size
+- `400 Bad Request` (`INVALID_FILE`) - File is empty or not an accepted image type
+- `413 Content Too Large` (`FILE_TOO_LARGE`) - File exceeds the upload limit. Raised while the
+  request is parsed, before the endpoint runs.
 
 ---
 
@@ -313,25 +315,44 @@ GET /api/projects/{id}/stats
 
 ## Error Responses
 
-### Common Error Codes
-
-- `400 Bad Request` - Validation error
-- `401 Unauthorized` - Not authenticated
-- `403 Forbidden` - Access denied
-- `404 Not Found` - Resource not found
-- `500 Internal Server Error` - Server error
+Every failure on every endpoint returns the same body (MYT-23), whether it comes from a
+controller, a framework error (malformed JSON, bad path variable, unknown route) or Spring
+Security.
 
 ### Error Response Format
 
 ```json
 {
-  "timestamp": "2026-01-18T23:00:00Z",
   "status": 400,
   "error": "Bad Request",
-  "message": "Name is required",
-  "path": "/api/projects/1/entries"
+  "code": "VALIDATION_FAILED",
+  "message": "Request validation failed",
+  "path": "/api/projects/1/entries",
+  "timestamp": "2026-01-18T23:00:00Z",
+  "errors": { "name": "Name is required" }
 }
 ```
+
+- `error` is always the status's reason phrase.
+- **Branch on `code`**, never on `message`; messages are for humans and may be reworded.
+- `path` never includes the query string.
+- `errors` (field → reason) appears only with `VALIDATION_FAILED`.
+
+The full list of codes is `ErrorCode.kt` (backend) / `types/apiError.ts` (frontend); CI fails if
+they drift.
+
+### Common Error Codes
+
+| Status | Codes |
+|---|---|
+| `400 Bad Request` | `VALIDATION_FAILED`, `MALFORMED_REQUEST`, `INVALID_PARAMETER`, `INVALID_FILE`, `BAD_REQUEST` |
+| `401 Unauthorized` | `UNAUTHENTICATED`, `INVALID_CREDENTIALS` |
+| `403 Forbidden` | `ACCESS_DENIED` — identical body for every ownership, tenant-isolation and role denial, and for projects that do not exist |
+| `404 Not Found` | `PROJECT_NOT_FOUND`, `ENTRY_NOT_FOUND`, `THUMBNAIL_NOT_FOUND`, `NOT_FOUND` (no such endpoint) |
+| `405` / `415` | `METHOD_NOT_ALLOWED`, `UNSUPPORTED_MEDIA_TYPE` |
+| `409 Conflict` | `PROJECT_HAS_ENTRIES` |
+| `413 Content Too Large` | `FILE_TOO_LARGE` |
+| `500 Internal Server Error` | `INTERNAL_ERROR` — the cause is logged, never returned |
 
 ---
 
