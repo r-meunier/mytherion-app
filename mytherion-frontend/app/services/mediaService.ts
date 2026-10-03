@@ -5,8 +5,17 @@ import logger from '../utils/logger';
 
 const mediaLogger = logger.child({ service: 'mediaService' });
 
+const MAX_SIZE_MB = 5;
+
+/**
+ * Client-side pre-check only, so users hear about a bad file before uploading it. The backend
+ * is authoritative: `spring.servlet.multipart.max-file-size` (env MAX_UPLOAD_FILE_SIZE) rejects
+ * anything larger with 413 FILE_TOO_LARGE. MAX_SIZE_MB mirrors that property's default, and
+ * `scripts/check_contract_parity.py` fails CI if the two drift.
+ */
 export const MEDIA_CONSTRAINTS = {
-  MAX_SIZE_BYTES: 5 * 1024 * 1024, // 5MB
+  MAX_SIZE_BYTES: MAX_SIZE_MB * 1024 * 1024,
+  MAX_SIZE_LABEL: `${MAX_SIZE_MB}MB`,
   ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
 };
 
@@ -27,7 +36,7 @@ export const mediaService = {
       return { valid: false, error: 'Invalid file type. Allowed: JPEG, PNG, GIF, WebP' };
     }
     if (file.size > MEDIA_CONSTRAINTS.MAX_SIZE_BYTES) {
-      return { valid: false, error: 'File size exceeds 5MB limit' };
+      return { valid: false, error: `File size exceeds ${MEDIA_CONSTRAINTS.MAX_SIZE_LABEL} limit` };
     }
     return { valid: true };
   },

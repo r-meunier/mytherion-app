@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { CodexEntry, EntryType, CreateEntryRequest, UpdateEntryRequest, EntryContent, EntrySection, SectionType } from '@/app/types/codex';
-import { mediaService } from '@/app/services/mediaService';
+import { mediaService, MEDIA_CONSTRAINTS } from '@/app/services/mediaService';
 import EntryTypeSelector from './EntryTypeSelector';
 import TagInput from './TagInput';
 import EntrySectionsEditor from './sections/EntrySectionsEditor';
@@ -368,7 +368,7 @@ export default function EntryForm({ entry, projectId, defaultType, isOpen, onSub
                       Click to upload an image
                     </p>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      JPEG, PNG, GIF, WebP (Max 5MB)
+                      JPEG, PNG, GIF, WebP (Max {MEDIA_CONSTRAINTS.MAX_SIZE_LABEL})
                     </p>
                   </div>
                 </div>

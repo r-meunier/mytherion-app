@@ -155,6 +155,50 @@ check(
 )
 
 # ────────────────────────────────────────────────────────────────
+#  Error contract (MYT-23): the one body every failure returns
+# ────────────────────────────────────────────────────────────────
+
+be_error_codes = re.findall(r"^\s*([A-Z][A-Z_]+),?\s*$", extract(
+    r"enum class ErrorCode \{(.*?)\n\}",
+    read(BE / "common" / "web" / "ErrorCode.kt"),
+    "ErrorCode enum in ErrorCode.kt"), re.M)
+api_error_ts = read(FE / "types" / "apiError.ts")
+fe_error_codes = re.findall(r"\|\s*'([A-Z_]+)'", extract(
+    r"export type ErrorCode =(.*?);", api_error_ts, "ErrorCode union in types/apiError.ts"))
+check(
+    f"ErrorCode in sync ({len(be_error_codes)} backend / {len(fe_error_codes)} frontend)",
+    bool(be_error_codes) and sorted(be_error_codes) == sorted(fe_error_codes),
+    f"only backend: {sorted(set(be_error_codes) - set(fe_error_codes))}  "
+    f"only frontend: {sorted(set(fe_error_codes) - set(be_error_codes))}",
+)
+
+be_error_fields = sorted(re.findall(r"val (\w+):", extract(
+    r"data class ErrorResponse\((.*?)\n\)",
+    read(BE / "common" / "web" / "ErrorResponse.kt"),
+    "ErrorResponse data class")))
+fe_error_fields = sorted(re.findall(r"^\s{2}(\w+)\??:", extract(
+    r"export interface ApiErrorResponse \{(.*?)\n\}", api_error_ts,
+    "ApiErrorResponse interface"), re.M))
+check(
+    "ErrorResponse fields match ApiErrorResponse",
+    bool(be_error_fields) and be_error_fields == fe_error_fields,
+    f"backend={be_error_fields}\n        frontend={fe_error_fields}",
+)
+
+be_upload_mb = extract(r"max-file-size: \$\{MAX_UPLOAD_FILE_SIZE:(\d+)MB\}",
+                       read(BE_RES / "application.yml"),
+                       "max-file-size default (in MB) in application.yml", flags=0)
+fe_upload_mb = extract(r"const MAX_SIZE_MB = (\d+);",
+                       read(FE / "services" / "mediaService.ts"),
+                       "MAX_SIZE_MB in mediaService.ts", flags=0)
+check(
+    "upload size limit defaults agree",
+    bool(be_upload_mb) and be_upload_mb == fe_upload_mb,
+    f"backend allows {be_upload_mb}MB, frontend pre-check allows {fe_upload_mb}MB -- users "
+    f"would be told one limit and refused at another",
+)
+
+# ────────────────────────────────────────────────────────────────
 #  Observability contract: MDC keys must match the log pattern
 # ────────────────────────────────────────────────────────────────
 
