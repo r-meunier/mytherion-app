@@ -22,7 +22,7 @@ enum class ErrorCode {
     // Authentication & authorization
     UNAUTHENTICATED,            // 401 no valid session
     INVALID_CREDENTIALS,        // 401 login rejected; never says which field was wrong
-    ACCESS_DENIED,              // 403 any ownership, tenant or role denial; same body everywhere
+    ACCESS_DENIED,              // 403 ownership or role denial; same body everywhere
     EMAIL_NOT_VERIFIED,         // 403 correct credentials, email not verified yet
 
     // Account
@@ -35,6 +35,7 @@ enum class ErrorCode {
     USER_NOT_FOUND,             // 404 no such user
 
     // Projects & codex
+    PROJECT_NOT_FOUND,          // 404 missing, deleted or someone else's project
     PROJECT_HAS_ENTRIES,        // 409 project still holds entries, cannot delete
     ENTRY_NOT_FOUND,            // 404 no such entry
     THUMBNAIL_NOT_FOUND,        // 404 entry has no image

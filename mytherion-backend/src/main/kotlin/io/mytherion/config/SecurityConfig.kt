@@ -3,6 +3,7 @@ package io.mytherion.config
 import io.mytherion.auth.jwt.JwtAuthFilter
 import io.mytherion.auth.security.RestAccessDeniedHandler
 import io.mytherion.auth.security.RestAuthenticationEntryPoint
+import jakarta.servlet.DispatcherType
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -45,7 +46,9 @@ class SecurityConfig(
                 it.accessDeniedHandler(restAccessDeniedHandler)
             }
             .authorizeHttpRequests {
-                it.requestMatchers("/api/health")
+                // Error dispatches render the original failure; without this they all became 401.
+                it.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                    .requestMatchers("/api/health")
                     .permitAll()
                     .requestMatchers(
                         "/api/auth/register",

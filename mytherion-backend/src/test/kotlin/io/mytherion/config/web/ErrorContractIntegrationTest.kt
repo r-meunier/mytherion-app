@@ -16,6 +16,7 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
@@ -93,9 +94,9 @@ class ErrorContractIntegrationTest {
             Case("method security", HttpMethod.GET, "/api/user", true, HttpStatus.FORBIDDEN, "ACCESS_DENIED"),
             Case(
                 "tenant isolation", HttpMethod.GET, "/api/projects/$p/entries", true,
-                HttpStatus.FORBIDDEN, "ACCESS_DENIED"
+                HttpStatus.NOT_FOUND, "PROJECT_NOT_FOUND"
             ),
-            Case("missing project", HttpMethod.GET, "/api/projects/$p", true, HttpStatus.FORBIDDEN, "ACCESS_DENIED"),
+            Case("missing project", HttpMethod.GET, "/api/projects/$p", true, HttpStatus.NOT_FOUND, "PROJECT_NOT_FOUND"),
             Case("unmapped route", HttpMethod.GET, "/api/nowhere", true, HttpStatus.NOT_FOUND, "NOT_FOUND"),
             Case(
                 "malformed JSON", HttpMethod.POST, "/api/projects", true,
@@ -138,18 +139,18 @@ class ErrorContractIntegrationTest {
     }
 
     @Test
-    fun `a soft-deleted project gets the same 403 as a missing one`() {
+    fun `a soft-deleted project gets the same 404 as a missing one`() {
         val project = projectRepository.save(Project(owner = user, name = "deleted").apply { markDeleted() })
         try {
             val id = project.id!!
             listOf(
-                Case("get", HttpMethod.GET, "/api/projects/$id", true, HttpStatus.FORBIDDEN, "ACCESS_DENIED"),
-                Case("stats", HttpMethod.GET, "/api/projects/$id/stats", true, HttpStatus.FORBIDDEN, "ACCESS_DENIED"),
+                Case("get", HttpMethod.GET, "/api/projects/$id", true, HttpStatus.NOT_FOUND, "PROJECT_NOT_FOUND"),
+                Case("stats", HttpMethod.GET, "/api/projects/$id/stats", true, HttpStatus.NOT_FOUND, "PROJECT_NOT_FOUND"),
                 Case(
-                    "update", HttpMethod.PUT, "/api/projects/$id", true, HttpStatus.FORBIDDEN, "ACCESS_DENIED",
+                    "update", HttpMethod.PUT, "/api/projects/$id", true, HttpStatus.NOT_FOUND, "PROJECT_NOT_FOUND",
                     json = """{"name":"revived"}"""
                 ),
-                Case("delete", HttpMethod.DELETE, "/api/projects/$id", true, HttpStatus.FORBIDDEN, "ACCESS_DENIED"),
+                Case("delete", HttpMethod.DELETE, "/api/projects/$id", true, HttpStatus.NOT_FOUND, "PROJECT_NOT_FOUND"),
             ).forEach { case ->
                 val (status, body) = send(case)
                 assertEquals(case.status, status, "wrong status for ${case.label}")
@@ -198,32 +199,53 @@ class ErrorContractIntegrationTest {
         assertEquals(path, body["path"])
     }
 
-    private fun rawMultipartUpload(path: String, fileBytes: Int): Pair<Int, Map<String, Any>> {
-        val crlf = "\r\n"
-        val boundary = "contract-${UUID.randomUUID()}"
-        val head = "--$boundary$crlf" +
-            "Content-Disposition: form-data; name=\"file\"; filename=\"big.png\"$crlf" +
-            "Content-Type: image/png$crlf$crlf"
-        val tail = "$crlf--$boundary--$crlf"
-        val length = head.length + fileBytes + tail.length
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = ["/api/projects;x", "/api/projects/%2e%2e/x", "/api/projects//x"])
+    fun `a URL the security firewall rejects is 400, not a 401 from the error page`(path: String) {
+        val (status, body) = rawRequest("GET", path)
 
+        assertEquals(400, status)
+        assertEquals(setOf("status", "error", "code", "message", "path", "timestamp"), body.keys)
+        assertEquals("BAD_REQUEST", body["code"])
+    }
+
+    private fun rawMultipartUpload(path: String, fileBytes: Int): Pair<Int, Map<String, Any>> {
+        val boundary = "contract-${UUID.randomUUID()}"
+        val head = "--$boundary$CRLF" +
+            "Content-Disposition: form-data; name=\"file\"; filename=\"big.png\"$CRLF" +
+            "Content-Type: image/png$CRLF$CRLF"
+        val tail = "$CRLF--$boundary--$CRLF"
+        return rawRequest(
+            "POST", path,
+            listOf("Content-Type: multipart/form-data; boundary=$boundary"),
+            head.toByteArray(StandardCharsets.US_ASCII) + ByteArray(fileBytes) +
+                tail.toByteArray(StandardCharsets.US_ASCII)
+        )
+    }
+
+    /** Raw so the path reaches the server byte for byte; HTTP clients normalise odd URLs. */
+    private fun rawRequest(
+        method: String,
+        path: String,
+        headers: List<String> = emptyList(),
+        body: ByteArray = ByteArray(0)
+    ): Pair<Int, Map<String, Any>> {
         Socket("localhost", port).use { socket ->
             socket.soTimeout = 30_000
             val out = socket.getOutputStream()
-            val requestHead = "POST $path HTTP/1.0$crlf" +
-                "Host: localhost:$port$crlf" +
-                "Authorization: Bearer $token$crlf" +
-                "Content-Type: multipart/form-data; boundary=$boundary$crlf" +
-                "Content-Length: $length$crlf$crlf"
-            out.write((requestHead + head).toByteArray(StandardCharsets.US_ASCII))
-            out.write(ByteArray(fileBytes))
-            out.write(tail.toByteArray(StandardCharsets.US_ASCII))
+            val requestHead = "$method $path HTTP/1.0$CRLF" +
+                "Host: localhost:$port$CRLF" +
+                "Authorization: Bearer $token$CRLF" +
+                headers.joinToString("") { "$it$CRLF" } +
+                "Content-Length: ${body.size}$CRLF$CRLF"
+            out.write(requestHead.toByteArray(StandardCharsets.US_ASCII))
+            out.write(body)
             out.flush()
 
             // HTTP/1.0: the server closes after responding.
             val response = String(socket.getInputStream().readAllBytes(), StandardCharsets.UTF_8)
             val status = response.substringAfter(' ').take(3).toInt()
-            val json = response.substringAfter("$crlf$crlf")
+            val json = response.substringAfter("$CRLF$CRLF")
             return status to JsonMapper.builder().build()
                 .readValue(json, object : TypeReference<Map<String, Any>>() {})
         }
@@ -241,5 +263,9 @@ class ErrorContractIntegrationTest {
                 res.bodyTo(object : ParameterizedTypeReference<Map<String, Any>>() {})
             }.getOrNull()
         }
+    }
+
+    private companion object {
+        const val CRLF = "\r\n"
     }
 }

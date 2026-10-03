@@ -11,7 +11,7 @@ import io.mytherion.platform.monitoring.MetricsService
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
 import io.mytherion.project.dto.UpdateProjectRequest
-import io.mytherion.project.exception.ProjectAccessDeniedException
+import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.exception.ProjectHasEntriesException
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
@@ -35,11 +35,11 @@ class ProjectService(
 
     private fun getCurrentUser(): User = currentUserProvider.getCurrentUser()
 
-    /** The user's live project. Missing, deleted and someone else's all get the same 403. */
+    /** The user's live project. Missing, deleted and someone else's all get the same 404. */
     private fun ownedProject(projectId: UUID, user: User): Project =
         projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(projectId, user) ?: run {
-            logger.warnWith("Access denied to project", "projectId" to projectId, "requestingUserId" to user.id)
-            throw ProjectAccessDeniedException(projectId)
+            logger.warnWith("Project not found for user", "projectId" to projectId, "requestingUserId" to user.id)
+            throw ProjectNotFoundException(projectId)
         }
 
     /**
@@ -48,7 +48,7 @@ class ProjectService(
      */
     fun getVerifiedProject(projectId: UUID, userId: UUID): Project {
         return projectRepository.findByIdAndDeletedAtIsNull(projectId)?.takeIf { it.owner.id == userId }
-            ?: throw ProjectAccessDeniedException(projectId)
+            ?: throw ProjectNotFoundException(projectId)
     }
 
     @Transactional(readOnly = true)

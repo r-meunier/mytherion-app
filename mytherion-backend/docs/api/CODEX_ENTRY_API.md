@@ -163,8 +163,8 @@ GET /api/projects/{projectId}/entries/{id}
 
 **Error Responses:**
 
-- `404 Not Found` - Entry not found or deleted
-- `403 Forbidden` - Access denied (not project owner)
+- `404 Not Found` (`ENTRY_NOT_FOUND`) - Entry not found or deleted
+- `404 Not Found` (`PROJECT_NOT_FOUND`) - Project missing, deleted or not yours
 
 ---
 
@@ -329,14 +329,14 @@ Security.
   "message": "Request validation failed",
   "path": "/api/projects/1/entries",
   "timestamp": "2026-01-18T23:00:00Z",
-  "errors": { "name": "Name is required" }
+  "errors": { "name": ["Name is required"] }
 }
 ```
 
 - `error` is always the status's reason phrase.
 - **Branch on `code`**, never on `message`; messages are for humans and may be reworded.
 - `path` never includes the query string.
-- `errors` (field → reason) appears only with `VALIDATION_FAILED`.
+- `errors` (field → list of reasons, sorted) appears only with `VALIDATION_FAILED`.
 
 The full list of codes is `ErrorCode.kt` (backend) / `types/apiError.ts` (frontend); CI fails if
 they drift.
@@ -347,8 +347,8 @@ they drift.
 |---|---|
 | `400 Bad Request` | `VALIDATION_FAILED`, `MALFORMED_REQUEST` (bad JSON or multipart), `INVALID_PARAMETER`, `INVALID_FILE`, `BAD_REQUEST` |
 | `401 Unauthorized` | `UNAUTHENTICATED`, `INVALID_CREDENTIALS` |
-| `403 Forbidden` | `ACCESS_DENIED`: identical body for every ownership and role denial. A project that is missing, deleted or someone else's always gets this, never 404. |
-| `404 Not Found` | `ENTRY_NOT_FOUND`, `USER_NOT_FOUND`, `THUMBNAIL_NOT_FOUND`, `NOT_FOUND` (no such endpoint) |
+| `403 Forbidden` | `ACCESS_DENIED`: identical body for every role or account-ownership denial |
+| `404 Not Found` | `PROJECT_NOT_FOUND` (missing, deleted or someone else's: one body for all three), `ENTRY_NOT_FOUND`, `USER_NOT_FOUND`, `THUMBNAIL_NOT_FOUND`, `NOT_FOUND` (no such endpoint) |
 | `405` / `415` | `METHOD_NOT_ALLOWED`, `UNSUPPORTED_MEDIA_TYPE` |
 | `409 Conflict` | `PROJECT_HAS_ENTRIES`, `CONCURRENT_MODIFICATION` (stale `version` on update; reload and retry) |
 | `413 Content Too Large` | `FILE_TOO_LARGE` |

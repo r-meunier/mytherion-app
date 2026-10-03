@@ -200,7 +200,7 @@ class CodexEntryTenantIsolationE2ETest {
     }
 
     @Test
-    fun `another user cannot access entry via victim project returning 403 Forbidden`() {
+    fun `another user cannot access entry via victim project returning 404 Not Found`() {
         // User 2 tries to access User 1's project -> ProjectAccessInterceptor denies
         val (status, body) = restClient.get()
             .uri("/api/projects/${project1User1.id}/entries/${entryInProject1.id}")
@@ -209,14 +209,13 @@ class CodexEntryTenantIsolationE2ETest {
                 res.statusCode to res.bodyTo(object : ParameterizedTypeReference<Map<String, Any>>() {})
             }
 
-        assertEquals(HttpStatus.FORBIDDEN, status)
+        assertEquals(HttpStatus.NOT_FOUND, status)
 
-        assertNotNull(body, "403 from the interceptor returned no parseable JSON body")
-        assertEquals(403, (body!!["status"] as Number).toInt())
-        assertEquals("Forbidden", body["error"])
-        assertEquals("ACCESS_DENIED", body["code"])
-        // No project id in the message.
-        assertEquals("Access denied", body["message"])
+        assertNotNull(body, "404 from the interceptor returned no parseable JSON body")
+        assertEquals(404, (body!!["status"] as Number).toInt())
+        assertEquals("PROJECT_NOT_FOUND", body["code"])
+        // Same body as a project that does not exist, and no project id in the message.
+        assertEquals("Project not found", body["message"])
         assertNotNull(body["timestamp"], "ErrorResponse should carry a timestamp")
     }
 

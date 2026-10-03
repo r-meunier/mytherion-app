@@ -7,6 +7,8 @@ import jakarta.validation.Validation
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -44,9 +46,16 @@ class GlobalExceptionHandlerTest {
 
     data class Body(@field:NotBlank(message = "Name is required") val name: String = "")
 
+    data class Strict(
+        @field:Size(min = 3, message = "Too short")
+        @field:Pattern(regexp = "[a-z]+", message = "Lowercase letters only")
+        val name: String = ""
+    )
+
     @RestController
     class ProbeController {
         @PostMapping("/probe/body") fun body(@Valid @RequestBody body: Body) = body
+        @PostMapping("/probe/strict") fun strict(@Valid @RequestBody body: Strict) = body
         @GetMapping("/probe/id/{id}") fun byId(@PathVariable id: UUID) = id
         @GetMapping("/probe/param") fun param(@RequestParam token: String) = token
         @GetMapping("/probe/api") fun api(): Nothing = throw TestApiException()
@@ -119,13 +128,25 @@ class GlobalExceptionHandlerTest {
             ErrorCode.VALIDATION_FAILED
         )
             .andExpect(jsonPath("$.message").value("Request validation failed"))
-            .andExpect(jsonPath("$.errors.name").value("Name is required"))
+            .andExpect(jsonPath("$.errors.name[0]").value("Name is required"))
+    }
+
+    @Test
+    fun `a field failing several rules keeps every message, sorted`() {
+        expectError(
+            post("/probe/strict").contentType(MediaType.APPLICATION_JSON).content("""{"name":"A"}"""),
+            HttpStatus.BAD_REQUEST,
+            ErrorCode.VALIDATION_FAILED
+        )
+            .andExpect(jsonPath("$.errors.name.length()").value(2))
+            .andExpect(jsonPath("$.errors.name[0]").value("Lowercase letters only"))
+            .andExpect(jsonPath("$.errors.name[1]").value("Too short"))
     }
 
     @Test
     fun `constraint violations outside MVC binding are 400 with field errors too`() {
         expectError(get("/probe/constraint"), HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED)
-            .andExpect(jsonPath("$.errors.name").value("Name is required"))
+            .andExpect(jsonPath("$.errors.name[0]").value("Name is required"))
     }
 
     @Test

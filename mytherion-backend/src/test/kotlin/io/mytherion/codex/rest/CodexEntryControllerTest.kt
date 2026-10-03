@@ -13,7 +13,7 @@ import io.mytherion.codex.dto.UpdateEntryRequest
 import io.mytherion.codex.exception.EntryNotFoundException
 import io.mytherion.codex.model.EntryType
 import io.mytherion.codex.service.CodexEntryService
-import io.mytherion.project.exception.ProjectAccessDeniedException
+import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.platform.storage.dto.UploadResponse
 import java.time.Instant
 import java.util.UUID
@@ -228,14 +228,14 @@ class CodexEntryControllerTest {
     }
 
     @Test
-    fun `getEntry should return 403 when user lacks project access`() {
+    fun `getEntry should return 404 when the project is not the user's`() {
         // Given
-        every { entryService.getEntry(projectId, entryId) } throws ProjectAccessDeniedException(projectId)
+        every { entryService.getEntry(projectId, entryId) } throws ProjectNotFoundException(projectId)
 
         // When/Then
         mockMvc.perform(get("/api/projects/$projectId/entries/$entryId"))
-            .andExpect(status().isForbidden)
-            .andExpect(jsonPath("$.error").value("Forbidden"))
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.code").value("PROJECT_NOT_FOUND"))
     }
 
     // ==================== Update CodexEntry Tests ====================

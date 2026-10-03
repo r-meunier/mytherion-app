@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 import java.util.UUID
 import org.springframework.transaction.annotation.Transactional
 
-import io.mytherion.project.exception.ProjectAccessDeniedException
+import io.mytherion.project.exception.ProjectNotFoundException
 
 @Service
 class DashboardService(
@@ -50,9 +50,9 @@ class DashboardService(
     fun getProjectDashboardStats(projectId: UUID): DashboardStatsDTO {
         val currentUser = currentUserProvider.getCurrentUser()
         
-        // Missing and not-owned give the same 403, as everywhere else
+        // Missing and not-owned give the same 404, as everywhere else
         val project = projectRepository.findByIdAndOwnerAndDeletedAtIsNull(projectId, currentUser)
-            ?: throw ProjectAccessDeniedException(projectId)
+            ?: throw ProjectNotFoundException(projectId)
 
         val totalEntries = entryRepository.countByProjectAndDeletedAtIsNull(project)
         

@@ -99,7 +99,8 @@ timestamp, errors?`); clients branch on `code` (`common.web.ErrorCode`).
   `types/apiError.ts`; the contract parity check fails CI otherwise.
 - **Never throw `IllegalArgumentException`/`IllegalStateException` for a client error**: they
   are treated as bugs and become a masked 500. Use or add a typed `ApiException`.
-- Ownership/tenant 403s use `ErrorMessages.ACCESS_DENIED`; keep ids in the log, not the message.
+- A project or entry that is missing, deleted or someone else's is one 404; never let the status
+  or message differ between those cases. Keep ids in the log, not the message.
 - Framework exceptions (bad JSON, type mismatch, 404/405/415, oversized upload) go through
   `ResponseEntityExceptionHandler.handleExceptionInternal`. Do not add an `@ExceptionHandler`
   for a type it already handles, or Spring refuses to start.

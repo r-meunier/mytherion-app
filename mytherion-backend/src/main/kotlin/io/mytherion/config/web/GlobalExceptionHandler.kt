@@ -60,9 +60,9 @@ class GlobalExceptionHandler(
         ex: ConstraintViolationException,
         request: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
-        val errors = ex.constraintViolations.associate { violation ->
-            violation.propertyPath.toString().substringAfterLast('.') to violation.message
-        }
+        val errors = ex.constraintViolations
+            .groupBy({ it.propertyPath.toString().substringAfterLast('.') }, { it.message })
+            .mapValues { it.value.sorted() }
         return respond(
             HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED, VALIDATION_MESSAGE, request.requestURI, errors
         )
@@ -112,7 +112,7 @@ class GlobalExceptionHandler(
         )
     }
 
-    private fun describe(ex: Exception, status: HttpStatusCode): Triple<ErrorCode, String, Map<String, String>?> =
+    private fun describe(ex: Exception, status: HttpStatusCode): Triple<ErrorCode, String, Map<String, List<String>>?> =
         when (ex) {
             is MethodArgumentNotValidException ->
                 Triple(ErrorCode.VALIDATION_FAILED, VALIDATION_MESSAGE, fieldErrors(ex.bindingResult))
@@ -122,7 +122,7 @@ class GlobalExceptionHandler(
                     VALIDATION_MESSAGE,
                     ex.parameterValidationResults.associate { result ->
                         (result.methodParameter.parameterName ?: "unknown") to
-                            (result.resolvableErrors.firstOrNull()?.defaultMessage ?: "Invalid value")
+                            result.resolvableErrors.map { it.defaultMessage ?: "Invalid value" }.sorted()
                     }
                 )
             // Never echo the parser's message: it quotes the input.
@@ -139,35 +139,21 @@ class GlobalExceptionHandler(
                 Triple(ErrorCode.INVALID_PARAMETER, "Invalid parameter value", null)
             is MaxUploadSizeExceededException ->
                 Triple(ErrorCode.FILE_TOO_LARGE, "File exceeds the ${label(maxUploadSize)} upload limit", null)
-            else -> Triple(codeFor(status), messageFor(status), null)
+            else -> ErrorResponse.generic(status).let { (code, message) -> Triple(code, message, null) }
         }
 
-    private fun codeFor(status: HttpStatusCode): ErrorCode =
-        when (status.value()) {
-            404 -> ErrorCode.NOT_FOUND
-            405 -> ErrorCode.METHOD_NOT_ALLOWED
-            406 -> ErrorCode.NOT_ACCEPTABLE
-            413 -> ErrorCode.FILE_TOO_LARGE
-            415 -> ErrorCode.UNSUPPORTED_MEDIA_TYPE
-            503 -> ErrorCode.SERVICE_UNAVAILABLE
-            else -> if (status.is5xxServerError) ErrorCode.INTERNAL_ERROR else ErrorCode.BAD_REQUEST
-        }
-
-    private fun messageFor(status: HttpStatusCode): String =
-        if (status.is5xxServerError) ErrorMessages.INTERNAL_ERROR
-        else HttpStatus.resolve(status.value())?.reasonPhrase ?: "Bad Request"
-
-    private fun fieldErrors(bindingResult: BindingResult): Map<String, String> =
-        bindingResult.allErrors.associate { error ->
-            ((error as? FieldError)?.field ?: error.objectName) to (error.defaultMessage ?: "Invalid value")
-        }
+    // Sorted: constraint order is not guaranteed, and the body should be stable.
+    private fun fieldErrors(bindingResult: BindingResult): Map<String, List<String>> =
+        bindingResult.allErrors
+            .groupBy({ (it as? FieldError)?.field ?: it.objectName }, { it.defaultMessage ?: "Invalid value" })
+            .mapValues { it.value.sorted() }
 
     private fun respond(
         status: HttpStatusCode,
         code: ErrorCode,
         message: String,
         path: String,
-        errors: Map<String, String>? = null
+        errors: Map<String, List<String>>? = null
     ): ResponseEntity<ErrorResponse> =
         ResponseEntity.status(status).body(ErrorResponse.of(status, code, message, path, errors))
 

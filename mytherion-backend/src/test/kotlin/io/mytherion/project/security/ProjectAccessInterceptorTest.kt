@@ -5,9 +5,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import io.mytherion.common.web.ErrorCode
-import io.mytherion.common.web.ErrorMessages
 import io.mytherion.auth.service.CurrentUserProvider
-import io.mytherion.project.exception.ProjectAccessDeniedException
+import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.user.model.User
 import jakarta.servlet.http.HttpServletRequest
@@ -103,11 +102,11 @@ class ProjectAccessInterceptorTest {
     }
 
     @Test
-    fun `preHandle when project does not exist or does not belong to user should throw ProjectAccessDeniedException`() {
+    fun `preHandle when project does not exist or does not belong to user should throw ProjectNotFoundException`() {
         every { request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE) } returns mapOf("projectId" to validProjectId.toString())
         every { projectRepository.existsByIdAndOwnerAndDeletedAtIsNull(validProjectId, testUser) } returns false
 
-        assertThrows<ProjectAccessDeniedException> {
+        assertThrows<ProjectNotFoundException> {
             interceptor.preHandle(request, response, Any())
         }
     }
@@ -117,13 +116,13 @@ class ProjectAccessInterceptorTest {
         every { request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE) } returns mapOf("projectId" to validProjectId.toString())
         every { projectRepository.existsByIdAndOwnerAndDeletedAtIsNull(validProjectId, testUser) } returns false
 
-        val thrown = assertThrows<ProjectAccessDeniedException> {
+        val thrown = assertThrows<ProjectNotFoundException> {
             interceptor.preHandle(request, response, Any())
         }
 
-        assertEquals(HttpStatus.FORBIDDEN, thrown.status)
-        assertEquals(ErrorCode.ACCESS_DENIED, thrown.code)
-        assertEquals(ErrorMessages.ACCESS_DENIED, thrown.message)
+        assertEquals(HttpStatus.NOT_FOUND, thrown.status)
+        assertEquals(ErrorCode.PROJECT_NOT_FOUND, thrown.code)
+        assertEquals("Project not found", thrown.message)
         assertEquals(validProjectId, thrown.projectId)
 
         // Writing the response itself would commit it before the handler can render the body.

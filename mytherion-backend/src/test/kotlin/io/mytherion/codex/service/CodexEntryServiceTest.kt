@@ -13,7 +13,7 @@ import io.mytherion.codex.model.CodexEntry
 import io.mytherion.codex.model.EntryType
 import io.mytherion.codex.repository.CodexEntryRepository
 import io.mytherion.platform.monitoring.MetricsService
-import io.mytherion.project.exception.ProjectAccessDeniedException
+import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.model.Project
 import io.mytherion.project.service.ProjectService
 import io.mytherion.platform.storage.StorageService
@@ -143,10 +143,10 @@ class CodexEntryServiceTest {
     fun `createEntry should throw exception when project not found`() {
         // Given
         val request = CreateEntryRequest(type = EntryType.CHARACTER, name = "New Character")
-        every { projectService.getVerifiedProject(projectId, testUser.id!!) } throws ProjectAccessDeniedException(projectId)
+        every { projectService.getVerifiedProject(projectId, testUser.id!!) } throws ProjectNotFoundException(projectId)
 
         // When/Then
-        assertThrows<ProjectAccessDeniedException> {
+        assertThrows<ProjectNotFoundException> {
             entryService.createEntry(projectId, request)
         }
     }
@@ -182,10 +182,10 @@ class CodexEntryServiceTest {
     @Test
     fun `getEntry should throw exception when user does not have access to project`() {
         // Given
-        every { projectService.getVerifiedProject(projectId, testUser.id!!) } throws ProjectAccessDeniedException(projectId)
+        every { projectService.getVerifiedProject(projectId, testUser.id!!) } throws ProjectNotFoundException(projectId)
 
         // When/Then
-        assertThrows<ProjectAccessDeniedException> {
+        assertThrows<ProjectNotFoundException> {
             entryService.getEntry(projectId, entryId)
         }
     }
@@ -244,10 +244,10 @@ class CodexEntryServiceTest {
     fun `updateEntry should throw exception when user lacks project access`() {
         // Given
         val request = UpdateEntryRequest(name = "Updated Name")
-        every { projectService.getVerifiedProject(projectId, testUser.id!!) } throws ProjectAccessDeniedException(projectId)
+        every { projectService.getVerifiedProject(projectId, testUser.id!!) } throws ProjectNotFoundException(projectId)
 
         // When/Then
-        assertThrows<ProjectAccessDeniedException> {
+        assertThrows<ProjectNotFoundException> {
             entryService.updateEntry(projectId, entryId, request)
         }
     }
