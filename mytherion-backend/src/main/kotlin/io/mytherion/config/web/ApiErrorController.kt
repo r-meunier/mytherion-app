@@ -33,6 +33,7 @@ class ApiErrorController : ErrorController {
             log.errorWith("Error dispatch", cause, "path" to path)
         }
         val (code, message) = ErrorResponse.generic(status)
-        return ErrorResponse.of(status, code, message, path).toEntity()
+        val requestId = org.slf4j.MDC.get("requestId") ?: request.getAttribute("requestId") as? String
+        return ErrorResponse.of(status, code, message, path, requestId = requestId).toEntity()
     }
 }

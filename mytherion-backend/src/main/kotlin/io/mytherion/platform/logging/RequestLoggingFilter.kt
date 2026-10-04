@@ -27,6 +27,9 @@ class RequestLoggingFilter : OncePerRequestFilter() {
         val startTime = System.currentTimeMillis()
 
         try {
+            request.setAttribute("requestId", requestId)
+            response.setHeader("X-Request-Id", requestId)
+
             // Add request context to MDC
             MDC.put("requestId", requestId)
             MDC.put("method", request.method)

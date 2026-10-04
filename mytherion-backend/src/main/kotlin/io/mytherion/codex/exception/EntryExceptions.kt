@@ -6,12 +6,12 @@ import java.util.UUID
 import org.springframework.http.HttpStatus
 
 /** Exception thrown when an entry is not found */
-class EntryNotFoundException(id: UUID) :
-    ApiException(HttpStatus.NOT_FOUND, ErrorCode.ENTRY_NOT_FOUND, "CodexEntry not found with id: $id")
+class EntryNotFoundException(val id: UUID) :
+    ApiException(HttpStatus.NOT_FOUND, ErrorCode.ENTRY_NOT_FOUND, "Codex entry not found")
 
 /** Exception thrown when an entry's image is not found */
-class ThumbnailNotFoundException(entryId: UUID) :
-    ApiException(HttpStatus.NOT_FOUND, ErrorCode.THUMBNAIL_NOT_FOUND, "Image not found for entry with id: $entryId")
+class ThumbnailNotFoundException(val entryId: UUID) :
+    ApiException(HttpStatus.NOT_FOUND, ErrorCode.THUMBNAIL_NOT_FOUND, "Image not found for entry")
 
 /** Exception thrown when an uploaded file is empty or not an accepted image type */
 class InvalidFileException(message: String) :

@@ -106,8 +106,20 @@ class GlobalExceptionHandlerTest {
         val body = expectError(request, status, code).andReturn().response.contentAsString
         val expected = mutableSetOf("status", "error", "code", "message", "path", "timestamp")
         if (hasFieldErrors) expected += "errors"
+        if (JsonMapper.builder().build().readTree(body).has("requestId")) expected += "requestId"
 
         assertEquals(expected, JsonMapper.builder().build().readTree(body).propertyNames().toSet())
+    }
+
+    @Test
+    fun `requestId from MDC is rendered in the error response`() {
+        try {
+            org.slf4j.MDC.put("requestId", "test-request-123")
+            expectError(get("/probe/api"), HttpStatus.CONFLICT, ErrorCode.PROJECT_HAS_ENTRIES)
+                .andExpect(jsonPath("$.requestId").value("test-request-123"))
+        } finally {
+            org.slf4j.MDC.remove("requestId")
+        }
     }
 
     @Test

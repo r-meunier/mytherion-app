@@ -29,7 +29,8 @@ class ErrorResponseWriter(
             response.setHeader(HttpHeaders.WWW_AUTHENTICATE, ErrorResponse.AUTH_CHALLENGE)
         }
 
-        val body = ErrorResponse.of(status, code, message, request.requestURI)
+        val requestId = org.slf4j.MDC.get("requestId") ?: request.getAttribute("requestId") as? String
+        val body = ErrorResponse.of(status, code, message, request.requestURI, requestId = requestId)
 
         response.writer.write(objectMapper.writeValueAsString(body))
         // Commit now: Spring Security keeps processing and could replace an uncommitted body.

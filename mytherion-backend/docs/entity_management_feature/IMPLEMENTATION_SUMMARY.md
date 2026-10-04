@@ -31,7 +31,7 @@ This document summarizes the complete implementation of the entity management ba
 ### Files Modified
 
 - `Entity.kt`, `EntityRepository.kt`
-- `ProjectService.kt`, `ProjectHasEntitiesException.kt`
+- `ProjectService.kt`, `ProjectHasEntriesException.kt`
 - Migration: `V4__refactor_entry_to_entity.sql`
 
 ---

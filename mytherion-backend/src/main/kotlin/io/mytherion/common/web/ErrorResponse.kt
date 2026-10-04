@@ -19,7 +19,8 @@ data class ErrorResponse(
     val message: String,
     val path: String,
     val timestamp: Instant,
-    val errors: Map<String, List<String>>? = null
+    val errors: Map<String, List<String>>? = null,
+    val requestId: String? = null
 ) {
     /** The response for this body; a 401 carries the challenge RFC 9110 requires. */
     fun toEntity(): ResponseEntity<ErrorResponse> =
@@ -36,7 +37,8 @@ data class ErrorResponse(
             code: ErrorCode,
             message: String,
             path: String,
-            errors: Map<String, List<String>>? = null
+            errors: Map<String, List<String>>? = null,
+            requestId: String? = org.slf4j.MDC.get("requestId")
         ) = ErrorResponse(
             status = status.value(),
             error = reasonPhrase(status),
@@ -44,7 +46,8 @@ data class ErrorResponse(
             message = message,
             path = path,
             timestamp = Instant.now(),
-            errors = errors
+            errors = errors,
+            requestId = requestId
         )
 
         /** Code and message for a status raised without a more specific cause; 5xx is masked. */

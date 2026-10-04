@@ -10,6 +10,7 @@ export interface ApiErrorResponse {
   timestamp: string;
   /** Only for `VALIDATION_FAILED`. */
   errors?: Record<string, string[]>;
+  requestId?: string;
 }
 
 export type ErrorCode =

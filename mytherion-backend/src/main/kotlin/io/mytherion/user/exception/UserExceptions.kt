@@ -7,13 +7,8 @@ import java.util.UUID
 import org.springframework.http.HttpStatus
 
 /** Exception thrown when a user is not found */
-class UserNotFoundException private constructor(message: String) :
-    ApiException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND, message) {
-
-    constructor(id: UUID) : this("User with id $id not found")
-
-    constructor() : this("User not found")
-}
+class UserNotFoundException(val userId: UUID? = null) :
+    ApiException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND, "User not found")
 
 /** Exception thrown when a user changes another account, or a role without being admin */
 class UserAccessDeniedException(val userId: UUID) :

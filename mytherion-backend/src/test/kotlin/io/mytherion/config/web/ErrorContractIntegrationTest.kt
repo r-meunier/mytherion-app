@@ -128,6 +128,7 @@ class ErrorContractIntegrationTest {
 
         val expectedKeys = mutableSetOf("status", "error", "code", "message", "path", "timestamp")
         if (case.hasFieldErrors) expectedKeys += "errors"
+        if (body.containsKey("requestId")) expectedKeys += "requestId"
         assertEquals(expectedKeys, body.keys, "${case.label}: ErrorResponse shape drifted")
 
         assertEquals(case.status.value(), (body["status"] as Number).toInt())
@@ -193,7 +194,9 @@ class ErrorContractIntegrationTest {
         val (status, body) = rawMultipartUpload(path, fileBytes)
 
         assertEquals(413, status)
-        assertEquals(setOf("status", "error", "code", "message", "path", "timestamp"), body.keys)
+        val expectedKeys = mutableSetOf("status", "error", "code", "message", "path", "timestamp")
+        if (body.containsKey("requestId")) expectedKeys += "requestId"
+        assertEquals(expectedKeys, body.keys)
         assertEquals("FILE_TOO_LARGE", body["code"])
         assertEquals("File exceeds the 5MB upload limit", body["message"])
         assertEquals(path, body["path"])
@@ -205,7 +208,9 @@ class ErrorContractIntegrationTest {
         val (status, body) = rawRequest("GET", path)
 
         assertEquals(400, status)
-        assertEquals(setOf("status", "error", "code", "message", "path", "timestamp"), body.keys)
+        val expectedKeys = mutableSetOf("status", "error", "code", "message", "path", "timestamp")
+        if (body.containsKey("requestId")) expectedKeys += "requestId"
+        assertEquals(expectedKeys, body.keys)
         assertEquals("BAD_REQUEST", body["code"])
     }
 

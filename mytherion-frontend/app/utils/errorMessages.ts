@@ -1,11 +1,73 @@
-/**
- * Parse backend error messages and return user-friendly messages
- */
-export function parseErrorMessage(error: any): string {
-  // If error is already a string, check if it needs parsing
-  const errorMessage = typeof error === 'string' ? error : error?.message || 'An unexpected error occurred';
+import { isApiErrorResponse, ApiErrorResponse, ErrorCode } from '../types/apiError';
 
-  // Map of backend error messages to user-friendly messages
+const CODE_MAPPINGS: Partial<Record<ErrorCode, (err: ApiErrorResponse) => string>> = {
+  EMAIL_ALREADY_IN_USE: () => 'This email address is already registered. Please use a different email or try logging in.',
+  USERNAME_ALREADY_IN_USE: () => 'This username is already taken. Please choose a different username.',
+  INVALID_CREDENTIALS: () => 'Incorrect email or password. Please check your credentials and try again.',
+  EMAIL_NOT_VERIFIED: () => 'Please verify your email address before logging in. Check your inbox for the verification email.',
+  USER_NOT_FOUND: () => 'No account found with these credentials. Please check your email or register for a new account.',
+  INVALID_VERIFICATION_TOKEN: () => 'This verification link is invalid. Please request a new verification email.',
+  EMAIL_ALREADY_VERIFIED: () => 'Your email has already been verified. You can now log in.',
+  VERIFICATION_TOKEN_EXPIRED: () => 'This verification link has expired. Please request a new verification email.',
+  UNAUTHENTICATED: () => 'Your session has expired. Please log in again.',
+  ACCESS_DENIED: () => 'You do not have permission to perform this action.',
+  PROJECT_NOT_FOUND: () => 'The requested project was not found.',
+  PROJECT_HAS_ENTRIES: () => 'Cannot delete project because it still contains entries.',
+  ENTRY_NOT_FOUND: () => 'The requested codex entry was not found.',
+  THUMBNAIL_NOT_FOUND: () => 'The requested image was not found.',
+  FILE_TOO_LARGE: (err) => err.message || 'The file exceeds the maximum allowed upload size.',
+  INVALID_FILE: (err) => err.message || 'The uploaded file is empty or not an accepted image format.',
+  CONCURRENT_MODIFICATION: () => 'This was changed elsewhere. Please reload and try again.',
+  INTERNAL_ERROR: () => 'Something went wrong on our end. Please try again later.',
+  SERVICE_UNAVAILABLE: () => 'The service is temporarily unavailable. Please try again in a few moments.',
+  VALIDATION_FAILED: (err) => {
+    if (err.errors) {
+      const firstField = Object.keys(err.errors)[0];
+      const firstMessage = firstField ? err.errors[firstField]?.[0] : null;
+      if (firstMessage) return firstMessage;
+    }
+    return err.message || 'Request validation failed';
+  },
+};
+
+/**
+ * Parse backend error responses, error messages, or unknown errors and return user-friendly messages
+ */
+export function parseErrorMessage(error: unknown): string {
+  let apiError: ApiErrorResponse | null = null;
+
+  if (isApiErrorResponse(error)) {
+    apiError = error;
+  } else if (typeof error === 'string') {
+    try {
+      const parsed = JSON.parse(error);
+      if (isApiErrorResponse(parsed)) {
+        apiError = parsed;
+      }
+    } catch {
+      // Plain string, not JSON
+    }
+  } else if (error && typeof error === 'object' && 'response' in error) {
+    const resData = (error as { response?: { data?: unknown } }).response?.data;
+    if (isApiErrorResponse(resData)) {
+      apiError = resData;
+    }
+  }
+
+  if (apiError) {
+    const handler = CODE_MAPPINGS[apiError.code];
+    if (handler) {
+      return handler(apiError);
+    }
+    if (apiError.message && apiError.message.length < 150) {
+      return apiError.message;
+    }
+  }
+
+  // If error is already a string, check if it needs parsing
+  const errorMessage = typeof error === 'string' ? error : (error as any)?.message || 'An unexpected error occurred';
+
+  // Map of legacy backend error messages to user-friendly messages
   const errorMappings: Record<string, string> = {
     // Authentication errors
     'Email already in use': 'This email address is already registered. Please use a different email or try logging in.',

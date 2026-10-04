@@ -8,6 +8,20 @@ export interface UserUpdateData {
   role?: string;
 }
 
+async function handleResponseError(response: Response, fallback: string): Promise<never> {
+  let errorPayload: unknown;
+  try {
+    errorPayload = await response.json();
+  } catch {
+    try {
+      errorPayload = await response.text();
+    } catch {
+      errorPayload = fallback;
+    }
+  }
+  throw new Error(parseErrorMessage(errorPayload || fallback));
+}
+
 class UserService {
   /**
    * Get all users (Admin only)
@@ -19,8 +33,7 @@ class UserService {
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(parseErrorMessage(error || "Failed to fetch users"));
+      await handleResponseError(response, "Failed to fetch users");
     }
 
     return response.json();
@@ -40,8 +53,7 @@ class UserService {
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(parseErrorMessage(error || "Failed to update user"));
+      await handleResponseError(response, "Failed to update user");
     }
 
     return response.json();
@@ -57,8 +69,7 @@ class UserService {
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(parseErrorMessage(error || "Failed to delete user"));
+      await handleResponseError(response, "Failed to delete user");
     }
   }
 }
