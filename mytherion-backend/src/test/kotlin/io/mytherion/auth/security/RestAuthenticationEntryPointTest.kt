@@ -4,6 +4,7 @@ import io.mytherion.common.web.ErrorCode
 import io.mytherion.common.web.ErrorMessages
 import io.mytherion.common.web.ErrorResponse
 import io.mytherion.common.web.ErrorResponseWriter
+import io.mytherion.common.web.RequestId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -23,6 +24,7 @@ class RestAuthenticationEntryPointTest {
     @Test
     fun `commence sets 401 status and writes ErrorResponse payload`() {
         val request = MockHttpServletRequest("GET", "/api/auth/me")
+            .apply { setAttribute(RequestId.ATTRIBUTE, "req-1") }
         val response = MockHttpServletResponse()
         val exception = InsufficientAuthenticationException("Full authentication is required to access this resource")
 
@@ -38,6 +40,7 @@ class RestAuthenticationEntryPointTest {
         assertEquals(ErrorMessages.UNAUTHENTICATED, error.message)
         assertEquals(ErrorCode.UNAUTHENTICATED, error.code)
         assertEquals("/api/auth/me", error.path)
+        assertEquals("req-1", error.requestId)
         assertEquals("Bearer", response.getHeader("WWW-Authenticate"))
         assertNotNull(error.timestamp)
     }

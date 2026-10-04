@@ -5,7 +5,7 @@ const CODE_MAPPINGS: Partial<Record<ErrorCode, (err: ApiErrorResponse) => string
   USERNAME_ALREADY_IN_USE: () => 'This username is already taken. Please choose a different username.',
   INVALID_CREDENTIALS: () => 'Incorrect email or password. Please check your credentials and try again.',
   EMAIL_NOT_VERIFIED: () => 'Please verify your email address before logging in. Check your inbox for the verification email.',
-  USER_NOT_FOUND: () => 'No account found with these credentials. Please check your email or register for a new account.',
+  USER_NOT_FOUND: () => 'No matching account was found.',
   INVALID_VERIFICATION_TOKEN: () => 'This verification link is invalid. Please request a new verification email.',
   EMAIL_ALREADY_VERIFIED: () => 'Your email has already been verified. You can now log in.',
   VERIFICATION_TOKEN_EXPIRED: () => 'This verification link has expired. Please request a new verification email.',
@@ -65,7 +65,10 @@ export function parseErrorMessage(error: unknown): string {
   }
 
   // If error is already a string, check if it needs parsing
-  const errorMessage = typeof error === 'string' ? error : (error as any)?.message || 'An unexpected error occurred';
+  const errorMessage =
+    typeof error === 'string'
+      ? error
+      : (error as { message?: string } | null)?.message || 'An unexpected error occurred';
 
   // Map of legacy backend error messages to user-friendly messages
   const errorMappings: Record<string, string> = {

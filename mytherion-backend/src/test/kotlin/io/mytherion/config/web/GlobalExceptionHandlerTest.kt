@@ -2,8 +2,7 @@ package io.mytherion.config.web
 
 import io.mytherion.common.exception.ApiException
 import io.mytherion.common.web.ErrorCode
-import jakarta.validation.ConstraintViolationException
-import jakarta.validation.Validation
+import io.mytherion.common.web.RequestId
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
@@ -65,10 +64,6 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/probe/denied") fun denied(): Nothing =
             throw AuthorizationDeniedException("Access Denied: hasRole('ADMIN')", AuthorizationDecision(false))
         @GetMapping("/probe/too-large") fun tooLarge(): Nothing = throw MaxUploadSizeExceededException(-1)
-        @GetMapping("/probe/constraint") fun constraint(): Nothing =
-            throw ConstraintViolationException(
-                Validation.buildDefaultValidatorFactory().validator.validate(Body(name = ""))
-            )
         @GetMapping("/probe/boom") fun boom(): Nothing = throw IllegalStateException("db password is hunter2")
         @GetMapping("/probe/iae") fun iae(): Nothing = throw IllegalArgumentException("internal detail")
         @GetMapping("/probe/bad-multipart") fun badMultipart(): Nothing =
@@ -87,7 +82,10 @@ class GlobalExceptionHandlerTest {
             .build()
 
     private fun expectError(request: RequestBuilder, status: HttpStatus, code: ErrorCode) =
-        mvc.perform(request)
+        mvc.perform(
+            (request as? org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder)
+                ?.requestAttr(RequestId.ATTRIBUTE, REQUEST_ID) ?: request
+        )
             .andExpect(status().`is`(status.value()))
             .andExpect(jsonPath("$.status").value(status.value()))
             .andExpect(jsonPath("$.error").value(status.reasonPhrase))
@@ -104,22 +102,22 @@ class GlobalExceptionHandlerTest {
         hasFieldErrors: Boolean
     ) {
         val body = expectError(request, status, code).andReturn().response.contentAsString
-        val expected = mutableSetOf("status", "error", "code", "message", "path", "timestamp")
+        val expected = mutableSetOf("status", "error", "code", "message", "path", "timestamp", "requestId")
         if (hasFieldErrors) expected += "errors"
-        if (JsonMapper.builder().build().readTree(body).has("requestId")) expected += "requestId"
 
         assertEquals(expected, JsonMapper.builder().build().readTree(body).propertyNames().toSet())
     }
 
-    @Test
-    fun `requestId from MDC is rendered in the error response`() {
-        try {
-            org.slf4j.MDC.put("requestId", "test-request-123")
-            expectError(get("/probe/api"), HttpStatus.CONFLICT, ErrorCode.PROJECT_HAS_ENTRIES)
-                .andExpect(jsonPath("$.requestId").value("test-request-123"))
-        } finally {
-            org.slf4j.MDC.remove("requestId")
-        }
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("everyErrorPath")
+    fun `every error path echoes the request id`(
+        label: String,
+        request: RequestBuilder,
+        status: HttpStatus,
+        code: ErrorCode,
+        hasFieldErrors: Boolean
+    ) {
+        expectError(request, status, code).andExpect(jsonPath("$.requestId").value(REQUEST_ID))
     }
 
     @Test
@@ -168,12 +166,6 @@ class GlobalExceptionHandlerTest {
             .andExpect(jsonPath("$.errors.name.length()").value(2))
             .andExpect(jsonPath("$.errors.name[0]").value("Lowercase letters only"))
             .andExpect(jsonPath("$.errors.name[1]").value("Too short"))
-    }
-
-    @Test
-    fun `constraint violations outside MVC binding are 400 with field errors too`() {
-        expectError(get("/probe/constraint"), HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED)
-            .andExpect(jsonPath("$.errors.name[0]").value("Name is required"))
     }
 
     @Test
@@ -281,6 +273,8 @@ class GlobalExceptionHandlerTest {
     }
 
     companion object {
+        private const val REQUEST_ID = "req-1"
+
         @JvmStatic
         fun everyErrorPath(): Stream<org.junit.jupiter.params.provider.Arguments> = Stream.of(
             args("ApiException", get("/probe/api"), HttpStatus.CONFLICT, ErrorCode.PROJECT_HAS_ENTRIES),

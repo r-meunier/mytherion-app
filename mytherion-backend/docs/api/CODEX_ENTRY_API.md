@@ -329,6 +329,7 @@ Security.
   "message": "Request validation failed",
   "path": "/api/projects/1/entries",
   "timestamp": "2026-01-18T23:00:00Z",
+  "requestId": "3f2c9a4e-1b7d-4c2a-9e8f-5d6a7b8c9d0e",
   "errors": { "name": ["Name is required"] }
 }
 ```
@@ -337,6 +338,7 @@ Security.
 - **Branch on `code`**, never on `message`; messages are for humans and may be reworded.
 - `path` never includes the query string.
 - `errors` (field → list of reasons, sorted) appears only with `VALIDATION_FAILED`.
+- `requestId` matches the `X-Request-Id` response header and the server logs; quote it when reporting a problem.
 
 The full list of codes is `ErrorCode.kt` (backend) / `types/apiError.ts` (frontend); CI fails if
 they drift.

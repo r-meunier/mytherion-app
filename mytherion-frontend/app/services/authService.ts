@@ -3,20 +3,6 @@ import { parseErrorMessage } from "../utils/errorMessages";
 import { API_URL } from "./apiConfig";
 import apiRoutes from "../config/apiRoutes";
 
-async function handleResponseError(response: Response, fallback: string): Promise<never> {
-  let errorPayload: unknown;
-  try {
-    errorPayload = await response.json();
-  } catch {
-    try {
-      errorPayload = await response.text();
-    } catch {
-      errorPayload = fallback;
-    }
-  }
-  throw new Error(parseErrorMessage(errorPayload || fallback));
-}
-
 class AuthService {
   /**
    * Register a new user
@@ -32,7 +18,8 @@ class AuthService {
     });
 
     if (!response.ok) {
-      await handleResponseError(response, "Registration failed");
+      const error = await response.text();
+      throw new Error(parseErrorMessage(error || "Registration failed"));
     }
 
     return response.json();
@@ -52,7 +39,8 @@ class AuthService {
     });
 
     if (!response.ok) {
-      await handleResponseError(response, "Login failed");
+      const error = await response.text();
+      throw new Error(parseErrorMessage(error || "Login failed"));
     }
 
     return response.json();
@@ -99,7 +87,8 @@ class AuthService {
     });
 
     if (!response.ok) {
-      await handleResponseError(response, "Email verification failed");
+      const error = await response.text();
+      throw new Error(parseErrorMessage(error || "Email verification failed"));
     }
 
     return response.json();
@@ -115,7 +104,8 @@ class AuthService {
     });
 
     if (!response.ok) {
-      await handleResponseError(response, "Failed to resend verification email");
+      const error = await response.text();
+      throw new Error(parseErrorMessage(error || "Failed to resend verification email"));
     }
   }
 }

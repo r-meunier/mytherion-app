@@ -126,9 +126,8 @@ class ErrorContractIntegrationTest {
         assertNotNull(body, "${case.label}: no parseable JSON body")
         body!!
 
-        val expectedKeys = mutableSetOf("status", "error", "code", "message", "path", "timestamp")
+        val expectedKeys = mutableSetOf("status", "error", "code", "message", "path", "timestamp", "requestId")
         if (case.hasFieldErrors) expectedKeys += "errors"
-        if (body.containsKey("requestId")) expectedKeys += "requestId"
         assertEquals(expectedKeys, body.keys, "${case.label}: ErrorResponse shape drifted")
 
         assertEquals(case.status.value(), (body["status"] as Number).toInt())
@@ -137,6 +136,18 @@ class ErrorContractIntegrationTest {
         assertEquals(case.path, body["path"])
         // Filter-chain and handler bodies are serialised separately; both must be ISO-8601.
         Instant.parse(body["timestamp"] as String)
+    }
+
+    @Test
+    fun `a 401 from the security filter carries the same request id as the response header`() {
+        client.get().uri("/api/projects").exchange { _, res ->
+            val header = res.headers.getFirst("X-Request-Id")
+            val body = res.bodyTo(object : ParameterizedTypeReference<Map<String, Any>>() {})
+
+            assertEquals(401, res.statusCode.value())
+            assertNotNull(header, "no X-Request-Id header")
+            assertEquals(header, body!!["requestId"])
+        }
     }
 
     @Test
@@ -194,9 +205,7 @@ class ErrorContractIntegrationTest {
         val (status, body) = rawMultipartUpload(path, fileBytes)
 
         assertEquals(413, status)
-        val expectedKeys = mutableSetOf("status", "error", "code", "message", "path", "timestamp")
-        if (body.containsKey("requestId")) expectedKeys += "requestId"
-        assertEquals(expectedKeys, body.keys)
+        assertEquals(setOf("status", "error", "code", "message", "path", "timestamp", "requestId"), body.keys)
         assertEquals("FILE_TOO_LARGE", body["code"])
         assertEquals("File exceeds the 5MB upload limit", body["message"])
         assertEquals(path, body["path"])
@@ -208,9 +217,7 @@ class ErrorContractIntegrationTest {
         val (status, body) = rawRequest("GET", path)
 
         assertEquals(400, status)
-        val expectedKeys = mutableSetOf("status", "error", "code", "message", "path", "timestamp")
-        if (body.containsKey("requestId")) expectedKeys += "requestId"
-        assertEquals(expectedKeys, body.keys)
+        assertEquals(setOf("status", "error", "code", "message", "path", "timestamp", "requestId"), body.keys)
         assertEquals("BAD_REQUEST", body["code"])
     }
 

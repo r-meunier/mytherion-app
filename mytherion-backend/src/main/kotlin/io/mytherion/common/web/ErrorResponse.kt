@@ -37,8 +37,8 @@ data class ErrorResponse(
             code: ErrorCode,
             message: String,
             path: String,
-            errors: Map<String, List<String>>? = null,
-            requestId: String? = org.slf4j.MDC.get("requestId")
+            requestId: String?,
+            errors: Map<String, List<String>>? = null
         ) = ErrorResponse(
             status = status.value(),
             error = reasonPhrase(status),

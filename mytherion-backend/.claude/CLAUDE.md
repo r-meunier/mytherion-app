@@ -92,7 +92,7 @@ Prefer this flow:
 
 ### Errors
 Every failure returns one `common.web.ErrorResponse` (`status, error, code, message, path,
-timestamp, errors?`); clients branch on `code` (`common.web.ErrorCode`).
+timestamp, requestId, errors?`); clients branch on `code` (`common.web.ErrorCode`).
 - Client-facing errors extend `common.exception.ApiException` and declare their own `HttpStatus`
   and `ErrorCode`. `GlobalExceptionHandler` renders them generically, so a new domain exception
   needs no handler change. A new `ErrorCode` value must also be added to the frontend's

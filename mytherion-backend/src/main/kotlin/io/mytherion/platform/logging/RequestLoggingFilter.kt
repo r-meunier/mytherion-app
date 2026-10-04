@@ -5,7 +5,10 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import java.util.UUID
 import org.slf4j.LoggerFactory
+import io.mytherion.common.web.RequestId
 import org.slf4j.MDC
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
@@ -13,6 +16,8 @@ import org.springframework.web.filter.OncePerRequestFilter
  * Request logging filter that adds request context to MDC This allows all logs within a request to
  * be correlated
  */
+// First, so requests Spring Security rejects are logged and carry an id too.
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
 class RequestLoggingFilter : OncePerRequestFilter() {
 
@@ -27,11 +32,11 @@ class RequestLoggingFilter : OncePerRequestFilter() {
         val startTime = System.currentTimeMillis()
 
         try {
-            request.setAttribute("requestId", requestId)
-            response.setHeader("X-Request-Id", requestId)
+            request.setAttribute(RequestId.ATTRIBUTE, requestId)
+            response.setHeader(RequestId.HEADER, requestId)
 
             // Add request context to MDC
-            MDC.put("requestId", requestId)
+            MDC.put(RequestId.ATTRIBUTE, requestId)
             MDC.put("method", request.method)
             MDC.put("path", request.requestURI)
             MDC.put("remoteAddr", request.remoteAddr)
@@ -58,7 +63,7 @@ class RequestLoggingFilter : OncePerRequestFilter() {
             throw e
         } finally {
             // Clean up MDC
-            MDC.remove("requestId")
+            MDC.remove(RequestId.ATTRIBUTE)
             MDC.remove("method")
             MDC.remove("path")
             MDC.remove("remoteAddr")

@@ -117,7 +117,7 @@ class UserControllerSecurityIntegrationTest {
 
         assertNotNull(body)
         assertEquals(
-            setOf("status", "error", "code", "message", "path", "timestamp"),
+            setOf("status", "error", "code", "message", "path", "timestamp", "requestId"),
             body!!.keys,
             "ErrorResponse shape drifted; the two 403 paths would no longer match"
         )

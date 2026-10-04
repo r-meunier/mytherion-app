@@ -1,6 +1,7 @@
 package io.mytherion.config.web
 
 import io.mytherion.common.web.ErrorResponse
+import io.mytherion.common.web.RequestId
 import io.mytherion.platform.logging.errorWith
 import io.mytherion.platform.logging.logger
 import jakarta.servlet.RequestDispatcher
@@ -33,7 +34,6 @@ class ApiErrorController : ErrorController {
             log.errorWith("Error dispatch", cause, "path" to path)
         }
         val (code, message) = ErrorResponse.generic(status)
-        val requestId = org.slf4j.MDC.get("requestId") ?: request.getAttribute("requestId") as? String
-        return ErrorResponse.of(status, code, message, path, requestId = requestId).toEntity()
+        return ErrorResponse.of(status, code, message, path, RequestId.of(request)).toEntity()
     }
 }

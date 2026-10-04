@@ -4,10 +4,10 @@ import io.mytherion.common.exception.ApiException
 import io.mytherion.common.web.ErrorCode
 import io.mytherion.common.web.ErrorMessages
 import io.mytherion.common.web.ErrorResponse
+import io.mytherion.common.web.RequestId
 import io.mytherion.platform.logging.errorWith
 import io.mytherion.platform.logging.logger
 import jakarta.servlet.http.HttpServletRequest
-import jakarta.validation.ConstraintViolationException
 import org.springframework.beans.TypeMismatchException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.dao.OptimisticLockingFailureException
@@ -48,26 +48,12 @@ class GlobalExceptionHandler(
 
     @ExceptionHandler(ApiException::class)
     fun handleApiException(ex: ApiException, request: HttpServletRequest): ResponseEntity<ErrorResponse> =
-        respond(ex.status, ex.code, ex.message ?: ex.status.reasonPhrase, request.requestURI)
+        respond(ex.status, ex.code, ex.message ?: ex.status.reasonPhrase, request)
 
     /** `@PreAuthorize` denials; without this the catch-all would turn them into 500s. */
     @ExceptionHandler(AccessDeniedException::class)
     fun handleAccessDenied(ex: AccessDeniedException, request: HttpServletRequest): ResponseEntity<ErrorResponse> =
-        respond(HttpStatus.FORBIDDEN, ErrorCode.ACCESS_DENIED, ErrorMessages.ACCESS_DENIED, request.requestURI)
-
-    @ExceptionHandler(ConstraintViolationException::class)
-    fun handleConstraintViolation(
-        ex: ConstraintViolationException,
-        request: HttpServletRequest
-    ): ResponseEntity<ErrorResponse> {
-        val errors = ex.constraintViolations
-            .groupBy({ violationPath(it.propertyPath) }, { it.message })
-            .mapValues { it.value.sorted() }
-        val requestId = org.slf4j.MDC.get("requestId") ?: request.getAttribute("requestId") as? String
-        return respond(
-            HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED, VALIDATION_MESSAGE, request.requestURI, errors, requestId
-        )
-    }
+        respond(HttpStatus.FORBIDDEN, ErrorCode.ACCESS_DENIED, ErrorMessages.ACCESS_DENIED, request)
 
     @ExceptionHandler(OptimisticLockingFailureException::class)
     fun handleOptimisticLock(
@@ -78,33 +64,19 @@ class GlobalExceptionHandler(
             HttpStatus.CONFLICT,
             ErrorCode.CONCURRENT_MODIFICATION,
             "This was changed elsewhere. Reload and try again.",
-            request.requestURI,
-            requestId = org.slf4j.MDC.get("requestId") ?: request.getAttribute("requestId") as? String
+            request
         )
 
     // The oversized subclass is matched more specifically by the parent and stays 413.
     @ExceptionHandler(MultipartException::class)
     fun handleMultipart(ex: MultipartException, request: HttpServletRequest): ResponseEntity<ErrorResponse> =
-        respond(
-            HttpStatus.BAD_REQUEST,
-            ErrorCode.MALFORMED_REQUEST,
-            "Malformed multipart request",
-            request.requestURI,
-            requestId = org.slf4j.MDC.get("requestId") ?: request.getAttribute("requestId") as? String
-        )
+        respond(HttpStatus.BAD_REQUEST, ErrorCode.MALFORMED_REQUEST, "Malformed multipart request", request)
 
     /** Last resort: logs the cause and returns a masked 500. */
     @ExceptionHandler(Exception::class)
     fun handleGenericException(ex: Exception, request: HttpServletRequest): ResponseEntity<ErrorResponse> {
         log.errorWith("Unhandled exception", ex, "path" to request.requestURI)
-        val requestId = org.slf4j.MDC.get("requestId") ?: request.getAttribute("requestId") as? String
-        return respond(
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            ErrorCode.INTERNAL_ERROR,
-            ErrorMessages.INTERNAL_ERROR,
-            request.requestURI,
-            requestId = requestId
-        )
+        return respond(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_ERROR, ErrorMessages.INTERNAL_ERROR, request)
     }
 
     override fun handleExceptionInternal(
@@ -114,16 +86,19 @@ class GlobalExceptionHandler(
         statusCode: HttpStatusCode,
         request: WebRequest
     ): ResponseEntity<Any>? {
-        val req = (request as? ServletWebRequest)?.request
-        val path = req?.requestURI.orEmpty()
-        val requestId = org.slf4j.MDC.get("requestId") ?: req?.getAttribute("requestId") as? String
+        val servletRequest = (request as? ServletWebRequest)?.request
+        val path = servletRequest?.requestURI.orEmpty()
         if (statusCode.is5xxServerError) {
             log.errorWith("Framework exception", ex, "path" to path)
         }
         val (code, message, errors) = describe(ex, statusCode)
         // Delegate so the parent still skips responses that are already committed.
         return super.handleExceptionInternal(
-            ex, ErrorResponse.of(statusCode, code, message, path, errors, requestId), headers, statusCode, request
+            ex,
+            ErrorResponse.of(statusCode, code, message, path, servletRequest?.let(RequestId::of), errors),
+            headers,
+            statusCode,
+            request
         )
     }
 
@@ -163,25 +138,13 @@ class GlobalExceptionHandler(
             .groupBy({ (it as? FieldError)?.field ?: it.objectName }, { it.defaultMessage ?: "Invalid value" })
             .mapValues { it.value.sorted() }
 
-    private fun violationPath(path: jakarta.validation.Path): String {
-        val nodes = path.toList()
-        val relevantNodes = if (nodes.firstOrNull()?.kind == jakarta.validation.ElementKind.METHOD) {
-            nodes.drop(1)
-        } else {
-            nodes
-        }
-        return relevantNodes.joinToString(".") { it.toString() }
-    }
-
     private fun respond(
         status: HttpStatusCode,
         code: ErrorCode,
         message: String,
-        path: String,
-        errors: Map<String, List<String>>? = null,
-        requestId: String? = null
+        request: HttpServletRequest
     ): ResponseEntity<ErrorResponse> =
-        ErrorResponse.of(status, code, message, path, errors, requestId ?: org.slf4j.MDC.get("requestId")).toEntity()
+        ErrorResponse.of(status, code, message, request.requestURI, RequestId.of(request)).toEntity()
 
     private companion object {
         const val VALIDATION_MESSAGE = "Request validation failed"
