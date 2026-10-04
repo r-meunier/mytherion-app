@@ -1,5 +1,11 @@
 package io.mytherion.auth.service
 
+import io.mytherion.auth.exception.EmailAlreadyInUseException
+import io.mytherion.auth.exception.InvalidCredentialsException
+import io.mytherion.auth.exception.NotAuthenticatedException
+import io.mytherion.common.web.ErrorCode
+import io.mytherion.user.exception.UserNotFoundException
+import io.mytherion.user.exception.UsernameAlreadyInUseException
 import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -124,7 +130,7 @@ class AuthServiceTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> { authService.register(request) }
+            assertThrows<EmailAlreadyInUseException> { authService.register(request) }
 
         assertEquals("Email already in use", exception.message)
         verify { userRepository.existsByEmail(request.email) }
@@ -146,7 +152,7 @@ class AuthServiceTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> { authService.register(request) }
+            assertThrows<UsernameAlreadyInUseException> { authService.register(request) }
 
         assertEquals("Username already in use", exception.message)
         verify { userRepository.existsByUsername(request.username) }
@@ -227,7 +233,7 @@ class AuthServiceTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> { authService.login(request) }
+            assertThrows<InvalidCredentialsException> { authService.login(request) }
 
         assertEquals("Invalid credentials", exception.message)
         verify { userRepository.findByEmailAndDeletedAtIsNull(request.email.lowercase()) }
@@ -248,7 +254,7 @@ class AuthServiceTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> { authService.login(request) }
+            assertThrows<InvalidCredentialsException> { authService.login(request) }
 
         assertEquals("Invalid credentials", exception.message)
         verify { passwordEncoder.matches(request.password, testUser.passwordHash) }
@@ -279,7 +285,7 @@ class AuthServiceTest {
     @Test
     fun `getUserById with valid id should return user response`() {
         // Given
-        every { userRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Optional.of(testUser)
+        every { userRepository.findByIdAndDeletedAtIsNull(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns testUser
 
         // When
         val result = authService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001"))
@@ -291,41 +297,20 @@ class AuthServiceTest {
         assertEquals(testUser.username, result.username)
         assertEquals(testUser.role.name, result.role)
 
-        verify { userRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) }
+        verify { userRepository.findByIdAndDeletedAtIsNull(UUID.fromString("00000000-0000-0000-0000-000000000001")) }
     }
 
     @Test
-    fun `getUserById with non-existent id should throw exception`() {
+    fun `getUserById with non-existent id is a dead session (401)`() {
         // Given
-        every { userRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000999")) } returns Optional.empty()
+        every { userRepository.findByIdAndDeletedAtIsNull(UUID.fromString("00000000-0000-0000-0000-000000000999")) } returns null
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> { authService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000999")) }
+            assertThrows<NotAuthenticatedException> { authService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000999")) }
 
-        assertEquals("User not found", exception.message)
-        verify { userRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000999")) }
+        assertEquals(ErrorCode.UNAUTHENTICATED, exception.code)
+        verify { userRepository.findByIdAndDeletedAtIsNull(UUID.fromString("00000000-0000-0000-0000-000000000999")) }
     }
 
-    @Test
-    fun `getUserById with deleted user should throw exception`() {
-        // Given
-        val deletedUser = User(
-            email = "delete@example.com",
-            username = "deleteuser",
-            passwordHash = "hash"
-        ).apply {
-            this.id = UUID.fromString("00000000-0000-0000-0000-000000000001")
-            this.deletedAt = java.time.Instant.now()
-        }
-
-        every { userRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Optional.of(deletedUser)
-
-        // When & Then
-        val exception =
-            assertThrows<IllegalArgumentException> { authService.getUserById(UUID.fromString("00000000-0000-0000-0000-000000000001")) }
-
-        assertEquals("User not found", exception.message)
-        verify { userRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) }
-    }
 }

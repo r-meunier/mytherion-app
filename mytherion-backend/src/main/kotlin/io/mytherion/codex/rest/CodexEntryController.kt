@@ -1,12 +1,16 @@
 package io.mytherion.codex.rest
 
 import io.mytherion.codex.dto.*
+import io.mytherion.codex.exception.InvalidFileException
 import io.mytherion.codex.service.CodexEntryService
 import io.mytherion.platform.logging.errorWith
 import io.mytherion.platform.logging.infoWith
 import io.mytherion.platform.logging.logger
 import io.mytherion.platform.storage.dto.UploadResponse
+import io.mytherion.common.web.MAX_PAGE_SIZE
 import jakarta.validation.Valid
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -29,8 +33,8 @@ class CodexEntryController(private val entryService: CodexEntryService) {
         @RequestParam(required = false) type: io.mytherion.codex.model.EntryType?,
         @RequestParam(required = false) tags: List<String>?,
         @RequestParam(required = false) search: String?,
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "20") size: Int
+        @RequestParam(defaultValue = "0") @Min(0) page: Int,
+        @RequestParam(defaultValue = "20") @Min(1) @Max(MAX_PAGE_SIZE) size: Int
     ): Page<EntryDTO> {
         logger.infoWith(
             "List entries request",
@@ -154,7 +158,7 @@ class CodexEntryController(private val entryService: CodexEntryService) {
         // Validate file
         if (file.isEmpty) {
             logger.errorWith("File is empty", null, "projectId" to projectId, "entryId" to id)
-            throw IllegalArgumentException("File is empty")
+            throw InvalidFileException("File is empty")
         }
 
         val allowedTypes = listOf("image/jpeg", "image/png", "image/gif", "image/webp")
@@ -166,20 +170,10 @@ class CodexEntryController(private val entryService: CodexEntryService) {
                 "entryId" to id,
                 "contentType" to file.contentType
             )
-            throw IllegalArgumentException("Invalid file type. Allowed: JPEG, PNG, GIF, WebP")
+            throw InvalidFileException("Invalid file type. Allowed: JPEG, PNG, GIF, WebP")
         }
 
-        val maxSize = 5 * 1024 * 1024 // 5MB
-        if (file.size > maxSize) {
-            logger.errorWith(
-                "File size exceeds limit",
-                null,
-                "projectId" to projectId,
-                "entryId" to id,
-                "fileSize" to file.size
-            )
-            throw IllegalArgumentException("File size exceeds 5MB limit")
-        }
+        // No size check: multipart max-file-size rejects oversized files before this runs (413).
 
         return try {
             entryService.uploadThumbnail(projectId, id, file)

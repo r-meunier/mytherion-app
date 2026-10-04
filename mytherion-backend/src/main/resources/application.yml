@@ -21,6 +21,12 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
     validate-on-migrate: true
+  servlet:
+    multipart:
+      # Single source of truth for upload size limit. The frontend's MAX_SIZE_MB mirrors the default (CI-checked).
+      max-file-size: ${MAX_UPLOAD_FILE_SIZE:5MB}
+      # Keep above max-file-size: it also counts form fields and boundaries.
+      max-request-size: ${MAX_UPLOAD_REQUEST_SIZE:6MB}
   mail:
     host: ${MAIL_HOST:localhost}
     port: ${MAIL_PORT:1025}

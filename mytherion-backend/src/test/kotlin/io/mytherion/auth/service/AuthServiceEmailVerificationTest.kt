@@ -1,5 +1,10 @@
 package io.mytherion.auth.service
 
+import io.mytherion.auth.exception.EmailAlreadyVerifiedException
+import io.mytherion.auth.exception.InvalidVerificationTokenException
+import io.mytherion.auth.exception.VerificationTokenExpiredException
+import io.mytherion.common.web.ErrorCode
+import io.mytherion.user.exception.UserNotFoundException
 import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -167,7 +172,7 @@ class AuthServiceEmailVerificationTest {
         every { verificationTokenRepository.findByToken(token) } returns null
 
         // When & Then
-        val exception = assertThrows<IllegalArgumentException> { authService.verifyEmail(token) }
+        val exception = assertThrows<InvalidVerificationTokenException> { authService.verifyEmail(token) }
 
         assertEquals("Invalid verification token", exception.message)
         verify { verificationTokenRepository.findByToken(token) }
@@ -190,7 +195,7 @@ class AuthServiceEmailVerificationTest {
         every { verificationTokenRepository.findByToken(token) } returns expiredToken
 
         // When & Then
-        val exception = assertThrows<IllegalArgumentException> { authService.verifyEmail(token) }
+        val exception = assertThrows<VerificationTokenExpiredException> { authService.verifyEmail(token) }
 
         assertEquals("Verification token expired", exception.message)
         verify { verificationTokenRepository.findByToken(token) }
@@ -213,7 +218,7 @@ class AuthServiceEmailVerificationTest {
         every { verificationTokenRepository.findByToken(token) } returns verifiedToken
 
         // When & Then
-        val exception = assertThrows<IllegalArgumentException> { authService.verifyEmail(token) }
+        val exception = assertThrows<EmailAlreadyVerifiedException> { authService.verifyEmail(token) }
 
         assertEquals("Email already verified", exception.message)
         verify { verificationTokenRepository.findByToken(token) }
@@ -249,7 +254,7 @@ class AuthServiceEmailVerificationTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> {
+            assertThrows<EmailAlreadyVerifiedException> {
                 authService.resendVerificationEmailByEmail(email)
             }
 
@@ -266,7 +271,7 @@ class AuthServiceEmailVerificationTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> {
+            assertThrows<UserNotFoundException> {
                 authService.resendVerificationEmailByEmail(email)
             }
 
@@ -319,7 +324,7 @@ class AuthServiceEmailVerificationTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> {
+            assertThrows<EmailAlreadyVerifiedException> {
                 authService.resendVerificationEmail(userId)
             }
 
@@ -335,11 +340,11 @@ class AuthServiceEmailVerificationTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> {
+            assertThrows<UserNotFoundException> {
                 authService.resendVerificationEmail(userId)
             }
 
-        assertEquals("User not found", exception.message)
+        assertEquals(ErrorCode.USER_NOT_FOUND, exception.code)
         verify(exactly = 0) { emailService.sendVerificationEmail(any(), any(), any()) }
     }
 }

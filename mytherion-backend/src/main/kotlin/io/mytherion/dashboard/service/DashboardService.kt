@@ -50,7 +50,7 @@ class DashboardService(
     fun getProjectDashboardStats(projectId: UUID): DashboardStatsDTO {
         val currentUser = currentUserProvider.getCurrentUser()
         
-        // Verify project exists and belongs to user
+        // Missing and not-owned give the same 404, as everywhere else
         val project = projectRepository.findByIdAndOwnerAndDeletedAtIsNull(projectId, currentUser)
             ?: throw ProjectNotFoundException(projectId)
 

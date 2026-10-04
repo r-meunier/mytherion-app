@@ -1,6 +1,7 @@
 package io.mytherion.auth.rest
 
 import io.mytherion.auth.dto.AuthDTO
+import io.mytherion.auth.exception.NotAuthenticatedException
 import io.mytherion.auth.service.AuthService
 import io.mytherion.auth.util.CookieUtil
 import jakarta.servlet.http.HttpServletResponse
@@ -44,7 +45,7 @@ class AuthController(private val authService: AuthService, private val cookieUti
   @GetMapping("/me")
   fun getCurrentUser(@AuthenticationPrincipal userId: java.util.UUID?): AuthDTO.UserResponse {
     if (userId == null) {
-      throw IllegalStateException("User not authenticated")
+      throw NotAuthenticatedException()
     }
     return authService.getUserById(userId)
   }

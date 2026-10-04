@@ -2,6 +2,7 @@ package io.mytherion.project.security
 
 import io.mytherion.auth.service.CurrentUserProvider
 import io.mytherion.platform.logging.logger
+import io.mytherion.project.exception.ProjectNotFoundException
 import io.mytherion.project.repository.ProjectRepository
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -35,9 +36,9 @@ class ProjectAccessInterceptor(
                 val projectExists = projectRepository.existsByIdAndOwnerAndDeletedAtIsNull(projectId, currentUser)
                 
                 if (!projectExists) {
-                    logger.warn("Access denied to project {} for user {}", projectId, currentUser.email)
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied to project")
-                    return false
+                    logger.warn("Project {} not found for user {}", projectId, currentUser.id)
+                    // Throw, not sendError: sendError bypasses GlobalExceptionHandler.
+                    throw ProjectNotFoundException(projectId)
                 }
             }
         }

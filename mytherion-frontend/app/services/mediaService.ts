@@ -5,8 +5,12 @@ import logger from '../utils/logger';
 
 const mediaLogger = logger.child({ service: 'mediaService' });
 
+const MAX_SIZE_MB = 5;
+
+/** Client-side pre-check only; MAX_SIZE_MB mirrors the backend default (CI-checked). */
 export const MEDIA_CONSTRAINTS = {
-  MAX_SIZE_BYTES: 5 * 1024 * 1024, // 5MB
+  MAX_SIZE_BYTES: MAX_SIZE_MB * 1024 * 1024,
+  MAX_SIZE_LABEL: `${MAX_SIZE_MB}MB`,
   ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
 };
 
@@ -27,7 +31,7 @@ export const mediaService = {
       return { valid: false, error: 'Invalid file type. Allowed: JPEG, PNG, GIF, WebP' };
     }
     if (file.size > MEDIA_CONSTRAINTS.MAX_SIZE_BYTES) {
-      return { valid: false, error: 'File size exceeds 5MB limit' };
+      return { valid: false, error: `File size exceeds ${MEDIA_CONSTRAINTS.MAX_SIZE_LABEL} limit` };
     }
     return { valid: true };
   },

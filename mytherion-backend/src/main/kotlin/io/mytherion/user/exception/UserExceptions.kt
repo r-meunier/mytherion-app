@@ -1,13 +1,23 @@
 package io.mytherion.user.exception
 
 import io.mytherion.common.exception.ApiException
+import io.mytherion.common.web.ErrorCode
+import io.mytherion.common.web.ErrorMessages
 import java.util.UUID
 import org.springframework.http.HttpStatus
 
 /** Exception thrown when a user is not found */
-class UserNotFoundException(id: UUID) :
-    ApiException(HttpStatus.NOT_FOUND, "Not Found", "User with id $id not found")
+class UserNotFoundException(val userId: UUID? = null) :
+    ApiException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND, "User not found")
 
-/** Exception thrown when a user tries to access another user's resources */
-class UserAccessDeniedException(id: UUID) :
-    ApiException(HttpStatus.FORBIDDEN, "Forbidden", "Access denied for id $id user")
+/** Exception thrown when a user changes another account, or a role without being admin */
+class UserAccessDeniedException(val userId: UUID) :
+    ApiException(HttpStatus.FORBIDDEN, ErrorCode.ACCESS_DENIED, ErrorMessages.ACCESS_DENIED)
+
+/** Exception thrown when the requested role does not exist */
+class InvalidRoleException(roleName: String) :
+    ApiException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_ROLE, "Invalid role: $roleName")
+
+/** Exception thrown when the requested username already belongs to another account */
+class UsernameAlreadyInUseException :
+    ApiException(HttpStatus.CONFLICT, ErrorCode.USERNAME_ALREADY_IN_USE, "Username already in use")

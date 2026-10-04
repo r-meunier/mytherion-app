@@ -38,10 +38,10 @@ class CodexEntryService(
 
     private fun getCurrentUser(): User = currentUserProvider.getCurrentUser()
 
-    /** Verify that the current user owns the project that contains this entry */
+    /** Verify that the current user owns the project that contains this entry; 404 like a missing one. */
     private fun verifyEntryAccess(entry: CodexEntry, currentUser: User) {
         if (entry.project.owner.id != currentUser.id) {
-            throw EntryAccessDeniedException(requireNotNull(entry.id) { "CodexEntry ID is missing" })
+            throw EntryNotFoundException(requireNotNull(entry.id) { "CodexEntry ID is missing" })
         }
     }
 

@@ -13,7 +13,6 @@ import io.mytherion.fixtures.ProjectTestFixtures
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.user.model.User
-import java.util.Optional
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -71,7 +70,7 @@ class ProjectServiceCharacterisationTest {
     @Test
     fun `deleteProject should throw ProjectHasEntriesException when project has entries`() {
         // Given - this locks down the cross-module CodexEntryRepository access guard
-        every { projectRepository.findById(UUID.fromString("00000000-0000-0000-0000-000000000001")) } returns Optional.of(testProject)
+        every { projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(UUID.fromString("00000000-0000-0000-0000-000000000001"), testUser) } returns testProject
         every { entryQueryService.countByProject(testProject) } returns 3L
 
         // When & Then

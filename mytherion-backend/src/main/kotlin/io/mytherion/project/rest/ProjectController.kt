@@ -7,7 +7,10 @@ import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
 import io.mytherion.project.dto.UpdateProjectRequest
 import io.mytherion.project.service.ProjectService
+import io.mytherion.common.web.MAX_PAGE_SIZE
 import jakarta.validation.Valid
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -20,8 +23,8 @@ class ProjectController(private val projectService: ProjectService) {
 
     @GetMapping
     fun listProjects(
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "20") size: Int,
+        @RequestParam(defaultValue = "0") @Min(0) page: Int,
+        @RequestParam(defaultValue = "20") @Min(1) @Max(MAX_PAGE_SIZE) size: Int,
         @RequestParam(required = false) search: String?,
         @RequestParam(required = false) genre: String?,
         @RequestParam(defaultValue = "createdAt") sortBy: String,

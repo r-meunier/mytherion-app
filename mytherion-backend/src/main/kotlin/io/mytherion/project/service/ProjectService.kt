@@ -11,9 +11,8 @@ import io.mytherion.platform.monitoring.MetricsService
 import io.mytherion.project.dto.CreateProjectRequest
 import io.mytherion.project.dto.ProjectResponse
 import io.mytherion.project.dto.UpdateProjectRequest
-import io.mytherion.project.exception.ProjectAccessDeniedException
-import io.mytherion.project.exception.ProjectHasEntriesException
 import io.mytherion.project.exception.ProjectNotFoundException
+import io.mytherion.project.exception.ProjectHasEntriesException
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
 import io.mytherion.user.model.User
@@ -36,31 +35,20 @@ class ProjectService(
 
     private fun getCurrentUser(): User = currentUserProvider.getCurrentUser()
 
-    /** Verify that the current user owns the given project */
-    private fun verifyOwnership(project: Project, currentUser: User) {
-        if (project.owner.id != currentUser.id) {
-            logger.warnWith(
-                "Access denied to project",
-                "projectId" to project.id,
-                "ownerId" to project.owner.id,
-                "requestingUserId" to currentUser.id
-            )
-            throw ProjectAccessDeniedException(project.id!!)
+    /** The user's live project. Missing, deleted and someone else's all get the same 404. */
+    private fun ownedProject(projectId: UUID, user: User): Project =
+        projectRepository.findByIdAndOwnerAndDeletedAtIsNullWithOwner(projectId, user) ?: run {
+            logger.warnWith("Project not found for user", "projectId" to projectId, "requestingUserId" to user.id)
+            throw ProjectNotFoundException(projectId)
         }
-    }
 
     /**
      * Fetch a project and verify that the given user owns it. Used by other services (e.g.
      * CodexEntryService) to validate project access without directly querying ProjectRepository.
      */
     fun getVerifiedProject(projectId: UUID, userId: UUID): Project {
-        val project =
-            projectRepository.findByIdAndDeletedAtIsNull(projectId)
-                ?: throw ProjectNotFoundException(projectId)
-        if (project.owner.id != userId) {
-            throw ProjectAccessDeniedException(requireNotNull(project.id) { "Project ID is missing" })
-        }
-        return project
+        return projectRepository.findByIdAndDeletedAtIsNull(projectId)?.takeIf { it.owner.id == userId }
+            ?: throw ProjectNotFoundException(projectId)
     }
 
     @Transactional(readOnly = true)
@@ -120,12 +108,7 @@ class ProjectService(
         val user = getCurrentUser()
         logger.debugWith("Fetching project", "projectId" to projectId, "userId" to user.id)
 
-        val project =
-            projectRepository.findByIdWithOwner(projectId) ?: run {
-                logger.warnWith("Project not found", "projectId" to projectId)
-                throw ProjectNotFoundException(projectId)
-            }
-        verifyOwnership(project, user)
+        val project = ownedProject(projectId, user)
 
         val count = entryQueryService.countByProject(project)
         logger.infoWith("Project fetched", "projectId" to projectId, "name" to project.name, "entryCount" to count)
@@ -181,8 +164,7 @@ class ProjectService(
                     )
         )
 
-        val project = projectRepository.findById(projectId).orElseThrow { ProjectNotFoundException(projectId) }
-        verifyOwnership(project, user)
+        val project = ownedProject(projectId, user)
 
         // Update only provided fields
         request.name?.let { project.name = it }
@@ -201,8 +183,7 @@ class ProjectService(
         val user = getCurrentUser()
         logger.debugWith("Fetching project stats", "projectId" to projectId, "userId" to user.id)
 
-        val project = projectRepository.findById(projectId).orElseThrow { ProjectNotFoundException(projectId) }
-        verifyOwnership(project, user)
+        val project = ownedProject(projectId, user)
 
         val startTime = System.currentTimeMillis()
 
@@ -230,8 +211,7 @@ class ProjectService(
         val user = getCurrentUser()
         logger.infoWith("Deleting project", "projectId" to projectId, "userId" to user.id)
 
-        val project = projectRepository.findById(projectId).orElseThrow { ProjectNotFoundException(projectId) }
-        verifyOwnership(project, user)
+        val project = ownedProject(projectId, user)
 
         // Check if project has entries before deleting
         val count = entryQueryService.countByProject(project)

@@ -146,10 +146,8 @@ class ProjectService {
         val user = getCurrentUser()
 
         val project = logger.measureTime("Fetch project by ID") {
-            projectRepository.findById(id).orElseThrow { ProjectNotFoundException(id) }
+            ownedProject(id, user) // 404 if missing, deleted or someone else's
         }
-
-        verifyOwnership(project, user)
 
         return logger.measureTime("Calculate project stats") {
             val entryCount = logger.measureTime("Count entries") {

@@ -2,7 +2,10 @@ package io.mytherion.user.service
 
 import io.mytherion.user.dto.UpdateUserRequest
 import io.mytherion.user.dto.UserResponse
+import io.mytherion.user.exception.InvalidRoleException
+import io.mytherion.user.exception.UserAccessDeniedException
 import io.mytherion.user.exception.UserNotFoundException
+import io.mytherion.user.exception.UsernameAlreadyInUseException
 import io.mytherion.user.repository.UserRepository
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -23,19 +26,19 @@ class UserService(private val userRepository: UserRepository) {
 
     @Transactional
     fun updateUser(userId: UUID, currentUserId: UUID, isAdmin: Boolean, request: UpdateUserRequest): UserResponse {
+        // Before the lookup, so a non-admin cannot tell a missing user (404) from another's (403).
+        if (userId != currentUserId && !isAdmin) {
+            throw UserAccessDeniedException(userId)
+        }
+
         val user = userRepository.findByIdAndDeletedAtIsNull(userId)
             ?: throw UserNotFoundException(userId)
-
-        // Authorization: users can only update their own profile unless they are an admin
-        if (userId != currentUserId && !isAdmin) {
-            throw IllegalArgumentException("You can only update your own profile")
-        }
 
         // Update username if provided and validate uniqueness
         request.username?.let { newUsername ->
             if (newUsername != user.username) {
                 if (userRepository.existsByUsernameAndDeletedAtIsNull(newUsername)) {
-                    throw IllegalArgumentException("Username '$newUsername' is already taken")
+                    throw UsernameAlreadyInUseException()
                 }
                 user.username = newUsername
             }
@@ -47,10 +50,10 @@ class UserService(private val userRepository: UserRepository) {
                 try {
                     user.role = io.mytherion.user.model.UserRole.valueOf(roleName.uppercase())
                 } catch (e: Exception) {
-                    throw IllegalArgumentException("Invalid role: $roleName")
+                    throw InvalidRoleException(roleName)
                 }
             } else {
-                throw IllegalArgumentException("Only administrators can change roles")
+                throw UserAccessDeniedException(userId)
             }
         }
 
@@ -59,13 +62,13 @@ class UserService(private val userRepository: UserRepository) {
 
     @Transactional
     fun deleteUser(userId: UUID, currentUserId: UUID, isAdmin: Boolean) {
+        // Before the lookup, as in updateUser.
+        if (userId != currentUserId && !isAdmin) {
+            throw UserAccessDeniedException(userId)
+        }
+
         val user = userRepository.findByIdAndDeletedAtIsNull(userId)
             ?: throw UserNotFoundException(userId)
-
-        // Authorization: users can only delete their own account unless they are an admin
-        if (userId != currentUserId && !isAdmin) {
-            throw IllegalArgumentException("You can only delete your own account")
-        }
 
         // Soft delete: mark as deleted instead of removing from database
         user.markDeleted()

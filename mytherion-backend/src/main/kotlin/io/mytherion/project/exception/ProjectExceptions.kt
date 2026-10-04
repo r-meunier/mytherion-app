@@ -1,13 +1,13 @@
 package io.mytherion.project.exception
 
 import io.mytherion.common.exception.ApiException
+import io.mytherion.common.web.ErrorCode
 import java.util.UUID
 import org.springframework.http.HttpStatus
 
-/** Exception thrown when a project is not found */
-class ProjectNotFoundException(id: UUID) :
-    ApiException(HttpStatus.NOT_FOUND, "Not Found", "Project with id $id not found")
-
-/** Exception thrown when a user tries to access or modify a project they don't own */
-class ProjectAccessDeniedException(id: UUID) :
-    ApiException(HttpStatus.FORBIDDEN, "Forbidden", "Access denied to project with id $id")
+/**
+ * Exception thrown when a project is missing, deleted or someone else's: one 404 for all three,
+ * so project ids cannot be probed. The id is for logs only.
+ */
+class ProjectNotFoundException(val projectId: UUID) :
+    ApiException(HttpStatus.NOT_FOUND, ErrorCode.PROJECT_NOT_FOUND, "Project not found")

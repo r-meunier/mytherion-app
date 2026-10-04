@@ -1,6 +1,9 @@
 package io.mytherion.config
 
 import io.mytherion.auth.jwt.JwtAuthFilter
+import io.mytherion.auth.security.RestAccessDeniedHandler
+import io.mytherion.auth.security.RestAuthenticationEntryPoint
+import jakarta.servlet.DispatcherType
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -19,6 +22,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 @EnableMethodSecurity
 class SecurityConfig(
     private val jwtAuthFilter: JwtAuthFilter,
+    private val restAuthenticationEntryPoint: RestAuthenticationEntryPoint,
+    private val restAccessDeniedHandler: RestAccessDeniedHandler,
     @org.springframework.beans.factory.annotation.Value("\${app.security.allowed-origins}")
     private val allowedOriginsString: String
 ) {
@@ -36,8 +41,14 @@ class SecurityConfig(
             .cors { it.configurationSource(corsConfigurationSource()) }
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .exceptionHandling {
+                it.authenticationEntryPoint(restAuthenticationEntryPoint)
+                it.accessDeniedHandler(restAccessDeniedHandler)
+            }
             .authorizeHttpRequests {
-                it.requestMatchers("/api/health")
+                // Error dispatches render the original failure; without this they all became 401.
+                it.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                    .requestMatchers("/api/health")
                     .permitAll()
                     .requestMatchers(
                         "/api/auth/register",
