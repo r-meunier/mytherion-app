@@ -68,6 +68,8 @@ services:
     build:
       context: ./mytherion-frontend
       dockerfile: Dockerfile
+      args:
+        NODE_VERSION: "24.21.0" # must match mytherion-frontend/.nvmrc
     container_name: mytherion_frontend
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8080

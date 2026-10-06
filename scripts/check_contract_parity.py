@@ -256,6 +256,45 @@ else:
           f"no .approved.json found under {approval_dir.relative_to(ROOT)}")
 
 # ────────────────────────────────────────────────────────────────
+#  Toolchain contract: one exact Node version everywhere, sourced from .nvmrc
+# ────────────────────────────────────────────────────────────────
+#  Local (nvm/fnm) and CI (setup-node node-version-file) read .nvmrc directly.
+#  Docker cannot read it in a FROM line, so docker-compose.yml carries a copy.
+
+FE_ROOT = ROOT / "mytherion-frontend"
+nvmrc = read(FE_ROOT / ".nvmrc").strip()
+node_version = extract(r"^v?(\d+\.\d+\.\d+)$", nvmrc, ".nvmrc exact Node version (x.y.z)", re.M)
+node_major = node_version.split(".")[0]
+
+compose_node = extract(r"NODE_VERSION:\s*\"?([\d.]+)", read(ROOT / "docker-compose.yml"),
+                       "NODE_VERSION build arg in docker-compose.yml")
+check(f"docker-compose NODE_VERSION matches .nvmrc ({compose_node} / {node_version})",
+      bool(node_version) and compose_node == node_version,
+      "update the frontend build arg in docker-compose.yml to the .nvmrc version")
+
+dockerfile = read(FE_ROOT / "Dockerfile")
+pinned = sorted(set(re.findall(r"FROM\s+node:(\d+)", dockerfile)))
+check("Dockerfile takes its Node version from the NODE_VERSION build arg",
+      not pinned and "node:${NODE_VERSION}" in dockerfile,
+      f"hardcoded node image tags: {pinned}")
+
+package_json = read(FE_ROOT / "package.json")
+engines_node = extract(r'"engines"\s*:\s*\{[^}]*"node"\s*:\s*"([\d.]+)', package_json,
+                       "engines.node in package.json")
+# @types/node is published per major, not per patch, so only the major is compared.
+types_node = extract(r'"@types/node"\s*:\s*"[\^~]?(\d+)', package_json,
+                     "@types/node in package.json")
+check(f"package.json engines.node matches .nvmrc ({engines_node} / {node_version})",
+      bool(node_version) and engines_node == node_version)
+check(f"@types/node major matches .nvmrc ({types_node} / {node_major})",
+      bool(node_major) and types_node == node_major,
+      "types for a newer Node let code use APIs the runtime does not have")
+
+ci_yml = read(ROOT / ".github" / "workflows" / "ci.yml")
+check("CI reads the Node version from .nvmrc instead of hardcoding it",
+      "node-version-file:" in ci_yml and not re.search(r"node-version:\s*['\"]?\d", ci_yml))
+
+# ────────────────────────────────────────────────────────────────
 
 print()
 if failures:
