@@ -233,10 +233,10 @@ mytherion-frontend/
 │   └── globals.css           # Global styles and design system
 ├── public/                   # Static assets
 ├── .env.local                # Environment variables (create this)
-├── jest.config.ts            # Jest configuration
+├── jest.config.mjs           # Jest configuration
 ├── jest.setup.ts             # Jest setup
 ├── next.config.ts            # Next.js configuration
-├── tailwind.config.ts        # Tailwind CSS configuration
+├── postcss.config.mjs        # Tailwind v4 via PostCSS (theme lives in CSS @theme)
 └── package.json
 ```
 

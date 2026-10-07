@@ -4,11 +4,6 @@ import '@testing-library/jest-dom';
 import ProjectForm from './ProjectForm';
 import { Project } from '@/app/services/projectService';
 
-// Mock FontAwesome icons
-jest.mock('@fortawesome/react-fontawesome', () => ({
-  FontAwesomeIcon: ({ icon }: { icon: any }) => <span data-testid="icon">{icon.iconName}</span>,
-}));
-
 describe('ProjectForm', () => {
   const mockOnSubmit = jest.fn();
   const mockOnCancel = jest.fn();

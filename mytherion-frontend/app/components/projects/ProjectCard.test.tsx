@@ -15,11 +15,6 @@ jest.mock('next/link', () => {
 // Mock useIsMounted hook
 jest.mock('@/app/hooks/useIsMounted');
 
-// Mock FontAwesome icons
-jest.mock('@fortawesome/react-fontawesome', () => ({
-  FontAwesomeIcon: ({ icon }: { icon: any }) => <span data-testid="icon">{icon.iconName}</span>,
-}));
-
 describe('ProjectCard', () => {
   const mockProject: Project = {
     id: "1",

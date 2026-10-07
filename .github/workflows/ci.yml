@@ -79,7 +79,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: './mytherion-frontend/.nvmrc'
           cache: 'npm'
           cache-dependency-path: './mytherion-frontend/package-lock.json'
           

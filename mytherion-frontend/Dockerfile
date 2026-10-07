@@ -1,5 +1,9 @@
+# Node major comes from docker-compose.yml, which must match .nvmrc
+# (scripts/check_contract_parity.py enforces this in CI).
+ARG NODE_VERSION
+
 # Install dependencies only when needed
-FROM node:22-alpine AS deps
+FROM node:${NODE_VERSION}-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
@@ -8,7 +12,7 @@ COPY package.json package-lock.json* ./
 RUN npm ci
 
 # Rebuild the source code only when needed
-FROM node:22-alpine AS builder
+FROM node:${NODE_VERSION}-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -21,7 +25,7 @@ COPY . .
 RUN npm run build
 
 # Production image, copy all the files and run next
-FROM node:22-alpine AS runner
+FROM node:${NODE_VERSION}-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
