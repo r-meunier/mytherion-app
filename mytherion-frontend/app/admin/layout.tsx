@@ -5,13 +5,6 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
 import routes from "../config/routes";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
-  faChartLine, 
-  faUsers, 
-  faShieldHalved, 
-  faArrowLeft 
-} from "@fortawesome/free-solid-svg-icons";
 
 export default function AdminLayout({
   children,
@@ -50,7 +43,7 @@ export default function AdminLayout({
         <div className="p-6">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center border border-amber-500/30">
-              <FontAwesomeIcon icon={faShieldHalved} className="text-amber-400 text-xl" />
+              <span className="material-symbols-outlined text-amber-400 text-xl">shield</span>
             </div>
             <div>
               <h2 className="text-h3 !text-lg tracking-tight">Admin Portal</h2>
@@ -63,14 +56,14 @@ export default function AdminLayout({
               href={routes.admin.root()}
               className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all group"
             >
-              <FontAwesomeIcon icon={faChartLine} className="group-hover:text-primary" />
+              <span className="material-symbols-outlined text-xl group-hover:text-primary">monitoring</span>
               <span className="font-medium">Overview</span>
             </Link>
             <Link
               href={routes.admin.users()}
               className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all group"
             >
-              <FontAwesomeIcon icon={faUsers} className="group-hover:text-primary" />
+              <span className="material-symbols-outlined text-xl group-hover:text-primary">group</span>
               <span className="font-medium">User Management</span>
             </Link>
           </nav>
@@ -81,7 +74,7 @@ export default function AdminLayout({
             href={routes.home()}
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:text-slate-300 transition-all"
           >
-            <FontAwesomeIcon icon={faArrowLeft} />
+            <span className="material-symbols-outlined text-lg">arrow_back</span>
             <span className="text-sm font-medium">Exit to Dashboard</span>
           </Link>
         </div>

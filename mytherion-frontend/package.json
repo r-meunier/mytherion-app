@@ -3,7 +3,7 @@
   "version": "0.1.25",
   "private": true,
   "engines": {
-    "node": "24.21.0"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "next dev",
@@ -15,9 +15,6 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^7.3.1",
-    "@fortawesome/free-solid-svg-icons": "^7.3.1",
-    "@fortawesome/react-fontawesome": "^3.5.0",
     "@reduxjs/toolkit": "^2.13.0",
     "axios": "^1.20.0",
     "next": "^16.3.8",
@@ -26,7 +23,6 @@
     "react-redux": "^9.3.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
@@ -36,12 +32,11 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "eslint": "^10",
-    "eslint-config-next": "^16.3.8",
+    "eslint-config-next": "^16.4.0",
     "jest": "^30.5.2",
     "jest-environment-jsdom": "^30.5.2",
     "postcss": "^8.5.29",
     "tailwindcss": "^4.3.3",
-    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

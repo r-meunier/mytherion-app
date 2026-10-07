@@ -279,13 +279,14 @@ check("Dockerfile takes its Node version from the NODE_VERSION build arg",
       f"hardcoded node image tags: {pinned}")
 
 package_json = read(FE_ROOT / "package.json")
-engines_node = extract(r'"engines"\s*:\s*\{[^}]*"node"\s*:\s*"([\d.]+)', package_json,
+# engines may allow the whole major (e.g. "24.x") so any 24 works locally, while
+# .nvmrc, Docker and CI pin the exact version. @types/node is published per major.
+engines_node = extract(r'"engines"\s*:\s*\{[^}]*"node"\s*:\s*"[\^~]?(\d+)', package_json,
                        "engines.node in package.json")
-# @types/node is published per major, not per patch, so only the major is compared.
 types_node = extract(r'"@types/node"\s*:\s*"[\^~]?(\d+)', package_json,
                      "@types/node in package.json")
-check(f"package.json engines.node matches .nvmrc ({engines_node} / {node_version})",
-      bool(node_version) and engines_node == node_version)
+check(f"package.json engines.node major matches .nvmrc ({engines_node} / {node_major})",
+      bool(node_major) and engines_node == node_major)
 check(f"@types/node major matches .nvmrc ({types_node} / {node_major})",
       bool(node_major) and types_node == node_major,
       "types for a newer Node let code use APIs the runtime does not have")

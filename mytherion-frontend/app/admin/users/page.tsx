@@ -3,16 +3,6 @@
 import { useState, useEffect } from "react";
 import { userService } from "../../services/userService";
 import { User } from "../../types/auth";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
-  faUserShield, 
-  faUser, 
-  faTrash, 
-  faCheckCircle, 
-  faTimesCircle, 
-  faSearch,
-  faEllipsisVertical
-} from "@fortawesome/free-solid-svg-icons";
 import { useIsMounted } from "../../hooks/useIsMounted";
 
 export default function UserManagementPage() {
@@ -79,7 +69,7 @@ export default function UserManagementPage() {
         </div>
         
         <div className="relative w-full md:w-80">
-          <FontAwesomeIcon icon={faSearch} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+          <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xl">search</span>
           <input 
             type="text" 
             placeholder="Search by name or email..."
@@ -92,7 +82,7 @@ export default function UserManagementPage() {
 
       {error && (
         <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm flex items-center gap-3">
-          <FontAwesomeIcon icon={faTimesCircle} />
+          <span className="material-symbols-outlined text-lg">cancel</span>
           {error}
           <button onClick={fetchUsers} className="ml-auto underline text-micro-badge">Retry</button>
         </div>
@@ -140,12 +130,12 @@ export default function UserManagementPage() {
                     <td className="px-6 py-5">
                       {user.emailVerified ? (
                         <div className="flex items-center gap-2 text-emerald-400 text-micro-badge">
-                          <FontAwesomeIcon icon={faCheckCircle} className="text-xs" />
+                          <span className="material-symbols-outlined text-sm">check_circle</span>
                           Verified
                         </div>
                       ) : (
                         <div className="flex items-center gap-2 text-slate-500 text-micro-badge">
-                          <FontAwesomeIcon icon={faTimesCircle} className="text-xs" />
+                          <span className="material-symbols-outlined text-sm">cancel</span>
                           Pending
                         </div>
                       )}
@@ -171,14 +161,14 @@ export default function UserManagementPage() {
                           title={user.role === 'ADMIN' ? "Demote to User" : "Promote to Admin"}
                           className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 hover:bg-amber-500/20 text-slate-400 hover:text-amber-400 transition-all"
                         >
-                          <FontAwesomeIcon icon={user.role === 'ADMIN' ? faUser : faUserShield} />
+                          <span className="material-symbols-outlined text-lg">{user.role === 'ADMIN' ? 'person' : 'admin_panel_settings'}</span>
                         </button>
                         <button 
                           onClick={() => handleDeleteUser(user.id)}
                           title="Banish Chronicler"
                           className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-all"
                         >
-                          <FontAwesomeIcon icon={faTrash} />
+                          <span className="material-symbols-outlined text-lg">delete</span>
                         </button>
                       </div>
                     </td>

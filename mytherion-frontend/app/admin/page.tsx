@@ -1,19 +1,11 @@
 "use client";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
-  faUsers, 
-  faBook, 
-  faDatabase, 
-  faCircleCheck 
-} from "@fortawesome/free-solid-svg-icons";
-
 export default function AdminDashboard() {
   const stats = [
-    { label: "Total Users", value: "1,248", icon: faUsers, color: "text-blue-400", bg: "bg-blue-400/10" },
-    { label: "Active Chronicles", value: "8,542", icon: faBook, color: "text-purple-400", bg: "bg-purple-400/10" },
-    { label: "Storage Used", value: "42.5 GB", icon: faDatabase, color: "text-amber-400", bg: "bg-amber-400/10" },
-    { label: "System Health", value: "99.9%", icon: faCircleCheck, color: "text-emerald-400", bg: "bg-emerald-400/10" },
+    { label: "Total Users", value: "1,248", icon: "group", color: "text-blue-400", bg: "bg-blue-400/10" },
+    { label: "Active Chronicles", value: "8,542", icon: "menu_book", color: "text-purple-400", bg: "bg-purple-400/10" },
+    { label: "Storage Used", value: "42.5 GB", icon: "database", color: "text-amber-400", bg: "bg-amber-400/10" },
+    { label: "System Health", value: "99.9%", icon: "check_circle", color: "text-emerald-400", bg: "bg-emerald-400/10" },
   ];
 
   return (
@@ -35,7 +27,7 @@ export default function AdminDashboard() {
           <div key={i} className="glass-card p-6 rounded-2xl border border-white/5 hover:border-white/10 transition-all hover:translate-y-[-2px]">
             <div className="flex items-center justify-between mb-4">
               <div className={`w-12 h-12 ${stat.bg} rounded-xl flex items-center justify-center border border-white/5`}>
-                <FontAwesomeIcon icon={stat.icon} className={`${stat.color} text-xl`} />
+                <span className={`material-symbols-outlined ${stat.color} text-xl`}>{stat.icon}</span>
               </div>
             </div>
             <p className="text-card-title">{stat.label}</p>
