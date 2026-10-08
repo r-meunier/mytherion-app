@@ -23,7 +23,11 @@ rule about which one wins where, plus two half-finished renames that left fossil
 | The feature module | `codex` | "Codex" | The whole feature-set, not a record |
 | A record inside it | `CodexEntry` / `entry` / `entries` | "Entry" | See *Why "Entry"* below |
 | What kind of entry | `EntryType` | "Type" | System-defined enum |
-| A data block on an entry | `EntrySection` / `SectionType` | "Section" | Was `EntityComponent` |
+| A label/value pair on an entry | `EntryDetail` / `details` | "Detail" | Author-controlled; replaced `EntrySection` / `SectionType` in MYT-86 |
+| Other names for an entry | `aliases` | "Aliases" | Plain list of names |
+| Starting set of details | `EntryTemplate` / `TemplateLevel` | "Template" (Blank / Basic / Full) | Read-only data per `EntryType` |
+| Help text on a detail | `hint` | "Hint" | Copied from the template onto the entry |
+| What a detail is for | `ContextRole` / `role` | "Context role" | Used by the AI Context Pack to pick details for a scene |
 | The container | `Project` / `project` | "Project" | **Never "World"** |
 | Entry picture | `thumbnail` | "Thumbnail" | One per entry, MVP |
 | Free-form labels | `tags` | "Tags" | The only user-defined grouping |
@@ -36,7 +40,9 @@ rule about which one wins where, plus two half-finished renames that left fossil
 | Word | Why | Use instead |
 |---|---|---|
 | `Entity` | Collides with JPA `@Entity`; every persisted class is an entity | `CodexEntry` |
-| `Component` | Collides with React's core noun | `EntrySection` |
+| `Component` | Collides with React's core noun | `EntryDetail` |
+| `Section` *for entry data* | Retired in MYT-86; entries have details, not sections | `EntryDetail` |
+| `Field` *for entry data* | Collides with form fields and JPA fields | `EntryDetail` |
 | `World` | Implies a worldbuilding-only product; blocks the writing-app direction | `Project` |
 | `Element` | Collides with DOM `Element` / `HTMLElement` / `ReactElement` | `CodexEntry` |
 | `Record` | Collides with TypeScript's built-in `Record<K,V>` | `CodexEntry` |
@@ -54,6 +60,9 @@ stack, and `Item` is already an `EntryType` value.
 ---
 
 ## Rename map
+
+The MYT-81 rename, kept as a record. The section names in it (`EntrySection`, `SectionType`,
+`SectionDispatcher`, …) were later retired by MYT-86.
 
 ### Backend
 
@@ -112,33 +121,24 @@ entry-shaped, and is exactly what the future multi-image system will reuse. The 
 
 ---
 
-## `EntryType` vs `SectionType`
+## Entry content: details, not sections
 
-These were the sharpest source of confusion: six identical value names meaning different things.
+Since MYT-86 an entry's `content` holds a flat list of author-controlled details instead of the 19
+hardcoded `SectionType`s. See [codex-entry-model.md](./codex-entry-model.md).
 
 ```
-EntryType.LOCATION            "this entry IS a location"
-SectionType.LOCATION_DETAILS  "this entry HAS location data attached"
+EntryType.LOCATION                  "this entry IS a location"          (fixed enum, 7 values)
+EntryDetail { label, value, ... }   "this entry HAS this piece of data"  (author-controlled)
 ```
 
 `EntryType` values are unchanged (7): `CHARACTER`, `ORGANIZATION`, `CULTURE`, `SPECIES`,
 `LOCATION`, `ITEM`, `CUSTOM`.
 
-`SectionType` values (19), in three groups:
+- `TemplateLevel`: `BLANK`, `BASIC`, `FULL`.
+- `ContextRole`: `IDENTITY`, `APPEARANCE`, `VOICE`, `MOTIVATION`, `BACKSTORY`, `SENSORY`,
+  `CURRENT_STATE`.
 
-- **Generic**, usable on any entry:
-  `BIO`, `APPEARANCE`, `PSYCHOLOGY`, `SOCIAL`, `HISTORY`, `ORIGINS`, `PERSPECTIVES`, and
-  `CUSTOM` → `CUSTOM_FIELDS` (renamed: `CUSTOM` was the last name shared with `EntryType`)
-- **Type-specific detail blocks** — suffixed to break the collision:
-  `CULTURE` → `CULTURE_DETAILS`, `LOCATION` → `LOCATION_DETAILS`,
-  `ORGANIZATION` → `ORGANIZATION_DETAILS`, `SPECIES` → `SPECIES_DETAILS`,
-  `ITEM` → `ITEM_DETAILS`
-- **Relation blocks** — unchanged except one normalisation:
-  `CHARACTER_RELATIONS`, `CULTURE_RELATIONS`, `LOCATION_RELATIONS`, `SPECIES_RELATIONS`,
-  `ITEM_RELATIONS`, and `ORG_RELATIONS` → `ORGANIZATION_RELATIONS`
-
-`SectionType` values are `@JsonSubTypes` discriminators persisted inside the `jsonb` column, so
-renaming them changes stored data. This is done now, pre-release, while the fix is free.
+The pre-MYT-86 section model is preserved at the git tag `archive/hardcoded-sections`.
 
 ---
 
