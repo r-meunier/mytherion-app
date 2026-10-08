@@ -9,9 +9,7 @@ import { entryTypeConfig } from '@/app/components/codex/EntryTypeSelector';
 import DualSidebar from '@/app/components/DualSidebar';
 import AppHeader from '@/app/components/AppHeader';
 import Link from 'next/link';
-import DetailsEditor from '@/app/components/codex/details/DetailsEditor';
-import { normalizeContent } from '@/app/utils/entryContent';
-import { mediaService } from '@/app/services/mediaService';
+import EntrySidebar from '@/app/components/codex/EntrySidebar';
 import routes from '@/app/config/routes';
 
 export default function EntryDetailPage() {
@@ -25,11 +23,6 @@ export default function EntryDetailPage() {
   const { currentProject } = useAppSelector((state) => state.projects);
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     dispatch(fetchEntry({ projectId, id: entryId }));
@@ -89,7 +82,6 @@ export default function EntryDetailPage() {
   }
 
   const typeConfig = entryTypeConfig[currentEntry.type];
-  const content = normalizeContent(currentEntry.content);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
@@ -120,31 +112,23 @@ export default function EntryDetailPage() {
                 <span className="material-symbols-outlined text-base mr-1.5 group-hover:-translate-x-1 transition-transform">
                   arrow_back
                 </span>
-                Back to CodexCodex
+                Back to Codex
               </Link>
             </div>
 
-            {/* Header Section */}
-            <div className="glass-panel rounded-2xl p-6 md:p-8 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -mr-32 -mt-32 pointer-events-none" />
-              <div className="relative z-10">
-                {/* Optional Hero Image Banner */}
-                {currentEntry.thumbnail && (
-                  <div className="relative w-full h-64 md:h-80 mb-6 rounded-xl overflow-hidden bg-black/40 border border-white/10 shadow-2xl">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={mediaService.getThumbnailUrl(currentEntry.thumbnail) || ''}
-                      alt={currentEntry.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0b0710]/90 via-transparent to-transparent pointer-events-none" />
-                  </div>
-                )}
+            {/* Two columns (docs/codex-entry-model.md): sidebar left, main right. On narrow
+                screens the main column comes first so the name is at the top. */}
+            <div className="grid grid-cols-1 lg:grid-cols-[18rem_minmax(0,1fr)] gap-8 items-start">
+              <div className="order-2 lg:order-1">
+                <EntrySidebar entry={currentEntry} />
+              </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
-                  <div className="flex items-start gap-4">
-                    <span className="text-4xl mt-1">{typeConfig.icon}</span>
-                    <div>
+              <div className="order-1 lg:order-2 space-y-8 min-w-0">
+                {/* Header: name, type, aliases, tags */}
+                <div className="glass-panel rounded-2xl p-6 md:p-8 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -mr-32 -mt-32 pointer-events-none" />
+                  <div className="relative z-10 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                    <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-3 mb-2">
                         <h1 className="font-display-lg text-2xl sm:text-3xl font-bold text-white text-glow tracking-tight">
                           {currentEntry.name}
@@ -154,80 +138,65 @@ export default function EntryDetailPage() {
                         </span>
                       </div>
                       {currentEntry.aliases && currentEntry.aliases.length > 0 && (
-                        <p className="text-white/50 text-xs mb-2">
+                        <p className="text-white/50 text-xs">
                           Also known as: {currentEntry.aliases.join(' · ')}
                         </p>
                       )}
-                      {currentEntry.description && (
-                        <p className="text-white/60 text-sm max-w-2xl leading-relaxed">{currentEntry.description}</p>
+                      {currentEntry.tags && currentEntry.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          {currentEntry.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-2.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-bold border border-primary/20 uppercase tracking-wider"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
                       )}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={handleEdit}
-                      className="px-4 py-2 bg-primary text-[#2c0051] font-bold rounded-full hover:bg-primary/90 transition-all flex items-center gap-1.5 text-xs shadow-lg shadow-primary/20 active:scale-95 cursor-pointer"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">edit</span>
-                      <span>Edit</span>
-                    </button>
-                    <button
-                      onClick={() => setShowDeleteConfirm(true)}
-                      className="px-4 py-2 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 rounded-full transition-all flex items-center gap-1.5 text-xs font-semibold active:scale-95 cursor-pointer"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">delete</span>
-                      <span>Delete</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Tags */}
-                {currentEntry.tags && currentEntry.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-white/5">
-                    {currentEntry.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-bold border border-primary/20 uppercase tracking-wider"
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={handleEdit}
+                        className="px-4 py-2 bg-primary text-[#2c0051] font-bold rounded-full hover:bg-primary/90 transition-all flex items-center gap-1.5 text-xs shadow-lg shadow-primary/20 active:scale-95 cursor-pointer"
                       >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Left Column - Main Lore */}
-              <div className="lg:col-span-2 space-y-8">
-                {/* Details (moves into a left sidebar in MYT-87) */}
-                <div className="space-y-4">
-                  <h2 className="text-xs font-bold text-white/60 uppercase tracking-[0.2em] flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span>Details</span>
-                  </h2>
-                  <div className="glass-panel rounded-2xl p-5">
-                    <DetailsEditor details={content.details} readOnly />
+                        <span className="material-symbols-outlined text-[16px]">edit</span>
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={() => setShowDeleteConfirm(true)}
+                        className="px-4 py-2 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 rounded-full transition-all flex items-center gap-1.5 text-xs font-semibold active:scale-95 cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">delete</span>
+                        <span>Delete</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                {/* Description Section */}
-                {currentEntry.description && (
-                  <div className="glass-panel rounded-2xl p-6">
-                    <h2 className="text-xs font-bold text-white/60 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      <span>Description</span>
-                    </h2>
-                    <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">
-                      {currentEntry.description}
-                    </p>
+                {/* Tabs. Overview is the only one for now; Relations and others come later. */}
+                <div>
+                  <div role="tablist" aria-label="Entry sections" className="flex gap-6 border-b border-white/10 mb-6">
+                    <button
+                      role="tab"
+                      id="tab-overview"
+                      aria-selected="true"
+                      aria-controls="panel-overview"
+                      className="pb-3 -mb-px border-b-2 border-primary text-white text-sm font-semibold"
+                    >
+                      Overview
+                    </button>
                   </div>
-                )}
-              </div>
+                  <div role="tabpanel" id="panel-overview" aria-labelledby="tab-overview" className="glass-panel rounded-2xl p-6">
+                    {currentEntry.description ? (
+                      <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{currentEntry.description}</p>
+                    ) : (
+                      <p className="text-white/40 text-sm italic">No description yet.</p>
+                    )}
+                  </div>
+                </div>
 
-              {/* Right Column - Meta & Notes */}
-              <div className="space-y-8">
-                {/* Private Notes Section */}
+                {/* Private notes stay here until MYT-87 decides where they live */}
                 {currentEntry.notes && (
                   <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-6 relative overflow-hidden backdrop-blur-xl">
                     <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
@@ -242,28 +211,6 @@ export default function EntryDetailPage() {
                     </p>
                   </div>
                 )}
-
-                {/* Details Section */}
-                <div className="glass-panel rounded-2xl p-6">
-                  <h2 className="text-xs font-bold text-white/60 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span>Metadata</span>
-                  </h2>
-                  <div className="grid grid-cols-1 gap-3">
-                    <div className="p-3.5 bg-white/5 rounded-xl border border-white/5">
-                      <span className="text-white/40 text-xs font-semibold uppercase tracking-wider">Created</span>
-                      <p className="text-white font-medium text-sm mt-0.5">
-                        {mounted ? new Date(currentEntry.createdAt).toLocaleString() : '...'}
-                      </p>
-                    </div>
-                    <div className="p-3.5 bg-white/5 rounded-xl border border-white/5">
-                      <span className="text-white/40 text-xs font-semibold uppercase tracking-wider">Last Updated</span>
-                      <p className="text-white font-medium text-sm mt-0.5">
-                        {mounted ? new Date(currentEntry.updatedAt).toLocaleString() : '...'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
