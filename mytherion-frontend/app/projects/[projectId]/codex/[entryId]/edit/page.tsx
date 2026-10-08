@@ -19,20 +19,22 @@ export default function EditEntryPage() {
   const { currentEntry, loading, error } = useAppSelector((state) => state.entries);
   const { user } = useAppSelector((state) => state.auth);
 
+  // Fetch once per entry. currentEntry must not be a dependency: the cleanup clears it, so listing
+  // it re-ran this effect after every fetch and refetched forever.
   useEffect(() => {
     if (!user) {
       router.push('/login');
       return;
     }
+    dispatch(fetchEntry({ projectId, id: entryId }));
+  }, [dispatch, entryId, projectId, user, router]);
 
-    if (!currentEntry || currentEntry.id !== entryId) {
-      dispatch(fetchEntry({ projectId, id: entryId }));
-    }
-
+  // Clear the entry only when leaving the page.
+  useEffect(() => {
     return () => {
       dispatch(clearCurrentEntry());
     };
-  }, [dispatch, entryId, projectId, currentEntry, user, router]);
+  }, [dispatch]);
 
   const handleSubmit = async (data: CreateEntryRequest | UpdateEntryRequest) => {
     const result = await dispatch(updateEntry({ projectId, id: entryId, data: data as UpdateEntryRequest }));
