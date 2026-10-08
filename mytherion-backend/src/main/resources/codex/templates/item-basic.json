@@ -1,0 +1,28 @@
+{
+  "id": "item-basic",
+  "entryType": "ITEM",
+  "level": "BASIC",
+  "name": "Basic",
+  "description": "A handful of key details to get you started.",
+  "details": [
+    {
+      "label": "Kind",
+      "hint": "Weapon, relic, tool, keepsake…",
+      "role": "IDENTITY"
+    },
+    {
+      "label": "Origin",
+      "hint": "Who made it, and why?",
+      "role": "BACKSTORY"
+    },
+    {
+      "label": "Properties",
+      "hint": "What does it do? What does it cost to use?",
+      "role": "IDENTITY"
+    },
+    {
+      "label": "Current owner",
+      "role": "CURRENT_STATE"
+    }
+  ]
+}

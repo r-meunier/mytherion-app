@@ -36,6 +36,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     // Jackson 3.x for application use
     implementation("tools.jackson.module:jackson-module-kotlin")
+    // Hibernate still maps jsonb columns with Jackson 2 and registers the Jackson 2 modules it finds.
+    // Without this, it cannot construct Kotlin classes whose properties have no defaults (EntryDetail).
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.springframework.boot:spring-boot-starter-mail")
 
     // MinIO for object storage

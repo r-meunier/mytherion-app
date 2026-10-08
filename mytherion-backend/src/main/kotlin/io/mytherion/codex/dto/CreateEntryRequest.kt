@@ -17,6 +17,7 @@ data class CreateEntryRequest(
     val description: String? = null,
     val notes: String? = null,
     val tags: List<String>? = null,
+    val aliases: List<String>? = null,
     val thumbnail: String? = null,
     val content: EntryContent? = null
 )

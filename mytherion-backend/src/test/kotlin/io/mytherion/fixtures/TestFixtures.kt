@@ -2,9 +2,10 @@ package io.mytherion.fixtures
 
 import io.mytherion.config.seed.TestUsers
 import io.mytherion.codex.model.CodexEntry
+import io.mytherion.codex.model.ContextRole
 import io.mytherion.codex.model.EntryContent
+import io.mytherion.codex.model.EntryDetail
 import io.mytherion.codex.model.EntryType
-import io.mytherion.codex.model.sections.*
 import io.mytherion.codex.repository.CodexEntryRepository
 import io.mytherion.project.model.Project
 import io.mytherion.project.repository.ProjectRepository
@@ -12,6 +13,7 @@ import io.mytherion.user.model.User
 import io.mytherion.user.model.UserRole
 import io.mytherion.user.repository.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
+import java.util.UUID
 
 /**
  * Test data factory for integration and E2E tests.
@@ -145,12 +147,9 @@ class TestFixtures(
         project: Project,
         name: String = "Test Character",
         tags: List<String> = listOf("test"),
-        sections: List<EntrySection> = listOf(
-            BioSection(data = BioData(
-                status = "Alive",
-                age = Quantity(value = 30.0, unit = "years"),
-                gender = "Unknown"
-            ))
+        details: List<EntryDetail> = listOf(
+            EntryDetail(id = UUID.randomUUID(), label = "Story role", value = "Protagonist", role = ContextRole.IDENTITY),
+            EntryDetail(id = UUID.randomUUID(), label = "Age", value = "30")
         )
     ): CodexEntry {
         val repo = requireNotNull(entryRepository) {
@@ -162,7 +161,7 @@ class TestFixtures(
                 type = EntryType.CHARACTER,
                 name = name,
                 tags = tags.toTypedArray(),
-                content = EntryContent(sections.toMutableList())
+                content = EntryContent(templateId = "character-basic", details = details.toMutableList())
             )
         )
     }
@@ -199,7 +198,7 @@ class TestFixtures(
         name: String,
         description: String? = null,
         tags: List<String> = emptyList(),
-        sections: List<EntrySection> = emptyList()
+        details: List<EntryDetail> = emptyList()
     ): CodexEntry {
         val repo = requireNotNull(entryRepository) {
             "CodexEntryRepository was not provided to TestFixtures"
@@ -211,7 +210,7 @@ class TestFixtures(
                 name = name,
                 description = description,
                 tags = tags.toTypedArray(),
-                content = if (sections.isNotEmpty()) EntryContent(sections.toMutableList()) else null
+                content = if (details.isNotEmpty()) EntryContent(details = details.toMutableList()) else null
             )
         )
     }

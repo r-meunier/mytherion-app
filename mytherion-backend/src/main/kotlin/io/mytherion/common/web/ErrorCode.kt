@@ -40,6 +40,7 @@ enum class ErrorCode {
     ENTRY_NOT_FOUND,            // 404 no such entry
     THUMBNAIL_NOT_FOUND,        // 404 entry has no image
     INVALID_FILE,               // 400 upload is empty or not an accepted image type
+    INVALID_ENTRY_CONTENT,      // 400 entry details break a content rule (empty label, too many, …)
     CONCURRENT_MODIFICATION,    // 409 stale `version`; reload and retry
 
     // Server

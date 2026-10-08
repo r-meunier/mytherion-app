@@ -1,0 +1,28 @@
+{
+  "id": "location-basic",
+  "entryType": "LOCATION",
+  "level": "BASIC",
+  "name": "Basic",
+  "description": "A handful of key details to get you started.",
+  "details": [
+    {
+      "label": "Region",
+      "hint": "Where is it, and what lies around it?",
+      "role": "IDENTITY"
+    },
+    {
+      "label": "Climate",
+      "role": "SENSORY"
+    },
+    {
+      "label": "Atmosphere",
+      "hint": "What does it look, sound and smell like?",
+      "role": "SENSORY"
+    },
+    {
+      "label": "Notable features",
+      "hint": "What would a visitor remember?",
+      "role": "APPEARANCE"
+    }
+  ]
+}

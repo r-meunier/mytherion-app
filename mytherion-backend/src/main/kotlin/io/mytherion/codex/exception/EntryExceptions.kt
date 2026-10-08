@@ -17,6 +17,10 @@ class ThumbnailNotFoundException(val entryId: UUID) :
 class InvalidFileException(message: String) :
     ApiException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_FILE, message)
 
+/** Exception thrown when an entry's details break a content rule (see EntryContentRules) */
+class InvalidEntryContentException(message: String) :
+    ApiException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_ENTRY_CONTENT, message)
+
 /**
  * Exception thrown when an entry's image deletion fails.
  *
