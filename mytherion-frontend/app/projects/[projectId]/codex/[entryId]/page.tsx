@@ -9,9 +9,8 @@ import { entryTypeConfig } from '@/app/components/codex/EntryTypeSelector';
 import DualSidebar from '@/app/components/DualSidebar';
 import AppHeader from '@/app/components/AppHeader';
 import Link from 'next/link';
-import EntrySectionsEditor from '@/app/components/codex/sections/EntrySectionsEditor';
-import SectionDispatcher from '@/app/components/codex/sections/SectionDispatcher';
-import { EntryContent } from '@/app/types/codex';
+import DetailsEditor from '@/app/components/codex/details/DetailsEditor';
+import { normalizeContent } from '@/app/utils/entryContent';
 import { mediaService } from '@/app/services/mediaService';
 import routes from '@/app/config/routes';
 
@@ -54,20 +53,6 @@ export default function EntryDetailPage() {
     router.push(routes.project(projectId).codex.index());
   };
 
-  // Helper to normalize content (handles legacy strings or nulls)
-  const normalizeMetadata = (meta: any): EntryContent => {
-    if (!meta) return { sections: [] };
-    if (typeof meta === 'string') {
-      try {
-        const parsed = JSON.parse(meta);
-        if (parsed && Array.isArray(parsed.sections)) return parsed;
-      } catch (e) { /* ignore parse error */ }
-      return { sections: [] };
-    }
-    if (meta && typeof meta === 'object' && Array.isArray(meta.sections)) return meta;
-    return { sections: [] };
-  };
-
   if (loading || !currentEntry || !currentProject) {
     return (
       <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
@@ -104,7 +89,7 @@ export default function EntryDetailPage() {
   }
 
   const typeConfig = entryTypeConfig[currentEntry.type];
-  const content = normalizeMetadata(currentEntry.content);
+  const content = normalizeContent(currentEntry.content);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
@@ -168,6 +153,11 @@ export default function EntryDetailPage() {
                           {typeConfig.label}
                         </span>
                       </div>
+                      {currentEntry.aliases && currentEntry.aliases.length > 0 && (
+                        <p className="text-white/50 text-xs mb-2">
+                          Also known as: {currentEntry.aliases.join(' · ')}
+                        </p>
+                      )}
                       {currentEntry.description && (
                         <p className="text-white/60 text-sm max-w-2xl leading-relaxed">{currentEntry.description}</p>
                       )}
@@ -210,18 +200,14 @@ export default function EntryDetailPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Left Column - Main Lore */}
               <div className="lg:col-span-2 space-y-8">
-                {/* Semantic Components Section - Tabbed */}
+                {/* Details (moves into a left sidebar in MYT-87) */}
                 <div className="space-y-4">
                   <h2 className="text-xs font-bold text-white/60 uppercase tracking-[0.2em] flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span>Lore & Characteristics</span>
+                    <span>Details</span>
                   </h2>
                   <div className="glass-panel rounded-2xl p-5">
-                    <EntrySectionsEditor 
-                      entryType={currentEntry.type}
-                      content={content}
-                      readOnly={true}
-                    />
+                    <DetailsEditor details={content.details} readOnly />
                   </div>
                 </div>
 

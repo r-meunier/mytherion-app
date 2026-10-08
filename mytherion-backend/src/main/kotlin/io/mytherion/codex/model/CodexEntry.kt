@@ -1,18 +1,11 @@
 package io.mytherion.codex.model
 
-import io.mytherion.codex.model.sections.EntrySection
 import io.mytherion.project.model.Project
 import jakarta.persistence.*
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.type.SqlTypes
 import io.mytherion.common.model.AbstractAuditableEntity
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-
-/** Root object for entry content stored in JSONB. */
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class EntryContent(val sections: MutableList<EntrySection> = mutableListOf())
 
 @Entity
 @Table(name = "codex_entries")
@@ -41,10 +34,14 @@ class CodexEntry(
   @Column(columnDefinition = "text[]")
   var tags: Array<String>? = null,
 
+  // Other names for the entry; a list like tags, so names can later be detected in prose
+  @Column(columnDefinition = "text[]")
+  var aliases: Array<String>? = null,
+
   @Column(name = "thumbnail", columnDefinition = "text")
   var thumbnail: String? = null,
 
-  // JSONB in DB for type-specific content (ECS-lite)
+  // JSONB in DB: template provenance and author-controlled details (see EntryContent)
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb")
   var content: EntryContent? = null,

@@ -64,47 +64,35 @@ def extract(pattern: str, text: str, what: str, flags: int = re.S) -> str:
 
 
 # ────────────────────────────────────────────────────────────────
-#  Enum parity: SectionType and EntryType
+#  Enum parity: the codex enums both sides switch on
 # ────────────────────────────────────────────────────────────────
 
-section_kt = read(BE / "codex" / "model" / "sections" / "EntrySection.kt")
 codex_ts = read(FE / "types" / "codex.ts")
 
-be_sections = sorted(set(re.findall(r'name = "([A-Z_]+)"', section_kt)))
-fe_sections = sorted(set(re.findall(r"([A-Z_]+)\s*=\s*'", extract(
-    r"enum SectionType \{(.*?)\n\}", codex_ts, "SectionType enum in types/codex.ts"))))
 
-check(
-    f"SectionType in sync ({len(be_sections)} backend / {len(fe_sections)} frontend)",
-    bool(be_sections) and be_sections == fe_sections,
-    f"only backend: {sorted(set(be_sections) - set(fe_sections))}  "
-    f"only frontend: {sorted(set(fe_sections) - set(be_sections))}",
-)
+def kotlin_enum(name: str, path: Path) -> list[str]:
+    body = extract(rf"enum class {name} \{{(.*?)\}}", read(path), f"enum class {name} in {path.name}")
+    return sorted(t.strip().rstrip(",") for t in body.split() if t.strip().rstrip(","))
 
-be_entry_types = sorted(
-    t.strip().rstrip(",")
-    for t in extract(r"enum class EntryType \{(.*?)\}",
-                     read(BE / "codex" / "model" / "CodexEntry.kt"),
-                     "EntryType enum in CodexEntry.kt").split()
-    if t.strip().rstrip(",")
-)
-fe_entry_types = sorted(set(re.findall(r"([A-Z_]+)\s*=\s*'", extract(
-    r"enum EntryType \{(.*?)\n\}", codex_ts, "EntryType enum in types/codex.ts"))))
 
-check(
-    f"EntryType in sync ({len(be_entry_types)} backend / {len(fe_entry_types)} frontend)",
-    bool(be_entry_types) and be_entry_types == fe_entry_types,
-    f"only backend: {sorted(set(be_entry_types) - set(fe_entry_types))}  "
-    f"only frontend: {sorted(set(fe_entry_types) - set(be_entry_types))}",
-)
+def ts_enum(name: str) -> list[str]:
+    body = extract(rf"enum {name} \{{(.*?)\n\}}", codex_ts, f"{name} enum in types/codex.ts")
+    return sorted(set(re.findall(r"([A-Z_]+)\s*=\s*'", body)))
 
-overlap = sorted(set(fe_entry_types) & set(fe_sections))
-check(
-    "EntryType and SectionType share no value names",
-    not overlap,
-    f"shared: {overlap} -- EntryType.X means 'is an X', SectionType.X means 'has X data'. "
-    f"Suffix the section variant (e.g. X_DETAILS).",
-)
+
+for enum_name, kotlin_file in [
+    ("EntryType", BE / "codex" / "model" / "CodexEntry.kt"),
+    ("ContextRole", BE / "codex" / "model" / "EntryContent.kt"),
+    ("TemplateLevel", BE / "codex" / "model" / "EntryTemplate.kt"),
+]:
+    be_values = kotlin_enum(enum_name, kotlin_file)
+    fe_values = ts_enum(enum_name)
+    check(
+        f"{enum_name} in sync ({len(be_values)} backend / {len(fe_values)} frontend)",
+        bool(be_values) and be_values == fe_values,
+        f"only backend: {sorted(set(be_values) - set(fe_values))}  "
+        f"only frontend: {sorted(set(fe_values) - set(be_values))}",
+    )
 
 # ────────────────────────────────────────────────────────────────
 #  HTTP contract: the routes each side believes in
@@ -136,6 +124,15 @@ check(
     and "/image`" not in api_routes,
     f"backend sub-mappings {be_sub}; "
     f"frontend thumbnail={'/thumbnail`' in api_routes} image={'/image`' in api_routes}",
+)
+
+template_controller = read(BE / "codex" / "rest" / "EntryTemplateController.kt")
+be_templates = extract(r'@RequestMapping\("([^"]+)"\)', template_controller,
+                       "@RequestMapping on EntryTemplateController", flags=0)
+check(
+    "entry templates path agreed on both sides",
+    be_templates == "/api/codex/templates" and f"'{be_templates}'" in api_routes,
+    f"backend {be_templates!r}; frontend apiRoutes.codex.templates must be the same literal",
 )
 
 # ────────────────────────────────────────────────────────────────

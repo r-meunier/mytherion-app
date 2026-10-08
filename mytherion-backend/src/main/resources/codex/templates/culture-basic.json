@@ -1,0 +1,24 @@
+{
+  "id": "culture-basic",
+  "entryType": "CULTURE",
+  "level": "BASIC",
+  "name": "Basic",
+  "description": "A handful of key details to get you started.",
+  "details": [
+    {
+      "label": "Values",
+      "hint": "What do they prize above all? What is shameful?",
+      "role": "MOTIVATION"
+    },
+    {
+      "label": "Customs",
+      "hint": "Rituals, greetings, taboos.",
+      "role": "IDENTITY"
+    },
+    {
+      "label": "Language",
+      "hint": "How does it sound? Common phrases or idioms.",
+      "role": "VOICE"
+    }
+  ]
+}

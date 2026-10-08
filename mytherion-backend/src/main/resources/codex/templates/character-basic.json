@@ -1,0 +1,43 @@
+{
+  "id": "character-basic",
+  "entryType": "CHARACTER",
+  "level": "BASIC",
+  "name": "Basic",
+  "description": "A handful of key details to get you started.",
+  "details": [
+    {
+      "label": "Story role",
+      "hint": "Protagonist, antagonist, mentor, foil…",
+      "role": "IDENTITY"
+    },
+    {
+      "label": "Pronouns",
+      "role": "IDENTITY"
+    },
+    {
+      "label": "Occupation",
+      "hint": "What do they do, and what do others think they do?",
+      "role": "IDENTITY"
+    },
+    {
+      "label": "Background",
+      "hint": "Where do they come from? What shaped them?",
+      "role": "BACKSTORY"
+    },
+    {
+      "label": "Physical appearance",
+      "hint": "What would someone notice first?",
+      "role": "APPEARANCE"
+    },
+    {
+      "label": "Personality",
+      "hint": "How do they act when things go well, and when they don't?",
+      "role": "IDENTITY"
+    },
+    {
+      "label": "Voice",
+      "hint": "How do they talk? Rhythm, vocabulary, verbal tics.",
+      "role": "VOICE"
+    }
+  ]
+}

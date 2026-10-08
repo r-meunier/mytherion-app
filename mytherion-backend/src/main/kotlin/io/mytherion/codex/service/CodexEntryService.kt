@@ -97,8 +97,9 @@ class CodexEntryService(
                     description = request.description,
                     notes = request.notes,
                     tags = request.tags?.toTypedArray(),
+                    aliases = request.aliases?.toTypedArray(),
                     thumbnail = request.thumbnail,
-                    content = request.content
+                    content = request.content?.also(EntryContentRules::validate)
                 )
 
             val saved = entryRepository.save(entry)
@@ -140,6 +141,7 @@ class CodexEntryService(
                         request.description?.let { "description" },
                         request.notes?.let { "notes" },
                         request.tags?.let { "tags" },
+                        request.aliases?.let { "aliases" },
                         request.content?.let { "content" }
                     )
         )
@@ -157,8 +159,9 @@ class CodexEntryService(
         request.description?.let { entry.description = it }
         request.notes?.let { entry.notes = it }
         request.tags?.let { entry.tags = it.toTypedArray() }
+        request.aliases?.let { entry.aliases = it.toTypedArray() }
         request.thumbnail?.let { entry.thumbnail = it }
-        request.content?.let { entry.content = it }
+        request.content?.let { entry.content = it.also(EntryContentRules::validate) }
 
         val saved = entryRepository.save(entry)
         logger.infoWith("CodexEntry updated successfully", "projectId" to projectId, "entryId" to id)

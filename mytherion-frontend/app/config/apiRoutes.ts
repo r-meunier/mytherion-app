@@ -29,6 +29,9 @@ export const apiRoutes = {
     detail: (projectId: string, entryId: string) => `/api/projects/${projectId}/entries/${entryId}`,
     thumbnail: (projectId: string, entryId: string) => `/api/projects/${projectId}/entries/${entryId}/thumbnail`,
   },
+  codex: {
+    templates: '/api/codex/templates',
+  },
   dashboard: {
     stats: '/api/dashboard/stats',
     projectStats: (projectId: string) => `/api/projects/${projectId}/dashboard/stats`,

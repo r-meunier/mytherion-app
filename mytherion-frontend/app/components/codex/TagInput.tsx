@@ -7,13 +7,16 @@ interface TagInputProps {
   onChange: (tags: string[]) => void;
   placeholder?: string;
   maxLength?: number;
+  /** Singular/plural noun for messages, so the same input serves tags and aliases. */
+  itemLabel?: { singular: string; plural: string };
 }
 
-export default function TagInput({ 
-  tags, 
-  onChange, 
-  placeholder = 'Add tags...', 
-  maxLength = 30 
+export default function TagInput({
+  tags,
+  onChange,
+  placeholder = 'Add tags...',
+  maxLength = 30,
+  itemLabel = { singular: 'Tag', plural: 'tags' }
 }: TagInputProps) {
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState('');
@@ -33,12 +36,12 @@ export default function TagInput({
 
     // Validation
     if (tag.length > maxLength) {
-      setError(`Tag must be ${maxLength} characters or less`);
+      setError(`${itemLabel.singular} must be ${maxLength} characters or less`);
       return;
     }
 
     if (tags.includes(tag)) {
-      setError('Tag already exists');
+      setError(`${itemLabel.singular} already exists`);
       return;
     }
 
@@ -91,7 +94,7 @@ export default function TagInput({
         />
       </div>
       {error && <p className="text-sm text-red-400">{error}</p>}
-      <p className="text-xs text-gray-400">Press Enter to add tags</p>
+      <p className="text-xs text-gray-400">Press Enter to add {itemLabel.plural}</p>
     </div>
   );
 }

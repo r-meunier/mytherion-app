@@ -8,6 +8,7 @@ This directory contains all architectural plans, implementation strategies, and 
 | :--- | :--- | :--- |
 | [terminology.md](./terminology.md) | **Canonical vocabulary.** One concept, one code name; banned words and the rename map | 📌 Source of Truth |
 | [product-vision-and-roadmap.md](./product-vision-and-roadmap.md) | Product vision: Codex, context-scoped AI writing, author-owned data; roadmap & planned features | 📌 Active Reference |
+| [codex-entry-model.md](./codex-entry-model.md) | Entry details, aliases and Blank/Basic/Full templates replacing the hardcoded SectionTypes (MYT-85) | 📌 Agreed baseline |
 | [navigation-overhaul-plan.md](./navigation-overhaul-plan.md) | Project-centric navigation: URL hierarchy, security, sidebar modes, phased rollout | 🔄 In Progress |
 | [component-architecture-plan.md](./component-architecture-plan.md) | Entry section coupling: shared type registry, workflow for adding new sections, meta-driven UI | ✅ Mostly Done |
 | [css-architecture-plan.md](./css-architecture-plan.md) | CSS tree: `base.css` → `auth.css` / `projects.css` / `app-core.css` modular structure | 🔄 In Progress |

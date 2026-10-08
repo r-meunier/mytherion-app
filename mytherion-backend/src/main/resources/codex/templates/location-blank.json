@@ -1,0 +1,8 @@
+{
+  "id": "location-blank",
+  "entryType": "LOCATION",
+  "level": "BLANK",
+  "name": "Blank",
+  "description": "Start empty and add only the details you want.",
+  "details": []
+}

@@ -1,0 +1,27 @@
+{
+  "id": "species-basic",
+  "entryType": "SPECIES",
+  "level": "BASIC",
+  "name": "Basic",
+  "description": "A handful of key details to get you started.",
+  "details": [
+    {
+      "label": "Appearance",
+      "role": "APPEARANCE"
+    },
+    {
+      "label": "Lifespan",
+      "role": "IDENTITY"
+    },
+    {
+      "label": "Habitat",
+      "hint": "Where do they live, and how does it shape them?",
+      "role": "SENSORY"
+    },
+    {
+      "label": "Abilities",
+      "hint": "What can they do that others can't?",
+      "role": "IDENTITY"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "id": "custom-blank",
+  "entryType": "CUSTOM",
+  "level": "BLANK",
+  "name": "Blank",
+  "description": "Start empty and add only the details you want.",
+  "details": []
+}

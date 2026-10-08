@@ -38,7 +38,10 @@ class CodexEntryRepositoryImpl : CodexEntryRepositoryCustom {
         }
 
         if (!search.isNullOrBlank()) {
-            whereClauses.add("(e.name ILIKE :search OR e.description ILIKE :search OR e.notes ILIKE :search)")
+            whereClauses.add(
+                "(e.name ILIKE :search OR e.description ILIKE :search OR e.notes ILIKE :search" +
+                    " OR EXISTS (SELECT 1 FROM unnest(e.aliases) AS alias WHERE alias ILIKE :search))"
+            )
             parameters["search"] = "%${search}%"
         }
 

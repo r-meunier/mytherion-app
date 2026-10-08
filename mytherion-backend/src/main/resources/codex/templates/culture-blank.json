@@ -1,0 +1,8 @@
+{
+  "id": "culture-blank",
+  "entryType": "CULTURE",
+  "level": "BLANK",
+  "name": "Blank",
+  "description": "Start empty and add only the details you want.",
+  "details": []
+}

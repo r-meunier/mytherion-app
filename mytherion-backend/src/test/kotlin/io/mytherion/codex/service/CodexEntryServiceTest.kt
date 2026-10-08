@@ -3,13 +3,17 @@ package io.mytherion.codex.service
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import io.mytherion.auth.service.CurrentUserProvider
 import io.mytherion.codex.dto.CreateEntryRequest
 import io.mytherion.codex.dto.UpdateEntryRequest
 import io.mytherion.codex.exception.EntryNotFoundException
+import io.mytherion.codex.exception.InvalidEntryContentException
 import io.mytherion.codex.exception.ThumbnailNotFoundException
 import io.mytherion.codex.model.CodexEntry
+import io.mytherion.codex.model.EntryContent
+import io.mytherion.codex.model.EntryDetail
 import io.mytherion.codex.model.EntryType
 import io.mytherion.codex.repository.CodexEntryRepository
 import io.mytherion.platform.monitoring.MetricsService
@@ -137,6 +141,47 @@ class CodexEntryServiceTest {
         assertNotNull(result)
         assertEquals(testEntry.id, result.id)
         verify { entryRepository.save(any()) }
+    }
+
+    @Test
+    fun `createEntry stores aliases and details`() {
+        val detail = EntryDetail(id = UUID.randomUUID(), label = "Voice", value = "Clipped, dry humour")
+        val request = CreateEntryRequest(
+            type = EntryType.CHARACTER,
+            name = "Mira Vell",
+            aliases = listOf("The Cartographer"),
+            content = EntryContent(templateId = "character-basic", details = mutableListOf(detail))
+        )
+        val saved = slot<CodexEntry>()
+        every { entryRepository.save(capture(saved)) } returns testEntry
+
+        entryService.createEntry(projectId, request)
+
+        assertEquals(listOf("The Cartographer"), saved.captured.aliases?.toList())
+        assertEquals(listOf(detail), saved.captured.content?.details)
+    }
+
+    @Test
+    fun `createEntry rejects invalid content before saving`() {
+        val request = CreateEntryRequest(
+            type = EntryType.CHARACTER,
+            name = "Mira Vell",
+            content = EntryContent(details = mutableListOf(EntryDetail(id = UUID.randomUUID(), label = " ")))
+        )
+
+        assertThrows<InvalidEntryContentException> { entryService.createEntry(projectId, request) }
+        verify(exactly = 0) { entryRepository.save(any()) }
+    }
+
+    @Test
+    fun `updateEntry rejects invalid content before saving`() {
+        every { entryRepository.findById(entryId) } returns Optional.of(testEntry)
+        val request = UpdateEntryRequest(
+            content = EntryContent(details = mutableListOf(EntryDetail(id = UUID.randomUUID(), label = "")))
+        )
+
+        assertThrows<InvalidEntryContentException> { entryService.updateEntry(projectId, entryId, request) }
+        verify(exactly = 0) { entryRepository.save(any()) }
     }
 
     @Test

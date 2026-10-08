@@ -48,6 +48,7 @@ class CodexEntryRepositoryImplTest {
             description = "Grey wizard",
             type = EntryType.CHARACTER,
             tags = arrayOf("magic", "istari"),
+            aliases = arrayOf("Mithrandir", "The Grey Pilgrim"),
         )
 
         val e2 = CodexEntry(
@@ -98,6 +99,14 @@ class CodexEntryRepositoryImplTest {
     fun `searchEntries should filter by search term`() {
         val pageable = PageRequest.of(0, 10)
         val result = entryRepository.searchEntries(projectId, null, null, "wizard", pageable)
+        assertEquals(1, result.totalElements)
+        assertEquals("Gandalf", result.content[0].name)
+    }
+
+    @Test
+    fun `searchEntries should match an alias`() {
+        val pageable = PageRequest.of(0, 10)
+        val result = entryRepository.searchEntries(projectId, null, null, "mithrandir", pageable)
         assertEquals(1, result.totalElements)
         assertEquals("Gandalf", result.content[0].name)
     }

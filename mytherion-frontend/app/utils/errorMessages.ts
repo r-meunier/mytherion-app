@@ -17,6 +17,7 @@ const CODE_MAPPINGS: Partial<Record<ErrorCode, (err: ApiErrorResponse) => string
   THUMBNAIL_NOT_FOUND: () => 'The requested image was not found.',
   FILE_TOO_LARGE: (err) => err.message || 'The file exceeds the maximum allowed upload size.',
   INVALID_FILE: (err) => err.message || 'The uploaded file is empty or not an accepted image format.',
+  INVALID_ENTRY_CONTENT: (err) => err.message || 'One of the details is invalid. Check the labels and try again.',
   CONCURRENT_MODIFICATION: () => 'This was changed elsewhere. Please reload and try again.',
   INTERNAL_ERROR: () => 'Something went wrong on our end. Please try again later.',
   SERVICE_UNAVAILABLE: () => 'The service is temporarily unavailable. Please try again in a few moments.',

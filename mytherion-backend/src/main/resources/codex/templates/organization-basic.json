@@ -1,0 +1,27 @@
+{
+  "id": "organization-basic",
+  "entryType": "ORGANIZATION",
+  "level": "BASIC",
+  "name": "Basic",
+  "description": "A handful of key details to get you started.",
+  "details": [
+    {
+      "label": "Purpose",
+      "hint": "What does it want, and what does it claim to want?",
+      "role": "MOTIVATION"
+    },
+    {
+      "label": "Leadership",
+      "hint": "Who decides, and how?",
+      "role": "IDENTITY"
+    },
+    {
+      "label": "Size",
+      "role": "IDENTITY"
+    },
+    {
+      "label": "Base of operations",
+      "role": "IDENTITY"
+    }
+  ]
+}

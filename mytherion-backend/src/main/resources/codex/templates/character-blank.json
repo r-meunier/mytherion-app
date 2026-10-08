@@ -1,0 +1,8 @@
+{
+  "id": "character-blank",
+  "entryType": "CHARACTER",
+  "level": "BLANK",
+  "name": "Blank",
+  "description": "Start empty and add only the details you want.",
+  "details": []
+}

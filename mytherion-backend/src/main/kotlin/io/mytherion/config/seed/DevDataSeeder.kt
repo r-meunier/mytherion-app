@@ -1,9 +1,10 @@
 package io.mytherion.config.seed
 
 import io.mytherion.codex.model.CodexEntry
+import io.mytherion.codex.model.ContextRole
 import io.mytherion.codex.model.EntryContent
+import io.mytherion.codex.model.EntryDetail
 import io.mytherion.codex.model.EntryType
-import io.mytherion.codex.model.sections.*
 import io.mytherion.codex.repository.CodexEntryRepository
 import io.mytherion.platform.logging.infoWith
 import io.mytherion.platform.logging.logger
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 /**
  * Seeds the database with test users, demo projects, and sample entries
@@ -143,7 +145,8 @@ class DevDataSeeder(
         name: String,
         description: String? = null,
         tags: List<String> = emptyList(),
-        sections: List<EntrySection> = emptyList()
+        aliases: List<String> = emptyList(),
+        details: List<EntryDetail> = emptyList()
     ): CodexEntry {
         val entry = entryRepository.save(
             CodexEntry(
@@ -152,101 +155,78 @@ class DevDataSeeder(
                 name = name,
                 description = description,
                 tags = tags.toTypedArray(),
-                content = if (sections.isNotEmpty()) EntryContent(sections.toMutableList()) else null
+                aliases = aliases.takeIf { it.isNotEmpty() }?.toTypedArray(),
+                content = EntryContent(
+                    templateId = "${type.name.lowercase()}-basic".takeIf { details.isNotEmpty() },
+                    details = details.toMutableList()
+                )
             )
         )
         logger.infoWith("[SEED] Created entry", "name" to name, "type" to type, "projectId" to project.id)
         return entry
     }
 
+    private fun detail(label: String, value: String, role: ContextRole? = null) =
+        EntryDetail(id = UUID.randomUUID(), label = label, value = value, role = role)
+
     // ════════════════════════════════════════════════════════════════
     //  THE SHATTERED REALMS  (testuser's project)
     // ════════════════════════════════════════════════════════════════
 
     private fun seedShatteredRealmsEntries(project: Project) {
-        // Character: Vaelith Stormweaver
         createEntry(
             project = project,
             type = EntryType.CHARACTER,
             name = "Vaelith Stormweaver",
             description = "Once the youngest Archon of the Luminari Order, Vaelith was exiled after a forbidden experiment shattered the Veil of Echoes. Now wandering the fractured realms, she searches for the Convergence Stones — artifacts rumoured to restore the world's shattered connections.",
             tags = listOf("protagonist", "mage", "exile", "ley-mage"),
-            sections = listOf(
-                BioSection(data = BioData(
-                    status = "Alive",
-                    age = Quantity(value = 34.0, unit = "years"),
-                    gender = "Female",
-                    role = "Arcane Scholar",
-                    condition = "Scarred by ley-energy exposure"
-                )),
-                PsychologySection(data = PsychologyData(
-                    motivations = MotivationData(
-                        externalGoal = "Restore the ley-lines before the last continent falls",
-                        internalNeed = "Prove that her exile was unjust",
-                        justification = "Only she understands the ley-energy well enough to fix it"
-                    ),
-                    positiveTraits = listOf("Determined", "Brilliant", "Curious"),
-                    negativeTraits = listOf("Reckless", "Haunted", "Stubborn"),
-                    mannerisms = "Traces invisible glyphs in the air when thinking"
-                )),
-                AppearanceSection(data = AppearanceData(
-                    physicalFeatures = "Sharp angular features, silver-white hair streaked with violet from ley-exposure",
-                    distinguishingMarks = "Luminous ley-burn scars running up both forearms",
-                    clothingStyle = "Worn traveller's robes over practical leather armour, covered in arcane notation"
-                )),
-                SocialSection(data = SocialData(
-                    occupations = listOf("Wandering Scholar", "Former Archon"),
-                    skills = listOf("Ley-Manipulation", "Ancient Languages", "Cartography"),
-                    affiliations = "Formerly Luminari Order (exiled)"
-                ))
+            aliases = listOf("The Exiled Archon", "Vael"),
+            details = listOf(
+                detail("Story role", "Protagonist", ContextRole.IDENTITY),
+                detail("Pronouns", "she/her", ContextRole.IDENTITY),
+                detail("Occupation", "Wandering scholar, former Archon of the Luminari Order", ContextRole.IDENTITY),
+                detail("Age", "34"),
+                detail("Physical appearance", "Sharp angular features, silver-white hair streaked with violet from ley-exposure. Luminous ley-burn scars run up both forearms.", ContextRole.APPEARANCE),
+                detail("Personality", "Determined, brilliant and curious; also reckless, haunted and stubborn. Traces invisible glyphs in the air when thinking.", ContextRole.IDENTITY),
+                detail("Goal", "Restore the ley-lines before the last continent falls, and prove her exile was unjust.", ContextRole.MOTIVATION)
             )
         )
 
-        // Location: The Luminari Citadel
         createEntry(
             project = project,
             type = EntryType.LOCATION,
             name = "The Luminari Citadel",
             tags = listOf("landmark", "ruins", "luminari", "arcane"),
-            sections = listOf(
-                LocationSection(data = LocationData(
-                    population = Quantity(value = 200.0, unit = "scholars"),
-                    geology = "Floating basalt island anchored by crystallized ley-nodes",
-                    security = "Warded by ancient ley-barriers, though many are failing",
-                    history = "Founded in the First Age as a beacon of arcane study. Partially destroyed during the Shattering."
-                ))
+            details = listOf(
+                detail("Region", "A floating basalt island anchored by crystallized ley-nodes", ContextRole.IDENTITY),
+                detail("Atmosphere", "Humming wards, cold marble halls, the smell of ozone where the ley-barriers fail", ContextRole.SENSORY),
+                detail("Population", "About 200 scholars"),
+                detail("History", "Founded in the First Age as a beacon of arcane study. Partially destroyed during the Shattering.", ContextRole.BACKSTORY)
             )
         )
 
-        // Organization: The Luminari Order
         createEntry(
             project = project,
             type = EntryType.ORGANIZATION,
             name = "The Luminari Order",
             tags = listOf("faction", "mages", "luminari", "order"),
-            sections = listOf(
-                OrganizationSection(data = OrganizationData(
-                    population = Quantity(value = 150.0, unit = "members"),
-                    agenda = "Preserve remaining ley-lines and prevent further continental collapse",
-                    powerStructure = "Council of Archons led by the High Illuminator",
-                    internalCulture = "Deeply scholarly and hierarchical. Knowledge is hoarded, not shared."
-                ))
+            details = listOf(
+                detail("Purpose", "Preserve the remaining ley-lines and prevent further continental collapse", ContextRole.MOTIVATION),
+                detail("Leadership", "Council of Archons led by the High Illuminator", ContextRole.IDENTITY),
+                detail("Size", "About 150 members", ContextRole.IDENTITY),
+                detail("Culture", "Deeply scholarly and hierarchical. Knowledge is hoarded, not shared.")
             )
         )
 
-        // Item: Convergence Stone
         createEntry(
             project = project,
             type = EntryType.ITEM,
             name = "Convergence Stone",
             tags = listOf("artifact", "quest-item", "ancient", "ley-stone"),
-            sections = listOf(
-                ItemSection(data = ItemData(
-                    rarity = "Legendary",
-                    material = "Crystallized ley-energy",
-                    properties = listOf("Ley-Resonance", "Self-Repairing", "Sentient"),
-                    history = "Forged during the First Age by the original Archons. Scattered across the realms during the Shattering."
-                ))
+            details = listOf(
+                detail("Kind", "Legendary artifact of crystallized ley-energy", ContextRole.IDENTITY),
+                detail("Origin", "Forged during the First Age by the original Archons. Scattered across the realms during the Shattering.", ContextRole.BACKSTORY),
+                detail("Properties", "Ley-resonant, self-repairing, possibly sentient", ContextRole.IDENTITY)
             )
         )
     }
@@ -261,21 +241,12 @@ class DevDataSeeder(
             type = EntryType.CHARACTER,
             name = "Commissioner Greaves",
             tags = listOf("antagonist", "authority", "steampunk"),
-            sections = listOf(
-                BioSection(data = BioData(
-                    status = "Alive",
-                    age = Quantity(value = 58.0, unit = "years"),
-                    gender = "Male",
-                    role = "Commissioner of Compliance"
-                )),
-                PsychologySection(data = PsychologyData(
-                    motivations = MotivationData(
-                        externalGoal = "Crush the rebel engineers and maintain imperial order",
-                        internalNeed = "Justify the atrocities he committed during the Cog Wars"
-                    ),
-                    positiveTraits = listOf("Strategic", "Disciplined"),
-                    negativeTraits = listOf("Cruel", "Paranoid", "Obsessive")
-                ))
+            details = listOf(
+                detail("Story role", "Antagonist", ContextRole.IDENTITY),
+                detail("Occupation", "Commissioner of Compliance", ContextRole.IDENTITY),
+                detail("Age", "58"),
+                detail("Personality", "Strategic and disciplined; cruel, paranoid and obsessive.", ContextRole.IDENTITY),
+                detail("Goal", "Crush the rebel engineers and keep imperial order, to justify what he did in the Cog Wars.", ContextRole.MOTIVATION)
             )
         )
 
@@ -284,17 +255,12 @@ class DevDataSeeder(
             type = EntryType.CHARACTER,
             name = "Renna Blackspanner",
             tags = listOf("protagonist", "engineer", "rebel"),
-            sections = listOf(
-                BioSection(data = BioData(
-                    status = "Alive",
-                    age = Quantity(value = 26.0, unit = "years"),
-                    gender = "Female",
-                    role = "Underground Engineer"
-                )),
-                SocialSection(data = SocialData(
-                    occupations = listOf("Mechanic", "Rebel Cell Leader"),
-                    skills = listOf("Clockwork Engineering", "Explosives", "Lock-picking")
-                ))
+            aliases = listOf("Spanner"),
+            details = listOf(
+                detail("Story role", "Protagonist", ContextRole.IDENTITY),
+                detail("Occupation", "Underground engineer and rebel cell leader", ContextRole.IDENTITY),
+                detail("Age", "26"),
+                detail("Skills", "Clockwork engineering, explosives, lock-picking")
             )
         )
 
@@ -303,12 +269,10 @@ class DevDataSeeder(
             type = EntryType.LOCATION,
             name = "Geartown",
             tags = listOf("industrial", "urban", "steampunk"),
-            sections = listOf(
-                LocationSection(data = LocationData(
-                    population = Quantity(value = 450000.0, unit = "citizens"),
-                    economy = "Heavy manufacturing, clockwork assembly, coal processing",
-                    demographics = "Working class, overcrowded tenements, high mortality"
-                ))
+            details = listOf(
+                detail("Atmosphere", "Coal smoke, clanking assembly lines, overcrowded tenements", ContextRole.SENSORY),
+                detail("Population", "About 450,000 citizens, mostly working class"),
+                detail("Economy", "Heavy manufacturing, clockwork assembly, coal processing")
             )
         )
     }
@@ -323,13 +287,11 @@ class DevDataSeeder(
             type = EntryType.CHARACTER,
             name = "Kael Root-Speaker",
             tags = listOf("protagonist", "shaman", "nature"),
-            sections = listOf(
-                BioSection(data = BioData(
-                    status = "Alive",
-                    age = Quantity(value = 19.0, unit = "years"),
-                    gender = "Non-binary",
-                    role = "Root-Speaker (shaman)"
-                ))
+            details = listOf(
+                detail("Story role", "Protagonist", ContextRole.IDENTITY),
+                detail("Pronouns", "they/them", ContextRole.IDENTITY),
+                detail("Occupation", "Root-Speaker (shaman) of the Verdant Tribe", ContextRole.IDENTITY),
+                detail("Age", "19")
             )
         )
 
@@ -338,11 +300,9 @@ class DevDataSeeder(
             type = EntryType.LOCATION,
             name = "The Overgrown Spire",
             tags = listOf("ruin", "nature", "ancient-tech"),
-            sections = listOf(
-                LocationSection(data = LocationData(
-                    ecology = "Dense canopy ecosystem with bioluminescent fungi at lower levels",
-                    history = "Once a corporate headquarters, now a sacred site for the Verdant Tribe"
-                ))
+            details = listOf(
+                detail("Atmosphere", "Dense canopy, bioluminescent fungi glowing on the lower levels", ContextRole.SENSORY),
+                detail("History", "Once a corporate headquarters, now a sacred site for the Verdant Tribe", ContextRole.BACKSTORY)
             )
         )
 
@@ -351,13 +311,9 @@ class DevDataSeeder(
             type = EntryType.ITEM,
             name = "The Singing Core",
             tags = listOf("relic", "ancient-tech", "power-source"),
-            sections = listOf(
-                ItemSection(data = ItemData(
-                    rarity = "Unique",
-                    material = "Unknown alloy",
-                    condition = "Functional (partially)",
-                    properties = listOf("Self-Powered", "Melodic Emission", "Unknown Energy Source")
-                ))
+            details = listOf(
+                detail("Kind", "Unique relic of an unknown alloy", ContextRole.IDENTITY),
+                detail("Properties", "Self-powered, emits melodies, unknown energy source. Only partially functional.", ContextRole.IDENTITY)
             )
         )
     }
@@ -372,21 +328,13 @@ class DevDataSeeder(
             type = EntryType.CHARACTER,
             name = "Captain Dara Voss",
             tags = listOf("protagonist", "captain", "leader"),
-            sections = listOf(
-                BioSection(data = BioData(
-                    status = "Alive",
-                    age = Quantity(value = 42.0, unit = "years"),
-                    gender = "Female",
-                    role = "Ark Commander"
-                )),
-                PsychologySection(data = PsychologyData(
-                    motivations = MotivationData(
-                        externalGoal = "Find a habitable world before Ark-7's systems fail",
-                        internalNeed = "Atone for the crew she sacrificed at the Battle of Proxima"
-                    ),
-                    positiveTraits = listOf("Pragmatic", "Charismatic", "Resilient"),
-                    negativeTraits = listOf("Secretive", "Guilt-ridden")
-                ))
+            aliases = listOf("The Captain"),
+            details = listOf(
+                detail("Story role", "Protagonist", ContextRole.IDENTITY),
+                detail("Occupation", "Ark Commander", ContextRole.IDENTITY),
+                detail("Age", "42"),
+                detail("Personality", "Pragmatic, charismatic and resilient; secretive and guilt-ridden.", ContextRole.IDENTITY),
+                detail("Goal", "Find a habitable world before Ark-7's systems fail, and atone for the crew she sacrificed at Proxima.", ContextRole.MOTIVATION)
             )
         )
 
@@ -395,13 +343,11 @@ class DevDataSeeder(
             type = EntryType.ORGANIZATION,
             name = "The Ark Council",
             tags = listOf("government", "council", "political"),
-            sections = listOf(
-                OrganizationSection(data = OrganizationData(
-                    population = Quantity(value = 12.0, unit = "councilors"),
-                    agenda = "Decide the fate of humanity's last 50,000 survivors",
-                    powerStructure = "Rotating chair, one vote per Ark",
-                    diplomacy = "Fractured — Arks 3 and 9 are threatening secession"
-                ))
+            details = listOf(
+                detail("Purpose", "Decide the fate of humanity's last 50,000 survivors", ContextRole.MOTIVATION),
+                detail("Leadership", "Rotating chair, one vote per Ark", ContextRole.IDENTITY),
+                detail("Size", "12 councilors", ContextRole.IDENTITY),
+                detail("Tensions", "Fractured: Arks 3 and 9 are threatening secession", ContextRole.CURRENT_STATE)
             )
         )
     }
