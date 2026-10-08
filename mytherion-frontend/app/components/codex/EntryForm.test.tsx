@@ -6,7 +6,10 @@ import { EntryType } from '@/app/types/codex';
 // Mock child sections that are not under test
 jest.mock('./EntryTypeSelector', () => () => <div data-testid="type-selector" />);
 jest.mock('./TagInput', () => () => <div data-testid="tag-input" />);
-jest.mock('./sections/EntrySectionsEditor', () => () => <div data-testid="content-editor" />);
+jest.mock('./details/DetailsEditor', () => () => <div data-testid="details-editor" />);
+jest.mock('@/app/services/codexService', () => ({
+  codexService: { getTemplates: jest.fn().mockResolvedValue([]) },
+}));
 
 describe('EntryForm - Image Upload & Validation', () => {
   const defaultProps = {

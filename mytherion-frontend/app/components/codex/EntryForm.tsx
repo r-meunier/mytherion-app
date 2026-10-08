@@ -1,12 +1,16 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { CodexEntry, EntryType, CreateEntryRequest, UpdateEntryRequest, EntryContent, EntrySection, SectionType } from '@/app/types/codex';
+import { CodexEntry, EntryType, CreateEntryRequest, UpdateEntryRequest, EntryContent, EntryTemplate } from '@/app/types/codex';
 import { mediaService, MEDIA_CONSTRAINTS } from '@/app/services/mediaService';
+import { codexService } from '@/app/services/codexService';
+import { defaultTemplate, detailsFromTemplate, hasDetailValues, normalizeContent } from '@/app/utils/entryContent';
 import EntryTypeSelector from './EntryTypeSelector';
 import TagInput from './TagInput';
-import EntrySectionsEditor from './sections/EntrySectionsEditor';
-import SectionDispatcher from './sections/SectionDispatcher';
+import DetailsEditor from './details/DetailsEditor';
+import TemplatePicker from './details/TemplatePicker';
+
+const REPLACE_DETAILS_PROMPT = 'This replaces the details you have entered. Continue?';
 
 interface EntryFormProps {
   entry?: CodexEntry;
@@ -25,6 +29,19 @@ export default function EntryForm({ entry, projectId, defaultType, isOpen, onSub
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(mediaService.getThumbnailUrl(entry?.thumbnail));
 
+  const [formData, setFormData] = useState({
+    type: entry?.type || defaultType || EntryType.CHARACTER,
+    name: entry?.name || '',
+    description: entry?.description || '',
+    notes: entry?.notes || '',
+    tags: entry?.tags || [],
+    aliases: entry?.aliases || [],
+    content: normalizeContent(entry?.content),
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [templates, setTemplates] = useState<EntryTemplate[]>([]);
+
   // Sync internal state when entry prop changes
   useEffect(() => {
     if (entry) {
@@ -34,7 +51,8 @@ export default function EntryForm({ entry, projectId, defaultType, isOpen, onSub
         description: entry.description || '',
         notes: entry.notes || '',
         tags: entry.tags || [],
-        content: normalizeMetadata(entry.content),
+        aliases: entry.aliases || [],
+        content: normalizeContent(entry.content),
       });
       setImageFile(null);
       setImagePreview(mediaService.getThumbnailUrl(entry.thumbnail));
@@ -47,31 +65,6 @@ export default function EntryForm({ entry, projectId, defaultType, isOpen, onSub
       setErrors({});
     }
   }, [isOpen]);
-
-  // Helper to normalize content (handles legacy strings or nulls)
-  const normalizeMetadata = (meta: any): EntryContent => {
-    if (!meta) return { sections: [] };
-    if (typeof meta === 'string') {
-      try {
-        const parsed = JSON.parse(meta);
-        if (parsed && Array.isArray(parsed.sections)) return parsed;
-      } catch (e) { /* ignore parse error */ }
-      return { sections: [] };
-    }
-    if (meta && typeof meta === 'object' && Array.isArray(meta.sections)) return meta;
-    return { sections: [] };
-  };
-
-  const [formData, setFormData] = useState({
-    type: entry?.type || defaultType || EntryType.CHARACTER,
-    name: entry?.name || '',
-    description: entry?.description || '',
-    notes: entry?.notes || '',
-    tags: entry?.tags || [],
-    content: normalizeMetadata(entry?.content),
-  });
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Clean up object URL when imagePreview unmounts or changes
   useEffect(() => {
@@ -121,87 +114,53 @@ export default function EntryForm({ entry, projectId, defaultType, isOpen, onSub
     });
   };
 
-  // Helper to ensure an archetype has its required sections
+  // Create mode: load the templates for the chosen type and start from the default one (Basic).
+  // Type changes are confirmed in handleTypeChange, so replacing the details here is safe.
   useEffect(() => {
     if (isEditMode) return;
+    let cancelled = false;
 
-    const archetype = formData.type;
-    const newComponents: EntrySection[] = [];
-    
-    // Add default sections based on type
-    if (archetype === EntryType.CHARACTER) {
-      newComponents.push({ id: SectionType.BIO, type: SectionType.BIO, data: {} as any });
-      newComponents.push({ id: SectionType.APPEARANCE, type: SectionType.APPEARANCE, data: {} as any });
-      newComponents.push({ id: SectionType.PSYCHOLOGY, type: SectionType.PSYCHOLOGY, data: {} as any });
-      newComponents.push({ id: SectionType.SOCIAL, type: SectionType.SOCIAL, data: {} as any });
-      newComponents.push({ id: SectionType.HISTORY, type: SectionType.HISTORY, data: {} as any });
-    } else if (archetype === EntryType.LOCATION) {
-      newComponents.push({ id: SectionType.LOCATION_DETAILS, type: SectionType.LOCATION_DETAILS, data: {} as any });
-      newComponents.push({ id: SectionType.LOCATION_RELATIONS, type: SectionType.LOCATION_RELATIONS, data: {} as any });
-    } else if (archetype === EntryType.ORGANIZATION) {
-      newComponents.push({ id: SectionType.ORGANIZATION_DETAILS, type: SectionType.ORGANIZATION_DETAILS, data: {} as any });
-      newComponents.push({ id: SectionType.ORGANIZATION_RELATIONS, type: SectionType.ORGANIZATION_RELATIONS, data: {} as any });
-    } else if (archetype === EntryType.CULTURE) {
-      newComponents.push({ id: SectionType.CULTURE_DETAILS, type: SectionType.CULTURE_DETAILS, data: {} as any });
-      newComponents.push({ id: SectionType.CULTURE_RELATIONS, type: SectionType.CULTURE_RELATIONS, data: {} as any });
-    } else if (archetype === EntryType.SPECIES) {
-      newComponents.push({ id: SectionType.SPECIES_DETAILS, type: SectionType.SPECIES_DETAILS, data: {} as any });
-      newComponents.push({ id: SectionType.SPECIES_RELATIONS, type: SectionType.SPECIES_RELATIONS, data: {} as any });
-    } else if (archetype === EntryType.ITEM) {
-      newComponents.push({ id: SectionType.ITEM_DETAILS, type: SectionType.ITEM_DETAILS, data: {} as any });
-      newComponents.push({ id: SectionType.ITEM_RELATIONS, type: SectionType.ITEM_RELATIONS, data: {} as any });
-    }
-    
-    setFormData(prev => {
-      // Only update if the type actually changed or if sections are missing
-      if (prev.content.sections.length > 0 && prev.type === archetype) {
-        return prev;
-      }
+    codexService
+      .getTemplates(formData.type)
+      .then((list) => {
+        if (cancelled) return;
+        setTemplates(list);
+        const initial = defaultTemplate(list);
+        setFormData((prev) => ({
+          ...prev,
+          content: initial
+            ? { templateId: initial.id, details: detailsFromTemplate(initial) }
+            : { templateId: null, details: [] },
+        }));
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setTemplates([]);
+        setErrors((prev) => ({ ...prev, templates: 'Templates could not be loaded. You can still add details yourself.' }));
+      });
 
-      return {
-        ...prev,
-        content: {
-          ...prev.content,
-          sections: newComponents
-        }
-      };
-    });
+    return () => {
+      cancelled = true;
+    };
   }, [formData.type, isEditMode]);
 
-  const updateComponentData = (type: string, data: Record<string, any>) => {
-    setFormData(prev => {
-      // Ensure we have a valid content structure to work with
-      const currentMetadata = prev.content || { sections: [] };
-      const currentComponents = Array.isArray(currentMetadata.sections) 
-        ? [...currentMetadata.sections] 
-        : [];
-      
-      const index = currentComponents.findIndex(c => c.type === type);
-      
-      if (index >= 0) {
-        // Deep merge data to prevent field loss within a component
-        currentComponents[index] = { 
-          ...currentComponents[index], 
-          data: { ...(currentComponents[index].data || {}), ...data } 
-        } as any;
-      } else {
-        // Add new component if it doesn't exist
-        currentComponents.push({ 
-          id: type, // Use type as a fallback ID for new sections
-          type: type as any, 
-          data 
-        });
-      }
-
-      return {
-        ...prev,
-        content: { 
-          ...currentMetadata, 
-          sections: currentComponents 
-        }
-      };
-    });
+  const handleTypeChange = (type: EntryType) => {
+    if (type === formData.type) return;
+    if (hasDetailValues(formData.content.details) && !window.confirm(REPLACE_DETAILS_PROMPT)) return;
+    setFormData((prev) => ({ ...prev, type }));
   };
+
+  const handleTemplateSelect = (template: EntryTemplate) => {
+    if (template.id === formData.content.templateId) return;
+    if (hasDetailValues(formData.content.details) && !window.confirm(REPLACE_DETAILS_PROMPT)) return;
+    setFormData((prev) => ({
+      ...prev,
+      content: { templateId: template.id, details: detailsFromTemplate(template) },
+    }));
+  };
+
+  const handleDetailsChange = (details: EntryContent['details']) =>
+    setFormData((prev) => ({ ...prev, content: { ...prev.content, details } }));
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -210,6 +169,10 @@ export default function EntryForm({ entry, projectId, defaultType, isOpen, onSub
       newErrors.name = 'Name is required';
     } else if (formData.name.length > 255) {
       newErrors.name = 'Name must be 255 characters or less';
+    }
+
+    if (formData.content.details.some((d) => d.label.trim() === '' && (d.value ?? '').trim() !== '')) {
+      newErrors.details = 'Every detail with text needs a label.';
     }
 
     setErrors(newErrors);
@@ -223,29 +186,41 @@ export default function EntryForm({ entry, projectId, defaultType, isOpen, onSub
       return;
     }
 
+    // Rows the author added but never filled in carry no information; drop them silently.
+    const content: EntryContent = {
+      ...formData.content,
+      details: formData.content.details.filter((d) => d.label.trim() !== '' || (d.value ?? '').trim() !== ''),
+    };
+
     if (isEditMode) {
       const updateData: UpdateEntryRequest = { version: entry.version };
       if (formData.name !== entry.name) updateData.name = formData.name;
       if (formData.description !== entry.description) updateData.description = formData.description;
       if (formData.notes !== entry.notes) updateData.notes = formData.notes;
       if (JSON.stringify(formData.tags) !== JSON.stringify(entry.tags)) updateData.tags = formData.tags;
-      if (JSON.stringify(formData.content) !== JSON.stringify(entry.content)) updateData.content = formData.content;
-      
+      if (JSON.stringify(formData.aliases) !== JSON.stringify(entry.aliases ?? [])) updateData.aliases = formData.aliases;
+      if (JSON.stringify(content) !== JSON.stringify(normalizeContent(entry.content))) updateData.content = content;
+
       onSubmit(updateData, imageFile);
     } else {
-      onSubmit(formData as CreateEntryRequest, imageFile);
+      const createData: CreateEntryRequest = { ...formData, content };
+      onSubmit(createData, imageFile);
     }
   };
 
   const handleClear = () => {
     if (window.confirm('Are you sure you want to clear all fields? This will lose all unsaved progress on this draft.')) {
+      const initial = defaultTemplate(templates);
       setFormData({
         type: entry?.type || defaultType || EntryType.CHARACTER,
         name: '',
         description: '',
         notes: '',
         tags: [],
-        content: { sections: [] },
+        aliases: [],
+        content: initial
+          ? { templateId: initial.id, details: detailsFromTemplate(initial) }
+          : { templateId: null, details: [] },
       });
       setImageFile(null);
       setImagePreview(null);
@@ -263,7 +238,7 @@ export default function EntryForm({ entry, projectId, defaultType, isOpen, onSub
         <div className="border-b border-gray-800 pb-6">
           <EntryTypeSelector
             value={formData.type}
-            onChange={(type) => setFormData(prev => ({ ...prev, type }))}
+            onChange={handleTypeChange}
             disabled={isEditMode}
             label={isEditMode ? 'Entry Type (cannot be changed)' : 'Entry Type'}
           />
@@ -297,6 +272,18 @@ export default function EntryForm({ entry, projectId, defaultType, isOpen, onSub
                 {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name}</p>}
               </div>
 
+            </div>
+
+            {/* Aliases */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Aliases</label>
+              <TagInput
+                tags={formData.aliases}
+                onChange={(aliases) => setFormData(prev => ({ ...prev, aliases }))}
+                placeholder="Other names, nicknames, titles..."
+                maxLength={100}
+                itemLabel={{ singular: 'Alias', plural: 'aliases' }}
+              />
             </div>
 
             {/* Image Upload */}
@@ -428,21 +415,31 @@ export default function EntryForm({ entry, projectId, defaultType, isOpen, onSub
           </div>
         </div>
 
-        {/* Semantic Components Section - Full Width */}
+        {/* Details - Full Width */}
         <div className="pt-8 space-y-6">
           <h3 className="text-xl font-bold text-white border-b border-gray-800 pb-3 flex items-center gap-3">
-            <span className="material-symbols-outlined text-purple-500 text-3xl">psychology</span>
-            Semantic Data Modules
+            <span className="material-symbols-outlined text-purple-500 text-3xl">list_alt</span>
+            Details
           </h3>
-          
-          <div className="bg-gray-900/40 rounded-2xl p-2 border border-gray-800/50">
-            <EntrySectionsEditor 
-              entryType={formData.type}
-              content={formData.content}
-              onUpdateComponent={updateComponentData}
+
+          {!isEditMode && (
+            <TemplatePicker
+              templates={templates}
+              selectedId={formData.content.templateId}
+              onSelect={handleTemplateSelect}
+              disabled={loading}
+            />
+          )}
+          {errors.templates && <p className="text-sm text-amber-400">{errors.templates}</p>}
+
+          <div className="bg-gray-900/40 rounded-2xl p-4 border border-gray-800/50">
+            <DetailsEditor
+              details={formData.content.details}
+              onChange={handleDetailsChange}
               disabled={loading}
             />
           </div>
+          {errors.details && <p className="text-sm text-red-400">{errors.details}</p>}
         </div>
       </div>
 

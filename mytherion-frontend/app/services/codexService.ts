@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CodexEntry, CreateEntryRequest, UpdateEntryRequest, EntryType } from '../types/codex';
+import { CodexEntry, CreateEntryRequest, UpdateEntryRequest, EntryType, EntryTemplate } from '../types/codex';
 import logger from '../utils/logger';
 import { API_URL } from './apiConfig';
 import apiRoutes from '../config/apiRoutes';
@@ -20,6 +20,20 @@ export interface EntryFilters {
 }
 
 export const codexService = {
+  // Built-in templates for an entry type, from least to most detailed (Blank, Basic, Full)
+  getTemplates: async (type: EntryType): Promise<EntryTemplate[]> => {
+    try {
+      const response = await axios.get(`${API_URL}${apiRoutes.codex.templates}`, {
+        params: { type },
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      serviceLogger.error('Failed to fetch templates', error, { type });
+      throw error;
+    }
+  },
+
   // Get entries with filters
   getEntries: async (
     projectId: string,
