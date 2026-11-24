@@ -22,6 +22,12 @@ export interface UploadResponse {
   size: number;
 }
 
+/** What the author did to an entry's image in the form: picked a new file, removed it, or neither. */
+export interface ThumbnailChange {
+  file: File | null;
+  removed: boolean;
+}
+
 export const mediaService = {
   /**
    * Validate image file type and size constraints
@@ -75,6 +81,27 @@ export const mediaService = {
       mediaLogger.error('Failed to delete entry image', error, { projectId, entryId });
       throw error;
     }
+  },
+
+  /**
+   * Apply the form's image change once the entry is saved. Returns true when the stored image
+   * changed, so the caller knows to refetch. A failure is logged, not thrown: the entry itself
+   * is already saved, and losing it over the image would be worse.
+   */
+  applyEntryThumbnailChange: async (projectId: string, entryId: string, change: ThumbnailChange): Promise<boolean> => {
+    try {
+      if (change.file) {
+        await mediaService.uploadEntryThumbnail(projectId, entryId, change.file);
+        return true;
+      }
+      if (change.removed) {
+        await mediaService.deleteEntryThumbnail(projectId, entryId);
+        return true;
+      }
+    } catch {
+      // Already logged by the upload or delete call.
+    }
+    return false;
   },
 
   /**

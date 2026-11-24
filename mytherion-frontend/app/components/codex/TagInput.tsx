@@ -5,6 +5,8 @@ import { useState, KeyboardEvent } from 'react';
 interface TagInputProps {
   tags: string[];
   onChange: (tags: string[]) => void;
+  /** id of the text input, so a <label htmlFor> can point at it. */
+  id?: string;
   placeholder?: string;
   maxLength?: number;
   /** Singular/plural noun for messages, so the same input serves tags and aliases. */
@@ -14,6 +16,7 @@ interface TagInputProps {
 export default function TagInput({
   tags,
   onChange,
+  id,
   placeholder = 'Add tags...',
   maxLength = 30,
   itemLabel = { singular: 'Tag', plural: 'tags' }
@@ -55,46 +58,34 @@ export default function TagInput({
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap gap-2 p-2 border border-gray-700 rounded-lg bg-gray-800/50 min-h-[42px]">
+    <div>
+      {/* One field to the eye: the chips and the input share the field-input frame. */}
+      <div className="field-input flex flex-wrap items-center gap-2 px-2 py-2 min-h-[44px]">
         {tags.map((tag) => (
-          <span
-            key={tag}
-            className="inline-flex items-center gap-1 px-2 py-1 bg-purple-600/20 text-purple-300 rounded-md text-sm border border-purple-500/30"
-          >
+          <span key={tag} className="chip normal-case tracking-normal text-xs py-1">
             {tag}
             <button
               type="button"
               onClick={() => removeTag(tag)}
-              className="hover:text-purple-100 transition-colors"
+              aria-label={`Remove ${tag}`}
+              className="text-primary/60 hover:text-white transition-colors flex"
             >
-              <svg
-                className="h-3 w-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <span className="material-symbols-outlined text-[14px]" aria-hidden="true">close</span>
             </button>
           </span>
         ))}
         <input
+          id={id}
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={tags.length === 0 ? placeholder : ''}
-          className="flex-1 min-w-[120px] bg-transparent text-white placeholder-gray-400 focus:outline-none"
+          className="flex-1 min-w-[120px] px-2 bg-transparent text-white placeholder-white/30 focus:outline-none"
         />
       </div>
-      {error && <p className="text-sm text-red-400">{error}</p>}
-      <p className="text-xs text-gray-400">Press Enter to add {itemLabel.plural}</p>
+      {error && <p className="field-error">{error}</p>}
+      <p className="field-hint">Press Enter to add {itemLabel.plural}</p>
     </div>
   );
 }

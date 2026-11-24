@@ -181,7 +181,7 @@ class CodexEntryServiceTest {
         )
 
         assertThrows<InvalidEntryContentException> { entryService.updateEntry(projectId, entryId, request) }
-        verify(exactly = 0) { entryRepository.save(any()) }
+        verify(exactly = 0) { entryRepository.saveAndFlush(any()) }
     }
 
     @Test
@@ -262,14 +262,14 @@ class CodexEntryServiceTest {
         val request = UpdateEntryRequest(name = "Updated Name")
 
         every { entryRepository.findById(entryId) } returns Optional.of(testEntry)
-        every { entryRepository.save(any()) } returns testEntry
+        every { entryRepository.saveAndFlush(any()) } returns testEntry
 
         // When
         val result = entryService.updateEntry(projectId, entryId, request)
 
         // Then
         assertNotNull(result)
-        verify { entryRepository.save(any()) }
+        verify { entryRepository.saveAndFlush(any()) }
     }
 
     @Test

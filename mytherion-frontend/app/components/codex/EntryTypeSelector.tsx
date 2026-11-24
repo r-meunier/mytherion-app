@@ -26,9 +26,9 @@ export default function EntryTypeSelector({
   label = 'Entry Type'
 }: EntryTypeSelectorProps) {
   return (
-    <div className="space-y-2">
-      {label && <label className="block text-sm font-medium text-gray-300">{label}</label>}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 w-full">
+    <div role="group" aria-label={label || 'Entry type'}>
+      {label && <p className="field-label">{label}</p>}
+      <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-3 w-full">
         {Object.entries(entryTypeConfig).map(([type, config]) => {
           const isSelected = value === type;
           return (
@@ -37,14 +37,8 @@ export default function EntryTypeSelector({
               type="button"
               onClick={() => onChange(type as EntryType)}
               disabled={disabled}
-              className={`
-                flex items-center gap-2 p-3 rounded-lg border-2 transition-all
-                ${isSelected 
-                  ? 'border-purple-500 bg-purple-600/20' 
-                  : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'
-                }
-                ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-              `}
+              aria-pressed={isSelected}
+              className="choice-tile flex items-center gap-2 p-3"
             >
               <span className="text-2xl">{config.icon}</span>
               <span className={`text-sm font-medium ${isSelected ? 'text-white' : config.color}`}>
