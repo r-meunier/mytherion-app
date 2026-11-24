@@ -87,6 +87,15 @@ describe('EntryDetailPage', () => {
     expect(screen.getByRole('button', { name: /Delete/ })).toBeInTheDocument();
   });
 
+  it('shows the type as a label above the name, with the image and details beside the tabs', () => {
+    render(<EntryDetailPage />);
+
+    const name = screen.getByRole('heading', { level: 1, name: 'The Ark Council' });
+    const type = screen.getByText('Organization');
+    expect(type.compareDocumentPosition(name) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByRole('complementary', { name: 'Entry details' })).toHaveTextContent('12 councillors');
+  });
+
   it('fetches the entry once, not again when the project arrives', () => {
     render(<EntryDetailPage />);
 

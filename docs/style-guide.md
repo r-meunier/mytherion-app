@@ -58,27 +58,29 @@ The scroll area always keeps room for its scrollbar (`scrollbar-gutter: stable`)
   | Codex | Projects › *Project* › Codex |
   | Entry | Projects › *Project* › Codex › *Entry* |
   | New entry | Projects › *Project* › Codex › New entry |
-- **Title** (`h1`): the one page heading. Use the entry's name on the entry page (click it to rename) and "New Entry" when creating.
+- **Title** (`h1`): the one page heading. Use "New Entry" when creating. The entry page is the one exception to `PageHeader`: under its breadcrumbs it has its own full-width header card, with the type as a small label (`EntryTypeBadge variant="eyebrow"`) above the name (click it to rename), then aliases and tags, and the actions on the right. The card's top sits where other pages' titles sit.
 - **Badge**: a `chip` next to the title, e.g. the entry type (`EntryTypeBadge`). `PageHeader` nudges it down 2–3px so it is centred on the title's lowercase letters rather than its capitals, which is what reads as centred.
 - **Subtitle**: one sentence of description, or an entry's aliases and tags. Don't put actions here.
 - **Actions** (`children`): on the right on wide screens, under the title on narrow ones. On list pages this is the command bar (search, filters, create). On a single item it's the action buttons, primary first:
-  - Entry page: the save status ("Saving… / ✓ Saved / Not saved"), then **Delete** (danger). There is no Edit button: the page is edited in place (§8).
+  - Entry page (in its header card): the save status ("Saving… / ✓ Saved / Not saved"), then **Delete** (danger). There is no Edit button: the page is edited in place (§8).
   - New entry: **Create Entry** (primary), **Cancel** (secondary). `EntryForm` renders the header itself, because the submit button has to be inside the `<form>`.
 
 ---
 
 ## 4. Content layouts
 
-**Single entry (entry page, new entry): two columns**, the same grid in both:
+**Single entry (entry page, new entry): two columns**, the same grid in both, main column left and a
+fixed-width column on the right:
 
 ```tsx
-<div className="grid grid-cols-1 lg:grid-cols-[18rem_minmax(0,1fr)] gap-8 items-start">
-  <aside className="order-2 lg:order-1 space-y-6">image, Details panel</aside>
-  <div className="order-1 lg:order-2 space-y-8 min-w-0">main panels, EntryTabs</div>
+<div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_18rem] gap-8 items-start">
+  <div className="min-w-0">EntryTabs (and on New Entry, the name/aliases/tags panel above them)</div>
+  <aside className="space-y-6">image, Details panel</aside>
 </div>
 ```
 
-On narrow screens the main column comes first. New entry adds a full-width "Type / Template" panel above the grid.
+On narrow screens the main column comes first. Above the grid, the entry page has its header card (§3);
+New Entry has a full-width "Type / Template" panel.
 
 **Dashboard sections**: `glass-container p-6`, a `section-heading` with the primary dot on the left, and a small right-aligned label.
 

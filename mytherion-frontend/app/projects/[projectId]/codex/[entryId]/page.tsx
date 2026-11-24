@@ -8,7 +8,7 @@ import { fetchProject } from '@/app/store/projectSlice';
 import { useEntryAutosave } from '@/app/hooks/useEntryAutosave';
 import { normalizeContent } from '@/app/utils/entryContent';
 import ProjectPageLayout from '@/app/components/ProjectPageLayout';
-import PageHeader from '@/app/components/ui/PageHeader';
+import Breadcrumbs from '@/app/components/ui/Breadcrumbs';
 import EntryTypeBadge from '@/app/components/codex/EntryTypeBadge';
 import EntrySidebar from '@/app/components/codex/EntrySidebar';
 import EntryTabs from '@/app/components/codex/EntryTabs';
@@ -80,130 +80,139 @@ export default function EntryDetailPage() {
     >
       {currentEntry && (
         <>
-          <PageHeader
-            title={
-              <InlineText
-                inline
-                value={currentEntry.name}
-                label="name"
-                validate={requireName}
-                maxLength={255}
-                onSave={(name) => save({ name })}
-              />
-            }
-            badge={<EntryTypeBadge type={currentEntry.type} />}
-            breadcrumbs={projectTrail(
-              projectId,
-              currentProject?.name,
-              { label: 'Codex', href: project.codex.index() },
-              { label: currentEntry.name },
-            )}
-            subtitle={
-              <div className="space-y-2 mt-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-white/40">Also known as:</span>
-                  <InlineChips
-                    items={currentEntry.aliases ?? []}
-                    onSave={(aliases) => save({ aliases })}
-                    itemLabel={{ singular: 'alias', plural: 'aliases' }}
-                    maxLength={100}
-                    chipClassName="chip normal-case tracking-normal text-xs font-medium text-white/70 bg-white/5 border-white/10"
-                  />
+          {/* Breadcrumbs as on every page. Then the entry's header across the full width (type above
+              the name, aliases, tags, actions), then the tabs beside a column with the image and the
+              details (docs/codex-entry-model.md §2, docs/style-guide.md §3). */}
+          <div>
+            <Breadcrumbs
+              items={projectTrail(
+                projectId,
+                currentProject?.name,
+                { label: 'Codex', href: project.codex.index() },
+                { label: currentEntry.name },
+              )}
+            />
+
+            <div className="space-y-8">
+              {imageFailed && (
+                <div role="alert" className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-start gap-3">
+                  <span className="material-symbols-outlined text-amber-400 text-[20px]" aria-hidden="true">warning</span>
+                  <p className="flex-1 text-sm text-amber-200">
+                    The entry was created, but its image could not be uploaded. Add it again in the image box.
+                  </p>
+                  <button type="button" onClick={dismissImageNotice} className="btn-pill btn-pill-secondary">
+                    Dismiss
+                  </button>
                 </div>
-                <InlineChips
-                  items={currentEntry.tags ?? []}
-                  onSave={(tags) => save({ tags })}
-                  itemLabel={{ singular: 'tag', plural: 'tags' }}
-                />
-              </div>
-            }
-          >
-            <div className="flex items-center gap-2 lg:justify-end">
-              <SaveStatus state={saveState} error={saveError} />
-              <button onClick={() => setShowDeleteConfirm(true)} className="btn-pill btn-pill-danger">
-                <span className="material-symbols-outlined" aria-hidden="true">delete</span>
-                <span>Delete</span>
-              </button>
-            </div>
-          </PageHeader>
+              )}
 
-          {imageFailed && (
-            <div role="alert" className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-start gap-3">
-              <span className="material-symbols-outlined text-amber-400 text-[20px]" aria-hidden="true">warning</span>
-              <p className="flex-1 text-sm text-amber-200">
-                The entry was created, but its image could not be uploaded. Add it again in the image box.
-              </p>
-              <button type="button" onClick={dismissImageNotice} className="btn-pill btn-pill-secondary">
-                Dismiss
-              </button>
-            </div>
-          )}
-
-          {/* Two columns (docs/codex-entry-model.md): sidebar left, main right. On narrow
-              screens the main column comes first. The New Entry form uses the same grid. */}
-          <div className="grid grid-cols-1 lg:grid-cols-[18rem_minmax(0,1fr)] gap-8 items-start">
-            <div className="order-2 lg:order-1">
-              <EntrySidebar
-                entry={currentEntry}
-                // Applied to the entry as last saved, not this render's copy (see useEntryAutosave).
-                onDetailsChange={(change) =>
-                  save((latest) => {
-                    const saved = normalizeContent(latest.content);
-                    return { content: { ...saved, details: change(saved.details) } };
-                  })
-                }
-                onImageChange={handleImageChange}
-              />
-            </div>
-
-            <div className="order-1 lg:order-2 space-y-8 min-w-0">
-              {/* Overview holds the description, Notes the private scratchpad. Relations and others come later. */}
-              <EntryTabs
-                tabs={[
-                  {
-                    id: 'overview',
-                    label: 'Overview',
-                    content: (
-                      <div className="glass-panel rounded-2xl p-4">
+              <header className="glass-panel rounded-2xl p-6 md:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                  <div className="min-w-0 space-y-3">
+                    <div className="space-y-1">
+                      <EntryTypeBadge type={currentEntry.type} variant="eyebrow" />
+                      <h1 className="font-display-lg text-2xl sm:text-3xl font-bold text-white text-glow tracking-tight">
                         <InlineText
-                          multiline
-                          value={currentEntry.description ?? ''}
-                          label="description"
-                          placeholder="Add a description: who or what is this?"
-                          onSave={(description) => save({ description })}
-                          className="text-white/70 text-sm leading-relaxed min-h-[3rem]"
+                          inline
+                          value={currentEntry.name}
+                          label="name"
+                          validate={requireName}
+                          maxLength={255}
+                          onSave={(name) => save({ name })}
                         />
-                      </div>
-                    ),
-                  },
-                  {
-                    id: 'notes',
-                    label: 'Notes',
-                    content: (
-                      <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-6 relative overflow-hidden backdrop-blur-xl">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                          <span className="material-symbols-outlined text-6xl text-amber-400">edit_note</span>
-                        </div>
-                        <h2 className="text-amber-400 font-bold text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
-                          <span className="material-symbols-outlined text-sm">lock</span>
-                          Private notes
-                        </h2>
-                        <div className="relative z-10">
+                      </h1>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-medium">
+                      <span className="text-white/40">Also known as:</span>
+                      <InlineChips
+                        items={currentEntry.aliases ?? []}
+                        onSave={(aliases) => save({ aliases })}
+                        itemLabel={{ singular: 'alias', plural: 'aliases' }}
+                        maxLength={100}
+                        chipClassName="chip normal-case tracking-normal text-xs font-medium text-white/70 bg-white/5 border-white/10"
+                      />
+                    </div>
+                    <InlineChips
+                      items={currentEntry.tags ?? []}
+                      onSave={(tags) => save({ tags })}
+                      itemLabel={{ singular: 'tag', plural: 'tags' }}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <SaveStatus state={saveState} error={saveError} />
+                    <button onClick={() => setShowDeleteConfirm(true)} className="btn-pill btn-pill-danger">
+                      <span className="material-symbols-outlined" aria-hidden="true">delete</span>
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                </div>
+              </header>
+
+              {/* Tabs left, image and details right; on narrow screens the tabs come first. The New
+                  Entry form uses the same grid. */}
+              <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_18rem] gap-8 items-start">
+                <div className="min-w-0">
+                {/* Overview holds the description, Notes the private scratchpad. Relations and others come later. */}
+                <EntryTabs
+                  tabs={[
+                    {
+                      id: 'overview',
+                      label: 'Overview',
+                      content: (
+                        <div className="glass-panel rounded-2xl p-4">
                           <InlineText
                             multiline
-                            value={currentEntry.notes ?? ''}
-                            label="private notes"
-                            placeholder="Add notes only you see: thoughts, secrets, reminders…"
-                            onSave={(notes) => save({ notes })}
-                            className="text-amber-200/80 italic text-sm leading-relaxed"
-                            inputClassName="bg-amber-500/5 border-amber-500/20 focus:border-amber-400/50 text-amber-100"
+                            value={currentEntry.description ?? ''}
+                            label="description"
+                            placeholder="Add a description: who or what is this?"
+                            onSave={(description) => save({ description })}
+                            className="text-white/70 text-sm leading-relaxed min-h-[3rem]"
                           />
                         </div>
-                      </div>
-                    ),
-                  },
-                ]}
-              />
+                      ),
+                    },
+                    {
+                      id: 'notes',
+                      label: 'Notes',
+                      content: (
+                        <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-6 relative overflow-hidden backdrop-blur-xl">
+                          <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                            <span className="material-symbols-outlined text-6xl text-amber-400">edit_note</span>
+                          </div>
+                          <h2 className="text-amber-400 font-bold text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-sm">lock</span>
+                            Private notes
+                          </h2>
+                          <div className="relative z-10">
+                            <InlineText
+                              multiline
+                              value={currentEntry.notes ?? ''}
+                              label="private notes"
+                              placeholder="Add notes only you see: thoughts, secrets, reminders…"
+                              onSave={(notes) => save({ notes })}
+                              className="text-amber-200/80 italic text-sm leading-relaxed"
+                              inputClassName="bg-amber-500/5 border-amber-500/20 focus:border-amber-400/50 text-amber-100"
+                            />
+                          </div>
+                        </div>
+                      ),
+                    },
+                  ]}
+                />
+                </div>
+
+                <EntrySidebar
+                  entry={currentEntry}
+                  // Applied to the entry as last saved, not this render's copy (see useEntryAutosave).
+                  onDetailsChange={(change) =>
+                    save((latest) => {
+                      const saved = normalizeContent(latest.content);
+                      return { content: { ...saved, details: change(saved.details) } };
+                    })
+                  }
+                  onImageChange={handleImageChange}
+                />
+              </div>
             </div>
           </div>
 

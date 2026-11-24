@@ -42,9 +42,9 @@ interface EntryFormProps {
 
 /**
  * The New Entry form, laid out like the entry page (docs/codex-entry-model.md §2, docs/style-guide.md):
- * page header with the actions on the right, the type and template, then image and details in the
- * sidebar; name, aliases, tags and the Overview / Notes tabs in the main column. On narrow screens the
- * main column comes first. Existing entries are edited on the entry page itself.
+ * page header with the actions on the right, the type and template, then name, aliases, tags and the
+ * Overview / Notes tabs in the main column, with the image and details in a column on the right. On
+ * narrow screens the main column comes first. Existing entries are edited on the entry page itself.
  */
 export default function EntryForm({
   defaultType,
@@ -259,9 +259,9 @@ export default function EntryForm({
           )}
       </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[18rem_minmax(0,1fr)] gap-8 items-start">
-        {/* Sidebar: image, then details (same boxes as EntrySidebar) */}
-        <aside className="order-2 lg:order-1 space-y-6" aria-label="Entry details">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_18rem] gap-8 items-start">
+        {/* Right column: image, then details (same boxes as EntrySidebar). On narrow screens it comes after the main column. */}
+        <aside className="order-2 space-y-6" aria-label="Entry details">
           <div>
             {/* The image box itself shows what this is; the label is for screen readers. */}
             <label htmlFor="entry-image-upload" className="sr-only">
@@ -351,7 +351,7 @@ export default function EntryForm({
         </aside>
 
         {/* Main column: name, aliases, tags, then the tabs */}
-        <div className="order-1 lg:order-2 space-y-8 min-w-0">
+        <div className="order-1 space-y-8 min-w-0">
           <section className="glass-panel rounded-2xl p-6 md:p-8 space-y-6">
             <div>
               <label htmlFor="name" className="field-label">

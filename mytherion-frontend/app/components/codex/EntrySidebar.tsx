@@ -17,7 +17,7 @@ interface EntrySidebarProps {
 }
 
 /**
- * Left column of the entry page (docs/codex-entry-model.md): the image, the entry's details and
+ * Right-hand column of the entry page (docs/codex-entry-model.md): the image, the entry's details and
  * when it was created and last changed. With the callbacks, the image and details are edited where
  * they are shown; without them it is read-only.
  */
