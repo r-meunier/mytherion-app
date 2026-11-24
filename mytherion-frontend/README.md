@@ -182,56 +182,30 @@ npm run test:watch   # Run tests in watch mode
 ```
 mytherion-frontend/
 ├── app/
-│   ├── components/           # Reusable UI components
-│   │   ├── LoginForm.tsx
-│   │   ├── RegisterForm.tsx
-│   │   ├── Navbar.tsx
-│   │   ├── DashboardHeader.tsx
-│   │   ├── DualSidebar.tsx
-│   │   ├── VerificationBanner.tsx
-│   │   ├── dashboard/        # Dashboard-specific components
-│   │   ├── entries/         # Entry management components
-│   │   └── projects/         # Project management components
-│   │       ├── ProjectCard.tsx
-│   │       ├── ProjectList.tsx
-│   │       ├── ProjectForm.tsx
-│   │       ├── ProjectStats.tsx
-│   │       ├── ProjectModal.tsx
-│   │       ├── ProjectSkeleton.tsx
-│   │       └── EmptyProjectState.tsx
-│   ├── services/             # API service layer
-│   │   ├── authService.ts
-│   │   ├── projectService.ts
-│   │   └── api.ts
-│   ├── store/                # Redux store and slices
-│   │   ├── index.ts
-│   │   ├── authSlice.ts
-│   │   ├── projectSlice.ts
-│   │   └── hooks.ts
-│   ├── types/                # TypeScript type definitions
-│   │   ├── auth.ts
-│   │   └── project.ts
-│   ├── utils/                # Utility functions
-│   │   ├── formatDate.ts
-│   │   ├── validation.ts
-│   │   └── constants.ts
-│   ├── login/                # Login page
-│   │   └── page.tsx
-│   ├── register/             # Register page
-│   │   └── page.tsx
-│   ├── verify-email/         # Email verification page
-│   │   └── page.tsx
-│   ├── projects/             # Projects section
-│   │   ├── page.tsx          # Project list
-│   │   └── [projectId]/      # Dynamic project routes
-│   │       ├── page.tsx      # Project dashboard
-│   │       ├── settings/     # Project settings
-│   │       ├── entries/     # Entry management
-│   │       └── analytics/    # Analytics (planned)
-│   ├── layout.tsx            # Root layout with Redux Provider
-│   ├── page.tsx              # Home page
-│   └── globals.css           # Global styles and design system
+│   ├── (projects)/           # Projects hub at / (route group, loads styles/projects.css)
+│   ├── projects/[projectId]/ # Inside a project (loads styles/app-core.css)
+│   │   ├── page.tsx          # Project dashboard
+│   │   └── codex/            # Codex list, new/ (New Entry), [entryId]/ (entry page, edited in place)
+│   ├── login/, register/, verify-email/   # Auth pages (load styles/auth.css)
+│   ├── admin/                # User management
+│   ├── components/
+│   │   ├── AppHeader.tsx, DualSidebar.tsx, ProjectPageLayout.tsx   # The app frame
+│   │   ├── auth/             # Login and register forms
+│   │   ├── codex/            # Entry list, cards, New Entry form, sidebar, tabs
+│   │   │   ├── details/      # Details editors and the template picker
+│   │   │   └── inline/       # Click-to-edit fields used on the entry page
+│   │   ├── projects/         # Project cards, list, form
+│   │   └── ui/               # PageHeader, Breadcrumbs, CommandBar, modals…
+│   ├── config/               # Routes, API routes, breadcrumbs, project navigation
+│   ├── hooks/                # useEntryAutosave, useIsMounted
+│   ├── services/             # API layer (apiConfig.ts holds the shared Axios instance)
+│   ├── store/                # Redux: authSlice, projectSlice, codexSlice, dashboardSlice
+│   ├── styles/               # CSS tree: base.css → auth / projects / app-core (docs/css-architecture.md)
+│   ├── types/                # TypeScript types (codex.ts mirrors the backend enums)
+│   ├── utils/                # Dates, entry content, error messages, logger
+│   └── layout.tsx            # Root layout: fonts, providers, base.css
 ├── public/                   # Static assets
+├── proxy.ts                  # Sends signed-out visitors to /login (Next.js proxy, formerly middleware)
 ├── .env.local                # Environment variables (create this)
 ├── jest.config.mjs           # Jest configuration
 ├── jest.setup.ts             # Jest setup

@@ -3,7 +3,7 @@
 How pages inside a project are built, so moving between them doesn't make titles, headers or panels shift.
 **The entry page (`/projects/[id]/codex/[entryId]`) is the reference.** If a page differs from it without a reason written down here, the page is wrong.
 
-The tokens and utilities below live in `mytherion-frontend/app/styles/base.css` (see [css-architecture-plan.md](./css-architecture-plan.md)). This guide says which one to use where.
+The tokens and utilities below live in `mytherion-frontend/app/styles/base.css` (see [css-architecture.md](./css-architecture.md)). This guide says which one to use where.
 
 ---
 

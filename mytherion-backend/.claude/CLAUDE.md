@@ -68,7 +68,7 @@ Root package:
 Business domains — each holds its own `model`, `dto`, `repository`, `service`, `rest`, `exception`:
 - `user` — user domain
 - `project` — projects (plus `security/ProjectAccessInterceptor`)
-- `codex` — codex entries (`CodexEntry`) and their sections
+- `codex` — codex entries (`CodexEntry`), their details and the entry templates
 - `dashboard` — aggregate stats
 - `auth` — authentication (`rest`, `service`, `jwt`, `model`, `repository`, `dto`, `util`)
 
@@ -116,7 +116,7 @@ timestamp, requestId, errors?`); clients branch on `code` (`common.web.ErrorCode
 Current:
 - Postgres schema managed via Flyway
 - Project creation/listing, search and stats
-- Codex entry CRUD with a polymorphic section system
+- Codex entry CRUD with author-controlled details, aliases and Blank/Basic templates
 - Tagging/search
 - Auth (JWT via httpOnly cookies) and email verification
 - Image uploads via MinIO
@@ -147,4 +147,5 @@ This project is currently **not licensed for redistribution**.
 
 ## Terminology
 `docs/terminology.md` is the canonical vocabulary and wins over the code. `Entity`, `Component`
-(as a domain term) and `World` are banned words — use `CodexEntry`, `EntrySection` and `Project`.
+(as a domain term) and `World` are banned words — use `CodexEntry`, `EntryDetail` and `Project`.
+`Section` for entry data was retired in MYT-86: entries have details.
