@@ -35,8 +35,8 @@ Each service has its own `.claude/CLAUDE.md` with service-specific context. This
 ### Frontend (`mytherion-frontend/`)
 - **Framework**: Next.js (App Router)
 - **Language**: TypeScript
-- **State**: Redux Toolkit (`authSlice`, `projectSlice`)
-- **Styling**: Tailwind CSS v4 + custom semantic utilities in `globals.css`
+- **State**: Redux Toolkit (`authSlice`, `projectSlice`, `codexSlice`, `dashboardSlice`)
+- **Styling**: Tailwind CSS v4 + the CSS tree in `app/styles/` (`docs/css-architecture.md`)
 - **HTTP**: Axios with interceptors for JWT and project context
 - **Testing**: Jest + React Testing Library
 
@@ -49,17 +49,21 @@ All data is scoped to a **Project**. URL hierarchy:
 - `/projects` — hub, list of all user projects
 - `/projects/[id]` — project dashboard
 - `/projects/[id]/codex` — codex entry browser
-- `/projects/[id]/timeline` — chronological map
+- `/projects/[id]/codex/new` — New Entry (create only)
+- `/projects/[id]/codex/[entryId]` — the entry page, which is also where it is edited (no edit page)
 
 ### Security: Tenant Isolation
 The `ProjectAccessInterceptor` intercepts all `/api/projects/{projectId}/**` routes and verifies the authenticated user owns that project before any handler runs.
 
-### Entry Sections
-Codex entries have a polymorphic section system (`@JsonSubTypes` on backend). The `SectionType` values must stay in sync between backend and frontend. Backend is the source of truth.
+### Entry Details & Templates
+An entry's `content` is `{ templateId, details: [{ id, label, value, hint?, role? }] }`: an author-controlled
+list, started from a Blank/Basic template (JSON in `mytherion-backend/src/main/resources/codex/templates/`).
+`EntryType`, `ContextRole` and `TemplateLevel` are mirrored in backend and frontend; the backend is the
+source of truth. See `docs/codex-entry-model.md`.
 
 ### CSS Architecture
-Styles follow a tree inheritance model:
-- `base.css` — shared tokens, resets, typography
+Styles follow a tree inheritance model (`docs/css-architecture.md`):
+- `base.css` — shared tokens, resets, surfaces and the page primitives (`field-input`, `btn-pill`, `chip`…)
 - `auth.css`, `projects.css`, `app-core.css` — context-specific overrides
 
 ---
@@ -95,7 +99,7 @@ npm run dev
 
 - **Never** bypass the `ProjectAccessInterceptor` — all project-scoped endpoints must go through it.
 - **Never** edit an already-applied Flyway migration. New schema change = new migration file.
-- **Keep `SectionType` in sync** between `EntrySection.kt` and `types/codex.ts`. `EntryType` and `SectionType` must share no value names.
+- **Keep the codex enums in sync** (`EntryType`, `ContextRole`, `TemplateLevel`) between the backend models and `types/codex.ts`. `scripts/check_contract_parity.py` checks them in CI.
 - Code is organized **by domain**, not by layer. Preserve that structure in the backend.
 - All frontend API calls must go through the Axios instance in `apiConfig.ts` — never use raw `fetch` for authenticated requests.
 
@@ -104,9 +108,12 @@ npm run dev
 ## Active Plans & Docs
 
 See [`docs/`](../docs/README.md) for the current architectural plans:
-- Navigation overhaul (project-centric URL hierarchy)
-- Component architecture (entry section coupling workflow)
+- Codex entry model (details, aliases, templates)
+- Navigation overhaul (project-centric URL hierarchy; mostly done)
 - CSS architecture (modular style tree)
+- Decisions in `docs/decisions/` (e.g. 0001: local-first desktop client)
+- `docs/design_references/` holds screenshots of NovelCrafter and Sudowrite (workspace layouts, project
+  creation, onboarding, tooltips). They are UI inspiration for comparing patterns, not specs to copy.
 - **Style guide** (`docs/style-guide.md`): every page inside a project uses `ProjectPageLayout` + `PageHeader` and the shared surface/control classes. Read it before building or restyling a page.
 - Design system (semantic typography utilities)
 - CI/environment fixes
@@ -121,7 +128,8 @@ See [`docs/`](../docs/README.md) for the current architectural plans:
 
 ## Terminology
 `docs/terminology.md` is the canonical vocabulary and wins over the code. `Entity`, `Component`
-(as a domain term) and `World` are banned — use `CodexEntry`, `EntrySection` and `Project`.
+(as a domain term) and `World` are banned — use `CodexEntry`, `EntryDetail` and `Project`.
+`Section` for entry data was retired in MYT-86: entries have details.
 
 ## Licensing
 This project is currently **not licensed for redistribution**.

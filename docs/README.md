@@ -12,10 +12,7 @@ This directory contains all architectural plans, implementation strategies, and 
 | [style-guide.md](./style-guide.md) | **How project pages are built:** page frame, header and breadcrumbs, surfaces, type, controls. The entry page is the reference | 📌 Source of Truth |
 | [decisions/0001-local-first-desktop-client.md](./decisions/0001-local-first-desktop-client.md) | Desktop client: Tauri, no JVM, project as a folder of files, UI shared through the service seam | ✅ Accepted (file format draft) |
 | [navigation-overhaul-plan.md](./navigation-overhaul-plan.md) | Project-centric navigation: URL hierarchy, security, sidebar modes, phased rollout | 🔄 In Progress |
-| [component-architecture-plan.md](./component-architecture-plan.md) | Entry section coupling: shared type registry, workflow for adding new sections, meta-driven UI | ✅ Mostly Done |
-| [css-architecture-plan.md](./css-architecture-plan.md) | CSS tree: `base.css` → `auth.css` / `projects.css` / `app-core.css` modular structure | 🔄 In Progress |
-| [design-system-plan.md](./design-system-plan.md) | Centralized semantic typography utilities (`text-sidebar-nav-header`, etc.) | ✅ Done |
-| [ci-environment-fix-plan.md](./ci-environment-fix-plan.md) | CI pipeline fixes (Flyway timing, Gradle wrapper, Jest/ts-node, local Spring Boot issues) | ✅ Resolved |
+| [css-architecture.md](./css-architecture.md) | CSS tree: `base.css` → `auth.css` / `projects.css` / `app-core.css`, and which layout loads which | 📌 Active Reference |
 
 ## Backlog / Open TODOs
 
@@ -24,4 +21,4 @@ This directory contains all architectural plans, implementation strategies, and 
 - [ ] **Admin menu/navbar** – User management UI (admin-specific routes and views).
 - [ ] **Global Search** – Cross-project search (see navigation overhaul open questions).
 - [ ] **Shared Entries** – Recurring characters across projects/series.
-- [ ] **Meta-Data Driven UI** – `/api/entries/sections/schema` endpoint for dynamic form generation.
+- [ ] **Remember the last project** – Reopen the project the author last worked in (navigation overhaul, Phase 5).
