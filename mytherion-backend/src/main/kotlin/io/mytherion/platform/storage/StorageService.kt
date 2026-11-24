@@ -33,6 +33,14 @@ interface StorageService {
     fun deleteFile(bucketName: String, objectName: String)
 
     /**
+     * Read a stored file in full. Meant for small files, such as entry images (uploads are capped).
+     * @param bucketName The bucket/container name
+     * @param objectName The object key/path
+     * @return The file's bytes
+     */
+    fun downloadFile(bucketName: String, objectName: String): ByteArray
+
+    /**
      * Get a presigned URL for temporary access to an object
      * @param bucketName The bucket/container name
      * @param objectName The object key/path

@@ -257,6 +257,37 @@ DELETE /api/projects/{projectId}/entries/{id}/thumbnail
 
 ---
 
+## Export
+
+### Export Project
+
+The whole project as a zip of the project folder format
+([ADR 0001 §4](../../../docs/decisions/0001-local-first-desktop-client.md)): `project.json`, one Markdown
+file per entry (YAML frontmatter + `## Description` / `## Notes`) under `codex/<type>/`, and the entry
+images under `media/`.
+
+```http
+GET /api/projects/{projectId}/export
+```
+
+**Response:** `200 OK`, `Content-Type: application/zip`, with
+`Content-Disposition: attachment; filename="<project-slug>-<date>.zip"`.
+
+```
+stellar-drift/
+├── project.json
+├── codex/characters/mira-vell.md
+├── codex/locations/the-drowned-quarter.md
+└── media/<entry id>.png
+```
+
+- Deleted entries are left out.
+- An image that can't be read from storage leaves that entry without its `thumbnail`; the export still
+  succeeds (the failure is logged).
+- `404 PROJECT_NOT_FOUND` when the project is missing, deleted or not yours.
+
+---
+
 ## Project Endpoints
 
 ### Get Project Statistics

@@ -10,6 +10,7 @@ import Link from 'next/link';
 import ArcaneModuleCard from '@/app/components/ui/ArcaneModuleCard';
 import ProjectPageLayout from '@/app/components/ProjectPageLayout';
 import EntryFilters from '@/app/components/codex/EntryFilters';
+import ProjectExportPanel from '@/app/components/projects/ProjectExportPanel';
 import PageHeader from '@/app/components/ui/PageHeader';
 import routes from '@/app/config/routes';
 import { projectTrail } from '@/app/config/breadcrumbs';
@@ -212,6 +213,8 @@ export default function ProjectDashboard() {
               </button>
             </div>
           </section>
+
+          <ProjectExportPanel projectId={projectId} />
         </>
       )}
     </ProjectPageLayout>

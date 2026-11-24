@@ -40,6 +40,8 @@ dependencies {
     // Without this, it cannot construct Kotlin classes whose properties have no defaults (EntryDetail).
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.springframework.boot:spring-boot-starter-mail")
+    // YAML frontmatter in project exports (codex entries as Markdown). Version from Spring Boot's BOM.
+    implementation("org.yaml:snakeyaml")
 
     // MinIO for object storage
     implementation("io.minio:minio:9.0.3")

@@ -69,6 +69,20 @@ class MinIOStorageService(
         }
     }
 
+    override fun downloadFile(bucketName: String, objectName: String): ByteArray {
+        try {
+            return minioClient.getObject(
+                GetObjectArgs.builder()
+                    .bucket(bucketName)
+                    .`object`(objectName)
+                    .build()
+            ).use { it.readBytes() }
+        } catch (e: Exception) {
+            logger.error("Failed to download file: $bucketName/$objectName", e)
+            throw StorageException("Failed to download file", e)
+        }
+    }
+
     override fun deleteFile(bucketName: String, objectName: String) {
         val startTime = System.currentTimeMillis()
         var success = false
