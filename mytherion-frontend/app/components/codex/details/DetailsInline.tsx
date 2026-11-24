@@ -7,8 +7,12 @@ import InlineText from '../inline/InlineText';
 
 interface DetailsInlineProps {
   details: EntryDetail[];
-  /** Persist the whole list. Resolves to false when the save failed. */
-  onChange: (details: EntryDetail[]) => Promise<boolean>;
+  /**
+   * Save a change to the list. It gets a function rather than a list: the caller applies it to the
+   * details as last saved, so two quick edits don't build from the same old list and undo each
+   * other. Resolves to false when the save failed.
+   */
+  onChange: (change: (details: EntryDetail[]) => EntryDetail[]) => Promise<boolean>;
   disabled?: boolean;
 }
 
@@ -22,21 +26,24 @@ export default function DetailsInline({ details, onChange, disabled = false }: D
   const [adding, setAdding] = useState(false);
 
   const update = (id: string, patch: Partial<EntryDetail>) =>
-    onChange(details.map((d) => (d.id === id ? { ...d, ...patch } : d)));
+    onChange((list) => list.map((d) => (d.id === id ? { ...d, ...patch } : d)));
 
   const remove = (detail: EntryDetail) => {
     const hasValue = (detail.value ?? '').trim() !== '';
     if (hasValue && !window.confirm(`Remove "${detail.label || 'this detail'}" and its text?`)) return;
-    void onChange(details.filter((d) => d.id !== detail.id));
+    void onChange((list) => list.filter((d) => d.id !== detail.id));
   };
 
-  const move = (index: number, offset: -1 | 1) => {
-    const target = index + offset;
-    if (target < 0 || target >= details.length) return;
-    const next = [...details];
-    [next[index], next[target]] = [next[target], next[index]];
-    void onChange(next);
-  };
+  // By id, not index: the saved list may differ from the one on screen while earlier saves run.
+  const move = (id: string, offset: -1 | 1) =>
+    void onChange((list) => {
+      const index = list.findIndex((d) => d.id === id);
+      const target = index + offset;
+      if (index < 0 || target < 0 || target >= list.length) return list;
+      const next = [...list];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
 
   const requireLabel = (label: string) => (label.trim() ? null : 'A detail needs a label.');
   const iconButton = 'text-white/35 hover:text-white transition-colors disabled:opacity-30 disabled:hover:text-white/35';
@@ -74,10 +81,10 @@ export default function DetailsInline({ details, onChange, disabled = false }: D
                       info
                     </span>
                   )}
-                  <button type="button" onClick={() => move(index, -1)} disabled={index === 0} aria-label={`Move ${detail.label || 'detail'} up`} className={iconButton}>
+                  <button type="button" onClick={() => move(detail.id, -1)} disabled={index === 0} aria-label={`Move ${detail.label || 'detail'} up`} className={iconButton}>
                     <span className="material-symbols-outlined text-[16px]" aria-hidden="true">arrow_upward</span>
                   </button>
-                  <button type="button" onClick={() => move(index, 1)} disabled={index === details.length - 1} aria-label={`Move ${detail.label || 'detail'} down`} className={iconButton}>
+                  <button type="button" onClick={() => move(detail.id, 1)} disabled={index === details.length - 1} aria-label={`Move ${detail.label || 'detail'} down`} className={iconButton}>
                     <span className="material-symbols-outlined text-[16px]" aria-hidden="true">arrow_downward</span>
                   </button>
                   <button type="button" onClick={() => remove(detail)} aria-label={`Remove ${detail.label || 'detail'}`} className="text-white/35 hover:text-rose-400 transition-colors">
@@ -112,7 +119,7 @@ export default function DetailsInline({ details, onChange, disabled = false }: D
           onCancel={() => setAdding(false)}
           onSave={async (label) => {
             // Stay open until it is saved, so a failed save keeps the label to retry.
-            const ok = await onChange([...details, { id: newDetailId(), label, value: null }]);
+            const ok = await onChange((list) => [...list, { id: newDetailId(), label, value: null }]);
             if (ok) setAdding(false);
             return ok;
           }}

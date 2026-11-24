@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchEntry, deleteEntry, clearCurrentEntry } from '@/app/store/codexSlice';
 import { fetchProject } from '@/app/store/projectSlice';
@@ -37,6 +37,8 @@ export default function EntryDetailPage() {
   const { save, saveImage, state: saveState, error: saveError } = useEntryAutosave(projectId, currentEntry);
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  // Set by New Entry when the entry was created but its image upload failed.
+  const imageFailed = useSearchParams().get('image') === 'failed';
 
   // Fetch once per entry. Not tied to the project: a refetch while editing would be wasted.
   useEffect(() => {
@@ -62,7 +64,12 @@ export default function EntryDetailPage() {
   };
 
   const project = routes.project(projectId);
-  const content = normalizeContent(currentEntry?.content);
+  const dismissImageNotice = () => router.replace(project.codex.detail(entryId));
+  const handleImageChange = async (file: File | null) => {
+    const ok = await saveImage(file);
+    if (ok && imageFailed) dismissImageNotice();
+    return ok;
+  };
 
   return (
     <ProjectPageLayout
@@ -120,14 +127,32 @@ export default function EntryDetailPage() {
             </div>
           </PageHeader>
 
+          {imageFailed && (
+            <div role="alert" className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-start gap-3">
+              <span className="material-symbols-outlined text-amber-400 text-[20px]" aria-hidden="true">warning</span>
+              <p className="flex-1 text-sm text-amber-200">
+                The entry was created, but its image could not be uploaded. Add it again in the image box.
+              </p>
+              <button type="button" onClick={dismissImageNotice} className="btn-pill btn-pill-secondary">
+                Dismiss
+              </button>
+            </div>
+          )}
+
           {/* Two columns (docs/codex-entry-model.md): sidebar left, main right. On narrow
               screens the main column comes first. The New Entry form uses the same grid. */}
           <div className="grid grid-cols-1 lg:grid-cols-[18rem_minmax(0,1fr)] gap-8 items-start">
             <div className="order-2 lg:order-1">
               <EntrySidebar
                 entry={currentEntry}
-                onDetailsChange={(details) => save({ content: { ...content, details } })}
-                onImageChange={saveImage}
+                // Applied to the entry as last saved, not this render's copy (see useEntryAutosave).
+                onDetailsChange={(change) =>
+                  save((latest) => {
+                    const saved = normalizeContent(latest.content);
+                    return { content: { ...saved, details: change(saved.details) } };
+                  })
+                }
+                onImageChange={handleImageChange}
               />
             </div>
 

@@ -148,10 +148,24 @@ export default function InlineText({
     };
     return (
       <div className={inline ? 'inline-block max-w-full' : 'w-full'}>
+        {/* field-sizing:content sizes the editor to its text where supported (Chromium), and then
+            rows/size are ignored. Elsewhere (Firefox) rows and size are the fallback: the text's
+            line count, at least 3 and at most 15, and the textarea can still be dragged taller. */}
         {multiline ? (
-          <textarea ref={field} {...shared} rows={1} className={`${editorClass} resize-none [field-sizing:content]`} />
+          <textarea
+            ref={field}
+            {...shared}
+            rows={Math.min(15, Math.max(3, draft.split('\n').length + 1))}
+            className={`${editorClass} resize-y [field-sizing:content]`}
+          />
         ) : (
-          <input ref={field} type="text" {...shared} className={editorClass} />
+          <input
+            ref={field}
+            type="text"
+            {...shared}
+            size={inline ? Math.max(8, draft.length + 1) : undefined}
+            className={editorClass}
+          />
         )}
         {error && <p className="field-error">{error}</p>}
       </div>

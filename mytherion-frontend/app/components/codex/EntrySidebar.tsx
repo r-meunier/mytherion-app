@@ -10,8 +10,8 @@ import { mediaService, MEDIA_CONSTRAINTS } from '@/app/services/mediaService';
 
 interface EntrySidebarProps {
   entry: CodexEntry;
-  /** Save the details. Given: the details are edited in place. */
-  onDetailsChange?: (details: EntryDetail[]) => Promise<boolean>;
+  /** Save a change to the details (see DetailsInline). Given: the details are edited in place. */
+  onDetailsChange?: (change: (details: EntryDetail[]) => EntryDetail[]) => Promise<boolean>;
   /** Store a new image (a file) or remove it (null). Given: the image can be changed in place. */
   onImageChange?: (file: File | null) => Promise<boolean>;
 }

@@ -10,10 +10,12 @@ jest.mock('@/app/store/hooks', () => ({
   useAppDispatch: jest.fn(),
 }));
 
-const mockRouter = { push: jest.fn() };
+const mockRouter = { push: jest.fn(), replace: jest.fn() };
+let mockSearch = '';
 jest.mock('next/navigation', () => ({
   useRouter: () => mockRouter,
   useParams: () => ({ projectId: 'p1', entryId: 'e1' }),
+  useSearchParams: () => new URLSearchParams(mockSearch),
 }));
 
 jest.mock('@/app/store/codexSlice', () => ({
@@ -68,6 +70,7 @@ describe('EntryDetailPage', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockSearch = '';
     const state = {
       entries: { currentEntry: entry, error: null },
       projects: { currentProject: { id: 'p1', name: 'Stellar Drift' } },
@@ -117,5 +120,20 @@ describe('EntryDetailPage', () => {
       id: 'e1',
       data: { content: { templateId: null, details: [{ id: 'd1', label: 'Size', value: '13 councillors' }] }, version: 7 },
     });
+  });
+
+  it('says so when New Entry could not upload the image, until it is dismissed', () => {
+    mockSearch = 'image=failed';
+    render(<EntryDetailPage />);
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/image could not be uploaded/);
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    expect(mockRouter.replace).toHaveBeenCalledWith('/projects/p1/codex/e1');
+  });
+
+  it('shows no image notice on a normal visit', () => {
+    render(<EntryDetailPage />);
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

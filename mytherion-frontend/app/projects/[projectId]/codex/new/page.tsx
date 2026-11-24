@@ -44,8 +44,10 @@ export default function NewEntryPage() {
     const result = await dispatch(createEntry({ projectId, data }));
     if (createEntry.fulfilled.match(result)) {
       const created = result.payload as CodexEntry;
-      await mediaService.applyEntryThumbnailChange(projectId, created.id, { file: image, removed: false });
-      router.push(routes.project(projectId).codex.detail(created.id));
+      const stored = await mediaService.applyEntryThumbnailChange(projectId, created.id, { file: image, removed: false });
+      // The entry exists either way, so open it; if its image didn't make it, the entry page says so.
+      const detail = routes.project(projectId).codex.detail(created.id);
+      router.push(image && !stored ? `${detail}?image=failed` : detail);
     } else {
       setSaving(false);
     }

@@ -3,6 +3,9 @@ import '@testing-library/jest-dom';
 import DetailsInline from './DetailsInline';
 import { ContextRole, EntryDetail } from '@/app/types/codex';
 
+// onChange gets an updater; this is the list it produces from the details shown.
+const applied = (onChange: jest.Mock, call = 0) => onChange.mock.calls[call][0](details);
+
 const details: EntryDetail[] = [
   { id: 'a', label: 'Story role', value: 'Protagonist', role: ContextRole.IDENTITY },
   { id: 'b', label: 'Voice', value: null, hint: 'How do they talk?' },
@@ -25,7 +28,7 @@ describe('DetailsInline', () => {
       fireEvent.blur(screen.getByRole('textbox', { name: 'Story role' }));
     });
 
-    expect(onChange).toHaveBeenCalledWith([
+    expect(applied(onChange)).toEqual([
       { id: 'a', label: 'Story role', value: 'Antagonist', role: ContextRole.IDENTITY },
       details[1],
     ]);
@@ -41,7 +44,7 @@ describe('DetailsInline', () => {
       fireEvent.keyDown(screen.getByRole('textbox', { name: 'label of Story role' }), { key: 'Enter' });
     });
 
-    expect(onChange.mock.calls[0][0][0]).toEqual({ ...details[0], label: 'Role' });
+    expect(applied(onChange)[0]).toEqual({ ...details[0], label: 'Role' });
   });
 
   it('adds a detail once it has a label, and drops it when left empty', async () => {
@@ -58,9 +61,20 @@ describe('DetailsInline', () => {
       fireEvent.keyDown(screen.getByRole('textbox', { name: "new detail's label" }), { key: 'Enter' });
     });
 
-    const saved = onChange.mock.calls[0][0];
+    const saved = applied(onChange);
     expect(saved).toHaveLength(3);
     expect(saved[2]).toMatchObject({ label: 'Pronouns', value: null });
+  });
+
+  it('applies edits to the list it is given, not the one on screen, so queued edits keep each other', () => {
+    const onChange = jest.fn().mockResolvedValue(true);
+    render(<DetailsInline details={details} onChange={onChange} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Move Story role down' }));
+
+    // The list as an earlier save left it: Story role already changed, a detail added.
+    const saved: EntryDetail[] = [{ ...details[0], value: 'Antagonist' }, details[1], { id: 'c', label: 'Pronouns', value: null }];
+    expect(onChange.mock.calls[0][0](saved)).toEqual([saved[1], saved[0], saved[2]]);
   });
 
   it('moves a detail down', () => {
@@ -69,6 +83,6 @@ describe('DetailsInline', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Move Story role down' }));
 
-    expect(onChange).toHaveBeenCalledWith([details[1], details[0]]);
+    expect(applied(onChange)).toEqual([details[1], details[0]]);
   });
 });

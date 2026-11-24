@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent, within, waitFor } from '@testing-library/react';
+import { codexService } from '@/app/services/codexService';
 import EntryForm from './EntryForm';
 
 // Mock child sections that are not under test
@@ -141,9 +142,32 @@ describe('EntryForm - layout and submit', () => {
     expect(within(header).getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
   });
 
-  it('hands over the chosen image with the entry, or null when there is none', () => {
+  // Create stays disabled until the chosen type's templates have arrived.
+  const templatesLoaded = () =>
+    waitFor(() => expect(screen.getByRole('button', { name: 'Create Entry' })).toBeEnabled());
+
+  it('keeps Create disabled until the templates for the chosen type have loaded', async () => {
+    renderForm();
+
+    expect(screen.getByRole('button', { name: 'Create Entry' })).toBeDisabled();
+    await templatesLoaded();
+  });
+
+  it('does not submit while templates are still loading', () => {
+    (codexService.getTemplates as jest.Mock).mockReturnValueOnce(new Promise(() => {}));
     const onSubmit = jest.fn();
     renderForm(onSubmit);
+    fireEvent.change(screen.getByLabelText(/Name/), { target: { value: 'Mira Vell' } });
+
+    fireEvent.submit(screen.getByRole('form', { name: 'New entry' }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('hands over the chosen image with the entry, or null when there is none', async () => {
+    const onSubmit = jest.fn();
+    renderForm(onSubmit);
+    await templatesLoaded();
     fireEvent.change(screen.getByLabelText(/Name/), { target: { value: 'Mira Vell' } });
 
     fireEvent.click(screen.getByRole('button', { name: 'Create Entry' }));
@@ -155,9 +179,10 @@ describe('EntryForm - layout and submit', () => {
     expect(onSubmit).toHaveBeenLastCalledWith(expect.anything(), file);
   });
 
-  it('does not hand over an image that was chosen and then removed', () => {
+  it('does not hand over an image that was chosen and then removed', async () => {
     const onSubmit = jest.fn();
     renderForm(onSubmit);
+    await templatesLoaded();
     fireEvent.change(screen.getByLabelText(/Name/), { target: { value: 'Mira Vell' } });
     fireEvent.change(screen.getByLabelText(/Entry image/i, { selector: 'input' }), {
       target: { files: [new File(['img'], 'mira.png', { type: 'image/png' })] },

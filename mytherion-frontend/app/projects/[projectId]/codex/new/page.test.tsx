@@ -32,7 +32,7 @@ jest.mock('@/app/store/projectSlice', () => ({
 }));
 
 jest.mock('@/app/services/mediaService', () => ({
-  mediaService: { applyEntryThumbnailChange: jest.fn().mockResolvedValue(false) },
+  mediaService: { applyEntryThumbnailChange: jest.fn().mockResolvedValue(true) },
 }));
 
 jest.mock('@/app/components/AppHeader', () => {
@@ -47,6 +47,7 @@ jest.mock('@/app/components/DualSidebar', () => {
   return MockSidebar;
 });
 
+let mockImage: File | null = null;
 jest.mock('@/app/components/codex/EntryForm', () => {
   const MockEntryForm = ({
     defaultType,
@@ -60,7 +61,7 @@ jest.mock('@/app/components/codex/EntryForm', () => {
     onSubmit: (data: unknown, image: unknown) => void;
   }) => (
     <div data-testid="entry-form" data-default-type={defaultType ?? ''}>
-      <button disabled={loading} onClick={() => onSubmit({ type: 'CHARACTER', name: 'Mira' }, null)}>
+      <button disabled={loading} onClick={() => onSubmit({ type: 'CHARACTER', name: 'Mira' }, mockImage)}>
         Create
       </button>
       {error && <p>{error}</p>}
@@ -79,6 +80,7 @@ describe('NewEntryPage', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockImage = null;
     mockSearch = '';
     state = { projects: { currentProject: { id: 'p1', name: 'Saltmarsh' } }, entries: { loading: false, error: null } };
     createResult = { type: 'entries/createEntry/fulfilled', payload: { id: 'new-1' } };
@@ -107,6 +109,16 @@ describe('NewEntryPage', () => {
 
     await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/projects/p1/codex/new-1'));
     expect(mediaService.applyEntryThumbnailChange).toHaveBeenCalledWith('p1', 'new-1', { file: null, removed: false });
+  });
+
+  it('still opens the new entry when its image upload fails, flagged so the entry page can say so', async () => {
+    mockImage = new File(['img'], 'mira.png', { type: 'image/png' });
+    (mediaService.applyEntryThumbnailChange as jest.Mock).mockResolvedValueOnce(false);
+    render(<NewEntryPage />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+    await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/projects/p1/codex/new-1?image=failed'));
   });
 
   it('keeps the form after a failed save, enabled again, with nothing lost', async () => {

@@ -211,7 +211,7 @@ export default function EntryForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validate()) {
+    if (templatesLoading || !validate()) {
       return;
     }
 
@@ -227,7 +227,8 @@ export default function EntryForm({
     <form onSubmit={handleSubmit} aria-label="New entry" className="space-y-10 pb-12">
       <PageHeader title={title ?? 'New entry'} subtitle={subtitle} breadcrumbs={breadcrumbs}>
         <div className="flex items-center gap-2 lg:justify-end">
-          <button type="submit" disabled={loading} className="btn-pill btn-pill-primary">
+          {/* Not while templates load: the details shown would still be the previous type's. */}
+          <button type="submit" disabled={loading || templatesLoading} className="btn-pill btn-pill-primary">
             <span className="material-symbols-outlined" aria-hidden="true">check</span>
             <span>{loading ? 'Saving...' : 'Create Entry'}</span>
           </button>
