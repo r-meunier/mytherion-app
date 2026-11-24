@@ -115,8 +115,6 @@ See [`docs/`](../docs/README.md) for the current architectural plans:
 - `docs/design_references/` holds screenshots of NovelCrafter and Sudowrite (workspace layouts, project
   creation, onboarding, tooltips). They are UI inspiration for comparing patterns, not specs to copy.
 - **Style guide** (`docs/style-guide.md`): every page inside a project uses `ProjectPageLayout` + `PageHeader` and the shared surface/control classes. Read it before building or restyling a page.
-- Design system (semantic typography utilities)
-- CI/environment fixes
 
 ---
 

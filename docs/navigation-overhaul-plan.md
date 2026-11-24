@@ -2,7 +2,8 @@
 
 > **Status:** Phases 1–4 are done: project-scoped API and routes, the project sidebar, the projects
 > hub. Phase 5 (remembering the last project) is not started and is in the
-> [backlog](./README.md#backlog--open-todos), as are the open questions in §7. The rest of this file
+> [backlog](./README.md#backlog--open-todos), as are two of the open questions in §7 (Global Search,
+> Shared Entries). The third, a Global Codex, is untracked: §7 leans "no". The rest of this file
 > is the original plan; where it differs from the code (e.g. `/projects/new`, `/timeline`, a
 > `projectContext` slice), the code wins.
 

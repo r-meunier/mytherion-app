@@ -1,11 +1,12 @@
-# Entry Management API Documentation
+# Codex Entry API
 
-> Vocabulary follows [`terminology.md`](../../../docs/terminology.md). `Category` was removed in MYT-81.
-
+> Vocabulary follows [`terminology.md`](../../../docs/terminology.md). The entry model behind
+> `content` is described in [`codex-entry-model.md`](../../../docs/codex-entry-model.md).
 
 ## Overview
 
-The Entry Management API provides endpoints for managing lore entries (characters, locations, organizations, species, cultures, and items) within projects.
+Endpoints for the codex entries (characters, locations, organizations, species, cultures, items and
+custom entries) inside a project, plus the built-in templates a new entry starts from.
 
 ---
 
@@ -19,18 +20,52 @@ http://localhost:8080/api
 
 ## Authentication
 
-All endpoints require JWT authentication via HttpOnly cookie (set during login).
+All endpoints require JWT authentication via HttpOnly cookie (set during login). Every
+`/api/projects/{projectId}/**` route also checks that the project is yours (`ProjectAccessInterceptor`).
 
 ---
 
 ## Entry Types
 
-- `CHARACTER` - Characters in your lore
-- `LOCATION` - Places and locations
-- `ORGANIZATION` - Groups, guilds, factions
-- `SPECIES` - Races and species
-- `CULTURE` - Cultures and civilizations
-- `ITEM` - Objects and artifacts
+`CHARACTER`, `LOCATION`, `ORGANIZATION`, `SPECIES`, `CULTURE`, `ITEM`, `CUSTOM`
+
+---
+
+## The entry
+
+```json
+{
+  "id": "8d0c1c5e-4f2a-4d3b-9a51-2f6c0e7b1a90",
+  "projectId": "aab61b78-ee8b-4ba0-b3e3-9e4655bbde8f",
+  "type": "CHARACTER",
+  "name": "Mira Vell",
+  "description": "A disgraced cartographer who charts the flooded districts.",
+  "notes": "Secretly the heir.",
+  "tags": ["cartographer", "exile"],
+  "aliases": ["The Cartographer"],
+  "thumbnail": "mytherion-uploads/entries/8d0c…/1737238800000_mira.jpg",
+  "content": {
+    "templateId": "character-basic",
+    "details": [
+      { "id": "3b1f…", "label": "Story role", "value": "Protagonist", "hint": "Protagonist, antagonist…", "role": "IDENTITY" },
+      { "id": "9e4a…", "label": "Voice", "value": null, "hint": "How do they talk?", "role": "VOICE" }
+    ]
+  },
+  "version": 3,
+  "createdAt": "2026-10-08T10:00:00Z",
+  "updatedAt": "2026-10-08T11:00:00Z"
+}
+```
+
+- `notes` are private to the author; `description` is the main lore text.
+- `content.details` is an ordered, author-controlled list. `hint` and `role` come from the template the
+  detail was started from; `role` is one of `IDENTITY`, `APPEARANCE`, `VOICE`, `MOTIVATION`,
+  `BACKSTORY`, `SENSORY`, `CURRENT_STATE`, or absent.
+- `version` is for optimistic locking: send it back on update (see Update Entry).
+
+**`content` rules** (otherwise `400 INVALID_ENTRY_CONTENT`): at most 100 details; detail ids unique;
+every label non-blank and at most 100 characters; values at most 20,000 characters; hints at most 500;
+`templateId`, when present, 1 to 64 characters.
 
 ---
 
@@ -43,40 +78,23 @@ Get a paginated list of entries in a project with optional filters.
 **Request:**
 
 ```http
-GET /api/projects/{projectId}/entries?type=CHARACTER&tags=hero,mage&search=gandalf&page=0&size=20
+GET /api/projects/{projectId}/entries?type=CHARACTER&tags=hero,mage&search=mira&page=0&size=20
 ```
 
 **Query Parameters:**
 
 - `type` (optional) - Filter by entry type
 - `tags` (optional) - Comma-separated list of tags
-- `search` (optional) - Search in name, summary, description
+- `search` (optional) - Case-insensitive match on name, aliases, description and notes
 - `page` (optional, default: 0) - Page number, 0 or more
 - `size` (optional, default: 20) - Page size, 1 to 100. Out-of-range values return 400 `VALIDATION_FAILED`.
 
-**Response:** `200 OK`
+**Response:** `200 OK`, a page of entries, newest first:
 
 ```json
 {
-  "content": [
-    {
-      "id": 1,
-      "projectId": 1,
-      "type": "CHARACTER",
-      "name": "Gandalf",
-      "summary": "A wise wizard",
-      "description": "Gandalf the Grey, later Gandalf the White...",
-      "tags": ["wizard", "hero", "mage"],
-      "thumbnail": "mytherion-uploads/entries/1/gandalf.jpg",
-      "content": "{\"age\": \"2000+\", \"role\": \"Wizard\"}",
-      "createdAt": "2026-01-18T22:00:00Z",
-      "updatedAt": "2026-01-18T22:00:00Z"
-    }
-  ],
-  "pageable": {
-    "pageNumber": 0,
-    "pageSize": 20
-  },
+  "content": [ { "id": "8d0c…", "name": "Mira Vell", "type": "CHARACTER", "…": "…" } ],
+  "pageable": { "pageNumber": 0, "pageSize": 20 },
   "totalElements": 1,
   "totalPages": 1
 }
@@ -86,8 +104,6 @@ GET /api/projects/{projectId}/entries?type=CHARACTER&tags=hero,mage&search=ganda
 
 ### Create Entry
 
-Create a new entry in a project.
-
 **Request:**
 
 ```http
@@ -96,70 +112,31 @@ Content-Type: application/json
 
 {
   "type": "CHARACTER",
-  "name": "Aragorn",
-  "summary": "Heir to the throne of Gondor",
-  "description": "Aragorn II, son of Arathorn...",
-  "tags": ["ranger", "king", "hero"],
-  "content": "{\"age\": \"87\", \"role\": \"Ranger/King\"}"
+  "name": "Mira Vell",
+  "description": "A disgraced cartographer…",
+  "tags": ["cartographer"],
+  "aliases": ["The Cartographer"],
+  "content": {
+    "templateId": "character-basic",
+    "details": [{ "id": "3b1f…", "label": "Story role", "value": "Protagonist", "role": "IDENTITY" }]
+  }
 }
 ```
 
-**Validation:**
+**Fields:** `type` required; `name` required, 1-255 characters; `description`, `notes`, `tags`,
+`aliases`, `thumbnail` and `content` optional. The client creates detail ids (UUIDs).
 
-- `type` - Required
-- `name` - Required, 1-255 characters
-- `summary` - Optional, max 1000 characters
-- `description` - Optional
-- `tags` - Optional array
-- `content` - Optional JSON object of entry sections
-
-**Response:** `201 Created`
-
-```json
-{
-  "id": 2,
-  "projectId": 1,
-  "type": "CHARACTER",
-  "name": "Aragorn",
-  "summary": "Heir to the throne of Gondor",
-  "description": "Aragorn II, son of Arathorn...",
-  "tags": ["ranger", "king", "hero"],
-  "thumbnail": null,
-  "content": "{\"age\": \"87\", \"role\": \"Ranger/King\"}",
-  "createdAt": "2026-01-18T23:00:00Z",
-  "updatedAt": "2026-01-18T23:00:00Z"
-}
-```
+**Response:** `201 Created` with the entry.
 
 ---
 
 ### Get Entry
 
-Get a single entry by ID.
-
-**Request:**
-
 ```http
 GET /api/projects/{projectId}/entries/{id}
 ```
 
-**Response:** `200 OK`
-
-```json
-{
-  "id": 1,
-  "projectId": 1,
-  "type": "CHARACTER",
-  "name": "Gandalf",
-  "summary": "A wise wizard",
-  "description": "Gandalf the Grey...",
-  "tags": ["wizard", "hero"],
-  "thumbnail": "mytherion-uploads/entries/1/gandalf.jpg",
-  "content": "{\"age\": \"2000+\"}",
-  "createdAt": "2026-01-18T22:00:00Z",
-  "updatedAt": "2026-01-18T22:00:00Z"
-}
-```
+**Response:** `200 OK` with the entry.
 
 **Error Responses:**
 
@@ -170,56 +147,57 @@ GET /api/projects/{projectId}/entries/{id}
 
 ### Update Entry
 
-Update an existing entry (partial update).
-
-**Request:**
+Partial update: only the fields you send change. The entry page saves one field at a time this way.
 
 ```http
 PATCH /api/projects/{projectId}/entries/{id}
 Content-Type: application/json
 
-{
-  "name": "Gandalf the White",
-  "summary": "The White Wizard",
-  "tags": ["wizard", "hero", "white"]
-}
+{ "name": "Mira Vell-Arden", "version": 3 }
 ```
 
-**Note:** All fields are optional. Only provided fields will be updated.
+- `content`, when sent, replaces the whole `content`: send every detail, not just the changed one.
+- `version`: when sent and it is not the stored version, the update is refused with
+  `409 CONCURRENT_MODIFICATION`. Reload the entry and retry.
 
-**Response:** `200 OK`
-
-```json
-{
-  "id": 1,
-  "projectId": 1,
-  "type": "CHARACTER",
-  "name": "Gandalf the White",
-  "summary": "The White Wizard",
-  "description": "Gandalf the Grey...",
-  "tags": ["wizard", "hero", "white"],
-  "thumbnail": "mytherion-uploads/entries/1/gandalf.jpg",
-  "content": "{\"age\": \"2000+\"}",
-  "createdAt": "2026-01-18T22:00:00Z",
-  "updatedAt": "2026-01-18T23:05:00Z"
-}
-```
+**Response:** `200 OK` with the updated entry, including its new `version`. Send that version with the
+next update.
 
 ---
 
 ### Delete Entry
 
-Soft delete an entry.
-
-**Request:**
-
 ```http
 DELETE /api/projects/{projectId}/entries/{id}
 ```
 
-**Response:** `204 No Content`
+**Response:** `204 No Content`. This is a soft delete: the entry is marked as deleted but not removed
+from the database.
 
-**Note:** This is a soft delete. The entry is marked as deleted but not removed from the database.
+---
+
+### List Templates
+
+The built-in starting points for a new entry (Blank, Basic) for one entry type. Not project-scoped.
+
+```http
+GET /api/codex/templates?type=CHARACTER
+```
+
+**Response:** `200 OK`
+
+```json
+[
+  { "id": "character-blank", "entryType": "CHARACTER", "level": "BLANK", "name": "Blank",
+    "description": "Start empty and add only the details you want.", "details": [] },
+  { "id": "character-basic", "entryType": "CHARACTER", "level": "BASIC", "name": "Basic",
+    "description": "A handful of key details to get you started.",
+    "details": [{ "label": "Story role", "hint": "Protagonist, antagonist…", "role": "IDENTITY" }] }
+]
+```
+
+A template's details have no `id` or `value`: the client gives each one an id when it copies them into
+an entry.
 
 ---
 
@@ -241,12 +219,12 @@ file: [binary image data]
 - **Allowed types:** JPEG, PNG, GIF, WebP
 - **Max size:** 5MB by default, set by `MAX_UPLOAD_FILE_SIZE` (`spring.servlet.multipart.max-file-size`)
 
-**Response:** `200 OK`
+**Response:** `200 OK`. The entry's `thumbnail` changes too; fetch the entry again for it and its new `version`.
 
 ```json
 {
-  "url": "mytherion-uploads/entries/1/1737238800000_gandalf.jpg",
-  "objectKey": "entries/1/1737238800000_gandalf.jpg",
+  "url": "mytherion-uploads/entries/8d0c…/1737238800000_mira.jpg",
+  "objectKey": "entries/8d0c…/1737238800000_mira.jpg",
   "bucketName": "mytherion-uploads",
   "contentType": "image/jpeg",
   "size": 245678
@@ -275,7 +253,7 @@ DELETE /api/projects/{projectId}/entries/{id}/thumbnail
 
 **Error Responses:**
 
-- `404 Not Found` - No image found for entry
+- `404 Not Found` (`THUMBNAIL_NOT_FOUND`) - The entry has no image
 
 ---
 
@@ -295,7 +273,7 @@ GET /api/projects/{id}/stats
 
 ```json
 {
-  "id": 1,
+  "id": "aab61b78-ee8b-4ba0-b3e3-9e4655bbde8f",
   "name": "Middle Earth",
   "description": "Tolkien's world",
   "entryCount": 25,
@@ -327,7 +305,7 @@ Security.
   "error": "Bad Request",
   "code": "VALIDATION_FAILED",
   "message": "Request validation failed",
-  "path": "/api/projects/1/entries",
+  "path": "/api/projects/aab61b78-ee8b-4ba0-b3e3-9e4655bbde8f/entries",
   "timestamp": "2026-01-18T23:00:00Z",
   "requestId": "3f2c9a4e-1b7d-4c2a-9e8f-5d6a7b8c9d0e",
   "errors": { "name": ["Name is required"] }
@@ -347,7 +325,7 @@ they drift.
 
 | Status | Codes |
 |---|---|
-| `400 Bad Request` | `VALIDATION_FAILED`, `MALFORMED_REQUEST` (bad JSON or multipart), `INVALID_PARAMETER`, `INVALID_FILE`, `BAD_REQUEST` |
+| `400 Bad Request` | `VALIDATION_FAILED`, `INVALID_ENTRY_CONTENT` (breaks a `content` rule), `MALFORMED_REQUEST` (bad JSON or multipart), `INVALID_PARAMETER`, `INVALID_FILE`, `BAD_REQUEST` |
 | `401 Unauthorized` | `UNAUTHENTICATED`, `INVALID_CREDENTIALS` |
 | `403 Forbidden` | `ACCESS_DENIED`: identical body for every role or account-ownership denial |
 | `404 Not Found` | `PROJECT_NOT_FOUND` (missing, deleted or someone else's: one body for all three), `ENTRY_NOT_FOUND`, `USER_NOT_FOUND`, `THUMBNAIL_NOT_FOUND`, `NOT_FOUND` (no such endpoint) |
@@ -360,48 +338,37 @@ they drift.
 
 ## Example Workflows
 
+`$PROJECT` and `$ENTRY` stand for UUIDs; `-b cookies.txt` sends the session cookie saved at login.
+
 ### Create a Character with Image
 
 1. Create the character:
 
 ```bash
-curl -X POST http://localhost:8080/api/projects/1/entries \
+curl -b cookies.txt -X POST http://localhost:8080/api/projects/$PROJECT/entries \
   -H "Content-Type: application/json" \
-  -d '{
-    "type": "CHARACTER",
-    "name": "Frodo Baggins",
-    "summary": "Ring bearer",
-    "tags": ["hobbit", "hero"]
-  }'
+  -d '{ "type": "CHARACTER", "name": "Frodo Baggins", "tags": ["hobbit", "hero"] }'
 ```
 
 2. Upload an image:
 
 ```bash
-curl -X POST http://localhost:8080/api/projects/{projectId}/entries/3/thumbnail \
+curl -b cookies.txt -X POST http://localhost:8080/api/projects/$PROJECT/entries/$ENTRY/thumbnail \
   -F "file=@frodo.jpg"
 ```
 
 ### Search for Entries
 
-Search for all wizard characters:
-
 ```bash
-curl "http://localhost:8080/api/projects/1/entries?type=CHARACTER&tags=wizard&page=0&size=10"
+curl -b cookies.txt "http://localhost:8080/api/projects/$PROJECT/entries?type=CHARACTER&tags=wizard&page=0&size=10"
 ```
 
 ### Update and Delete
 
-Update entry:
-
 ```bash
-curl -X PATCH http://localhost:8080/api/entries/1 \
+curl -b cookies.txt -X PATCH http://localhost:8080/api/projects/$PROJECT/entries/$ENTRY \
   -H "Content-Type: application/json" \
-  -d '{"summary": "Updated summary"}'
-```
+  -d '{ "description": "Updated description", "version": 3 }'
 
-Delete entry:
-
-```bash
-curl -X DELETE http://localhost:8080/api/entries/1
+curl -b cookies.txt -X DELETE http://localhost:8080/api/projects/$PROJECT/entries/$ENTRY
 ```
