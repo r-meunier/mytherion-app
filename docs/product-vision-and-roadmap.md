@@ -166,9 +166,10 @@ is a writing tool without AI.
 - **AI calls are provider-agnostic** behind one interface, so a local model can be added later
   without touching the context engine.
 
-**Open question: the backend on desktop.** A Spring Boot backend means shipping a JVM sidecar
-inside the desktop app. Whether that is acceptable, or whether the desktop edition needs a
-lighter backend, should be decided before the backend grows much further.
+**Resolved: the backend on desktop.** The desktop edition does not ship the JVM. It is a second
+client in this monorepo that reuses the UI and implements the service layer locally, with the
+project stored as a folder of files. See
+[decisions/0001-local-first-desktop-client.md](./decisions/0001-local-first-desktop-client.md).
 
 ### 4.3 Routes
 
@@ -209,7 +210,8 @@ lighter backend, should be decided before the backend grows much further.
 Valuable, but not part of the core loop. Ordered roughly by priority.
 
 1. **Local-first desktop edition**: Tauri (preferred) or Electron shell, embedded database
-   (SQLite), local file storage. Depends on resolving the backend-on-desktop question in §4.2.
+   (SQLite) as an index over a project folder of files. Design in
+   [decisions/0001](./decisions/0001-local-first-desktop-client.md).
 2. **Single-file project package** (`.mytherion`): a structured archive of data + media,
    portable across machines.
 3. **Multiple AI providers** (Claude, OpenAI, Gemini, OpenRouter) and **local inference**
