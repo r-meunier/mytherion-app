@@ -101,7 +101,7 @@ npm run dev
 - **Never** edit an already-applied Flyway migration. New schema change = new migration file.
 - **Keep the codex enums in sync** (`EntryType`, `ContextRole`, `TemplateLevel`) between the backend models and `types/codex.ts`. `scripts/check_contract_parity.py` checks them in CI.
 - Code is organized **by domain**, not by layer. Preserve that structure in the backend.
-- All frontend API calls must go through the Axios instance in `apiConfig.ts` — never use raw `fetch` for authenticated requests.
+- All frontend API calls go through the service layer (`app/services/*`): Axios with `withCredentials` and `API_URL` from `apiConfig.ts`, routes from `config/apiRoutes.ts`. Never use raw `fetch` for authenticated requests.
 
 ---
 

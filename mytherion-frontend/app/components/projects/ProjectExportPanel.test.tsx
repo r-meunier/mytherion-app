@@ -31,8 +31,24 @@ describe('ProjectExportPanel', () => {
 
     await waitFor(() => expect(clicked).toEqual([{ href: 'blob:export', download: 'stellar-drift-2026-11-24.zip' }]));
     expect(projectService.exportProject).toHaveBeenCalledWith('p1');
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:export');
     expect(screen.getByRole('button', { name: /Export Project/ })).toBeEnabled();
+  });
+
+  it('frees the download URL only after the browser has had time to start the download', async () => {
+    jest.useFakeTimers();
+    try {
+      (projectService.exportProject as jest.Mock).mockResolvedValue({ blob: new Blob(['zip']), fileName: 'x.zip' });
+      render(<ProjectExportPanel projectId="p1" />);
+
+      fireEvent.click(screen.getByRole('button', { name: /Export Project/ }));
+      await waitFor(() => expect(clicked).toHaveLength(1));
+
+      expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+      jest.advanceTimersByTime(1000);
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:export');
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('says so when the export fails, and lets the author try again', async () => {

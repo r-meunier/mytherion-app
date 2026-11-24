@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import tools.jackson.databind.json.JsonMapper
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.time.LocalDate
 import java.util.UUID
 import java.util.zip.ZipInputStream
@@ -43,8 +44,11 @@ class ProjectExportServiceTest {
         CodexEntry(project = project, name = name, type = EntryType.CHARACTER, thumbnail = thumbnail)
             .apply { id = UUID.randomUUID() }
 
-    private fun fileNames(bytes: ByteArray): List<String> =
-        ZipInputStream(ByteArrayInputStream(bytes)).use { zip -> generateSequence { zip.nextEntry?.name }.toList() }
+    private fun fileNames(export: ProjectExport): List<String> {
+        val out = ByteArrayOutputStream()
+        export.writeTo(out)
+        return ZipInputStream(ByteArrayInputStream(out.toByteArray())).use { zip -> generateSequence { zip.nextEntry?.name }.toList() }
+    }
 
     @Test
     fun `exports the project's entries and images, named after the project and the date`() {
@@ -58,7 +62,7 @@ class ProjectExportServiceTest {
         assertEquals("stellar-drift-${LocalDate.now()}.zip", export.fileName)
         assertEquals(
             listOf("stellar-drift/project.json", "stellar-drift/codex/characters/mira-vell.md", "stellar-drift/media/${mira.id}.png"),
-            fileNames(export.bytes),
+            fileNames(export),
         )
     }
 
@@ -71,11 +75,25 @@ class ProjectExportServiceTest {
         every { storageService.downloadFile(any(), "entries/x/mira.png") } throws StorageException("gone", RuntimeException())
         every { storageService.downloadFile(any(), "entries/y/kael.png") } returns byteArrayOf(1)
 
-        val names = fileNames(service.exportProject(projectId).bytes)
+        val names = fileNames(service.exportProject(projectId))
 
         assertTrue(names.contains("stellar-drift/codex/characters/mira-vell.md"))
         assertTrue(names.contains("stellar-drift/media/${kael.id}.png"))
         assertFalse(names.any { it.contains(mira.id.toString()) }, "no media file for the unreadable image")
+    }
+
+    @Test
+    fun `images are fetched only while the zip is written, not while the export is prepared`() {
+        val mira = entry("Mira Vell", thumbnail = "mytherion-uploads/entries/x/mira.png")
+        every { projectService.getVerifiedProject(projectId, user.id!!) } returns project
+        every { entryRepository.findAllByProjectOrderByNameAsc(project) } returns listOf(mira)
+        every { storageService.downloadFile(any(), any()) } returns byteArrayOf(1)
+
+        val export = service.exportProject(projectId)
+        verify(exactly = 0) { storageService.downloadFile(any(), any()) }
+
+        export.writeTo(ByteArrayOutputStream())
+        verify(exactly = 1) { storageService.downloadFile("mytherion-uploads", "entries/x/mira.png") }
     }
 
     @Test

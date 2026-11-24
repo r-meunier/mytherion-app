@@ -35,48 +35,68 @@ object ProjectFolderWriter {
     /** An entry image, ready to write: its file extension and bytes. */
     class Media(val extension: String, val bytes: ByteArray)
 
-    /** Folder per entry type, as in the ADR's example (`characters/`, `locations/`, …). */
-    val TYPE_FOLDERS: Map<EntryType, String> = mapOf(
-        EntryType.CHARACTER to "characters",
-        EntryType.LOCATION to "locations",
-        EntryType.ORGANIZATION to "organizations",
-        EntryType.SPECIES to "species",
-        EntryType.CULTURE to "cultures",
-        EntryType.ITEM to "items",
-        EntryType.CUSTOM to "custom",
-    )
+    /**
+     * Folder per entry type, as in the ADR's example (`characters/`, `locations/`, …). An exhaustive
+     * `when`, so adding an EntryType doesn't compile until it has a folder here.
+     */
+    fun typeFolder(type: EntryType): String = when (type) {
+        EntryType.CHARACTER -> "characters"
+        EntryType.LOCATION -> "locations"
+        EntryType.ORGANIZATION -> "organizations"
+        EntryType.SPECIES -> "species"
+        EntryType.CULTURE -> "cultures"
+        EntryType.ITEM -> "items"
+        EntryType.CUSTOM -> "custom"
+    }
+
+    /** Names Windows refuses for a file or folder, whatever the extension: `con.md` can't be extracted. */
+    private val WINDOWS_RESERVED = setOf("con", "prn", "aux", "nul") +
+        (1..9).flatMap { listOf("com$it", "lpt$it") }
 
     /**
-     * @param media an entry's image by entry id; entries without one (or whose image could not be read)
-     *   are written without a `thumbnail` key.
+     * Writes the zip to [out] as it goes, so it is never held in memory as a whole.
+     *
+     * @param loadMedia an entry's image, fetched only when that entry is written, so at most one image is
+     *   in memory at a time. Null when the entry has none (or it could not be read): the entry is then
+     *   written without a `thumbnail` key.
      */
     fun write(
         out: OutputStream,
         project: Project,
         entries: List<CodexEntry>,
-        media: Map<String, Media>,
+        loadMedia: (CodexEntry) -> Media?,
         objectMapper: ObjectMapper,
     ) {
-        val root = slug(project.name).ifEmpty { "project" }
+        val root = slug(project.name).ifEmpty { "project" }.let { if (it in WINDOWS_RESERVED) "$it-project" else it }
         ZipOutputStream(out).use { zip ->
             zip.put("$root/project.json", projectJson(project, objectMapper))
 
             val usedPaths = mutableSetOf<String>()
             for (entry in entries) {
                 val id = entry.id.toString()
-                val folder = "codex/${TYPE_FOLDERS.getValue(entry.type)}"
-                // The id is the identity, not the file name (ADR §4.3): two entries with the same name
-                // get the second one's id appended rather than overwriting each other.
-                val base = slug(entry.name).ifEmpty { id }
-                val path = if (usedPaths.add("$folder/$base")) "$folder/$base.md"
-                else "$folder/$base-${id.take(8)}.md".also { usedPaths.add(it) }
+                val path = entryPath(typeFolder(entry.type), slug(entry.name), id, usedPaths)
 
-                val image = media[id]
+                val image = loadMedia(entry)
                 val thumbnail = image?.let { "media/$id.${it.extension}" }
                 zip.put("$root/$path", entryMarkdown(entry, thumbnail))
                 if (image != null) zip.put("$root/$thumbnail", image.bytes)
             }
         }
+    }
+
+    /**
+     * An entry's file path, unique within the export. The id is the identity, not the file name
+     * (ADR §4.3), so when the name's slug is taken (or is a name Windows can't create), the id is added:
+     * first its first 8 characters, then all of it, then a counter. A zip with two files at one path
+     * would fail the whole export.
+     */
+    fun entryPath(typeFolder: String, nameSlug: String, id: String, usedPaths: MutableSet<String>): String {
+        val folder = "codex/$typeFolder"
+        val base = nameSlug.ifEmpty { id }
+        val candidates = sequenceOf(base, "$base-${id.take(8)}", "$base-$id") +
+            generateSequence(2) { it + 1 }.map { "$base-$id-$it" }
+        val name = candidates.first { it !in WINDOWS_RESERVED && "$folder/$it.md" !in usedPaths }
+        return "$folder/$name.md".also { usedPaths.add(it) }
     }
 
     /** `project.json` (ADR §4.2): the project's fields minus its owner. */

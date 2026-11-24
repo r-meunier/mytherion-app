@@ -16,7 +16,9 @@ function saveFile(blob: Blob, fileName: string) {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  URL.revokeObjectURL(url);
+  // Not in the same tick: Firefox and Safari can start the download asynchronously, and a URL revoked
+  // before then makes the download fail.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 /**

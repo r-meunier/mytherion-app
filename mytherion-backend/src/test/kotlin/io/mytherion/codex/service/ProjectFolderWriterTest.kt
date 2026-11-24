@@ -38,7 +38,7 @@ class ProjectFolderWriterTest {
 
     private fun export(entries: List<CodexEntry>, media: Map<String, ProjectFolderWriter.Media> = emptyMap()): Map<String, ByteArray> {
         val out = ByteArrayOutputStream()
-        ProjectFolderWriter.write(out, project, entries, media, objectMapper)
+        ProjectFolderWriter.write(out, project, entries, { media[it.id.toString()] }, objectMapper)
         return unzip(out.toByteArray())
     }
 
@@ -135,6 +135,44 @@ class ProjectFolderWriterTest {
         val names = export(listOf(first, second)).keys.filter { it.contains("/codex/") }
 
         assertEquals(listOf("the-drowned-quarter/codex/characters/mira.md", "the-drowned-quarter/codex/characters/mira-22222222.md"), names)
+    }
+
+    @Test
+    fun `a suffixed name that is already another entry's file name gets the full id, so nothing collides`() {
+        val first = entry("Mira", id = "7b1e0000-0000-0000-0000-000000000001")
+        val second = entry("Mira", id = "7b1e0000-0000-0000-0000-000000000002")
+        val literal = entry("Mira 7b1e0000", id = "aaaaaaaa-0000-0000-0000-000000000000")
+
+        // Before the fix, the third file landed on the second's path and the zip threw "duplicate entry".
+        val names = export(listOf(first, literal, second)).keys.filter { it.contains("/codex/") }
+
+        assertEquals(
+            listOf(
+                "the-drowned-quarter/codex/characters/mira.md",
+                "the-drowned-quarter/codex/characters/mira-7b1e0000.md",
+                "the-drowned-quarter/codex/characters/mira-7b1e0000-0000-0000-0000-000000000002.md",
+            ),
+            names,
+        )
+    }
+
+    @Test
+    fun `names Windows can't create, like Con or Aux, get the id appended`() {
+        val con = entry("Con", EntryType.LOCATION, id = "44444444-0000-0000-0000-000000000000")
+        val aux = entry("AUX", id = "55555555-0000-0000-0000-000000000000")
+
+        val names = export(listOf(con, aux)).keys.filter { it.contains("/codex/") }
+
+        assertEquals(
+            listOf("the-drowned-quarter/codex/locations/con-44444444.md", "the-drowned-quarter/codex/characters/aux-55555555.md"),
+            names,
+        )
+    }
+
+    @Test
+    fun `every entry type has its own folder`() {
+        val folders = EntryType.entries.map { ProjectFolderWriter.typeFolder(it) }
+        assertEquals(folders.size, folders.toSet().size)
     }
 
     @Test
