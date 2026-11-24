@@ -1,10 +1,18 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import EntryForm from './EntryForm';
 import { codexService } from '@/app/services/codexService';
 import { ContextRole, EntryTemplate, EntryType, TemplateLevel } from '@/app/types/codex';
 
-jest.mock('./EntryTypeSelector', () => () => <div data-testid="type-selector" />);
+jest.mock('./EntryTypeSelector', () => {
+  const MockTypeSelector = ({ onChange }: { onChange: (type: string) => void }) => (
+    <button type="button" onClick={() => onChange('LOCATION')}>
+      Switch to Location
+    </button>
+  );
+  MockTypeSelector.displayName = 'MockTypeSelector';
+  return { __esModule: true, default: MockTypeSelector, entryTypeConfig: {} };
+});
 jest.mock('@/app/services/codexService', () => ({
   codexService: { getTemplates: jest.fn() },
 }));
@@ -99,6 +107,59 @@ describe('EntryForm - templates and details', () => {
 
     expect(await screen.findByText('Every detail with text needs a label.')).toBeInTheDocument();
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('locks the details while templates load, so nothing typed is replaced when they arrive', async () => {
+    let resolveTemplates: (list: EntryTemplate[]) => void = () => {};
+    (codexService.getTemplates as jest.Mock).mockReturnValue(new Promise((resolve) => (resolveTemplates = resolve)));
+    renderCreateForm();
+
+    expect(screen.getByRole('button', { name: /Add detail/ })).toBeDisabled();
+
+    await act(async () => resolveTemplates(templates));
+
+    expect(screen.getByRole('button', { name: /Add detail/ })).toBeEnabled();
+    expect(screen.getByRole('textbox', { name: 'Voice' })).toBeEnabled();
+  });
+
+  it('drops the previous type\'s template when the new type\'s templates fail to load', async () => {
+    (codexService.getTemplates as jest.Mock).mockImplementation((type: EntryType) =>
+      type === EntryType.LOCATION ? Promise.reject(new Error('offline')) : Promise.resolve(templates)
+    );
+    renderCreateForm();
+    fireEvent.change(screen.getByLabelText(/Name/), { target: { value: 'The Drowned Quarter' } });
+    await screen.findByRole('textbox', { name: 'Voice' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Switch to Location' }));
+
+    expect(await screen.findByText(/Templates could not be loaded/)).toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: 'Voice' })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Entry' }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    const [data] = onSubmit.mock.calls[0];
+    expect(data.type).toBe(EntryType.LOCATION);
+    expect(data.content).toEqual({ templateId: null, details: [] });
+  });
+
+  it('fetches every type\'s templates once, so switching type swaps the details without locking them', async () => {
+    const locationTemplates: EntryTemplate[] = [
+      { id: 'location-blank', entryType: EntryType.LOCATION, level: TemplateLevel.BLANK, name: 'Blank', details: [] },
+      { id: 'location-basic', entryType: EntryType.LOCATION, level: TemplateLevel.BASIC, name: 'Basic', details: [{ label: 'Climate' }] },
+    ];
+    (codexService.getTemplates as jest.Mock).mockImplementation((type: EntryType) =>
+      Promise.resolve(type === EntryType.LOCATION ? locationTemplates : templates)
+    );
+    renderCreateForm();
+    await screen.findByRole('textbox', { name: 'Voice' });
+    await waitFor(() => expect(codexService.getTemplates).toHaveBeenCalledTimes(Object.values(EntryType).length));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Switch to Location' }));
+
+    // Same render: no locked state in between, and no new request.
+    expect(screen.getByRole('textbox', { name: 'Climate' })).toBeEnabled();
+    expect(screen.queryByRole('textbox', { name: 'Voice' })).not.toBeInTheDocument();
+    expect(codexService.getTemplates).toHaveBeenCalledTimes(Object.values(EntryType).length);
   });
 
   it('still lets the author add details when templates fail to load', async () => {

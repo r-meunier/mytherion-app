@@ -107,6 +107,7 @@ See [`docs/`](../docs/README.md) for the current architectural plans:
 - Navigation overhaul (project-centric URL hierarchy)
 - Component architecture (entry section coupling workflow)
 - CSS architecture (modular style tree)
+- **Style guide** (`docs/style-guide.md`): every page inside a project uses `ProjectPageLayout` + `PageHeader` and the shared surface/control classes. Read it before building or restyling a page.
 - Design system (semantic typography utilities)
 - CI/environment fixes
 

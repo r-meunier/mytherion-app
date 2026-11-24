@@ -10,26 +10,17 @@ import { formatRelativeTime } from '@/app/utils/dateUtils';
 
 interface EntryCardProps {
   entry: CodexEntry;
-  onEdit?: (entry: CodexEntry) => void;
   onDelete?: (entry: CodexEntry) => void;
 }
 
-export default function EntryCard({ entry, onEdit, onDelete }: EntryCardProps) {
+/** A codex entry in the list. Clicking it opens the entry page, where it is also edited. */
+export default function EntryCard({ entry, onDelete }: EntryCardProps) {
   const router = useRouter();
   const isMounted = useIsMounted();
   const typeConfig = entryTypeConfig[entry.type];
 
   const handleCardClick = () => {
     router.push(routes.project(entry.projectId).codex.detail(entry.id));
-  };
-
-  const handleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onEdit) {
-      onEdit(entry);
-    } else {
-      router.push(routes.project(entry.projectId).codex.edit(entry.id));
-    }
   };
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -56,13 +47,6 @@ export default function EntryCard({ entry, onEdit, onDelete }: EntryCardProps) {
           
           {/* Action Buttons */}
           <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-              onClick={handleEdit}
-              className="w-7 h-7 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all"
-              title="Edit"
-            >
-              <span className="material-symbols-outlined text-[15px]">edit</span>
-            </button>
             {onDelete && (
               <button
                 onClick={handleDelete}

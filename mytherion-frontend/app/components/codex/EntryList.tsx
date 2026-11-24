@@ -3,19 +3,19 @@
 import { useEffect, useState, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchEntries, setFilters, deleteEntry } from '@/app/store/codexSlice';
-import { CodexEntry, EntryType } from '@/app/types/codex';
+import { EntryType } from '@/app/types/codex';
 import EntryCard from './EntryCard';
 import EntryFilters from './EntryFilters';
 import PageHeader from '../ui/PageHeader';
+import { projectTrail } from '@/app/config/breadcrumbs';
 
 interface EntryListProps {
   projectId: string;
   projectName?: string;
   onCreateClick?: () => void;
-  onEditClick?: (entry: CodexEntry) => void;
 }
 
-export default function EntryList({ projectId, projectName, onCreateClick, onEditClick }: EntryListProps) {
+export default function EntryList({ projectId, projectName, onCreateClick }: EntryListProps) {
   const dispatch = useAppDispatch();
   const { entries, loading, error, filters, pagination } = useAppSelector((state) => state.entries);
   
@@ -122,6 +122,7 @@ export default function EntryList({ projectId, projectName, onCreateClick, onEdi
     <div className="space-y-10">
       {/* Header & Glass Command Bar Section (Exact same alignment as Your Projects) */}
       <PageHeader
+        breadcrumbs={projectTrail(projectId, projectName, { label: 'Codex' })}
         title="Codex"
         subtitle={`Browse, search, and manage all entries in ${projectName || "this project"}.`}
       >
@@ -200,7 +201,6 @@ export default function EntryList({ projectId, projectName, onCreateClick, onEdi
               <EntryCard
                 key={entry.id}
                 entry={entry}
-                onEdit={onEditClick}
                 onDelete={(entry) => setShowDeleteConfirm(entry.id)}
               />
             ))}

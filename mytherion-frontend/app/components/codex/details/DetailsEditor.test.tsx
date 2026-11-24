@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import DetailsEditor from './DetailsEditor';
-import { EntryDetail } from '@/app/types/codex';
+import { ContextRole, EntryDetail } from '@/app/types/codex';
 
 const details: EntryDetail[] = [
   { id: 'a', label: 'Story role', value: 'Protagonist' },
@@ -61,6 +61,40 @@ describe('DetailsEditor', () => {
     expect(confirm).toHaveBeenCalled();
     expect(onChange).not.toHaveBeenCalled();
     confirm.mockRestore();
+  });
+
+  it('moves a detail up and down', () => {
+    const onChange = jest.fn();
+    render(<DetailsEditor details={details} onChange={onChange} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Move Voice up' }));
+    expect(onChange).toHaveBeenLastCalledWith([details[1], details[0]]);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Move Story role down' }));
+    expect(onChange).toHaveBeenLastCalledWith([details[1], details[0]]);
+  });
+
+  it('cannot move the first detail up or the last one down', () => {
+    render(<DetailsEditor details={details} onChange={jest.fn()} />);
+
+    expect(screen.getByRole('button', { name: 'Move Story role up' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Move Voice down' })).toBeDisabled();
+  });
+
+  it('keeps a hint reachable once the detail has text', () => {
+    render(<DetailsEditor details={[{ ...details[1], value: 'Clipped' }]} onChange={jest.fn()} />);
+
+    expect(screen.getByRole('img', { name: 'Hint: How do they talk?' })).toBeInTheDocument();
+  });
+
+  it('keeps the context role when a detail is renamed', () => {
+    const onChange = jest.fn();
+    const voice = { id: 'v', label: 'Voice', value: null, role: ContextRole.VOICE };
+    render(<DetailsEditor details={[voice]} onChange={onChange} />);
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Detail label' }), { target: { value: 'Speech' } });
+
+    expect(onChange).toHaveBeenCalledWith([{ ...voice, label: 'Speech' }]);
   });
 
   it('shows only filled details when read-only', () => {

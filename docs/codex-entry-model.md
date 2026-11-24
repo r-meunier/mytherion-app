@@ -32,8 +32,17 @@ entry.
 ```
 
 - **Left sidebar:** thumbnail on top, then the details.
-- **Main column:** name, type, tags, aliases, then tabs. For now the only tab is **Overview**, holding the description.
-- Every entry type uses this layout; only the starting details differ.
+- **Main column:** name, type, tags, aliases, then tabs: **Overview** holds the description, **Notes** the
+  private scratchpad.
+- Every entry type uses this layout; only the starting details differ. On narrow screens the main column
+  comes first.
+- **The entry page is also where the entry is edited; there is no separate edit page.** Click a field
+  (name, aliases, tags, image, a detail's label or value, description, notes) to edit it where it is.
+  It saves when you click away or press Enter (Ctrl+Enter in long text), and Esc cancels. Each field
+  saves on its own (`useEntryAutosave`), one save at a time, each carrying the version the previous one
+  returned. A failed save reopens the field with the author's text.
+- **Creating** stays a page of its own (New Entry): pick a type and template, fill in what you have, and
+  you land on the new entry's page.
 - **Later:** Relations, Mentions, more tabs, custom detail field types (e.g. a dropdown for Story role).
 
 ---
@@ -45,7 +54,7 @@ CodexEntry
 ├── type, name, tags, thumbnail      unchanged
 ├── aliases[]                        NEW: plain list of names (column, like tags)
 ├── description                      unchanged: long prose, Overview tab
-├── notes                            unchanged: private scratchpad (placement open, see §6)
+├── notes                            unchanged: private scratchpad, in the Notes tab
 └── content (jsonb)
       ├── templateId                 which template it was created from
       └── details[]
@@ -126,11 +135,13 @@ served by `GET /api/codex/templates?type=CHARACTER`.
 Templates preset roles. Details without a role still work; the Context Pack just can't pick them out
 individually. The list will be revisited when the Context Pack is designed.
 
+Renaming a detail keeps its role: renames are usually rewording ("Voice" → "Speech"), and with no role UI
+the author could not set it again. Revisit when roles get a UI.
+
 ---
 
 ## 6. Open
 
-- **`notes` placement:** a second tab, a small sidebar panel, or dropped for now.
 - **Custom detail field types** (dropdown, number, link): later. Existing details default to text, so
   adding types is backwards compatible.
 

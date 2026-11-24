@@ -163,7 +163,9 @@ class CodexEntryService(
         request.thumbnail?.let { entry.thumbnail = it }
         request.content?.let { entry.content = it.also(EntryContentRules::validate) }
 
-        val saved = entryRepository.save(entry)
+        // Flush so Hibernate increments @Version now: without it the response carries the old
+        // version, and the client's next save (the entry page saves field by field) gets a 409.
+        val saved = entryRepository.saveAndFlush(entry)
         logger.infoWith("CodexEntry updated successfully", "projectId" to projectId, "entryId" to id)
         return EntryDTO.from(saved)
     }

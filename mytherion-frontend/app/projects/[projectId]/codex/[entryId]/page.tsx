@@ -5,31 +5,50 @@ import { useRouter, useParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { fetchEntry, deleteEntry, clearCurrentEntry } from '@/app/store/codexSlice';
 import { fetchProject } from '@/app/store/projectSlice';
-import { entryTypeConfig } from '@/app/components/codex/EntryTypeSelector';
-import DualSidebar from '@/app/components/DualSidebar';
-import AppHeader from '@/app/components/AppHeader';
-import Link from 'next/link';
+import { useEntryAutosave } from '@/app/hooks/useEntryAutosave';
+import { normalizeContent } from '@/app/utils/entryContent';
+import ProjectPageLayout from '@/app/components/ProjectPageLayout';
+import PageHeader from '@/app/components/ui/PageHeader';
+import EntryTypeBadge from '@/app/components/codex/EntryTypeBadge';
 import EntrySidebar from '@/app/components/codex/EntrySidebar';
+import EntryTabs from '@/app/components/codex/EntryTabs';
+import SaveStatus from '@/app/components/codex/SaveStatus';
+import InlineText from '@/app/components/codex/inline/InlineText';
+import InlineChips from '@/app/components/codex/inline/InlineChips';
 import routes from '@/app/config/routes';
+import { projectTrail } from '@/app/config/breadcrumbs';
 
+const requireName = (name: string) =>
+  !name.trim() ? 'Name is required' : name.length > 255 ? 'Name must be 255 characters or less' : null;
+
+/**
+ * The entry page, which is also where the entry is edited (docs/codex-entry-model.md §2): click
+ * a field to change it, and it saves when you leave it.
+ */
 export default function EntryDetailPage() {
   const router = useRouter();
   const params = useParams();
   const entryId = (params.entryId as string);
   const projectId = (params.projectId as string);
-  
+
   const dispatch = useAppDispatch();
-  const { currentEntry, loading, error } = useAppSelector((state) => state.entries);
+  const { currentEntry, error } = useAppSelector((state) => state.entries);
   const { currentProject } = useAppSelector((state) => state.projects);
-  
+  const { save, saveImage, state: saveState, error: saveError } = useEntryAutosave(projectId, currentEntry);
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  // Fetch once per entry. Not tied to the project: a refetch while editing would be wasted.
   useEffect(() => {
     dispatch(fetchEntry({ projectId, id: entryId }));
+  }, [dispatch, entryId, projectId]);
+
+  // The project name is only needed for the breadcrumbs.
+  useEffect(() => {
     if (!currentProject || currentProject.id !== projectId) {
       dispatch(fetchProject(projectId));
     }
-  }, [dispatch, entryId, projectId, currentProject]);
+  }, [dispatch, projectId, currentProject]);
 
   useEffect(() => {
     return () => {
@@ -37,216 +56,158 @@ export default function EntryDetailPage() {
     };
   }, [dispatch]);
 
-  const handleEdit = () => {
-    router.push(routes.project(projectId).codex.edit(entryId));
-  };
-
   const handleDelete = async () => {
     await dispatch(deleteEntry({ projectId, id: entryId }));
     router.push(routes.project(projectId).codex.index());
   };
 
-  if (loading || !currentEntry || !currentProject) {
-    return (
-      <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
-        <AppHeader />
-        <div className="flex flex-1 overflow-hidden relative z-10">
-          <DualSidebar activeSection="codex" projectId={projectId} />
-          <main className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex-1 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-            </div>
-          </main>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
-        <AppHeader />
-        <div className="flex flex-1 overflow-hidden relative z-10">
-          <DualSidebar activeSection="codex" projectId={projectId} />
-          <main className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex-1 flex items-center justify-center">
-              <div className="glass-panel rounded-2xl p-8 border border-red-500/30 text-center max-w-md">
-                <span className="material-symbols-outlined text-red-400 text-4xl mb-4">error</span>
-                <p className="text-red-400 text-sm">{error}</p>
-              </div>
-            </div>
-          </main>
-        </div>
-      </div>
-    );
-  }
-
-  const typeConfig = entryTypeConfig[currentEntry.type];
+  const project = routes.project(projectId);
+  const content = normalizeContent(currentEntry?.content);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#0b0710]">
-      {/* Ambient Background with Floating Shards & Glows */}
-      <div className="ambient-bg fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="floating-shard w-32 h-32 top-20 left-10 opacity-20" />
-        <div className="floating-shard w-48 h-48 bottom-40 right-20 opacity-10" style={{ animationDelay: "-5s", animationDuration: "25s" }} />
-        <div className="floating-shard w-16 h-16 top-1/2 left-1/4 opacity-30" style={{ animationDelay: "-12s", animationDuration: "15s", borderRadius: "50%" }} />
-      </div>
+    <ProjectPageLayout
+      projectId={projectId}
+      activeSection="codex"
+      loading={!currentEntry && !error}
+      error={!currentEntry ? error : undefined}
+    >
+      {currentEntry && (
+        <>
+          <PageHeader
+            title={
+              <InlineText
+                inline
+                value={currentEntry.name}
+                label="name"
+                validate={requireName}
+                maxLength={255}
+                onSave={(name) => save({ name })}
+              />
+            }
+            badge={<EntryTypeBadge type={currentEntry.type} />}
+            breadcrumbs={projectTrail(
+              projectId,
+              currentProject?.name,
+              { label: 'Codex', href: project.codex.index() },
+              { label: currentEntry.name },
+            )}
+            subtitle={
+              <div className="space-y-2 mt-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-white/40">Also known as:</span>
+                  <InlineChips
+                    items={currentEntry.aliases ?? []}
+                    onSave={(aliases) => save({ aliases })}
+                    itemLabel={{ singular: 'alias', plural: 'aliases' }}
+                    maxLength={100}
+                    chipClassName="chip normal-case tracking-normal text-xs font-medium text-white/70 bg-white/5 border-white/10"
+                  />
+                </div>
+                <InlineChips
+                  items={currentEntry.tags ?? []}
+                  onSave={(tags) => save({ tags })}
+                  itemLabel={{ singular: 'tag', plural: 'tags' }}
+                />
+              </div>
+            }
+          >
+            <div className="flex items-center gap-2 lg:justify-end">
+              <SaveStatus state={saveState} error={saveError} />
+              <button onClick={() => setShowDeleteConfirm(true)} className="btn-pill btn-pill-danger">
+                <span className="material-symbols-outlined" aria-hidden="true">delete</span>
+                <span>Delete</span>
+              </button>
+            </div>
+          </PageHeader>
 
-      {/* Header (Global Parent) */}
-      <AppHeader />
-
-      <div className="flex flex-1 overflow-hidden relative z-10">
-        <DualSidebar 
-          activeSection="codex"
-          projectId={projectId}
-        />
-
-        <main className="flex-1 flex flex-col overflow-hidden relative">
-          <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
-            {/* Back Link */}
-            <div>
-              <Link
-                href={routes.project(projectId).codex.index()}
-                className="inline-flex items-center text-primary text-xs font-bold uppercase tracking-wider hover:text-white transition-colors mb-4 group"
-              >
-                <span className="material-symbols-outlined text-base mr-1.5 group-hover:-translate-x-1 transition-transform">
-                  arrow_back
-                </span>
-                Back to Codex
-              </Link>
+          {/* Two columns (docs/codex-entry-model.md): sidebar left, main right. On narrow
+              screens the main column comes first. The New Entry form uses the same grid. */}
+          <div className="grid grid-cols-1 lg:grid-cols-[18rem_minmax(0,1fr)] gap-8 items-start">
+            <div className="order-2 lg:order-1">
+              <EntrySidebar
+                entry={currentEntry}
+                onDetailsChange={(details) => save({ content: { ...content, details } })}
+                onImageChange={saveImage}
+              />
             </div>
 
-            {/* Two columns (docs/codex-entry-model.md): sidebar left, main right. On narrow
-                screens the main column comes first so the name is at the top. */}
-            <div className="grid grid-cols-1 lg:grid-cols-[18rem_minmax(0,1fr)] gap-8 items-start">
-              <div className="order-2 lg:order-1">
-                <EntrySidebar entry={currentEntry} />
-              </div>
-
-              <div className="order-1 lg:order-2 space-y-8 min-w-0">
-                {/* Header: name, type, aliases, tags */}
-                <div className="glass-panel rounded-2xl p-6 md:p-8 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -mr-32 -mt-32 pointer-events-none" />
-                  <div className="relative z-10 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-3 mb-2">
-                        <h1 className="font-display-lg text-2xl sm:text-3xl font-bold text-white text-glow tracking-tight">
-                          {currentEntry.name}
-                        </h1>
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${typeConfig.color} bg-primary/10 border border-primary/20`}>
-                          {typeConfig.label}
-                        </span>
+            <div className="order-1 lg:order-2 space-y-8 min-w-0">
+              {/* Overview holds the description, Notes the private scratchpad. Relations and others come later. */}
+              <EntryTabs
+                tabs={[
+                  {
+                    id: 'overview',
+                    label: 'Overview',
+                    content: (
+                      <div className="glass-panel rounded-2xl p-4">
+                        <InlineText
+                          multiline
+                          value={currentEntry.description ?? ''}
+                          label="description"
+                          placeholder="Add a description: who or what is this?"
+                          onSave={(description) => save({ description })}
+                          className="text-white/70 text-sm leading-relaxed min-h-[3rem]"
+                        />
                       </div>
-                      {currentEntry.aliases && currentEntry.aliases.length > 0 && (
-                        <p className="text-white/50 text-xs">
-                          Also known as: {currentEntry.aliases.join(' · ')}
-                        </p>
-                      )}
-                      {currentEntry.tags && currentEntry.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-4">
-                          {currentEntry.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              className="px-2.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-bold border border-primary/20 uppercase tracking-wider"
-                            >
-                              {tag}
-                            </span>
-                          ))}
+                    ),
+                  },
+                  {
+                    id: 'notes',
+                    label: 'Notes',
+                    content: (
+                      <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-6 relative overflow-hidden backdrop-blur-xl">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                          <span className="material-symbols-outlined text-6xl text-amber-400">edit_note</span>
                         </div>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        onClick={handleEdit}
-                        className="px-4 py-2 bg-primary text-[#2c0051] font-bold rounded-full hover:bg-primary/90 transition-all flex items-center gap-1.5 text-xs shadow-lg shadow-primary/20 active:scale-95 cursor-pointer"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">edit</span>
-                        <span>Edit</span>
-                      </button>
-                      <button
-                        onClick={() => setShowDeleteConfirm(true)}
-                        className="px-4 py-2 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 rounded-full transition-all flex items-center gap-1.5 text-xs font-semibold active:scale-95 cursor-pointer"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">delete</span>
-                        <span>Delete</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                        <h2 className="text-amber-400 font-bold text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
+                          <span className="material-symbols-outlined text-sm">lock</span>
+                          Private notes
+                        </h2>
+                        <div className="relative z-10">
+                          <InlineText
+                            multiline
+                            value={currentEntry.notes ?? ''}
+                            label="private notes"
+                            placeholder="Add notes only you see: thoughts, secrets, reminders…"
+                            onSave={(notes) => save({ notes })}
+                            className="text-amber-200/80 italic text-sm leading-relaxed"
+                            inputClassName="bg-amber-500/5 border-amber-500/20 focus:border-amber-400/50 text-amber-100"
+                          />
+                        </div>
+                      </div>
+                    ),
+                  },
+                ]}
+              />
+            </div>
+          </div>
 
-                {/* Tabs. Overview is the only one for now; Relations and others come later. */}
-                <div>
-                  <div role="tablist" aria-label="Entry sections" className="flex gap-6 border-b border-white/10 mb-6">
-                    <button
-                      role="tab"
-                      id="tab-overview"
-                      aria-selected="true"
-                      aria-controls="panel-overview"
-                      className="pb-3 -mb-px border-b-2 border-primary text-white text-sm font-semibold"
-                    >
-                      Overview
-                    </button>
-                  </div>
-                  <div role="tabpanel" id="panel-overview" aria-labelledby="tab-overview" className="glass-panel rounded-2xl p-6">
-                    {currentEntry.description ? (
-                      <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{currentEntry.description}</p>
-                    ) : (
-                      <p className="text-white/40 text-sm italic">No description yet.</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Private notes stay here until MYT-87 decides where they live */}
-                {currentEntry.notes && (
-                  <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-6 relative overflow-hidden backdrop-blur-xl">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                      <span className="material-symbols-outlined text-6xl text-amber-400">edit_note</span>
-                    </div>
-                    <h2 className="text-amber-400 font-bold text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm">lock</span>
-                      Private Scratchpad
-                    </h2>
-                    <p className="text-amber-200/80 italic whitespace-pre-wrap text-sm leading-relaxed relative z-10">
-                      {currentEntry.notes}
+          {showDeleteConfirm && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+              <div role="dialog" aria-modal="true" aria-labelledby="delete-entry-title" className="glass-container p-6 max-w-md w-full mx-4 border border-white/15">
+                <div className="flex items-start gap-3 mb-6">
+                  <span className="material-symbols-outlined text-secondary text-[32px]" aria-hidden="true">warning</span>
+                  <div>
+                    <h2 id="delete-entry-title" className="font-display text-xl font-bold text-white mb-2">Delete Entry?</h2>
+                    <p className="text-sm text-white/60">
+                      Are you sure you want to delete <strong className="text-white">{currentEntry.name}</strong>? This action cannot be undone.
                     </p>
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </main>
-
-        {/* Delete Confirmation Modal */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="glass rounded-2xl p-6 max-w-md w-full mx-4 border border-white/20">
-              <div className="flex items-start gap-3 mb-4">
-                <span className="material-symbols-outlined text-secondary text-[32px]">warning</span>
-                <div>
-                  <h3 className="text-h3 text-xl mb-2">Delete Entry?</h3>
-                  <p className="text-slate-400">
-                    Are you sure you want to delete <strong className="text-white">{currentEntry.name}</strong>? This action cannot be undone.
-                  </p>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button onClick={handleDelete} className="btn-pill btn-pill-danger">
+                    <span className="material-symbols-outlined" aria-hidden="true">delete</span>
+                    <span>Delete</span>
+                  </button>
+                  <button onClick={() => setShowDeleteConfirm(false)} className="btn-pill btn-pill-secondary">
+                    Cancel
+                  </button>
                 </div>
               </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={handleDelete}
-                  className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-lg shadow-red-600/20 transition-all font-semibold"
-                >
-                  Delete
-                </button>
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 px-4 py-2.5 glass text-white rounded-lg hover:bg-white/10 transition-all font-semibold"
-                >
-                  Cancel
-                </button>
-              </div>
             </div>
-          </div>
-        )}
-      </div>
-    </div>
+          )}
+        </>
+      )}
+    </ProjectPageLayout>
   );
 }

@@ -97,4 +97,35 @@ describe('mediaService', () => {
       );
     });
   });
+
+  describe('applyEntryThumbnailChange', () => {
+    const file = new File(['img'], 'mira.png', { type: 'image/png' });
+
+    it('uploads a newly chosen image', async () => {
+      mockedAxios.post.mockResolvedValueOnce({ data: {} });
+
+      await expect(mediaService.applyEntryThumbnailChange('proj-1', 'entry-1', { file, removed: false })).resolves.toBe(true);
+      expect(mockedAxios.post).toHaveBeenCalled();
+      expect(mockedAxios.delete).not.toHaveBeenCalled();
+    });
+
+    it('deletes an image the author removed', async () => {
+      mockedAxios.delete.mockResolvedValueOnce({ status: 204 });
+
+      await expect(mediaService.applyEntryThumbnailChange('proj-1', 'entry-1', { file: null, removed: true })).resolves.toBe(true);
+      expect(mockedAxios.delete).toHaveBeenCalled();
+    });
+
+    it('does nothing when the image was left alone', async () => {
+      await expect(mediaService.applyEntryThumbnailChange('proj-1', 'entry-1', { file: null, removed: false })).resolves.toBe(false);
+      expect(mockedAxios.post).not.toHaveBeenCalled();
+      expect(mockedAxios.delete).not.toHaveBeenCalled();
+    });
+
+    it('reports no change instead of throwing when the upload fails', async () => {
+      mockedAxios.post.mockRejectedValueOnce(new Error('offline'));
+
+      await expect(mediaService.applyEntryThumbnailChange('proj-1', 'entry-1', { file, removed: false })).resolves.toBe(false);
+    });
+  });
 });

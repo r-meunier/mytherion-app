@@ -1,3 +1,5 @@
+import type { EntryType } from '@/app/types/codex';
+
 /**
  * Centralized Frontend UI Route Manifest
  * Single source of truth for all client-side navigation paths in Mytherion.
@@ -31,9 +33,10 @@ export const routes = {
         const query = searchParams.toString();
         return query ? `${base}?${query}` : base;
       },
-      new: () => `/projects/${projectId}/codex/new`,
+      /** The new-entry page, optionally with the entry type picked in advance. */
+      new: (type?: EntryType) =>
+        type ? `/projects/${projectId}/codex/new?type=${type}` : `/projects/${projectId}/codex/new`,
       detail: (entryId: string) => `/projects/${projectId}/codex/${entryId}`,
-      edit: (entryId: string) => `/projects/${projectId}/codex/${entryId}/edit`,
     },
     planner: `/projects/${projectId}/planner`,
     manuscript: `/projects/${projectId}/manuscript`,

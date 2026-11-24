@@ -21,7 +21,6 @@ describe('Frontend UI routes manifest', () => {
     expect(projectRoutes.codex.index()).toBe('/projects/proj-123/codex');
     expect(projectRoutes.codex.new()).toBe('/projects/proj-123/codex/new');
     expect(projectRoutes.codex.detail('entry-456')).toBe('/projects/proj-123/codex/entry-456');
-    expect(projectRoutes.codex.edit('entry-456')).toBe('/projects/proj-123/codex/entry-456/edit');
     expect(projectRoutes.planner).toBe('/projects/proj-123/planner');
     expect(projectRoutes.manuscript).toBe('/projects/proj-123/manuscript');
     expect(projectRoutes.timeline).toBe('/projects/proj-123/timeline');
