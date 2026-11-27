@@ -69,6 +69,7 @@ Business domains — each holds its own `model`, `dto`, `repository`, `service`,
 - `user` — user domain
 - `project` — projects (plus `security/ProjectAccessInterceptor`)
 - `codex` — codex entries (`CodexEntry`), their details and the entry templates
+- `story` — the prose behind Plan and Write: acts (from a `StoryStructure`), chapters, scenes (docs/story-model.md)
 - `dashboard` — aggregate stats
 - `auth` — authentication (`rest`, `service`, `jwt`, `model`, `repository`, `dto`, `util`)
 

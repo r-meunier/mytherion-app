@@ -1,0 +1,52 @@
+{
+  "id": "kishotenketsu",
+  "order": 6,
+  "name": "Kishōtenketsu",
+  "description": "Four parts from East Asian storytelling, built around a twist rather than a conflict.",
+  "acts": [
+    {
+      "title": "Ki: Introduction",
+      "description": "Characters and setting.",
+      "beats": [
+        {
+          "name": "Introduction",
+          "hint": "Introduce the characters and their world, calmly.",
+          "position": 0.1
+        }
+      ]
+    },
+    {
+      "title": "Shō: Development",
+      "description": "The situation deepens.",
+      "beats": [
+        {
+          "name": "Development",
+          "hint": "Develop what was introduced, without a major change yet.",
+          "position": 0.35
+        }
+      ]
+    },
+    {
+      "title": "Ten: Twist",
+      "description": "Something unexpected.",
+      "beats": [
+        {
+          "name": "Twist",
+          "hint": "An unexpected turn that casts everything before in a new light.",
+          "position": 0.65
+        }
+      ]
+    },
+    {
+      "title": "Ketsu: Reconciliation",
+      "description": "The parts come together.",
+      "beats": [
+        {
+          "name": "Reconciliation",
+          "hint": "Bring the twist and the first half together into a conclusion.",
+          "position": 0.9
+        }
+      ]
+    }
+  ]
+}

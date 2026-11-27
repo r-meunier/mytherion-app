@@ -32,6 +32,9 @@ export const apiRoutes = {
   codex: {
     templates: '/api/codex/templates',
   },
+  story: {
+    structures: '/api/story/structures',
+  },
   dashboard: {
     stats: '/api/dashboard/stats',
     projectStats: (projectId: string) => `/api/projects/${projectId}/dashboard/stats`,

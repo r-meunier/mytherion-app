@@ -31,7 +31,7 @@ Three things define it. Everything else is in service of them or belongs in
   scene the author has planned, and the author accepts, edits or rejects it.
 - **Not a chat wrapper.** The author does not write prompts. They plan scenes, and Mytherion
   builds the prompt.
-- **Not AI-dependent.** Codex and manuscript are a complete writing tool on their own. AI is an
+- **Not AI-dependent.** Codex and story (Plan and Write) are a complete writing tool on their own. AI is an
   opt-in layer, which matters because many writing communities are wary of AI.
 
 ---
@@ -88,7 +88,7 @@ For every passage, Mytherion assembles a small **Context Pack** from layers:
 | **Scene Card** | POV, characters present, location, the scene's goal or conflict, beats | Author, while planning the scene |
 | **Codex slices** | Only the sections each present character and the location need for *this* scene, chosen by context role | Automatic |
 | **Story so far** | A summary chain, more compressed the further back it goes: previous scene → chapter → story | Generated when a scene is finished, editable by the author |
-| **Voice** | A few passages of the author's own prose (same POV or mood where possible) plus a short style sheet (tense, person, habits, words to avoid) | Automatic selection from the manuscript; the style sheet is written by the author |
+| **Voice** | A few passages of the author's own prose (same POV or mood where possible) plus a short style sheet (tense, person, habits, words to avoid) | Automatic selection from the story's prose; the style sheet is written by the author |
 
 Design rules:
 
@@ -117,7 +117,7 @@ Every edit feeds the next passage, so the output moves toward the author's voice
 
 #### Cold start
 
-A new author has no manuscript to sample voice from. Onboarding asks for a few pages of
+A new author has no prose in Mytherion yet to sample voice from. Onboarding asks for a few pages of
 existing writing to seed the voice samples. How voice is stored has to allow for this from the
 start.
 
@@ -130,7 +130,7 @@ the AI.**
 ### 3.3 Author-owned data
 
 - **Full export, at any time,** in an open, documented format: the whole project, Codex,
-  manuscript, summaries and media. Never a pile of loose files the author has to make sense of.
+  story, summaries and media. Never a pile of loose files the author has to make sense of.
 - **Bring your own key.** The author uses their own API key with their chosen provider. No
   forced subscription for AI, no markup on model costs.
 - **No training, no harvesting.** Author content is never used for anything except serving the
@@ -149,10 +149,10 @@ the AI.**
 The context engine depends on three data structures, built in this order:
 
 1. **Codex** with generic sections, templates and context roles.
-2. **Manuscript** with chapters, scenes, Scene Cards and the summary chain.
+2. **Story** (Plan and Write) with acts, chapters, scenes, Scene Cards and the summary chain.
 3. **Context assembler + passage loop** on top of both.
 
-Each step is useful without the next one: a Codex alone is a story bible, and Codex + Manuscript
+Each step is useful without the next one: a Codex alone is a story bible, and Codex + Story
 is a writing tool without AI.
 
 ### 4.2 Keeping local-first possible
@@ -178,7 +178,8 @@ project stored as a folder of files. See
 /projects/[id]                   -> Project overview
 /projects/[id]/codex             -> The Codex
 /projects/[id]/codex/[entryId]   -> Single entry
-/projects/[id]/manuscript        -> Chapters & scenes, writing view with Context Pack drawer
+/projects/[id]/plan              -> Structure, beats, Scene Cards
+/projects/[id]/write             -> Story tree and scene editor, with the Context Pack drawer later
 /projects/[id]/settings          -> Project settings, export, AI provider & key
 ```
 
@@ -189,12 +190,16 @@ project stored as a folder of files. See
 ### Phase 1: Codex foundation
 - Replace the hardcoded section classes with generic sections + built-in templates (MYT-85).
 - Add context roles to sections.
-- Ship full project export early, so ownership is real from day one.
+- Ship full project export early, so ownership is real from day one (MYT-92).
+- Delete an entry's thumbnail from storage when the entry is deleted (MYT-71).
+- Keep authors signed in: restore the session on reload and refresh on 401 (MYT-60).
+- Epic MYT-108.
 
-### Phase 2: Manuscript
-- Chapters and scenes with a writing view.
-- Scene Cards: POV, characters present, location, goal, beats.
+### Phase 2: Story (Plan and Write)
+- Acts from a chosen structure, chapters and scenes, with a writing view (Write).
+- Scene Cards: POV, characters present, location, goal, beat (Plan).
 - Scene and chapter summaries (written by hand at first).
+- Design: [story-model.md](./story-model.md); epic MYT-93.
 
 ### Phase 3: Context scoping & AI
 - Context assembler and the visible, togglable Context Pack.
@@ -218,7 +223,7 @@ Valuable, but not part of the core loop. Ordered roughly by priority.
    (e.g. Ollama) for authors who want zero cloud.
 4. **Story-time state**: Codex facts that change over the story (what a character knows, who is
    alive, as of a given chapter), so context is true *at that point*.
-5. **Manuscript compilation**: DOCX (standard manuscript format), EPUB, PDF/Markdown.
+5. **Story compilation**: DOCX (standard manuscript format), EPUB, PDF/Markdown.
 6. **Version history**: draft snapshots and milestone "commits" with visual diffs.
 7. **Planner**: act structures, beat sheets, plot threads, arcs, chronology vs. story order.
 8. **Backlinks**: `@character` / `[[location]]` mentions in prose linked to the Codex.
@@ -232,11 +237,13 @@ Valuable, but not part of the core loop. Ordered roughly by priority.
 ## 7. Proposed Terminology
 
 These terms are used above but are **not yet in [terminology.md](./terminology.md)**. Per its
-rule, they must be agreed and added there before code uses them.
+rule, they must be agreed and added there before code uses them. The story terms (Story, Act, Beat,
+Chapter, Scene, Scene Card, Structure, Plan, Write) are agreed and live there now; "Manuscript" is
+retired.
 
 | Term | Meaning |
 |---|---|
-| Manuscript | The prose of a project: chapters and scenes |
+| ~~Manuscript~~ | Retired: see Story, Plan and Write in terminology.md |
 | Chapter | An ordered group of scenes |
 | Scene | The atomic unit of writing and of context assembly |
 | Scene Card | A scene's planning metadata: POV, characters present, location, goal, beats |

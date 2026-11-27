@@ -1,0 +1,63 @@
+{
+  "id": "five-act",
+  "order": 2,
+  "name": "Five-Act (Freytag)",
+  "description": "Freytag's pyramid: tension rises to a climax at the centre, then falls to the ending.",
+  "acts": [
+    {
+      "title": "Exposition",
+      "description": "The situation before the trouble starts.",
+      "beats": [
+        {
+          "name": "Exposition",
+          "hint": "Introduce the characters, the setting and the tension underneath.",
+          "position": 0.05
+        }
+      ]
+    },
+    {
+      "title": "Rising Action",
+      "description": "Complications build towards the turning point.",
+      "beats": [
+        {
+          "name": "Rising action",
+          "hint": "An exciting force sets things moving; each complication raises the stakes.",
+          "position": 0.3
+        }
+      ]
+    },
+    {
+      "title": "Climax",
+      "description": "The turning point of the story.",
+      "beats": [
+        {
+          "name": "Climax",
+          "hint": "The moment of highest tension, where the protagonist's fortunes turn.",
+          "position": 0.5
+        }
+      ]
+    },
+    {
+      "title": "Falling Action",
+      "description": "Consequences unfold from the turning point.",
+      "beats": [
+        {
+          "name": "Falling action",
+          "hint": "The fallout plays out; one last moment of suspense before the end.",
+          "position": 0.7
+        }
+      ]
+    },
+    {
+      "title": "Dénouement",
+      "description": "Loose ends are tied up.",
+      "beats": [
+        {
+          "name": "Dénouement",
+          "hint": "The outcome settles: triumph, catastrophe or something between.",
+          "position": 0.95
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "id": "save-the-cat",
+  "order": 3,
+  "name": "Save the Cat",
+  "description": "Fifteen beats across three acts, popular for commercial fiction and screenplays.",
+  "acts": [
+    {
+      "title": "Act One",
+      "description": "The protagonist's world before the change, and the choice to leave it.",
+      "beats": [
+        {
+          "name": "Opening Image",
+          "hint": "A snapshot of the protagonist and their world before anything changes.",
+          "position": 0.01
+        },
+        {
+          "name": "Theme Stated",
+          "hint": "Someone hints at what the protagonist needs to learn, usually without them noticing.",
+          "position": 0.05
+        },
+        {
+          "name": "Set-Up",
+          "hint": "The protagonist's life, flaws and what is missing from it.",
+          "position": 0.06
+        },
+        {
+          "name": "Catalyst",
+          "hint": "The life-changing event that knocks the protagonist off course.",
+          "position": 0.1
+        },
+        {
+          "name": "Debate",
+          "hint": "The protagonist hesitates: should they go, and what will it cost?",
+          "position": 0.15
+        }
+      ]
+    },
+    {
+      "title": "Act Two",
+      "description": "The new world: promise, trouble and the fall.",
+      "beats": [
+        {
+          "name": "Break into Two",
+          "hint": "The protagonist chooses to act and enters a new world or situation.",
+          "position": 0.2
+        },
+        {
+          "name": "B Story",
+          "hint": "A new relationship that will carry the theme.",
+          "position": 0.22
+        },
+        {
+          "name": "Fun and Games",
+          "hint": "The promise of the premise: the scenes the reader came for.",
+          "position": 0.3
+        },
+        {
+          "name": "Midpoint",
+          "hint": "A false victory or false defeat that raises the stakes.",
+          "position": 0.5
+        },
+        {
+          "name": "Bad Guys Close In",
+          "hint": "Pressure mounts from outside and doubts grow inside.",
+          "position": 0.62
+        },
+        {
+          "name": "All Is Lost",
+          "hint": "The worst moment: something or someone is lost.",
+          "position": 0.75
+        },
+        {
+          "name": "Dark Night of the Soul",
+          "hint": "The protagonist hits bottom and faces what they have been avoiding.",
+          "position": 0.77
+        }
+      ]
+    },
+    {
+      "title": "Act Three",
+      "description": "The protagonist applies what they learned.",
+      "beats": [
+        {
+          "name": "Break into Three",
+          "hint": "A new idea, often from the B Story, shows the way forward.",
+          "position": 0.8
+        },
+        {
+          "name": "Finale",
+          "hint": "The protagonist puts the lesson into action and confronts the problem.",
+          "position": 0.9
+        },
+        {
+          "name": "Final Image",
+          "hint": "A mirror of the Opening Image that shows how much has changed.",
+          "position": 0.99
+        }
+      ]
+    }
+  ]
+}

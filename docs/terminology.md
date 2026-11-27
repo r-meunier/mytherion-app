@@ -1,6 +1,6 @@
 # Mytherion Terminology Standard
 
-Status: **agreed 2026-09-05**. This is the canonical vocabulary. When code and this document
+Status: **agreed 2026-09-05**; story terms added 2026-11-24 (MYT-94). This is the canonical vocabulary. When code and this document
 disagree, this document wins and the code is a bug.
 
 ---
@@ -34,6 +34,16 @@ rule about which one wins where, plus two half-finished renames that left fossil
 | Stats aggregation | `dashboard` | — | Internal only; never a page name |
 | Projects list page | `projects` | "Projects" | Route group `(projects)` |
 | Single project landing | `overview` | "Overview" | |
+| The prose of a project | `story` (backend domain) | — | One per project: acts → chapters → scenes. See [story-model.md](./story-model.md) |
+| Drafting section | `write` (route) | "Write" | The story tree and the scene editor |
+| Planning section | `plan` (route) | "Plan" | Structure, beats and Scene Cards |
+| Template for the acts | `StoryStructure` / `structure` | "Structure" | Read-only data (Three-Act, Save the Cat, …); creates acts and beats |
+| Top level of the story | `Act` / `acts` | "Act" | Created from the structure; author-editable afterwards |
+| Planning prompt in an act | `Beat` / `beats` | "Beat" | Name, hint, expected position; scenes can be pinned to one |
+| A group of scenes | `Chapter` / `chapters` | "Chapter" | |
+| The unit of writing | `Scene` / `scenes` | "Scene" | Its prose is Markdown in `content` |
+| A scene's planning data | Scene Card fields on `Scene` | "Scene Card" | POV, characters, location, goal, beat, summary; not a separate record |
+| How far along a scene is | `SceneStatus` | "Status" | `DRAFT`, `REVISED`, `DONE` |
 
 ### Banned words
 
@@ -48,6 +58,11 @@ rule about which one wins where, plus two half-finished renames that left fossil
 | `Record` | Collides with TypeScript's built-in `Record<K,V>` | `CodexEntry` |
 | `Entry` *as a page or module name* | It is a record, not a screen | `Codex` |
 | `Dashboard` *as a page name* | Reserved for stats aggregation | `Projects` / `Overview` |
+| `Manuscript` | Retired before it was built; the prose is the story, the sections are Plan and Write | `story` / "Write" |
+| `Part` *for a story division* | A second word for act | `Act` |
+
+`Act` is close to React Testing Library's `act()`. They never meet in production code; in tests, name
+variables `storyAct` or `firstAct` rather than `act`.
 
 ### Why "Entry"
 
