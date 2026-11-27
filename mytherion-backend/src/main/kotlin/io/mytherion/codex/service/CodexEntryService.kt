@@ -15,7 +15,6 @@ import io.mytherion.platform.storage.StorageService
 import io.mytherion.platform.storage.dto.UploadResponse
 import io.mytherion.user.model.User
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -31,7 +30,6 @@ class CodexEntryService(
     private val currentUserProvider: CurrentUserProvider,
     private val storageService: StorageService,
     private val metricsService: MetricsService,
-    @Value("\${minio.bucket-name}") private val bucketName: String
 ) {
 
     private val logger = LoggerFactory.getLogger(CodexEntryService::class.java)
@@ -251,39 +249,23 @@ class CodexEntryService(
         val entry = getVerifiedEntry(projectId, id, user)
 
         // Delete old image if exists
-        entry.thumbnail?.let { oldUrl ->
+        entry.thumbnail?.let { oldReference ->
             try {
-                storageService.deleteFile(bucketName, oldUrl.substringAfter("$bucketName/"))
+                storageService.deleteFile(oldReference)
             } catch (e: Exception) {
                 logger.warn("Failed to delete old image: ${entry.thumbnail}", e)
             }
         }
 
-        // Upload new image
+        // Upload new image (the storage service records the upload metrics)
         val objectKey =
             "entries/${entry.id}/${System.currentTimeMillis()}_${file.originalFilename}"
-        val uploadStart = System.currentTimeMillis()
-        var uploadSuccess = false
-
-        val url =
-            try {
-                storageService.uploadFile(
-                    bucketName,
-                    objectKey,
-                    file.inputStream,
-                    file.contentType ?: "application/octet-stream",
-                    file.size
-                )
-                    .also { uploadSuccess = true }
-            } finally {
-                val uploadDuration = System.currentTimeMillis() - uploadStart
-                metricsService.recordStorageUpload(
-                    bucket = bucketName,
-                    sizeBytes = file.size,
-                    durationMs = uploadDuration,
-                    success = uploadSuccess
-                )
-            }
+        val url = storageService.uploadFile(
+            objectKey,
+            file.inputStream,
+            file.contentType ?: "application/octet-stream",
+            file.size
+        )
 
         // Update entry
         entry.thumbnail = url
@@ -299,7 +281,6 @@ class CodexEntryService(
         return UploadResponse(
             url = url,
             objectKey = objectKey,
-            bucketName = bucketName,
             contentType = file.contentType ?: "application/octet-stream",
             size = file.size
         )
@@ -311,10 +292,9 @@ class CodexEntryService(
         val user = getCurrentUser()
         val entry = getVerifiedEntry(projectId, id, user)
 
-        entry.thumbnail?.let { url ->
+        entry.thumbnail?.let { reference ->
             try {
-                val objectKey = url.substringAfter("$bucketName/")
-                storageService.deleteFile(bucketName, objectKey)
+                storageService.deleteFile(reference)
                 entry.thumbnail = null
                 entryRepository.save(entry)
                 logger.infoWith("Image deleted successfully", "projectId" to projectId, "entryId" to id)

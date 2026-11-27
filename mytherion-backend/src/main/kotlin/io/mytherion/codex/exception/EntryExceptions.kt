@@ -22,6 +22,22 @@ class InvalidEntryContentException(message: String) :
     ApiException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_ENTRY_CONTENT, message)
 
 /**
+ * A project export was stopped because an entry's image couldn't be read from storage.
+ *
+ * An [ApiException], unlike the other storage failures here: the author has to learn that no export
+ * was made and which entry caused it, rather than get a zip that silently lacks an image. 502, because
+ * the failure is in the storage the server depends on, not in the request. The message names the entry,
+ * never its id or where the image is stored.
+ */
+class ProjectExportFailedException(entryName: String, cause: Throwable) :
+    ApiException(
+        HttpStatus.BAD_GATEWAY,
+        ErrorCode.EXPORT_FAILED,
+        "The image of \"$entryName\" couldn't be read, so the export was stopped. Please try again.",
+        cause,
+    )
+
+/**
  * Exception thrown when an entry's image deletion fails.
  *
  * Deliberately *not* an [ApiException]: this signals an infrastructure failure in object storage,

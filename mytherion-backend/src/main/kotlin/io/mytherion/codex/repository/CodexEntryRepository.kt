@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.Query
 import java.util.UUID
 
 interface CodexEntryRepository : JpaRepository<CodexEntry, UUID>, CodexEntryRepositoryCustom {
+    /** Every live entry of a project (deleted ones are filtered by @SQLRestriction), for export. */
+    fun findAllByProjectOrderByNameAsc(project: Project): List<CodexEntry>
+
     // Performance-optimized count queries
     @Query("SELECT COUNT(e) FROM CodexEntry e WHERE e.project = :project AND e.deletedAt IS NULL")
     fun countByProjectAndDeletedAtIsNull(project: Project): Long

@@ -4,7 +4,6 @@ package io.mytherion.platform.storage.dto
 data class UploadResponse(
     val url: String,
     val objectKey: String,
-    val bucketName: String,
     val contentType: String,
     val size: Long
 )

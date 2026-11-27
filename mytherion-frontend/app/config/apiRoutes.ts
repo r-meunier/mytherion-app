@@ -22,6 +22,8 @@ export const apiRoutes = {
     create: '/api/projects',
     detail: (projectId: string) => `/api/projects/${projectId}`,
     stats: (projectId: string) => `/api/projects/${projectId}/stats`,
+    /** The whole project as a zip of Markdown files and images. */
+    export: (projectId: string) => `/api/projects/${projectId}/export`,
   },
   entries: {
     list: (projectId: string) => `/api/projects/${projectId}/entries`,

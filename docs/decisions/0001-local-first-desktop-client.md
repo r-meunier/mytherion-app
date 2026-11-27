@@ -155,6 +155,10 @@ Rules:
 Planned Feature #2, the single-file `.mytherion` package, becomes a zip of this folder. It is for moving a
 project between machines, not the format the app works in.
 
+The web app's project export (`GET /api/projects/{projectId}/export`, "Export Project" on the project
+dashboard) already writes this zip, from `ProjectFolderWriter`. It is the reference implementation of
+§4.1–4.3 until the desktop client exists.
+
 ## 5. Sharing the UI
 
 ### 5.1 Repo layout

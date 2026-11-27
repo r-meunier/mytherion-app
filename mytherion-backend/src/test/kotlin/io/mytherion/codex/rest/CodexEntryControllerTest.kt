@@ -332,7 +332,6 @@ class CodexEntryControllerTest {
             UploadResponse(
                 url = "test-bucket/entries/1/test.jpg",
                 objectKey = "entries/1/test.jpg",
-                bucketName = "test-bucket",
                 contentType = "image/jpeg",
                 size = file.size
             )

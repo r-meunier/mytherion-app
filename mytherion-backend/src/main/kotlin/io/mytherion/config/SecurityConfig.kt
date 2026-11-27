@@ -82,8 +82,8 @@ class SecurityConfig(
         // Allow common headers
         configuration.allowedHeaders = listOf("*")
 
-        // Expose headers that frontend might need
-        configuration.exposedHeaders = listOf("Set-Cookie")
+        // Headers the frontend reads; Content-Disposition carries the project export's file name.
+        configuration.exposedHeaders = listOf("Set-Cookie", "Content-Disposition")
 
         val source = UrlBasedCorsConfigurationSource()
         source.registerCorsConfiguration("/**", configuration)

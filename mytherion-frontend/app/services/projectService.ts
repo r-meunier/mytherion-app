@@ -19,7 +19,69 @@ const api = axios.create({
   }
 });
 
+/** A downloaded project export: the zip and the file name the server gave it. */
+export interface ProjectExportFile {
+  blob: Blob;
+  fileName: string;
+}
+
+/** `attachment; filename="stellar-drift-2026-11-24.zip"` → `stellar-drift-2026-11-24.zip`. */
+export function fileNameFromDisposition(header: string | undefined, fallback: string): string {
+  if (!header) return fallback;
+  const encoded = /filename\*=UTF-8''([^;]+)/i.exec(header);
+  if (encoded) {
+    try {
+      return decodeURIComponent(encoded[1].trim());
+    } catch {
+      // Fall through to the plain filename.
+    }
+  }
+  const plain = /filename="?([^";]+)"?/i.exec(header);
+  return plain ? plain[1].trim() : fallback;
+}
+
+/** A Blob's text. FileReader where `Blob.text()` is missing (jsdom in tests; every current browser has it). */
+function blobText(blob: Blob): Promise<string> {
+  if (typeof blob.text === 'function') return blob.text();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(blob);
+  });
+}
+
+/**
+ * A request made with `responseType: 'blob'` gets its error body as a Blob too. Turns it back into the
+ * JSON error response, so callers can read its code and message like any other API error.
+ */
+export async function parseBlobErrorBody(error: unknown): Promise<void> {
+  const response = (error as { response?: { data?: unknown } } | null)?.response;
+  if (!response || !(response.data instanceof Blob)) return;
+  try {
+    response.data = JSON.parse(await blobText(response.data));
+  } catch {
+    // Not JSON (e.g. a proxy's HTML page): leave it as it was.
+  }
+}
+
 export const projectService = {
+  /** The whole project as a zip: project.json, one Markdown file per entry, and the images. */
+  async exportProject(id: string): Promise<ProjectExportFile> {
+    serviceLogger.debug('Exporting project', { projectId: id });
+    try {
+      const response = await api.get(apiRoutes.projects.export(id), { responseType: 'blob' });
+      return {
+        blob: response.data,
+        fileName: fileNameFromDisposition(response.headers['content-disposition'], 'mytherion-project.zip'),
+      };
+    } catch (error) {
+      await parseBlobErrorBody(error);
+      serviceLogger.error('Failed to export project', error, { projectId: id });
+      throw error;
+    }
+  },
+
   async getProjects(page = 0, size = 20, search?: string, genre?: string, sortBy?: string, sortDir?: string): Promise<Page<Project>> {    
     try {
       const params = new URLSearchParams({ page: page.toString(), size: size.toString() });

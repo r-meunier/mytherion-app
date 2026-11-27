@@ -65,7 +65,6 @@ class CodexEntryServiceTest {
                 currentUserProvider,
                 storageService,
                 metricsService,
-                "test-bucket"
             )
 
         // Setup test data
@@ -341,8 +340,7 @@ class CodexEntryServiceTest {
         // Given
         val file = MockMultipartFile("file", "image.png", "image/png", "bytes".toByteArray())
         every { entryRepository.findById(entryId) } returns Optional.of(testEntry)
-        every { storageService.uploadFile(any(), any(), any(), any(), any()) } returns "http://minio/image.png"
-        every { metricsService.recordStorageUpload(any(), any(), any(), any()) } returns Unit
+        every { storageService.uploadFile(any(), any(), any(), any()) } returns "test-bucket/entries/1/image.png"
         every { entryRepository.save(any()) } returns testEntry
 
         // When
@@ -350,8 +348,10 @@ class CodexEntryServiceTest {
 
         // Then
         assertNotNull(response)
-        assertEquals("http://minio/image.png", response.url)
-        verify { entryRepository.save(match { it.thumbnail == "http://minio/image.png" }) }
+        assertEquals("test-bucket/entries/1/image.png", response.url)
+        verify { storageService.uploadFile(match { it.startsWith("entries/$entryId/") && it.endsWith("_image.png") }, any(), "image/png", 5) }
+        verify { entryRepository.save(match { it.thumbnail == "test-bucket/entries/1/image.png" }) }
+        verify(exactly = 0) { metricsService.recordStorageUpload(any(), any(), any(), any()) }
     }
 
     @Test
@@ -372,14 +372,14 @@ class CodexEntryServiceTest {
         // Given
         testEntry.thumbnail = "test-bucket/entries/1/image.png"
         every { entryRepository.findById(entryId) } returns Optional.of(testEntry)
-        every { storageService.deleteFile(any(), any()) } returns Unit
+        every { storageService.deleteFile(any()) } returns Unit
         every { entryRepository.save(any()) } returns testEntry
 
         // When
         entryService.deleteThumbnail(projectId, entryId)
 
         // Then
-        verify { storageService.deleteFile("test-bucket", "entries/1/image.png") }
+        verify { storageService.deleteFile("test-bucket/entries/1/image.png") }
         verify { entryRepository.save(match { it.thumbnail == null }) }
     }
 
