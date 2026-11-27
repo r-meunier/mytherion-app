@@ -1,0 +1,66 @@
+{
+  "id": "three-act",
+  "order": 1,
+  "name": "Three-Act",
+  "description": "The classic shape: set the story up, complicate it, resolve it.",
+  "acts": [
+    {
+      "title": "Setup",
+      "description": "Who, where, and what normal looks like until it breaks.",
+      "beats": [
+        {
+          "name": "Hook",
+          "hint": "Open with something that makes the reader lean in: a question, a tension, a voice.",
+          "position": 0.01
+        },
+        {
+          "name": "Inciting incident",
+          "hint": "The event that disrupts the protagonist's normal and starts the story moving.",
+          "position": 0.12
+        },
+        {
+          "name": "First plot point",
+          "hint": "The protagonist commits; from here there is no going back.",
+          "position": 0.25
+        }
+      ]
+    },
+    {
+      "title": "Confrontation",
+      "description": "Obstacles escalate while the protagonist tries, fails and adapts.",
+      "beats": [
+        {
+          "name": "Rising action",
+          "hint": "Each attempt costs more; allies and enemies take shape.",
+          "position": 0.37
+        },
+        {
+          "name": "Midpoint",
+          "hint": "A reversal or revelation that changes the stakes or what the protagonist understands.",
+          "position": 0.5
+        },
+        {
+          "name": "Second plot point",
+          "hint": "The lowest point, or the discovery that sets up the final confrontation.",
+          "position": 0.75
+        }
+      ]
+    },
+    {
+      "title": "Resolution",
+      "description": "The central conflict is faced and settled.",
+      "beats": [
+        {
+          "name": "Climax",
+          "hint": "The protagonist meets the central conflict head-on, using what they have learned.",
+          "position": 0.88
+        },
+        {
+          "name": "Resolution",
+          "hint": "The new normal: what changed, and what it cost.",
+          "position": 0.97
+        }
+      ]
+    }
+  ]
+}

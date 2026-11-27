@@ -1,0 +1,61 @@
+{
+  "id": "seven-point",
+  "order": 5,
+  "name": "Seven-Point",
+  "description": "Plan the ending first, then the turns that get you there: seven points from hook to resolution.",
+  "acts": [
+    {
+      "title": "Beginning",
+      "description": "The starting state and the call to change it.",
+      "beats": [
+        {
+          "name": "Hook",
+          "hint": "The starting state, ideally the opposite of where the story ends.",
+          "position": 0.01
+        },
+        {
+          "name": "Plot Turn 1",
+          "hint": "Something new enters and sets the story in motion.",
+          "position": 0.2
+        }
+      ]
+    },
+    {
+      "title": "Middle",
+      "description": "Pressure, a turn from reaction to action, more pressure.",
+      "beats": [
+        {
+          "name": "Pinch 1",
+          "hint": "Pressure from the antagonist forces the protagonist to act.",
+          "position": 0.35
+        },
+        {
+          "name": "Midpoint",
+          "hint": "The protagonist stops reacting and starts acting.",
+          "position": 0.5
+        },
+        {
+          "name": "Pinch 2",
+          "hint": "More pressure: a loss or setback that leaves them alone.",
+          "position": 0.62
+        }
+      ]
+    },
+    {
+      "title": "End",
+      "description": "The final piece falls into place.",
+      "beats": [
+        {
+          "name": "Plot Turn 2",
+          "hint": "The protagonist gets the last thing they need to win.",
+          "position": 0.8
+        },
+        {
+          "name": "Resolution",
+          "hint": "The climax and its outcome, the mirror of the Hook.",
+          "position": 0.97
+        }
+      ]
+    }
+  ]
+}

@@ -171,6 +171,7 @@ class PackageStructureTest {
             "$ROOT.user..",
             "$ROOT.project..",
             "$ROOT.codex..",
+            "$ROOT.story..",
             "$ROOT.dashboard..",
             "$ROOT.auth.."
         )

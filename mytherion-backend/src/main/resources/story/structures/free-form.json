@@ -1,0 +1,13 @@
+{
+  "id": "free-form",
+  "order": 0,
+  "name": "Free Form",
+  "description": "No structure: one act holding your chapters. The act level stays hidden until you add a second one.",
+  "acts": [
+    {
+      "title": "Story",
+      "description": "All of your chapters.",
+      "beats": []
+    }
+  ]
+}

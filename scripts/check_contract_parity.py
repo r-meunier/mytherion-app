@@ -68,6 +68,7 @@ def extract(pattern: str, text: str, what: str, flags: int = re.S) -> str:
 # ────────────────────────────────────────────────────────────────
 
 codex_ts = read(FE / "types" / "codex.ts")
+story_ts = read(FE / "types" / "story.ts")
 
 
 def kotlin_enum(name: str, path: Path) -> list[str]:
@@ -75,18 +76,19 @@ def kotlin_enum(name: str, path: Path) -> list[str]:
     return sorted(t.strip().rstrip(",") for t in body.split() if t.strip().rstrip(","))
 
 
-def ts_enum(name: str) -> list[str]:
-    body = extract(rf"enum {name} \{{(.*?)\n\}}", codex_ts, f"{name} enum in types/codex.ts")
+def ts_enum(name: str, ts: str = codex_ts, file: str = "types/codex.ts") -> list[str]:
+    body = extract(rf"enum {name} \{{(.*?)\n\}}", ts, f"{name} enum in {file}")
     return sorted(set(re.findall(r"([A-Z_]+)\s*=\s*'", body)))
 
 
-for enum_name, kotlin_file in [
-    ("EntryType", BE / "codex" / "model" / "CodexEntry.kt"),
-    ("ContextRole", BE / "codex" / "model" / "EntryContent.kt"),
-    ("TemplateLevel", BE / "codex" / "model" / "EntryTemplate.kt"),
+for enum_name, kotlin_file, ts, ts_file in [
+    ("EntryType", BE / "codex" / "model" / "CodexEntry.kt", codex_ts, "types/codex.ts"),
+    ("ContextRole", BE / "codex" / "model" / "EntryContent.kt", codex_ts, "types/codex.ts"),
+    ("TemplateLevel", BE / "codex" / "model" / "EntryTemplate.kt", codex_ts, "types/codex.ts"),
+    ("SceneStatus", BE / "story" / "model" / "Scene.kt", story_ts, "types/story.ts"),
 ]:
     be_values = kotlin_enum(enum_name, kotlin_file)
-    fe_values = ts_enum(enum_name)
+    fe_values = ts_enum(enum_name, ts, ts_file)
     check(
         f"{enum_name} in sync ({len(be_values)} backend / {len(fe_values)} frontend)",
         bool(be_values) and be_values == fe_values,
@@ -133,6 +135,15 @@ check(
     "entry templates path agreed on both sides",
     be_templates == "/api/codex/templates" and f"'{be_templates}'" in api_routes,
     f"backend {be_templates!r}; frontend apiRoutes.codex.templates must be the same literal",
+)
+
+structure_controller = read(BE / "story" / "rest" / "StoryStructureController.kt")
+be_structures = extract(r'@RequestMapping\("([^"]+)"\)', structure_controller,
+                        "@RequestMapping on StoryStructureController", flags=0)
+check(
+    "story structures path agreed on both sides",
+    be_structures == "/api/story/structures" and f"'{be_structures}'" in api_routes,
+    f"backend {be_structures!r}; frontend apiRoutes.story.structures must be the same literal",
 )
 
 # ────────────────────────────────────────────────────────────────

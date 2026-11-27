@@ -1,0 +1,86 @@
+{
+  "id": "heros-journey",
+  "order": 4,
+  "name": "Hero's Journey",
+  "description": "Twelve stages of departure, initiation and return, after Campbell and Vogler.",
+  "acts": [
+    {
+      "title": "Departure",
+      "description": "Leaving the known world.",
+      "beats": [
+        {
+          "name": "Ordinary World",
+          "hint": "The hero at home, before the adventure, with what they lack.",
+          "position": 0.03
+        },
+        {
+          "name": "Call to Adventure",
+          "hint": "A problem or challenge appears that cannot be ignored for long.",
+          "position": 0.1
+        },
+        {
+          "name": "Refusal of the Call",
+          "hint": "Fear or duty holds the hero back, at least for a moment.",
+          "position": 0.15
+        },
+        {
+          "name": "Meeting the Mentor",
+          "hint": "Someone offers advice, training or a gift for the road.",
+          "position": 0.2
+        },
+        {
+          "name": "Crossing the Threshold",
+          "hint": "The hero commits and enters the unfamiliar world.",
+          "position": 0.25
+        }
+      ]
+    },
+    {
+      "title": "Initiation",
+      "description": "Trials in the special world.",
+      "beats": [
+        {
+          "name": "Tests, Allies, Enemies",
+          "hint": "The hero learns the rules of the new world and who stands where.",
+          "position": 0.35
+        },
+        {
+          "name": "Approach to the Inmost Cave",
+          "hint": "Preparation for the central ordeal; tension gathers.",
+          "position": 0.45
+        },
+        {
+          "name": "The Ordeal",
+          "hint": "The hero faces their greatest challenge so far and must survive it.",
+          "position": 0.55
+        },
+        {
+          "name": "Reward",
+          "hint": "Having survived, the hero takes what they came for, and maybe more.",
+          "position": 0.65
+        }
+      ]
+    },
+    {
+      "title": "Return",
+      "description": "Bringing it home.",
+      "beats": [
+        {
+          "name": "The Road Back",
+          "hint": "The hero sets out for home, often pursued.",
+          "position": 0.75
+        },
+        {
+          "name": "Resurrection",
+          "hint": "A final, purifying test where everything learned is put to use.",
+          "position": 0.88
+        },
+        {
+          "name": "Return with the Elixir",
+          "hint": "The hero comes home changed, with something that changes their world too.",
+          "position": 0.97
+        }
+      ]
+    }
+  ]
+}
