@@ -42,6 +42,7 @@ enum class ErrorCode {
     INVALID_FILE,               // 400 upload is empty or not an accepted image type
     INVALID_ENTRY_CONTENT,      // 400 entry details break a content rule (empty label, too many, …)
     CONCURRENT_MODIFICATION,    // 409 stale `version`; reload and retry
+    EXPORT_FAILED,              // 502 an entry's image couldn't be read from storage, so no export was made
 
     // Server
     INTERNAL_ERROR,             // 500 cause is logged, never returned

@@ -23,7 +23,7 @@ import java.io.ByteArrayInputStream
 import java.util.UUID
 import java.util.zip.ZipInputStream
 
-/** The export endpoint, through the real security chain and ProjectAccessInterceptor. */
+/** The export endpoint, through the real server, security chain and ProjectAccessInterceptor. */
 @IntegrationTest
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ProjectExportE2ETest {
@@ -40,7 +40,13 @@ class ProjectExportE2ETest {
     private lateinit var owner: User
     private lateinit var stranger: User
     private lateinit var project: Project
-    private lateinit var entry: CodexEntry
+    private val createdEntries = mutableListOf<CodexEntry>()
+    private val createdProjects = mutableListOf<Project>()
+
+    private class Download(val status: Int, val headers: HttpHeaders, val body: ByteArray) {
+        val fileNames: List<String>
+            get() = ZipInputStream(ByteArrayInputStream(body)).use { zip -> generateSequence { zip.nextEntry?.name }.toList() }
+    }
 
     @BeforeEach
     fun setUp() {
@@ -49,41 +55,76 @@ class ProjectExportE2ETest {
         val suffix = UUID.randomUUID().toString().take(8)
         owner = userRepository.save(User(username = "export_$suffix", email = "export_$suffix@test.dev", passwordHash = "hash"))
         stranger = userRepository.save(User(username = "other_$suffix", email = "other_$suffix@test.dev", passwordHash = "hash"))
-        project = projectRepository.save(Project(name = "Export Test", description = null, owner = owner))
-        entry = entryRepository.save(CodexEntry(name = "Mira Vell", type = EntryType.CHARACTER, project = project))
+        project = project("Export Test")
+        entry("Mira Vell")
     }
 
     @AfterEach
     fun tearDown() {
-        entryRepository.deleteById(entry.id!!)
-        projectRepository.deleteById(project.id!!)
+        createdEntries.forEach { entryRepository.deleteById(it.id!!) }
+        createdProjects.forEach { projectRepository.deleteById(it.id!!) }
         userRepository.deleteById(owner.id!!)
         userRepository.deleteById(stranger.id!!)
     }
 
+    private fun project(name: String) =
+        projectRepository.save(Project(name = name, description = null, owner = owner)).also { createdProjects += it }
+
+    private fun entry(name: String, project: Project = this.project, thumbnail: String? = null) =
+        entryRepository.save(CodexEntry(name = name, type = EntryType.CHARACTER, project = project, thumbnail = thumbnail))
+            .also { createdEntries += it }
+
     private fun token(user: User) = jwtService.generateAccessToken(user.id!!, user.email, user.role.name)
+
+    private fun download(project: Project = this.project, user: User = owner): Download =
+        restClient.get()
+            .uri("/api/projects/${project.id}/export")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer ${token(user)}")
+            .exchange { _, res -> Download(res.statusCode.value(), res.headers, res.body.readAllBytes()) }
 
     @Test
     fun `the owner downloads the project as a zip of the project folder`() {
-        val (status, headers, body) = restClient.get()
-            .uri("/api/projects/${project.id}/export")
-            .header(HttpHeaders.AUTHORIZATION, "Bearer ${token(owner)}")
-            .exchange { _, res -> Triple(res.statusCode.value(), res.headers, res.body.readAllBytes()) }
+        val download = download()
 
-        assertEquals(200, status)
-        assertEquals("application/zip", headers.contentType.toString())
-        assertTrue(headers.contentDisposition.filename!!.matches(Regex("export-test-\\d{4}-\\d{2}-\\d{2}\\.zip")))
-        val names = ZipInputStream(ByteArrayInputStream(body)).use { zip -> generateSequence { zip.nextEntry?.name }.toList() }
-        assertEquals(listOf("export-test/project.json", "export-test/codex/characters/mira-vell.md"), names)
+        assertEquals(200, download.status)
+        assertEquals("application/zip", download.headers.contentType.toString())
+        assertTrue(download.headers.contentDisposition.filename!!.matches(Regex("export-test-\\d{4}-\\d{2}-\\d{2}\\.zip")))
+        assertEquals(listOf("export-test/project.json", "export-test/codex/characters/mira-vell.md"), download.fileNames)
     }
 
     @Test
-    fun `someone else's project is a 404, like any project that isn't yours`() {
-        val status = restClient.get()
-            .uri("/api/projects/${project.id}/export")
-            .header(HttpHeaders.AUTHORIZATION, "Bearer ${token(stranger)}")
-            .exchange { _, res -> res.statusCode.value() }
+    fun `deleted entries are left out`() {
+        entryRepository.save(entry("Kael").apply { markDeleted() })
 
-        assertEquals(404, status)
+        assertEquals(listOf("export-test/project.json", "export-test/codex/characters/mira-vell.md"), download().fileNames)
+    }
+
+    @Test
+    fun `an image that can't be read fails the export with an error response instead of a partial zip`() {
+        entry("Kael", thumbnail = "mytherion-uploads/entries/missing/0_kael.png")
+
+        val download = download()
+
+        assertEquals(502, download.status)
+        assertEquals("application/json", download.headers.contentType?.let { "${it.type}/${it.subtype}" })
+        val body = String(download.body, Charsets.UTF_8)
+        assertTrue(body.contains("\"code\":\"EXPORT_FAILED\""), body)
+        assertTrue(body.contains("Kael"), body)
+    }
+
+    @Test
+    fun `a non-Latin project name keeps its file name`() {
+        val tokyo = project("東京")
+
+        val download = download(tokyo)
+
+        assertEquals(200, download.status)
+        assertTrue(download.headers.contentDisposition.filename!!.matches(Regex("東京-\\d{4}-\\d{2}-\\d{2}\\.zip")))
+        assertEquals(listOf("東京/project.json"), download.fileNames)
+    }
+
+    @Test
+    fun `someone else's project is a 404`() {
+        assertEquals(404, download(user = stranger).status)
     }
 }

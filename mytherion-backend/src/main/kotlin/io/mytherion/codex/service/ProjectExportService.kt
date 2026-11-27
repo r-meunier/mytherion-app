@@ -1,31 +1,46 @@
 package io.mytherion.codex.service
 
 import io.mytherion.auth.service.CurrentUserProvider
+import io.mytherion.codex.exception.ProjectExportFailedException
 import io.mytherion.codex.model.CodexEntry
 import io.mytherion.codex.repository.CodexEntryRepository
+import io.mytherion.platform.storage.StorageException
 import io.mytherion.platform.storage.StorageService
 import io.mytherion.project.service.ProjectService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import tools.jackson.databind.ObjectMapper
 import java.io.OutputStream
+import java.nio.file.Files
+import java.nio.file.Path
+import java.time.Clock
 import java.time.LocalDate
 import java.util.UUID
 
 /**
- * A prepared export: the file name to download it as, and a writer that streams the zip. The project
- * and its entries are already loaded; [writeTo] only fetches images, one at a time, so neither the zip
- * nor all images are ever in memory together, and no database transaction is held open meanwhile.
+ * A finished export: the zip, complete on disk, and the file name to download it as. Close it once it
+ * has been sent; that deletes the file.
  */
-class ProjectExport(val fileName: String, private val writer: (OutputStream) -> Unit) {
-    fun writeTo(out: OutputStream) = writer(out)
+class ProjectExport(val fileName: String, private val file: Path) : AutoCloseable {
+    val size: Long get() = Files.size(file)
+
+    fun writeTo(out: OutputStream) {
+        Files.copy(file, out)
+    }
+
+    override fun close() {
+        Files.deleteIfExists(file)
+    }
 }
 
 /**
- * Exports a whole project as a zip of the project folder format (see [ProjectFolderWriter]), so the
- * author can take everything with them: entries as Markdown, images as files.
+ * Builds the export of a project: `<project-slug>-<date>.zip`, holding `project.json`, one Markdown file
+ * per live entry under `codex/<type>/` and the entry images under `media/` (layout: [ProjectFolderWriter]).
+ *
+ * All or nothing: the zip is written to a temporary file first and handed out only once it is complete.
+ * If an image can't be read, the export fails with [ProjectExportFailedException] and nothing is sent,
+ * instead of the author getting a zip that silently lacks it. One image is in memory at a time.
  */
 @Service
 class ProjectExportService(
@@ -34,40 +49,76 @@ class ProjectExportService(
     private val currentUserProvider: CurrentUserProvider,
     private val storageService: StorageService,
     private val objectMapper: ObjectMapper,
-    @Value("\${minio.bucket-name}") private val bucketName: String,
+    private val clock: Clock,
+    @Value("\${app.export.temp-dir:\${java.io.tmpdir}}") private val tempDir: String,
 ) {
     private val logger = LoggerFactory.getLogger(ProjectExportService::class.java)
 
-    /** Checks access and loads the project in a short transaction; the zip is written later, outside it. */
-    @Transactional(readOnly = true)
+    /**
+     * Checks access, loads the project and its entries, and writes the zip.
+     *
+     * Deliberately not @Transactional: the images are read while the zip is written, and a transaction
+     * would hold a database connection for all of that. Each read below runs in its own.
+     *
+     * @throws ProjectExportFailedException when an entry's image can't be read
+     */
     fun exportProject(projectId: UUID): ProjectExport {
         val user = currentUserProvider.getCurrentUser()
         val project = projectService.getVerifiedProject(projectId, requireNotNull(user.id) { "User ID is missing" })
-        val entries = entryRepository.findAllByProjectOrderByNameAsc(project)
+        // The repository already leaves deleted entries out (@SQLRestriction); this keeps them out even
+        // if that query is ever replaced by one the restriction doesn't apply to, such as native SQL.
+        val entries = entryRepository.findAllByProjectOrderByNameAsc(project).filterNot { it.isDeleted() }
+
+        val file = Files.createTempFile(Path.of(tempDir), "mytherion-export-", ".zip")
+        try {
+            Files.newOutputStream(file).buffered().use { out ->
+                ProjectFolderWriter.write(out, project, entries, ::loadImage, objectMapper)
+            }
+        } catch (e: Throwable) {
+            Files.deleteIfExists(file)
+            throw e
+        }
+        logger.info("Exported project $projectId: ${entries.size} entries")
 
         val name = ProjectFolderWriter.slug(project.name).ifEmpty { "project" }
-        return ProjectExport("$name-${LocalDate.now()}.zip") { out ->
-            ProjectFolderWriter.write(out, project, entries, ::loadImage, objectMapper)
-            logger.info("Exported project $projectId: ${entries.size} entries")
-        }
+        return ProjectExport("$name-${LocalDate.now(clock)}.zip", file)
     }
 
-    /**
-     * An entry's image, or null without one. An image that can't be read must not cost the author the
-     * whole export: the entry is still written, just without its image, and the failure is logged.
-     */
+    /** An entry's image, or null if it has none. One that can't be read stops the export. */
     private fun loadImage(entry: CodexEntry): ProjectFolderWriter.Media? {
         val thumbnail = entry.thumbnail ?: return null
-        val objectKey = thumbnail.substringAfter("$bucketName/")
         return try {
-            ProjectFolderWriter.Media(extension(objectKey), storageService.downloadFile(bucketName, objectKey))
-        } catch (e: Exception) {
-            logger.warn("Export: image of entry ${entry.id} could not be read; exporting the entry without it", e)
-            null
+            val file = storageService.downloadFile(thumbnail)
+            ProjectFolderWriter.Media(imageExtension(file.contentType, thumbnail), file.bytes)
+        } catch (e: StorageException) {
+            logger.error("Export stopped: image of entry ${entry.id} could not be read", e)
+            throw ProjectExportFailedException(entry.name, e)
         }
     }
 
-    private fun extension(objectKey: String): String =
-        objectKey.substringAfterLast('/').substringAfterLast('.', "").lowercase()
-            .takeIf { it.isNotEmpty() && it.length <= 5 && it.all(Char::isLetterOrDigit) } ?: "img"
+    companion object {
+        /** The image types an upload accepts (CodexEntryController), by content type. */
+        private val IMAGE_EXTENSIONS = mapOf(
+            "image/jpeg" to "jpg",
+            "image/png" to "png",
+            "image/gif" to "gif",
+            "image/webp" to "webp",
+        )
+
+        /**
+         * The file extension to export an image under. The content type stored with the upload decides;
+         * without one (or an unknown one), the uploaded file name's extension, if it is one of the same
+         * accepted types. Otherwise `img`, so nothing from a file name ends up in the path unchecked.
+         */
+        fun imageExtension(contentType: String?, fileReference: String): String {
+            val type = contentType?.substringBefore(';')?.trim()?.lowercase()
+            IMAGE_EXTENSIONS[type]?.let { return it }
+            val fromName = fileReference.substringAfterLast('/').substringAfterLast('.', "").lowercase()
+            return when (fromName) {
+                "jpeg" -> "jpg"
+                in IMAGE_EXTENSIONS.values -> fromName
+                else -> "img"
+            }
+        }
+    }
 }

@@ -9,7 +9,10 @@ import java.io.InputStream
 import java.util.concurrent.TimeUnit
 
 /**
- * MinIO implementation of StorageService.
+ * MinIO implementation of StorageService. Files go into one bucket (`minio.bucket-name`); a file
+ * reference is `<bucket>/<object key>`. References naming another bucket are still read and deleted,
+ * so files stored before a bucket rename keep working.
+ *
  * Can be easily swapped for S3StorageService in production.
  */
 @Service
@@ -17,6 +20,7 @@ class MinIOStorageService(
     @Value("\${minio.endpoint}") private val endpoint: String,
     @Value("\${minio.access-key}") private val accessKey: String,
     @Value("\${minio.secret-key}") private val secretKey: String,
+    @Value("\${minio.bucket-name}") private val bucketName: String,
     private val metricsService: MetricsService
 ) : StorageService {
 
@@ -31,9 +35,20 @@ class MinIOStorageService(
         logger.info("MinIO storage service initialized with endpoint: $endpoint")
     }
 
+    /** A file reference split into its bucket and object key. */
+    private class Location(val bucket: String, val objectKey: String)
+
+    private fun locate(fileReference: String): Location {
+        val bucket = fileReference.substringBefore('/', "")
+        val objectKey = fileReference.substringAfter('/', "")
+        if (bucket.isEmpty() || objectKey.isEmpty()) {
+            throw StorageException("Not a stored file reference: $fileReference")
+        }
+        return Location(bucket, objectKey)
+    }
+
     override fun uploadFile(
-        bucketName: String,
-        objectName: String,
+        objectKey: String,
         inputStream: InputStream,
         contentType: String,
         size: Long
@@ -41,22 +56,22 @@ class MinIOStorageService(
         val startTime = System.currentTimeMillis()
         var success = false
         try {
-            ensureBucketExists(bucketName)
+            ensureBucketExists()
 
             minioClient.putObject(
                 PutObjectArgs.builder()
                     .bucket(bucketName)
-                    .`object`(objectName)
+                    .`object`(objectKey)
                     .stream(inputStream, size, -1)
                     .contentType(contentType)
                     .build()
             )
 
-            logger.info("Uploaded file: $bucketName/$objectName")
+            logger.info("Uploaded file: $bucketName/$objectKey")
             success = true
-            return "$bucketName/$objectName"
+            return "$bucketName/$objectKey"
         } catch (e: Exception) {
-            logger.error("Failed to upload file: $bucketName/$objectName", e)
+            logger.error("Failed to upload file: $bucketName/$objectKey", e)
             throw StorageException("Failed to upload file", e)
         } finally {
             val duration = System.currentTimeMillis() - startTime
@@ -69,77 +84,77 @@ class MinIOStorageService(
         }
     }
 
-    override fun downloadFile(bucketName: String, objectName: String): ByteArray {
+    override fun downloadFile(fileReference: String): StoredFile {
+        val location = locate(fileReference)
         try {
             return minioClient.getObject(
                 GetObjectArgs.builder()
-                    .bucket(bucketName)
-                    .`object`(objectName)
+                    .bucket(location.bucket)
+                    .`object`(location.objectKey)
                     .build()
-            ).use { it.readBytes() }
+            ).use { StoredFile(it.readBytes(), it.headers()["Content-Type"]) }
         } catch (e: Exception) {
-            logger.error("Failed to download file: $bucketName/$objectName", e)
+            logger.error("Failed to download file: $fileReference", e)
             throw StorageException("Failed to download file", e)
         }
     }
 
-    override fun deleteFile(bucketName: String, objectName: String) {
+    override fun deleteFile(fileReference: String) {
+        val location = locate(fileReference)
         val startTime = System.currentTimeMillis()
         var success = false
         try {
             minioClient.removeObject(
                 RemoveObjectArgs.builder()
-                    .bucket(bucketName)
-                    .`object`(objectName)
+                    .bucket(location.bucket)
+                    .`object`(location.objectKey)
                     .build()
             )
-            logger.info("Deleted file: $bucketName/$objectName")
+            logger.info("Deleted file: $fileReference")
             success = true
         } catch (e: Exception) {
-            logger.error("Failed to delete file: $bucketName/$objectName", e)
+            logger.error("Failed to delete file: $fileReference", e)
             throw StorageException("Failed to delete file", e)
         } finally {
             val duration = System.currentTimeMillis() - startTime
             metricsService.recordStorageDelete(
-                bucket = bucketName,
+                bucket = location.bucket,
                 durationMs = duration,
                 success = success
             )
         }
     }
 
-    override fun getPresignedUrl(
-        bucketName: String,
-        objectName: String,
-        expirySeconds: Int
-    ): String {
+    override fun getPresignedUrl(fileReference: String, expirySeconds: Int): String {
+        val location = locate(fileReference)
         val startTime = System.currentTimeMillis()
         var success = false
         try {
             val url = minioClient.getPresignedObjectUrl(
                 GetPresignedObjectUrlArgs.builder()
                     .method(Http.Method.GET)
-                    .bucket(bucketName)
-                    .`object`(objectName)
+                    .bucket(location.bucket)
+                    .`object`(location.objectKey)
                     .expiry(expirySeconds, TimeUnit.SECONDS)
                     .build()
             )
             success = true
             return url
         } catch (e: Exception) {
-            logger.error("Failed to generate presigned URL: $bucketName/$objectName", e)
+            logger.error("Failed to generate presigned URL: $fileReference", e)
             throw StorageException("Failed to generate presigned URL", e)
         } finally {
             val duration = System.currentTimeMillis() - startTime
             metricsService.recordStoragePresign(
-                bucket = bucketName,
+                bucket = location.bucket,
                 durationMs = duration,
                 success = success
             )
         }
     }
 
-    override fun ensureBucketExists(bucketName: String) {
+    /** Creates the bucket on first use, readable by anyone so browser `<img>` tags can fetch images. */
+    private fun ensureBucketExists() {
         try {
             val exists = minioClient.bucketExists(
                 BucketExistsArgs.builder()
@@ -181,8 +196,3 @@ class MinIOStorageService(
         }
     }
 }
-
-/**
- * Custom exception for storage operations
- */
-class StorageException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)

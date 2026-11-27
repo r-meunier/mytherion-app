@@ -225,7 +225,6 @@ file: [binary image data]
 {
   "url": "mytherion-uploads/entries/8d0c…/1737238800000_mira.jpg",
   "objectKey": "entries/8d0c…/1737238800000_mira.jpg",
-  "bucketName": "mytherion-uploads",
   "contentType": "image/jpeg",
   "size": 245678
 }
@@ -271,7 +270,7 @@ GET /api/projects/{projectId}/export
 ```
 
 **Response:** `200 OK`, `Content-Type: application/zip`, with
-`Content-Disposition: attachment; filename="<project-slug>-<date>.zip"`.
+`Content-Disposition: attachment; filename="<project-slug>-<date>.zip"`. The date is the server's, in UTC.
 
 ```
 stellar-drift/
@@ -282,8 +281,11 @@ stellar-drift/
 ```
 
 - Deleted entries are left out.
-- An image that can't be read from storage leaves that entry without its `thumbnail`; the export still
-  succeeds (the failure is logged).
+- An image is named after its stored content type (`jpg`, `png`, `gif`, `webp`), or `img` if unknown.
+- All or nothing: the zip is built in full before it is sent (with a `Content-Length`), so a failure is
+  always an error response, never a partial download.
+- `502 EXPORT_FAILED` when an entry's image can't be read from storage. No zip is made; the message names
+  the entry.
 - `404 PROJECT_NOT_FOUND` when the project is missing, deleted or not yours.
 
 ---

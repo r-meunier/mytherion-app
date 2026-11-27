@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ProjectExportPanel from './ProjectExportPanel';
-import { projectService, fileNameFromDisposition } from '@/app/services/projectService';
+import { projectService, fileNameFromDisposition, parseBlobErrorBody } from '@/app/services/projectService';
 
 jest.mock('@/app/services/projectService', () => ({
   ...jest.requireActual('@/app/services/projectService'),
@@ -60,6 +60,40 @@ describe('ProjectExportPanel', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(/could not be created/);
     expect(clicked).toEqual([]);
     expect(screen.getByRole('button', { name: /Export Project/ })).toBeEnabled();
+  });
+
+  it("shows the server's reason when an image stopped the export", async () => {
+    const message = 'The image of "Mira Vell" couldn\'t be read, so the export was stopped. Please try again.';
+    (projectService.exportProject as jest.Mock).mockRejectedValue({
+      response: { data: { status: 502, error: 'Bad Gateway', code: 'EXPORT_FAILED', message, path: '/x', timestamp: 't' } },
+    });
+    render(<ProjectExportPanel projectId="p1" />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Export Project/ }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(message);
+    expect(clicked).toEqual([]);
+  });
+});
+
+describe('parseBlobErrorBody', () => {
+  it('turns a JSON error body that arrived as a Blob back into the error response', async () => {
+    const error = { response: { data: new Blob(['{"status":502,"code":"EXPORT_FAILED","message":"m"}'], { type: 'application/json' }) } };
+
+    await parseBlobErrorBody(error);
+
+    expect(error.response.data).toEqual({ status: 502, code: 'EXPORT_FAILED', message: 'm' });
+  });
+
+  it('leaves a body that is not JSON, or not a Blob, as it was', async () => {
+    const html = new Blob(['<html>Bad Gateway</html>']);
+    const notJson = { response: { data: html } };
+    const noResponse = new Error('Network Error');
+
+    await parseBlobErrorBody(notJson);
+    await parseBlobErrorBody(noResponse);
+
+    expect(notJson.response.data).toBe(html);
   });
 });
 

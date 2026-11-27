@@ -2,6 +2,16 @@
 
 import { useState } from 'react';
 import { projectService } from '@/app/services/projectService';
+import { isApiErrorResponse } from '@/app/types/apiError';
+import { parseErrorMessage } from '@/app/utils/errorMessages';
+
+const EXPORT_FAILED_FALLBACK = 'The export could not be created. Please try again.';
+
+/** The server's explanation when it gave one (e.g. which entry's image stopped the export), else a generic line. */
+function exportErrorMessage(error: unknown): string {
+  const body = (error as { response?: { data?: unknown } } | null)?.response?.data;
+  return isApiErrorResponse(body) ? parseErrorMessage(error) : EXPORT_FAILED_FALLBACK;
+}
 
 interface ProjectExportPanelProps {
   projectId: string;
@@ -35,8 +45,8 @@ export default function ProjectExportPanel({ projectId }: ProjectExportPanelProp
     try {
       const { blob, fileName } = await projectService.exportProject(projectId);
       saveFile(blob, fileName);
-    } catch {
-      setError('The export could not be created. Please try again.');
+    } catch (err) {
+      setError(exportErrorMessage(err));
     } finally {
       setExporting(false);
     }

@@ -40,6 +40,31 @@ export function fileNameFromDisposition(header: string | undefined, fallback: st
   return plain ? plain[1].trim() : fallback;
 }
 
+/** A Blob's text. FileReader where `Blob.text()` is missing (jsdom in tests; every current browser has it). */
+function blobText(blob: Blob): Promise<string> {
+  if (typeof blob.text === 'function') return blob.text();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(blob);
+  });
+}
+
+/**
+ * A request made with `responseType: 'blob'` gets its error body as a Blob too. Turns it back into the
+ * JSON error response, so callers can read its code and message like any other API error.
+ */
+export async function parseBlobErrorBody(error: unknown): Promise<void> {
+  const response = (error as { response?: { data?: unknown } } | null)?.response;
+  if (!response || !(response.data instanceof Blob)) return;
+  try {
+    response.data = JSON.parse(await blobText(response.data));
+  } catch {
+    // Not JSON (e.g. a proxy's HTML page): leave it as it was.
+  }
+}
+
 export const projectService = {
   /** The whole project as a zip: project.json, one Markdown file per entry, and the images. */
   async exportProject(id: string): Promise<ProjectExportFile> {
@@ -51,6 +76,7 @@ export const projectService = {
         fileName: fileNameFromDisposition(response.headers['content-disposition'], 'mytherion-project.zip'),
       };
     } catch (error) {
+      await parseBlobErrorBody(error);
       serviceLogger.error('Failed to export project', error, { projectId: id });
       throw error;
     }

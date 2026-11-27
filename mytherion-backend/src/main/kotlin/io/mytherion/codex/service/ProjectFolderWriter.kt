@@ -35,21 +35,29 @@ object ProjectFolderWriter {
     /** An entry image, ready to write: its file extension and bytes. */
     class Media(val extension: String, val bytes: ByteArray)
 
-    /**
-     * Folder per entry type, as in the ADR's example (`characters/`, `locations/`, …). An exhaustive
-     * `when`, so adding an EntryType doesn't compile until it has a folder here.
-     */
-    fun typeFolder(type: EntryType): String = when (type) {
-        EntryType.CHARACTER -> "characters"
-        EntryType.LOCATION -> "locations"
-        EntryType.ORGANIZATION -> "organizations"
-        EntryType.SPECIES -> "species"
-        EntryType.CULTURE -> "cultures"
-        EntryType.ITEM -> "items"
-        EntryType.CUSTOM -> "custom"
-    }
+    /** Types whose folder isn't the type's name in lower case plus "s". */
+    private val TYPE_FOLDER_EXCEPTIONS = mapOf(
+        EntryType.SPECIES to "species",
+        EntryType.CUSTOM to "custom",
+    )
 
-    /** Names Windows refuses for a file or folder, whatever the extension: `con.md` can't be extracted. */
+    /**
+     * Folder per entry type, as in the ADR's example: the plural of the type's name (`CHARACTER` →
+     * `characters/`), unless [TYPE_FOLDER_EXCEPTIONS] says otherwise. A new EntryType gets a folder
+     * without a change here.
+     */
+    fun typeFolder(type: EntryType): String =
+        TYPE_FOLDER_EXCEPTIONS[type] ?: "${type.name.lowercase()}s"
+
+    /**
+     * Device names Windows refuses as a file or folder name. Every version refuses them as a folder
+     * (the zip's root folder is the project's slug); Windows 10 and earlier also refuse them with an
+     * extension (`con.md`), Windows 11 accepts those.
+     *
+     * Applied whatever the client's OS: the zip must open on any OS, because it is made on one machine
+     * and may be extracted or synced on another, and the OS a browser reports can't be relied on. On
+     * other systems the only effect is a renamed file or folder (`con` → `con-project`).
+     */
     private val WINDOWS_RESERVED = setOf("con", "prn", "aux", "nul") +
         (1..9).flatMap { listOf("com$it", "lpt$it") }
 
@@ -57,8 +65,8 @@ object ProjectFolderWriter {
      * Writes the zip to [out] as it goes, so it is never held in memory as a whole.
      *
      * @param loadMedia an entry's image, fetched only when that entry is written, so at most one image is
-     *   in memory at a time. Null when the entry has none (or it could not be read): the entry is then
-     *   written without a `thumbnail` key.
+     *   in memory at a time. Null when the entry has none: it is then written without a `thumbnail` key.
+     *   Whatever it throws stops the write.
      */
     fun write(
         out: OutputStream,

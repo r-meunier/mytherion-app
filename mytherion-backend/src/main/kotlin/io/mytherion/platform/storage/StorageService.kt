@@ -3,55 +3,42 @@ package io.mytherion.platform.storage
 import java.io.InputStream
 
 /**
- * Provider-agnostic storage service interface. Can be implemented with MinIO, S3, or any other
- * object storage provider.
+ * Provider-agnostic file storage. Can be implemented with MinIO, S3, or any other object storage
+ * provider; where files live (bucket, container, region) is the implementation's configuration, so
+ * callers never name it.
+ *
+ * A stored file is identified by its **file reference**: the opaque string [uploadFile] returns. Callers
+ * keep it (e.g. as an entry's `thumbnail`) and pass it back to read, link or delete the file.
+ *
+ * Every method throws [StorageException] when the provider fails or the reference isn't one of its own.
  */
 interface StorageService {
 
     /**
-     * Upload a file to storage
-     * @param bucketName The bucket/container name
-     * @param objectName The object key/path
+     * Store a file.
+     * @param objectKey Where to store it, e.g. `entries/<id>/<timestamp>_<name>`
      * @param inputStream The file content
-     * @param contentType The MIME type
+     * @param contentType The MIME type, kept with the file
      * @param size The file size in bytes
-     * @return The URL or key of the uploaded object
+     * @return The file reference
      */
-    fun uploadFile(
-        bucketName: String,
-        objectName: String,
-        inputStream: InputStream,
-        contentType: String,
-        size: Long
-    ): String
+    fun uploadFile(objectKey: String, inputStream: InputStream, contentType: String, size: Long): String
 
-    /**
-     * Delete a file from storage
-     * @param bucketName The bucket/container name
-     * @param objectName The object key/path
-     */
-    fun deleteFile(bucketName: String, objectName: String)
+    /** Delete a stored file. */
+    fun deleteFile(fileReference: String)
 
     /**
      * Read a stored file in full. Meant for small files, such as entry images (uploads are capped).
-     * @param bucketName The bucket/container name
-     * @param objectName The object key/path
-     * @return The file's bytes
+     * @return The file's bytes and the content type it was stored with
      */
-    fun downloadFile(bucketName: String, objectName: String): ByteArray
+    fun downloadFile(fileReference: String): StoredFile
 
-    /**
-     * Get a presigned URL for temporary access to an object
-     * @param bucketName The bucket/container name
-     * @param objectName The object key/path
-     * @param expirySeconds How long the URL should be valid (default 1 hour)
-     * @return The presigned URL
-     */
-    fun getPresignedUrl(bucketName: String, objectName: String, expirySeconds: Int = 3600): String
-
-    /**
-     * Check if a bucket exists, create it if it doesn't
-     * @param bucketName The bucket name to ensure exists
-     */
-    fun ensureBucketExists(bucketName: String)
+    /** A URL that gives temporary read access to a stored file (default 1 hour). */
+    fun getPresignedUrl(fileReference: String, expirySeconds: Int = 3600): String
 }
+
+/** A file read back from storage. [contentType] is null when the provider didn't record one. */
+class StoredFile(val bytes: ByteArray, val contentType: String?)
+
+/** A storage operation failed, or was given a reference that isn't a stored file. */
+class StorageException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)

@@ -5,8 +5,7 @@ import io.mytherion.codex.model.ContextRole
 import io.mytherion.codex.model.EntryContent
 import io.mytherion.codex.model.EntryDetail
 import io.mytherion.codex.model.EntryType
-import io.mytherion.project.model.Project
-import io.mytherion.user.model.User
+import io.mytherion.fixtures.ProjectTestFixtures
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -17,13 +16,17 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.UUID
 import java.util.zip.ZipInputStream
+import kotlin.test.assertIs
 
 class ProjectFolderWriterTest {
 
     private val objectMapper = JsonMapper.builder().build()
-    private val owner = User(username = "author", email = "author@test.dev", passwordHash = "hash")
-    private val project = Project(owner = owner, name = "The Drowned Quarter", description = "A city that sinks.", genre = "Fantasy")
-        .apply { id = UUID.fromString("0d9c0000-0000-0000-0000-000000000001") }
+    private val project = ProjectTestFixtures.createTestProject(
+        id = UUID.fromString("0d9c0000-0000-0000-0000-000000000001"),
+        name = "The Drowned Quarter",
+        description = "A city that sinks.",
+        genre = "Fantasy",
+    )
 
     private fun entry(name: String, type: EntryType = EntryType.CHARACTER, id: String = UUID.randomUUID().toString()) =
         CodexEntry(project = project, name = name, type = type).apply { this.id = UUID.fromString(id) }
@@ -43,11 +46,10 @@ class ProjectFolderWriterTest {
     }
 
     /** Splits a Markdown file into its parsed frontmatter and its body. */
-    @Suppress("UNCHECKED_CAST")
-    private fun frontmatter(markdown: String): Pair<Map<String, Any>, String> {
+    private fun frontmatter(markdown: String): Pair<Map<*, *>, String> {
         val parts = markdown.split("---\n", limit = 3)
         assertEquals("", parts[0], "the file must start with frontmatter")
-        return Yaml().load<Map<String, Any>>(parts[1]) to parts[2]
+        return assertIs<Map<*, *>>(Yaml().load(parts[1]), "the frontmatter must be a YAML map") to parts[2]
     }
 
     @Test
@@ -107,8 +109,8 @@ class ProjectFolderWriterTest {
         assertEquals(listOf("protagonist", "cartographer"), front["tags"])
         assertEquals("media/x.png", front["thumbnail"])
         assertEquals("character-basic", front["templateId"])
-        @Suppress("UNCHECKED_CAST")
-        val details = front["details"] as List<Map<String, Any>>
+        val details = assertIs<List<*>>(front["details"], "details must be a YAML list")
+            .map { assertIs<Map<*, *>>(it, "each detail must be a YAML map") }
         assertEquals(listOf("Story role", "Voice", "Pronouns"), details.map { it["label"] })
         assertEquals("IDENTITY", details[0]["role"])
         assertEquals("Clipped, dry humour.\nNever says sorry.", details[1]["value"])
@@ -170,7 +172,15 @@ class ProjectFolderWriterTest {
     }
 
     @Test
-    fun `every entry type has its own folder`() {
+    fun `a type's folder is its name in the plural, except for the listed ones`() {
+        assertEquals("characters", ProjectFolderWriter.typeFolder(EntryType.CHARACTER))
+        assertEquals("organizations", ProjectFolderWriter.typeFolder(EntryType.ORGANIZATION))
+        assertEquals("species", ProjectFolderWriter.typeFolder(EntryType.SPECIES))
+        assertEquals("custom", ProjectFolderWriter.typeFolder(EntryType.CUSTOM))
+    }
+
+    @Test
+    fun `every entry type, including ones added later, has its own folder`() {
         val folders = EntryType.entries.map { ProjectFolderWriter.typeFolder(it) }
         assertEquals(folders.size, folders.toSet().size)
     }

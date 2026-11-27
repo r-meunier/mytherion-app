@@ -17,7 +17,6 @@ export const MEDIA_CONSTRAINTS = {
 export interface UploadResponse {
   url: string;
   objectKey: string;
-  bucketName: string;
   contentType: string;
   size: number;
 }

@@ -19,6 +19,7 @@ const CODE_MAPPINGS: Partial<Record<ErrorCode, (err: ApiErrorResponse) => string
   INVALID_FILE: (err) => err.message || 'The uploaded file is empty or not an accepted image format.',
   INVALID_ENTRY_CONTENT: (err) => err.message || 'One of the details is invalid. Check the labels and try again.',
   CONCURRENT_MODIFICATION: () => 'This was changed elsewhere. Please reload and try again.',
+  EXPORT_FAILED: (err) => err.message || 'An image could not be read, so the export was stopped. Please try again.',
   INTERNAL_ERROR: () => 'Something went wrong on our end. Please try again later.',
   SERVICE_UNAVAILABLE: () => 'The service is temporarily unavailable. Please try again in a few moments.',
   VALIDATION_FAILED: (err) => {
